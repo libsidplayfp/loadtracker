@@ -2,11 +2,12 @@
 // Datafile creator
 //
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <SDL_types.h>
+
 #include "bme_end.h"
 
 #define MAXFILES 16384
@@ -14,8 +15,8 @@
 
 typedef struct
 {
-    Uint32 offset;
-    Uint32 length;
+    uint32_t offset;
+    uint32_t length;
     char name[13];
 } HEADER;
 
