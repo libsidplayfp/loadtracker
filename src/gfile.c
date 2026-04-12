@@ -117,7 +117,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
         direntry[files].name = strdup(de->d_name);
         direntry[files].attribute = 0;
         stat(de->d_name, &st);
-        if (st.st_mode & S_IFDIR)
+        if (S_ISDIR(st.st_mode))
         {
           direntry[files].attribute = 1;
           files++;
