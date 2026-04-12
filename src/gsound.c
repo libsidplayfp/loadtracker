@@ -163,7 +163,7 @@ int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsig
     #else
     char filename[80];
     sprintf(filename, "/dev/sid%d", hardsid-1);
-    hardsidfd = open(filename, O_WRONLY, S_IREAD|S_IWRITE);
+    hardsidfd = open(filename, O_WRONLY, S_IRUSR|S_IWUSR);
     if (hardsidfd >= 0)
     {
       usehardsid = hardsid;
