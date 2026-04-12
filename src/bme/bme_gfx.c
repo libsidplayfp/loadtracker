@@ -36,7 +36,6 @@ void gfx_getspriteinfo(unsigned num);
 
 int gfx_initted = 0;
 int gfx_redraw = 0;
-int gfx_fullscreen = 0;
 int gfx_scanlinemode = 0;
 int gfx_preventswitch = 0;
 unsigned gfx_virtualxsize;
@@ -94,8 +93,7 @@ int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
     if (flags & GFX_NOSWITCHING) gfx_preventswitch = 1;
         else gfx_preventswitch = 0;
 
-    if (win_fullscreen) gfx_fullscreen = 1;
-        else gfx_fullscreen = 0;
+    SDL_SetWindowFullscreen(win_window, win_fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 
     // Calculate virtual window size
 
@@ -156,6 +154,7 @@ int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
 
 int gfx_reinit(void)
 {
+    gfx_uninit();
     return gfx_init(gfx_last_xsize, gfx_last_ysize, gfx_last_framerate,
         gfx_last_flags);
 }

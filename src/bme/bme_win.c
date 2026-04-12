@@ -208,14 +208,15 @@ void win_checkmessages(void)
             keynum = event.key.keysym.scancode;
             if (keynum < SDL_NUM_SCANCODES)
             {
-                win_keytable[keynum] = 1;
-                win_keystate[keynum] = 1;
                 if ((keynum == SDL_SCANCODE_RETURN) && ((win_keystate[SDL_SCANCODE_LALT])
                     || (win_keystate[SDL_SCANCODE_RALT])))
                 {
                     win_fullscreen ^= 1;
                     gfx_reinit();
+                    break;
                 }
+                win_keytable[keynum] = 1;
+                win_keystate[keynum] = 1;
             }
             break;
 
@@ -247,7 +248,7 @@ void win_setmousemode(int mode)
         break;
 
         case MOUSE_FULLSCREEN_HIDDEN:
-        if (gfx_fullscreen)
+        if (win_fullscreen)
         {
             SDL_ShowCursor(SDL_DISABLE);
         }
