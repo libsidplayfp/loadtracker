@@ -1,4 +1,4 @@
-name: Build Snapshot Release
+name: Build for Release
 
 on:
   push:
@@ -23,11 +23,12 @@ jobs:
           git
           zip
           base-devel
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-cmake
-          mingw-w64-x86_64-sdl3
-          mingw-w64-x86_64-libresidfp
-    - uses: actions/checkout@v6)
+        pacboy: >-
+          toolchain:p
+          cmake:p
+          sdl3:p
+          libresidfp:p
+    - uses: actions/checkout@v7
       with:
         ref: ${{ github.ref }}
     - name: Get the tag name
@@ -37,14 +38,18 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G 'MSYS Makefiles' -DCMAKE_BUILD_TYPE=Release -DSTATIC=ON ..
+        cmake -G 'MSYS Makefiles' \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_STATIC=ON \
+            -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" \
+            ..
         cmake --build .
-        cp ../readme.* ../authors ../copying ../goat_tracker_commands.pdf .
-        zip gt2-unofficial_build-${{ steps.get_tag_name.outputs.tagname }}.zip *.exe readme.* authors copying goat_tracker_commands.pdf
+        cp ../readme.* ../README.* ../AUTHORS ../COPYING ../docs/goat_tracker_commands.pdf .
+        zip loadtracker-${{ steps.get_tag_name.outputs.tagname }}.zip *.exe readme.* README.md AUTHORS COPYING goat_tracker_commands.pdf
     - uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: build/gt2-unofficial_build-${{ steps.get_tag_name.outputs.tagname }}.zip
+        file: build/loadtracker-${{ steps.get_tag_name.outputs.tagname }}.zip
         tag: ${{ github.ref }}
         file_glob: true
         overwrite: true

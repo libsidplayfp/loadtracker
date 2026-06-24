@@ -1,13 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
-project(goattracker2)
+cmake_minimum_required(VERSION 3.11)
+project(loadtracker)
 
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -16,19 +12,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
     add_compile_options("$<$<CONFIG:DEBUG>:-Wall;-Wextra;-pedantic>")
 endif()
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT result OUTPUT output)
-if(result)
-    message(STATUS "IPO supported by compiler, enabled for release builds")
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
-else()
-    message(WARNING "IPO is not supported: ${output}")
-endif()
-
-option(INLINING "enable inlining of functions" ON)
-option(BRANCH_HINTS "enable static branch prediction hints" ON)
-
-set(GOATTRK2_SOURCES
+set(LOADTRK_SOURCES
     ${CMAKE_BINARY_DIR}/src/goatdata.c
     src/goattrk2.c
     src/gsong.c
@@ -69,8 +53,8 @@ set(GOATTRK2_SOURCES
     src/rtmidi/RtMidi.cpp)
 
 if(MINGW)
-    list(APPEND GOATTRK2_SOURCES
-        src/goattrk2.rc
+    list(APPEND LOADTRK_SOURCES
+        src/loadtrk.rc
     )
 endif(MINGW)
 
@@ -139,27 +123,27 @@ target_include_directories(datafile PUBLIC SDL3::Headers)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
 add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/src/goattrk2.dat
-  COMMAND datafile ${CMAKE_BINARY_DIR}/src/goattrk2.dat goattrk2.seq
+  OUTPUT ${CMAKE_BINARY_DIR}/src/loadtrk.dat
+  COMMAND datafile ${CMAKE_BINARY_DIR}/src/loadtrk.dat loadtrk.seq
   DEPENDS datafile
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   )
 
 add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/src/goatdata.c
-  COMMAND dat2inc goattrk2.dat goatdata.c
-  DEPENDS dat2inc ${CMAKE_BINARY_DIR}/src/goattrk2.dat
+  COMMAND dat2inc loadtrk.dat goatdata.c
+  DEPENDS dat2inc ${CMAKE_BINARY_DIR}/src/loadtrk.dat
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src
   )
 
-add_executable(goattrk2 ${GOATTRK2_SOURCES})
+add_executable(loadtrk ${LOADTRK_SOURCES})
 add_executable(gt2reloc ${GT2RELOC_SOURCES})
 add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
 add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.c)
-add_dependencies(goattrk2 goatdata)
+add_dependencies(loadtrk goatdata)
 add_dependencies(gt2reloc goatdata)
 
 target_include_directories(mod2sng PUBLIC SDL3::Headers)
@@ -170,29 +154,29 @@ if(MINGW)
     set(LIB_MINGW mingw32)
 endif()
 
-OPTION(STATIC "Static build" OFF)
-IF(STATIC)
+OPTION(BUILD_STATIC "Static build" OFF)
+IF(BUILD_STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
-    target_link_libraries(goattrk2 PRIVATE SDL3::SDL3-static)
-    target_link_libraries(gt2reloc PRIVATE SDL3::SDL3-static)
+    target_link_libraries(loadtrk SDL3::SDL3-static)
+    target_link_libraries(gt2reloc SDL3::SDL3-static)
 ELSE()
-    target_link_libraries(goattrk2 SDL3::SDL3)
+    target_link_libraries(loadtrk SDL3::SDL3)
     target_link_libraries(gt2reloc SDL3::SDL3)
 ENDIF()
 
 find_package(Jack)
 IF(JACK_FOUND)
-    target_compile_definitions(goattrk2 PUBLIC USE_JACK __UNIX_JACK__)
+    target_compile_definitions(loadtrk PUBLIC USE_JACK __UNIX_JACK__)
     include_directories(${JACK_INCLUDE_DIR})
-    target_link_libraries(goattrk2 ${JACK_LIBRARY})
+    target_link_libraries(loadtrk ${JACK_LIBRARY})
     set(use_midi ON)
 ENDIF(JACK_FOUND)
 
 find_package(ALSA)
 if (ALSA_FOUND)
-    target_compile_definitions(goattrk2 PUBLIC __LINUX_ALSA__)
+    target_compile_definitions(loadtrk PUBLIC __LINUX_ALSA__)
     include_directories(${ALSA_INCLUDE_DIR})
-    target_link_libraries(goattrk2 ${ALSA_LIBRARY} pthread)
+    target_link_libraries(loadtrk ${ALSA_LIBRARY} pthread)
     set(use_midi ON)
 endif(ALSA_FOUND)
 
@@ -200,31 +184,61 @@ if(APPLE)
     find_library(COREMIDI CoreMIDI)
     find_library(COREAUDIO CoreAudio)
     find_library(COREFOUNDATION CoreFoundation)
-    target_compile_definitions(goattrk2 PUBLIC __MACOSX_CORE__)
-    target_link_libraries(goattrk2 ${COREMIDI} ${COREAUDIO} ${COREFOUNDATION} pthread)
+    target_compile_definitions(loadtrk PUBLIC __MACOSX_CORE__)
+    target_link_libraries(loadtrk ${COREMIDI} ${COREAUDIO} ${COREFOUNDATION} pthread)
     set(use_midi ON)
 endif(APPLE)
 
 if(WIN32 OR MINGW)
-    target_compile_definitions(goattrk2 PUBLIC __WINDOWS_MM__)
-    target_link_libraries(goattrk2 winmm)
+    target_compile_definitions(loadtrk PUBLIC __WINDOWS_MM__)
+    target_link_libraries(loadtrk winmm)
     set(use_midi ON)
 endif()
 
 if (use_midi)
-    target_compile_definitions(goattrk2 PUBLIC USE_MIDI_INPUT)
+    target_compile_definitions(loadtrk PUBLIC USE_MIDI_INPUT)
 endif()
 
-find_package(ExSID)
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(EXSID IMPORTED_TARGET libexsid>=2.0)
 if (EXSID_FOUND)
-    target_compile_definitions(goattrk2 PUBLIC USE_EXSID)
-    include_directories(${EXSID_INCLUDE_DIR})
-    target_link_libraries(goattrk2 ${EXSID_LIBRARY})
+    target_compile_definitions(loadtrk PUBLIC USE_EXSID)
+    target_link_libraries(loadtrk PkgConfig::EXSID)
 endif()
 
-find_package(Residfp REQUIRED)
-if (Residfp_FOUND)
-    include_directories(${RESIDFP_INCLUDE_DIR})
-    target_link_libraries(goattrk2 ${RESIDFP_LIBRARY})
-    target_link_libraries(gt2reloc ${RESIDFP_LIBRARY})
+
+pkg_check_modules(RESIDFP REQUIRED IMPORTED_TARGET libresidfp>=0.1)
+if(BUILD_STATIC)
+    target_link_libraries(loadtrk PkgConfig::RESIDFP-static)
+    target_link_libraries(gt2reloc PkgConfig::RESIDFP-static)
+else()
+    target_link_libraries(loadtrk PkgConfig::RESIDFP)
+    target_link_libraries(gt2reloc PkgConfig::RESIDFP)
 endif()
+
+##################################################################
+# Check for LTO
+
+OPTION(LTO "Enable link time optimization" ON)
+if(LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT have_lto OUTPUT output LANGUAGES CXX)
+
+    if (have_lto)
+        message(STATUS "LTO enabled")
+        set_property(TARGET loadtrk
+             PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(WARNING "LTO is not supported: ${output}")
+    endif()
+endif()
+
+#####################################################
+
+include(GNUInstallDirs)
+
+INSTALL(TARGETS loadtrk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(FILES loadtrk.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+INSTALL(FILES loadtrk.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons)
+INSTALL(DIRECTORY examples DESTINATION ${CMAKE_INSTALL_DATADIR}/loadtrk FILES_MATCHING REGEX ".*\.(sng|ins)")

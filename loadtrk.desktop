@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=LoadTracker
+Comment=Audio tracker
+
+TryExec=loadtrk
+Exec=loadtrk %f
+Icon=loadtrk
+
+StartupNotify=false
+Type=Application
+Categories=Audio;AudioVideo;

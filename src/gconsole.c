@@ -62,7 +62,7 @@ int initscreen(void)
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     return 0;
-  win_openwindow(xsize, ysize, "GoatTracker", NULL);
+  win_openwindow(xsize, ysize, "LoadTracker", NULL);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
 
@@ -140,7 +140,7 @@ void loadexternalpalette(void)
 
 void initicon(void)
 {
-  int handle = io_open("goattrk2.bmp");
+  int handle = io_open("loadtrk.bmp");
   if (handle != -1)
   {
     SDL_IOStream *rw;

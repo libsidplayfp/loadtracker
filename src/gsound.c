@@ -56,7 +56,7 @@ int dll_initialized = FALSE;
 // Cycle-exact HardSID support
 int cycleexacthardsid = FALSE;
 SDL_Thread* playerthread = NULL;
-SDL_mutex* flushmutex = NULL;
+SDL_Mutex* flushmutex = NULL;
 volatile int runplayerthread = FALSE;
 volatile int flushplayerthread = FALSE;
 volatile int suspendplayroutine = FALSE;

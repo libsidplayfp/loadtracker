@@ -1,5 +1,5 @@
 //
-// GOATTRACKER v2.77
+// LOADTRACKER v1.0
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 
 extern char *notename[];
-char *programname = "$VER: GoatTracker v2.77";
+char *programname = "$VER: LoadTracker v1.0";
 char specialnotenames[186];
 char scalatuningfilepath[MAX_PATHNAME];
 char tuningname[64];
@@ -100,7 +100,7 @@ extern unsigned char datafile[];
 COLORS colors;
 
 char* usage[] = {
-    "Usage: goattrk2 [songname] [options]",
+    "Usage: loadtrk [songname] [options]",
     "Options:",
     "-Axx Set ADSR parameter for hardrestart in hex. DEFAULT=0F00",
     "-Cxx Use CatWeasel MK3 PCI SID (0 = off, 1 = on)",
@@ -157,18 +157,18 @@ int main(int argc, char **argv)
   filename[strlen(filename)-2] = 'f';
   filename[strlen(filename)-1] = 'g';
   #elif __amigaos__
-  strcpy(filename, "PROGDIR:goattrk2.cfg");
+  strcpy(filename, "PROGDIR:loadtrk.cfg");
   #else
   char* xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
   {
     strcpy(filename, xdg_home);
-    strcat(filename, "/goattrk/goattrk2.cfg");
+    strcat(filename, "/loadtrk/loadtrk.cfg");
   }
   else
   {
     strcpy(filename, getenv("HOME"));
-    strcat(filename, "/.config/goattrk/goattrk2.cfg");
+    strcat(filename, "/.config/loadtrk/loadtrk.cfg");
   }
   #endif
   specialnotenames[0] = 0;
@@ -177,7 +177,6 @@ int main(int argc, char **argv)
   unsigned dummy; // for compatibility
   if (configfile)
   {
-    getparam(configfile, &dummy); // was buffer size
     getparam(configfile, &mr);
     getparam(configfile, &hardsid);
     getparam(configfile, &sidmodel);
@@ -471,32 +470,31 @@ int main(int argc, char **argv)
   // Save configuration
   #ifndef __WIN32__
   #ifdef __amigaos__
-  strcpy(filename, "PROGDIR:goattrk2.cfg");
+  strcpy(filename, "PROGDIR:loadtrk.cfg");
   #else
   xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
   {
     strcpy(filename, xdg_home);
-    strcat(filename, "/goattrk");
+    strcat(filename, "/loadtrk");
   }
   else
   {
     strcpy(filename, getenv("HOME"));
-    strcat(filename, "/.config/goattrk");
+    strcat(filename, "/.config/loadtrk");
   }
   mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
-  strcat(filename, "/goattrk2.cfg");
+  strcat(filename, "/loadtrk.cfg");
   #endif
   #endif
   configfile = fopen(filename, "wt");
   if (configfile)
   {
     fprintf(configfile, ";------------------------------------------------------------------------------\n"
-                        ";GT2 config file. Rows starting with ; are comments. Hexadecimal parameters are\n"
+                        ";LT config file. Rows starting with ; are comments. Hexadecimal parameters are \n"
                         ";to be preceded with $ and decimal parameters with nothing.                    \n"
                         ";------------------------------------------------------------------------------\n"
                         "\n"
-                        ";reSIDfp buffer length (in milliseconds)\n%d\n\n"
                         ";reSIDfp mixing rate (in Hz)\n%d\n\n"
                         ";Hardsid device number (0 = off)\n%d\n\n"
                         ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"

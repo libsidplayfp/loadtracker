@@ -55,10 +55,37 @@ jobs:
           cd libresidfp*/.
           ./configure --disable-dependency-tracking
           make && sudo make install
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Build
         run: |
           mkdir build
           cd build
           cmake -G ${{ matrix.generator }} ..
           cmake --build .
+
+  build-mingw:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        install: >-
+          git
+          base-devel
+        pacboy: >-
+          toolchain:p
+          cmake:p
+          sdl3:p
+          libresidfp:p
+    - uses: actions/checkout@v7
+    - name: build
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
