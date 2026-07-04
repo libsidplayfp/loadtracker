@@ -71,7 +71,7 @@ TRANS           = $f0
 TRANSUP         = $f0
 LOOPSONG        = $ff
 
-        ;Wave,pulse,filttable comands
+        ;Wave,pulse,filttable commands
 
 LOOPWAVE        = $ff
 LOOPPULSE       = $ff

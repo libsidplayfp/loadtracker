@@ -54,7 +54,7 @@ int main(int argc, char **argv)
            "Splits patterns of the song into smaller patterns with [length] rows,\n"
            "searching for possible duplicates and probably making the song take less\n"
            "memory. For safety reasons source & destination cannot be same, because\n"
-           "a splitted song is harder to edit. Always keep the original!\n\n"
+           "a split song is harder to edit. Always keep the original!\n\n"
            "Default length is 16.\n");
     return EXIT_FAILURE;
   }
