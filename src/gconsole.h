@@ -1,10 +1,33 @@
 #ifndef GCONSOLE_H
 #define GCONSOLE_H
 
-#define MAX_COLUMNS 100
-#define MAX_ROWS 37
+#define MAX_COLUMNS 128
+#define MAX_ROWS 40
 #define HOLDDELAY 24
 #define DOUBLECLICKDELAY 15
+
+typedef struct
+{
+    int channelsX;
+    int channelsY;
+    int instrumentsX;
+    int instrumentsY;
+    int loadboxX;
+    int loadboxY;
+    int octaveX;
+    int octaveY;
+    int orderlistX;
+    int orderlistY;
+    int patternsX;
+    int patternsY;
+    int statusBottomX;
+    int statusBottomY;
+    int statusTopEndX;
+    int statusTopFvX;
+    int statusTopX;
+    int statusTopY;
+} POSITIONS;
+
 
 int initscreen(void);
 void closescreen(void);
@@ -25,6 +48,7 @@ extern int mouseb, prevmouseb;
 extern int mouseheld;
 extern int mousex, mousey;
 extern unsigned bigwindow;
+extern POSITIONS dpos;
 #endif
 
 #endif

@@ -412,11 +412,11 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     if (isplaying()) printstatus();
     for (c = 0; c < VISIBLEFILES+7; c++)
     {
-      printblank(50-(MAX_FILENAME+10)/2, 3+c, MAX_FILENAME+10);
+      printblank(dpos.loadboxX-(MAX_FILENAME+10)/2, dpos.loadboxY+c, MAX_FILENAME+10);
     }
-    drawbox(50-(MAX_FILENAME+10)/2, 3, 15, MAX_FILENAME+10, VISIBLEFILES+7);
-    printblankc(50-(MAX_FILENAME+10)/2+1, 4, colors.CHEADER, MAX_FILENAME+8);
-    printtext(50-(MAX_FILENAME+10)/2+1, 4, colors.CHEADER, title);
+    drawbox(dpos.loadboxX-(MAX_FILENAME+10)/2, dpos.loadboxY, 15, MAX_FILENAME+10, VISIBLEFILES+7);
+    printblankc(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+1, colors.CHEADER, MAX_FILENAME+8);
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+1, colors.CHEADER, title);
 
     for (c = 0; c < VISIBLEFILES; c++)
     {
@@ -444,30 +444,30 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       color = colors.CNORMAL;
       if ((fileview+c) == filepos) color = colors.CEDIT;
       textbuffer[68] = 0;
-      printtext(50-(MAX_FILENAME+10)/2+1, 5+c, color, textbuffer);
-      if ((!filemode) && ((fileview+c) == filepos)) printbg(50-(MAX_FILENAME+10)/2+1, 5+c, cc, 68);
+      printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+2+c, color, textbuffer);
+      if ((!filemode) && ((fileview+c) == filepos)) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+2+c, cc, 68);
     }
 
-    printtext(50-(MAX_FILENAME+10)/2+1, 6+VISIBLEFILES, 15, "PATH:   ");
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+3+VISIBLEFILES, 15, "PATH:   ");
     sprintf(textbuffer, "%-60s", path);
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 1) ? colors.CEDIT : colors.CNORMAL;
-    printtext(50-(MAX_FILENAME+10)/2+9, 6+VISIBLEFILES, color, textbuffer);
-    if ((filemode == 1) && (strlen(path) < MAX_FILENAME)) printbg(50-(MAX_FILENAME+10)/2+9+strlen(path), 6+VISIBLEFILES, cc, 1);
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+3+VISIBLEFILES, color, textbuffer);
+    if ((filemode == 1) && (strlen(path) < MAX_FILENAME)) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(path), dpos.loadboxY+3+VISIBLEFILES, cc, 1);
 
-    printtext(50-(MAX_FILENAME+10)/2+1, 7+VISIBLEFILES, 15, "FILTER: ");
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+4+VISIBLEFILES, 15, "FILTER: ");
     sprintf(textbuffer, "%-60s", filter);
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 2) ? colors.CEDIT : colors.CNORMAL;
-    printtext(50-(MAX_FILENAME+10)/2+9, 7+VISIBLEFILES, color, textbuffer);
-    if (filemode == 2) printbg(50-(MAX_FILENAME+10)/2+9+strlen(filter), 7+VISIBLEFILES, cc, 1);
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+4+VISIBLEFILES, color, textbuffer);
+    if (filemode == 2) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(filter), dpos.loadboxY+4+VISIBLEFILES, cc, 1);
 
-    printtext(50-(MAX_FILENAME+10)/2+1, 8+VISIBLEFILES, 15, "NAME:   ");
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+5+VISIBLEFILES, 15, "NAME:   ");
     sprintf(textbuffer, "%-60s", name);
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 3) ? colors.CEDIT : colors.CNORMAL;
-    printtext(50-(MAX_FILENAME+10)/2+9, 8+VISIBLEFILES, color, textbuffer);
-    if (filemode == 3) printbg(50-(MAX_FILENAME+10)/2+9+strlen(name), 8+VISIBLEFILES, cc, 1);
+    printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+5+VISIBLEFILES, color, textbuffer);
+    if (filemode == 3) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(name), dpos.loadboxY+5+VISIBLEFILES, cc, 1);
 
     if (win_quitted) exitfilesel = 0;
 

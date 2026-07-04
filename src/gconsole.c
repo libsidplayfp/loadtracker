@@ -33,6 +33,28 @@ int mousesizex = 11;
 int mousesizey = 20;
 unsigned bigwindow = 1;
 
+POSITIONS dpos =
+{
+    MAX_COLUMNS-21,             // channelsX
+    MAX_ROWS-2,                 // channelsY
+    80,                         // instrumentsX
+    10,                         // instrumentsY
+    64,                         // loadboxX
+    2,                          // loadboxY
+    1,                          // octaveX
+    MAX_ROWS-2,                 // octaveY
+    54,                         // orderlistX
+    2,                          // orderlistY
+    14,                         // patternsX
+    2,                          // patternsY
+    ((MAX_COLUMNS/2) - 30),     // statusBottomX
+    MAX_ROWS-2,                 // statusBottomY
+    MAX_COLUMNS-1,              // statusTopEndX
+    80,                         // statusTopFvX
+    0,                          // statusTopX
+    0                           // statusTopY
+};
+
 void loadexternalpalette(void);
 void initicon(void);
 
@@ -51,6 +73,8 @@ int initscreen(void)
   int handle;
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
+
+  printf("xsize: %d, ysize: %d", xsize, ysize);
 
   if (bigwindow > 1)
   {

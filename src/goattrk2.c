@@ -683,7 +683,9 @@ void mousecommands(void)
   // Pattern editpos & pattern number selection
   for (c = 0; c < MAX_CHN; c++)
   {
-    if ((mousey == 2) && (mousex >= 13 + c*15) && (mousex <= 14 + c*15))
+    if ((mousey == dpos.patternsY) &&
+            (mousex >= dpos.patternsX + 11 + c*13) &&
+            (mousex <= dpos.patternsX + 12 + c*13))
     {
         if ((!prevmouseb) || (mouseheld > HOLDDELAY))
         {
@@ -701,10 +703,13 @@ void mousecommands(void)
     }
     else
     {
-      if ((mousey >= 2) && (mousey <= 34) && (mousex >= 6 + c*15) && (mousex <= 14 + c*15))
+      if ((mousey >= dpos.patternsY) &&
+                (mousey <= dpos.statusBottomY - 1) &&
+                (mousex >= dpos.patternsX + 3 + c*13) &&
+                (mousex <= dpos.patternsX + 12 + c*13))
       {
-        int x = mousex-6-c*15;
-        int newpos = mousey-3+epview;
+        int x = mousex-(dpos.patternsX + 3)-c*13;
+        int newpos = mousey-(dpos.patternsY+1)+epview;
         if (newpos < 0) newpos = 0;
         if (newpos > pattlen[epnum[epchn]]) newpos = pattlen[epnum[epchn]];
 
@@ -735,8 +740,8 @@ void mousecommands(void)
         {
             if (mouseb & MOUSEB_LEFT)
             {
-            if (mousey == 2) eppos--;
-            if (mousey == 34) eppos++;
+            if (mousey == dpos.patternsY) eppos--;
+            if (mousey == dpos.statusBottomY - 1) eppos++;
           }
         }
         if (eppos < 0) eppos = 0;
@@ -748,10 +753,12 @@ void mousecommands(void)
   }
 
   // Song editpos & songnumber selection
-  if ((mousey >= 3) && (mousey <= 8) && (mousex >= 40+10))
+  if ((mousey >= dpos.orderlistY) &&
+        (mousey <= dpos.orderlistY + MAX_CHN + 2) &&
+        (mousex >= dpos.orderlistX))
   {
-    int newpos = esview + (mousex-44-10) / 3;
-    int newcolumn = (mousex-44-10) % 3;
+    int newpos = esview + (mousex-(dpos.orderlistX+4)) / 3;
+        int newcolumn = (mousex-(dpos.orderlistX+4)) % 3;
     int newchn = mousey - 3;
     if (newcolumn < 0) newcolumn = 0;
     if (newcolumn > 1) newcolumn = 1;
@@ -791,31 +798,43 @@ void mousecommands(void)
 
     if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (newpos < songlen[esnum][eschn])) esmarkend = newpos;
   }
-  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) && (mousey == 2) && (mousex >= 63+10) && (mousex <= 64+10))
+  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
+        (mousey == dpos.orderlistY) &&
+        (mousex >= dpos.orderlistX+23) && (mousex <= dpos.orderlistX+24))
   {
     if (mouseb & MOUSEB_LEFT) nextsong();
     if (mouseb & MOUSEB_RIGHT) prevsong();
   }
 
   // Instrument editpos & instrument number selection
-  if ((mousey >= 8) && (mousey <= 12) && (mousex >= 56+10) && (mousex <= 57+10))
+  if ((mousey >= dpos.instrumentsY+1) &&
+        (mousey <= dpos.instrumentsY+5) &&
+        (mousex >= (dpos.instrumentsX+16)) &&
+        (mousex <= (dpos.instrumentsX+17)))
   {
     editmode = EDIT_INSTRUMENT;
-    eipos = mousey-8;
-    eicolumn = mousex-56-10;
+    eipos = mousey-(dpos.instrumentsY+1);
+    eicolumn = mousex-(dpos.instrumentsX+16);
   }
-  if ((mousey >= 8) && (mousey <= 11) && (mousex >= 76+10) && (mousex <= 77+10))
+  if ((mousey >= dpos.instrumentsY+1) &&
+        (mousey <= dpos.instrumentsY+4) &&
+        (mousex >= dpos.instrumentsX+36) &&
+        (mousex <= dpos.instrumentsX+37))
   {
     editmode = EDIT_INSTRUMENT;
-    eipos = mousey-8+5;
-    eicolumn = mousex-76-10;
+    eipos = mousey-(dpos.instrumentsY+1)+5;
+    eicolumn = mousex-(dpos.instrumentsX+36);
   }
-  if ((mousey == 7) && (mousex >= 60+10))
+  if ((mousey == dpos.instrumentsY) &&
+        (mousex >= dpos.instrumentsX+20))
   {
     editmode = EDIT_INSTRUMENT;
     eipos = 9;
   }
-  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) && (mousey == 7) && (mousex >= 56+10) && (mousex <= 57+10))
+  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
+        (mousey == dpos.instrumentsY) &&
+        (mousex >= dpos.instrumentsX+16) &&
+        (mousex <= dpos.instrumentsX+17))
   {
     if (mouseb & MOUSEB_LEFT) nextinstr();
     if (mouseb & MOUSEB_RIGHT) previnstr();
@@ -825,9 +844,12 @@ void mousecommands(void)
   // Table editpos
   for (c = 0; c < MAX_TABLES; c++)
   {
-    if ((mousey >= 14) && (mousey <= 30) && (mousex >= 43+10+c*10) && (mousex <= 47+10+c*10))
+    if ((mousey >= dpos.instrumentsY+7) &&
+            (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS-1) &&
+            (mousex >= dpos.instrumentsX+3+c*10) &&
+            (mousex <= dpos.instrumentsX+7+10+c*10))
     {
-      int newpos = mousey-15+etview[etnum];
+      int newpos = mousey-(dpos.instrumentsY+7)+etview[etnum];
       if (newpos < 0) newpos = 0;
       if (newpos >= MAX_TABLELEN) newpos = MAX_TABLELEN-1;
 
@@ -844,8 +866,8 @@ void mousecommands(void)
       if (mouseb & MOUSEB_LEFT)
       {
         etnum = c;
-        etpos = mousey-15+etview[etnum];
-        etcolumn = mousex-43-10-c*10;
+        etpos = mousey-(dpos.instrumentsY+8)+etview[etnum];
+        etcolumn = mousex-(dpos.instrumentsX+3)-c*10;
       }
       if (etcolumn >= 2) etcolumn--;
       if (etpos < 0) etpos = 0;
@@ -856,60 +878,72 @@ void mousecommands(void)
   }
 
   // Name editpos
-  if ((mousey >= 31) && (mousey <= 33) && (mousex >= 49+10))
+  if ((mousey >= dpos.instrumentsY+8+VISIBLETABLEROWS+1) &&
+        (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS+3) &&
+        (mousex >= dpos.instrumentsX+9))
   {
     editmode = EDIT_NAMES;
-    enpos = mousey - 31;
+    enpos = mousey - (dpos.instrumentsY+8+VISIBLETABLEROWS+1);
   }
 
   // Status panel
-  if ((!prevmouseb) && (mousex == 7) && (mousey == 23+3+9))
+  if ((!prevmouseb) &&
+        (mousex == dpos.octaveX+7) &&
+        (mousey == dpos.octaveY))
   {
     if (mouseb & (MOUSEB_LEFT))
       if (epoctave < 7) epoctave++;
     if (mouseb & (MOUSEB_RIGHT))
       if (epoctave > 0) epoctave--;
   }
-  if ((!prevmouseb) && (mousex <= 7) && (mousey == 24+3+9))
+  if ((!prevmouseb) && (mousex <= dpos.octaveX+7) && (mousey == dpos.octaveY+1))
   {
     recordmode ^= 1;
   }
   for (c = 0; c < MAX_CHN; c++)
   {
-    if ((!prevmouseb) && (mousey >= 23+3+9) && (mousex >= 80 + 7*c) && (mousex <= 85 + 7*c))
+    if ((!prevmouseb) &&
+            (mousey >= dpos.channelsY) &&
+            (mousex >= dpos.channelsX + 7*c) &&
+            (mousex <= dpos.channelsX+5 + 7*c))
       mutechannel(c);
   }
 
   // Titlebar actions
   if (!menu)
   {
-    if ((mousey == 0) && (!prevmouseb) && (mouseb == MOUSEB_LEFT))
+    if ((mousey == dpos.statusTopY) && (!prevmouseb) && (mouseb == MOUSEB_LEFT))
     {
-      if ((mousex >= 40+10) && (mousex <= 41+10))
+      if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
       {
         usefinevib ^= 1;
       }
-      if ((mousex >= 43+10) && (mousex <= 44+10))
+      if ((mousex >= dpos.statusTopFvX+3) && (mousex <= dpos.statusTopFvX+4))
       {
         optimizepulse ^= 1;
       }
-      if ((mousex >= 46+10) && (mousex <= 47+10))
+      if ((mousex >= dpos.statusTopFvX+6) && (mousex <= dpos.statusTopFvX+7))
       {
         optimizerealtime ^= 1;
       }
-      if ((mousex >= 49+10) && (mousex <= 52+10))
+      if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         ntsc ^= 1;
         sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
-      if ((mousex >= 54+10) && (mousex <= 57+10))
+      if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
       {
         sidmodel ^= 1;
         sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
-      if ((mousex >= 62+10) && (mousex <= 65+10)) editadsr();
-      if ((mousex >= 67+10) && (mousex <= 68+10)) prevmultiplier();
-      if ((mousex >= 69+10) && (mousex <= 70+10)) nextmultiplier();
+      if ((mousex >= dpos.statusTopFvX+22) &&
+          (mousex <= dpos.statusTopFvX+25)) editadsr();
+      if ((mousex >= dpos.statusTopFvX+27) &&
+          (mousex <= dpos.statusTopFvX+28)) prevmultiplier();
+      if ((mousex >= dpos.statusTopFvX+29) &&
+          (mousex <= dpos.statusTopFvX+30)) nextmultiplier();
+      if ((mousex >= dpos.statusTopEndX-8) &&
+          (mousex <= dpos.statusTopEndX-1)) onlinehelp(0,0);
     }
   }
   else
@@ -1224,9 +1258,9 @@ void quit(void)
 {
   if ((!shiftpressed) || (mouseb))
   {
-    printtextcp(49, 36, 15, "Really Quit (y/n)?");
+    printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Really Quit (y/n)?");
     waitkey();
-    printblank(20, 36, 58);
+    printblank(20, 39, 58);
     if ((key == 'y') || (key == 'Y')) exitprogram = 1;
   }
   key = 0;
@@ -1241,9 +1275,9 @@ void clear(void)
   int ct = 0;
   int cn = 0;
 
-  printtextcp(49, 36, 15, "Optimize everything (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Optimize everything (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y'))
   {
     optimizeeverything(1, 1);
@@ -1252,29 +1286,29 @@ void clear(void)
     return;
   }
 
-  printtextcp(49, 36, 15, "Clear orderlists (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear orderlists (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y')) cs = 1;
 
-  printtextcp(49, 36, 15, "Clear patterns (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear patterns (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y')) cp = 1;
 
-  printtextcp(49, 36, 15, "Clear instruments (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear instruments (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y')) ci = 1;
 
-  printtextcp(49, 36, 15, "Clear tables (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear tables (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y')) ct = 1;
 
-  printtextcp(49, 36, 15, "Clear songname (y/n)?");
+  printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear songname (y/n)?");
   waitkey();
-  printblank(20, 36, 58);
+  printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y')) cn = 1;
 
   if (cp == 1)
@@ -1282,11 +1316,18 @@ void clear(void)
     int selectdone = 0;
     int olddpl = defaultpatternlength;
 
-    printtext(40, 36, 15,"Pattern length:");
+    printtext(dpos.statusBottomX+20, dpos.statusBottomY, 15,"Pattern length:");
     while (!selectdone)
     {
-      sprintf(textbuffer, "%02d ", defaultpatternlength);
-      printtext(55, 36, 15, textbuffer);
+        if (patterndispmode)
+        {
+            sprintf(textbuffer, "%02X ", defaultpatternlength);
+        }
+        else
+        {
+            sprintf(textbuffer, "%02d ", defaultpatternlength);
+        }
+        printtext(dpos.statusBottomX+35, dpos.statusBottomY, 15, textbuffer);
       waitkey();
       switch(rawkey)
       {
@@ -1316,7 +1357,7 @@ void clear(void)
         break;
       }
     }
-    printblank(20, 36, 58);
+    printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   }
 
   if (cs | cp | ci | ct | cn)

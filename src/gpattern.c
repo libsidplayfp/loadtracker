@@ -120,7 +120,7 @@ void patterncommands(void)
           }
         }
         break;
-        
+
         case KEY_JANKO:
         for (i = 0; i < sizeof(jankokeytbl1); i++)
         {
