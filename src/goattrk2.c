@@ -59,13 +59,9 @@ unsigned customclockrate = 0;
 unsigned usefinevib = 0;
 unsigned mr = DEFAULTMIXRATE;
 unsigned writer = 0;
-unsigned hardsid = 0;
-unsigned catweasel = 0;
 unsigned exsid = 0;
 unsigned interpolate = 1;
 unsigned residdelay = 0;
-unsigned hardsidbufinteractive = 20;
-unsigned hardsidbufplayback = 400;
 unsigned combwaves = 1;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
@@ -103,12 +99,10 @@ char* usage[] = {
     "Usage: loadtrk [songname] [options]",
     "Options:",
     "-Axx Set ADSR parameter for hardrestart in hex. DEFAULT=0F00",
-    "-Cxx Use CatWeasel MK3 PCI SID (0 = off, 1 = on)",
     "-Dxx Pattern row display (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots) DEFAULT=2",
     "-Exx Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=8580",
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
     "-Gxx Set pitch of A-4 in Hz (0 = use default frequency table, close to 440Hz)",
-    "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
     "-Ixx Set reSIDfp resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
     "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
@@ -118,8 +112,6 @@ char* usage[] = {
     "-Qxx Set equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)",
     "-Rxx Set realtime-effect optimization/skipping (0 = off, 1 = on) DEFAULT=on",
     "-Sxx Set speed multiplier (0 for 25Hz, 1 for 1x, 2 for 2x etc.)",
-    "-Txx Set HardSID interactive mode sound buffer length in milliseconds DEFAULT=20, max.buffering=0",
-    "-Uxx Set HardSID playback mode sound buffer length in milliseconds DEFAULT=400, max.buffering=0",
     "-Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on",
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
@@ -173,11 +165,9 @@ int main(int argc, char **argv)
   specialnotenames[0] = 0;
   scalatuningfilepath[0] = 0;
   configfile = fopen(filename, "rt");
-  unsigned dummy; // for compatibility
   if (configfile)
   {
     getparam(configfile, &mr);
-    getparam(configfile, &hardsid);
     getparam(configfile, &sidmodel);
     getparam(configfile, &ntsc);
     getparam(configfile, (unsigned *)&fileformat);
@@ -187,7 +177,6 @@ int main(int argc, char **argv)
     getparam(configfile, &keypreset);
     getparam(configfile, (unsigned *)&stepsize);
     getparam(configfile, &multiplier);
-    getparam(configfile, &catweasel);
     getparam(configfile, &adparam);
     getparam(configfile, &interpolate);
     getparam(configfile, &patterndispmode);
@@ -197,8 +186,6 @@ int main(int argc, char **argv)
     getparam(configfile, &optimizerealtime);
     getparam(configfile, &residdelay);
     getparam(configfile, &customclockrate);
-    getparam(configfile, &hardsidbufinteractive);
-    getparam(configfile, &hardsidbufplayback);
     getparam(configfile, (unsigned*)&win_fullscreen);
     getparam(configfile, &combwaves);
     getfloatparam(configfile, &basepitch);
@@ -312,20 +299,8 @@ int main(int argc, char **argv)
         sscanf(&argv[c][2], "%u", &optimizerealtime);
         break;
 
-        case 'H':
-        sscanf(&argv[c][2], "%u", &hardsid);
-        break;
-
         case 'V':
         sscanf(&argv[c][2], "%u", &finevibrato);
-        break;
-
-        case 'T':
-        sscanf(&argv[c][2], "%u", &hardsidbufinteractive);
-        break;
-
-        case 'U':
-        sscanf(&argv[c][2], "%u", &hardsidbufplayback);
         break;
 
         case 'W':
@@ -334,10 +309,6 @@ int main(int argc, char **argv)
 
         case 'X':
         sscanf(&argv[c][2], "%d", &win_fullscreen);
-        break;
-
-        case 'C':
-        sscanf(&argv[c][2], "%u", &catweasel);
         break;
 
         case 'G':
@@ -439,7 +410,7 @@ int main(int argc, char **argv)
   clearsong(1,1,1,1,1);
 
   // Init sound
-  if (!sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves))
+  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -483,12 +454,11 @@ int main(int argc, char **argv)
   if (configfile)
   {
     fprintf(configfile, ";------------------------------------------------------------------------------\n"
-                        ";LT config file. Rows starting with ; are comments. Hexadecimal parameters are \n"
-                        ";to be preceded with $ and decimal parameters with nothing.                    \n"
+                        ";LoadTracker config file. Rows starting with ; are comments.                   \n"
+                        ";Hex parameters are to be preceded with $ and decimal parameters with nothing. \n"
                         ";------------------------------------------------------------------------------\n"
                         "\n"
                         ";reSIDfp mixing rate (in Hz)\n%d\n\n"
-                        ";Hardsid device number (0 = off)\n%d\n\n"
                         ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
                         ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
                         ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
@@ -498,7 +468,6 @@ int main(int argc, char **argv)
                         ";Key entry mode (0 = Protracker, 1 = DMC, 2 = Janko)\n%d\n\n"
                         ";Pattern highlight step size\n%d\n\n"
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
-                        ";Use CatWeasel SID (0 = off, 1 = on)\n%d\n\n"
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
                         ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
@@ -508,8 +477,6 @@ int main(int argc, char **argv)
                         ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
                         ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
                         ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
-                        ";HardSID interactive mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
-                        ";HardSID playback mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
                         ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
                         ";window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window)\n%d\n\n"
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
@@ -520,7 +487,6 @@ int main(int argc, char **argv)
                         ";Path to a Scala tuning file .scl\n%s\n\n"
                         ";Use exSID (0 = off, 1 = on)\n%d\n\n",
     mr,
-    hardsid,
     sidmodel,
     ntsc,
     fileformat,
@@ -530,7 +496,6 @@ int main(int argc, char **argv)
     keypreset,
     stepsize,
     multiplier,
-    catweasel,
     adparam,
     interpolate,
     patterndispmode,
@@ -540,8 +505,6 @@ int main(int argc, char **argv)
     optimizerealtime,
     residdelay,
     customclockrate,
-    hardsidbufinteractive,
-    hardsidbufplayback,
     win_fullscreen,
     basepitch,
     filterbias,
@@ -920,12 +883,12 @@ void mousecommands(void)
       if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         ntsc ^= 1;
-        sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
       {
         sidmodel ^= 1;
-        sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+22) &&
           (mousex <= dpos.statusTopFvX+25)) editadsr();
@@ -1150,7 +1113,7 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init( mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
+      sound_init( mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
     }
     break;
 
@@ -1525,7 +1488,7 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
@@ -1534,7 +1497,7 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
