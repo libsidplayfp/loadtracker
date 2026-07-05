@@ -54,7 +54,8 @@ static int win_activateclick = 0;
 
 int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
 {
-    Uint32 flags = win_fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+    Uint32 flags = SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE;
+    if (win_fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
 
     if (!win_windowinitted)
     {
