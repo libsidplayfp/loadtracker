@@ -62,43 +62,6 @@ if(MINGW)
     )
 endif(MINGW)
 
-# it would be nice not having to link things like residfp, however the source is
-# not ready for that
-set(GT2RELOC_SOURCES
-    ${CMAKE_BINARY_DIR}/src/goatdata.c
-    src/gt2reloc.c
-    src/gsong.c
-    src/gorder.c
-    src/gpattern.c
-    src/ginstr.c
-    src/gtable.c
-    src/gplay.c
-    src/gdisplay.c
-    src/gfile.c
-    src/ghelp.c
-    src/gsound.c
-    src/gconsole.c
-    src/gsid.cpp
-    src/asm/asmtab.c
-    src/asm/chnkpool.c
-    src/asm/expr.c
-    src/asm/lexyy.c
-    src/asm/log.c
-    src/asm/membuf.c
-    src/asm/membufio.c
-    src/asm/namedbuf.c
-    src/asm/parse.c
-    src/asm/pc.c
-    src/asm/vec.c
-    src/bme/bme_gfx.c
-    src/bme/bme_snd.c
-    src/bme/bme_win.c
-    src/bme/bme_mou.c
-    src/bme/bme_kbd.c
-    src/bme/bme_io.c
-    src/bme/bme_end.c
-    src/bme/bme.c)
-
 set(MOD2SNG_SOURCES
     src/mod2sng.c
     src/bme/bme_end.c)
@@ -141,14 +104,12 @@ add_custom_command(
   )
 
 add_executable(loadtrk ${LOADTRK_SOURCES})
-add_executable(gt2reloc ${GT2RELOC_SOURCES})
 add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
 add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.c)
 add_dependencies(loadtrk goatdata)
-add_dependencies(gt2reloc goatdata)
 
 target_include_directories(mod2sng PUBLIC SDL3::Headers)
 target_include_directories(ins2snd2 PUBLIC SDL3::Headers)
@@ -162,10 +123,8 @@ OPTION(BUILD_STATIC "Static build" OFF)
 IF(BUILD_STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     target_link_libraries(loadtrk SDL3::SDL3-static)
-    target_link_libraries(gt2reloc SDL3::SDL3-static)
 ELSE()
     target_link_libraries(loadtrk SDL3::SDL3)
-    target_link_libraries(gt2reloc SDL3::SDL3)
 ENDIF()
 
 find_package(Jack)
@@ -215,10 +174,8 @@ endif()
 pkg_check_modules(RESIDFP REQUIRED IMPORTED_TARGET libresidfp>=0.1)
 if(BUILD_STATIC)
     target_link_libraries(loadtrk PkgConfig::RESIDFP-static)
-    target_link_libraries(gt2reloc PkgConfig::RESIDFP-static)
 else()
     target_link_libraries(loadtrk PkgConfig::RESIDFP)
-    target_link_libraries(gt2reloc PkgConfig::RESIDFP)
 endif()
 
 ##################################################################

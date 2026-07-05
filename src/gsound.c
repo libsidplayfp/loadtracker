@@ -244,7 +244,14 @@ Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval)
 
 void sound_playrout(void)
 {
-  playroutine();
+  if (numsids == 1)
+  {
+    playroutine();
+  }
+  else if (numsids == 2)
+  {
+    playroutine_stereo();
+  }
 
 #ifdef USE_EXSID
   if (useexsid)

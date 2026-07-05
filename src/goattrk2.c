@@ -52,6 +52,7 @@ unsigned adparam = 0x0f00;
 unsigned ntsc = 0;
 unsigned patterndispmode = 2;
 unsigned sidaddress = 0xd400;
+unsigned sid2address = 0xd500;
 unsigned finevibrato = 1;
 unsigned optimizepulse = 1;
 unsigned optimizerealtime = 1;
@@ -184,6 +185,7 @@ int main(int argc, char **argv)
     getparam(configfile, &interpolate);
     getparam(configfile, &patterndispmode);
     getparam(configfile, &sidaddress);
+    getparam(configfile, &sid2address);
     getparam(configfile, &finevibrato);
     getparam(configfile, &optimizepulse);
     getparam(configfile, &optimizerealtime);
@@ -372,6 +374,7 @@ int main(int argc, char **argv)
   zeropageadr &= 0xff;
   playeradr &= 0xff00;
   sidaddress &= 0xffff;
+  sid2address &= 0xffff;
   if (!stepsize) stepsize = 4;
   if (multiplier > 16) multiplier = 16;
   if (keypreset > 2) keypreset = 0;
@@ -481,6 +484,7 @@ int main(int argc, char **argv)
                         ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
                         ";SID baseaddress\n$%04x\n\n"
+                        ";2nd SID baseaddress\n$%04x\n\n"
                         ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
                         ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
                         ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
@@ -511,6 +515,7 @@ int main(int argc, char **argv)
     interpolate,
     patterndispmode,
     sidaddress,
+    sid2address,
     finevibrato,
     optimizepulse,
     optimizerealtime,
@@ -615,7 +620,14 @@ void docommand(void)
   switch(editmode)
   {
     case EDIT_ORDERLIST:
-    orderlistcommands();
+    if (numsids == 1)
+    {
+      orderlistcommands();
+    }
+    else if (numsids == 2)
+    {
+      orderlistcommands_stereo();
+    }
     break;
 
     case EDIT_INSTRUMENT:
@@ -644,6 +656,16 @@ void mousecommands(void)
   int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
+
+  int currentSonglen = 0;
+  if (numsids == 1)
+  {
+    currentSonglen = songlen[esnum][eschn];
+  }
+  else if (numsids == 2)
+  {
+    currentSonglen = songlen_stereo[esnum][eschn];
+  }
 
   if (!mouseb) return;
 
@@ -734,20 +756,20 @@ void mousecommands(void)
       newpos = 0;
       newcolumn = 0;
     }
-    if (newpos == songlen[esnum][eschn])
+    if (newpos == currentSonglen)
     {
       newpos++;
       newcolumn = 0;
     }
-    if (newpos > songlen[esnum][eschn]+1)
+    if (newpos > currentSonglen+1)
     {
-      newpos = songlen[esnum][eschn] + 1;
+      newpos = currentSonglen + 1;
       newcolumn = 1;
     }
 
     editmode = EDIT_ORDERLIST;
 
-    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb) && (newpos < songlen[esnum][eschn]))
+    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb) && (newpos < currentSonglen))
     {
       if ((esmarkchn != newchn) || (newpos != esmarkend))
       {
@@ -763,7 +785,7 @@ void mousecommands(void)
       escolumn = newcolumn;
     }
 
-    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (newpos < songlen[esnum][eschn])) esmarkend = newpos;
+    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (newpos < currentSonglen)) esmarkend = newpos;
   }
   if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
         (mousey == dpos.orderlistY) &&
@@ -939,7 +961,16 @@ void mousecommands(void)
       if ((mousex >= 42) && (mousex <= 47))
         save();
       if ((mousex >= 49) && (mousex <= 57))
-        relocator();
+      {
+        if (numsids == 1)
+        {
+          relocator();
+        }
+        else if (numsids == 2)
+        {
+          relocator_stereo();
+        }
+      }
       if ((mousex >= 59) && (mousex <= 64))
         onlinehelp(0,0);
       if ((mousex >= 66) && (mousex <= 72))
@@ -955,6 +986,8 @@ void generalcommands(void)
   int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
+  int visibleOrderlist = 14;
+  int currentSonglen = 0;
 
   switch(key)
   {
@@ -1021,20 +1054,31 @@ void generalcommands(void)
     break;
 
     case ':':
+    if (numsids == 1)
+    {
+        visibleOrderlist = VISIBLEORDERLIST;
+    }
     for (c = 0; c < maxChns; c++)
     {
-      if (espos[c] < songlen[esnum][c]-1)
-        espos[c]++;
-      if (espos[c] - esview >= VISIBLEORDERLIST)
+      if (numsids == 1)
       {
-        esview = espos[c] - VISIBLEORDERLIST + 1;
+        currentSonglen = songlen[esnum][c];
+      }
+      else if (numsids == 2)
+      {
+        currentSonglen = songlen_stereo[esnum][c];
+      }
+      if (espos[c] < currentSonglen-1)
+        espos[c]++;
+      if (espos[c] - esview >= visibleOrderlist)
+      {
+        esview = espos[c] - visibleOrderlist + 1;
         eseditpos = espos[c];
       }
     }
     updateviewtopos();
     rewindsong();
     break;
-
   }
   if (win_quitted) exitprogram = 1;
   switch(rawkey)
@@ -1135,9 +1179,16 @@ void generalcommands(void)
     case KEY_F9:
     if (!shiftpressed)
     {
-        relocator();
+        if (numsids == 1)
+        {
+          relocator();
+        }
+        else if (numsids == 2)
+        {
+          relocator_stereo();
+        }
     }
-    else if (numsids == 2)
+    else if (shiftpressed && (numsids == 2))
     {
         monomode ^= 1;
     }
