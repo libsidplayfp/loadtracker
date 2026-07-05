@@ -410,7 +410,7 @@ int main(int argc, char **argv)
   clearsong(1,1,1,1,1);
 
   // Init sound
-  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
+  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -638,8 +638,8 @@ void mousecommands(void)
   for (c = 0; c < MAX_CHN; c++)
   {
     if ((mousey == dpos.patternsY) &&
-            (mousex >= dpos.patternsX + 11 + c*13) &&
-            (mousex <= dpos.patternsX + 12 + c*13))
+            (mousex >= dpos.patternsX + 10 + c*13) &&
+            (mousex <= dpos.patternsX + 11 + c*13))
     {
         if ((!prevmouseb) || (mouseheld > HOLDDELAY))
         {
@@ -660,7 +660,7 @@ void mousecommands(void)
       if ((mousey >= dpos.patternsY) &&
                 (mousey <= dpos.statusBottomY - 1) &&
                 (mousex >= dpos.patternsX + 3 + c*13) &&
-                (mousex <= dpos.patternsX + 12 + c*13))
+                (mousex <= dpos.patternsX + 11 + c*13))
       {
         int x = mousex-(dpos.patternsX + 3)-c*13;
         int newpos = mousey-(dpos.patternsY+1)+epview;
@@ -883,12 +883,12 @@ void mousecommands(void)
       if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         ntsc ^= 1;
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
       {
         sidmodel ^= 1;
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+22) &&
           (mousex <= dpos.statusTopFvX+25)) editadsr();
@@ -1113,7 +1113,7 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init( mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+      sound_init( mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
     }
     break;
 
@@ -1488,7 +1488,7 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
   }
 }
 
@@ -1497,7 +1497,7 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
   }
 }
 

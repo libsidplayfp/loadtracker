@@ -21,6 +21,8 @@ int initted = 0;
 int firsttimeinit = 1;
 unsigned framerate = PALFRAMERATE;
 Sint16 *buffer = NULL;
+Sint16 *lbuffer = NULL;
+Sint16 *rbuffer = NULL;
 FILE *writehandle = NULL;
 SDL_TimerID timer = 0;
 
@@ -34,7 +36,8 @@ unsigned exsidDelay = 0;
 #endif
 
 int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
-               unsigned multiplier, unsigned interpolate, unsigned customclockrate,
+               unsigned multiplier, unsigned interpolate,
+               unsigned customclockrate, unsigned numsids,
                unsigned exsid, float filterbias, unsigned combwaves)
 {
 #ifdef __WIN32__
@@ -110,7 +113,9 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
 #endif
 
   if (!buffer) buffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
-  if (!buffer) return 0;
+  if (!lbuffer) lbuffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
+  if (!rbuffer) rbuffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
+  if ((!buffer) || (!lbuffer) || (!rbuffer)) return 0;
 
   if (writer)
     writehandle = fopen("sidaudio.raw", "wb");
@@ -121,11 +126,12 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
 
   if (firsttimeinit)
   {
-    if (!snd_init(mr, SIXTEENBIT|MONO, 1, 0)) return 0;
+    if (numsids == 1 && !snd_init(mr, SIXTEENBIT|MONO, 1, 0)) return 0;
+    else if (numsids == 2 && !snd_init(mr, SIXTEENBIT|STEREO, 1, 0)) return 0;
     firsttimeinit = 0;
   }
   playspeed = snd_mixrate;
-  sid_init(playspeed, m, ntsc, interpolate, customclockrate, filterbias, combwaves);
+  sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
 
   snd_player = &sound_playrout;
   snd_setcustommixer(sound_mixer);
@@ -177,6 +183,18 @@ void sound_uninit(void)
   {
     free(buffer);
     buffer = NULL;
+  }
+
+  if (lbuffer)
+  {
+      free(lbuffer);
+      lbuffer = NULL;
+  }
+
+  if (rbuffer)
+  {
+      free(rbuffer);
+      rbuffer = NULL;
   }
 
 #ifdef USE_EXSID
