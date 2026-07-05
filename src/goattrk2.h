@@ -36,8 +36,7 @@
 #define KEY_JANKO 2
 
 #define VISIBLEPATTROWS 34
-#define VISIBLEORDERLIST 14
-#define VISIBLEORDERLISTMONO 23
+#define VISIBLEORDERLIST 23
 #define VISIBLETABLEROWS 15
 #define VISIBLEFILES 28
 
@@ -79,6 +78,7 @@ extern unsigned hardsid;
 extern unsigned catweasel;
 extern unsigned exsid;
 extern unsigned interpolate;
+extern unsigned numsids;
 extern unsigned hardsidbufinteractive;
 extern unsigned hardsidbufplayback;
 extern float basepitch;

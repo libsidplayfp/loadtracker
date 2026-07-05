@@ -72,7 +72,7 @@ float filterbias = 0.5f;
 float equaldivisionsperoctave = 12.0f;
 int tuningcount = 0;
 double tuning[96];
-extern unsigned bigwindow;
+unsigned numsids = 1;
 
 char configbuf[MAX_PATHNAME];
 char loadedsongfilename[MAX_FILENAME];
@@ -107,7 +107,7 @@ char* usage[] = {
     "-Dxx Pattern row display (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots) DEFAULT=2",
     "-Exx Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=8580",
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
-    "-Gxx Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)",
+    "-Gxx Set pitch of A-4 in Hz (0 = use default frequency table, close to 440Hz)",
     "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
     "-Ixx Set reSIDfp resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
@@ -124,9 +124,8 @@ char* usage[] = {
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
     "-Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off",
-    "-bxx Set filter curve (0.0 (dark) to 1.0 (light))",
+    "-bxx Set filter curve (0.0 (dark) to 1.0 (bright))",
     "-cxx Set combined waveforms strength (0 weak, 1 average, 2 strong) DEFAULT=average"
-    "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
     "-xxx Use exdSID (0 = off, 1 = on)",
     "-N   Use NTSC timing",
     "-P   Use PAL timing (DEFAULT)",
@@ -201,7 +200,6 @@ int main(int argc, char **argv)
     getparam(configfile, &hardsidbufinteractive);
     getparam(configfile, &hardsidbufplayback);
     getparam(configfile, (unsigned*)&win_fullscreen);
-    getparam(configfile, &bigwindow);
     getparam(configfile, &combwaves);
     getfloatparam(configfile, &basepitch);
     getfloatparam(configfile, &filterbias);
@@ -349,27 +347,23 @@ int main(int argc, char **argv)
         case 'b':
         sscanf(&argv[c][2], "%f", &filterbias);
         break;
- 
+
         case 'c':
         sscanf(&argv[c][2], "%f", &combwaves);
         break;
- 
+
         case 'Q':
         sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
         break;
- 
+
         case 'J':
         sscanf(&argv[c][2], "%s", specialnotenames);
         break;
-  
+
         case 'Y':
         sscanf(&argv[c][2], "%s", scalatuningfilepath);
         break;
-  
-        case 'w':
-        sscanf(&argv[c][2], "%u", &bigwindow);
-        break;
-  
+
         case 'x':
         sscanf(&argv[c][2], "%u", &exsid);
         break;
@@ -413,8 +407,6 @@ int main(int argc, char **argv)
   if (optimizerealtime > 1) optimizerealtime = 1;
   if (residdelay > 63) residdelay = 63;
   if (customclockrate < 100) customclockrate = 0;
-  if (bigwindow < 1) bigwindow = 1;
-  if (bigwindow > 4) bigwindow = 4;
   if (combwaves < 0) combwaves = 0;
   else if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
@@ -551,7 +543,6 @@ int main(int argc, char **argv)
     hardsidbufinteractive,
     hardsidbufplayback,
     win_fullscreen,
-    bigwindow,
     basepitch,
     filterbias,
     combwaves,

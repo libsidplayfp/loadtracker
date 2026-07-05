@@ -62,6 +62,7 @@ void printstatus(void)
 {
   int c, d, color, color2;
   int cc = cursorcolortable[cursorflash];
+  int visibleOrderlist = VISIBLEORDERLIST;
   menu = 0;
 
   if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = 1;
@@ -141,9 +142,9 @@ void printstatus(void)
         {
           esview = newpos;
         }
-        if (newpos - esview >= VISIBLEORDERLISTMONO)
+        if (newpos - esview >= visibleOrderlist)
         {
-          esview = newpos - VISIBLEORDERLISTMONO + 1;
+          esview = newpos - visibleOrderlist + 1;
         }
       }
     }
@@ -256,13 +257,22 @@ void printstatus(void)
     }
   }
 
-  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE %02X, POS %02X)", esnum, eseditpos);
+  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ", esnum, eseditpos);
   printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE, textbuffer);
+  sprintf(textbuffer, "%02X", esnum);
+  printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT, textbuffer);
+  sprintf(textbuffer, ", POS ");
+  printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE, textbuffer);
+  sprintf(textbuffer, "%02X", eseditpos);
+  printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT, textbuffer);
+  sprintf(textbuffer, ")");
+  printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE, textbuffer);
+
   for (c = 0; c < MAX_CHN; c++)
   {
     sprintf(textbuffer, " %d ", c+1);
     printtext(dpos.orderlistX, dpos.orderlistY+1+c, colors.CTITLE, textbuffer);
-    for (d = 0; d < VISIBLEORDERLISTMONO; d++)
+    for (d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
       color = colors.CNORMAL;
@@ -317,6 +327,7 @@ void printstatus(void)
           if (color == colors.CNORMAL) color = colors.CCOMMAND;
         }
       }
+      if (chn[c].mute) color = colors.CMUTE;
       printtext(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, color, textbuffer);
       if (c == esmarkchn)
       {
@@ -535,7 +546,7 @@ void printstatus(void)
 
     sprintf(textbuffer, "%03X/%02X",
       chnpos,chnrow);
-    printtext(dpos.channelsX+7*c, dpos.channelsY+1, colors.CEDIT, textbuffer);
+    printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 
   if (etlock) printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, " ");
