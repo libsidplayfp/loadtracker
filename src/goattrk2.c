@@ -194,9 +194,9 @@ int main(int argc, char **argv)
     getparam(configfile, &residdelay);
     getparam(configfile, &customclockrate);
     getparam(configfile, (unsigned*)&win_fullscreen);
-    getparam(configfile, &combwaves);
     getfloatparam(configfile, &basepitch);
     getfloatparam(configfile, &filterbias);
+    getparam(configfile, &combwaves);
     getfloatparam(configfile, &equaldivisionsperoctave);
     getstringparam(configfile, specialnotenames);
     getstringparam(configfile, scalatuningfilepath);
