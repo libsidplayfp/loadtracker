@@ -34,7 +34,7 @@ int followplay = 0;
 int hexnybble = -1;
 int stepsize = 4;
 int autoadvance = 0;
-int defaultpatternlength = 64;
+unsigned defaultpatternlength = 64;
 int cursorflash = 0;
 int cursorcolortable[] = {1,2,7,2};
 int exitprogram = 0;
@@ -170,6 +170,7 @@ int main(int argc, char **argv)
   {
     getparam(configfile, &mr);
     getparam(configfile, &sidmodel);
+    getparam(configfile, &numsids);
     getparam(configfile, &ntsc);
     getparam(configfile, (unsigned *)&fileformat);
     getparam(configfile, (unsigned *)&playeradr);
@@ -466,6 +467,7 @@ int main(int argc, char **argv)
                         "\n"
                         ";reSIDfp mixing rate (in Hz)\n%d\n\n"
                         ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
+                        ";Number of SIDs (1, 2, default 1)\n%d\n\n"
                         ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
                         ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
                         ";Packer/relocator player address\n$%04x\n\n"
@@ -495,6 +497,7 @@ int main(int argc, char **argv)
                         ";Use exSID (0 = off, 1 = on)\n%d\n\n",
     mr,
     sidmodel,
+    numsids,
     ntsc,
     fileformat,
     playeradr,
@@ -1287,7 +1290,7 @@ void clear(void)
   if (cp == 1)
   {
     int selectdone = 0;
-    int olddpl = defaultpatternlength;
+    unsigned olddpl = defaultpatternlength;
 
     printtext(dpos.statusBottomX+20, dpos.statusBottomY, 15,"Pattern length:");
     while (!selectdone)

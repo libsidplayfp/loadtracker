@@ -155,7 +155,7 @@ void relocator(void)
   unsigned char *instrwork = NULL;
 
   channels = 3;
-  //if (numsids == 2) channels = 6;
+  if (numsids == 2) channels = 6;
   fixedparams = 1;
   simplepulse = 1;
   firstnote = MAX_NOTES-1;
@@ -206,7 +206,7 @@ void relocator(void)
   membuf_free(&dest);
 
   int maxChns = MAX_CHN;
-  //if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = 3;
 
   // Process song-orderlists
   countpatternlengths();

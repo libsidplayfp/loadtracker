@@ -62,9 +62,13 @@ void printstatus(void)
 {
   int c, d, color, color2;
   int cc = cursorcolortable[cursorflash];
-  int visibleOrderlist = VISIBLEORDERLIST;
+  int visibleOrderlist = 14;
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1)
+  {
+    maxChns = 3;
+    visibleOrderlist = VISIBLEORDERLIST;
+  }
   menu = 0;
 
   if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = 1;
