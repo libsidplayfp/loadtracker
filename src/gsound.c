@@ -147,20 +147,7 @@ void sound_uninit(void)
 
   if (useexsid)
   {
-#ifdef __WIN32__
-    if (!playerthread)
-    {
-      SDL_RemoveTimer(timer);
-    }
-    else
-    {
-      runplayerthread = FALSE;
-      SDL_WaitThread(playerthread, NULL);
-      playerthread = NULL;
-    }
-#else
     SDL_RemoveTimer(timer);
-#endif
   }
   else
   {
