@@ -69,6 +69,7 @@ unsigned combwaves = 1;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
 float equaldivisionsperoctave = 12.0f;
+float panning = 1.0f;
 int tuningcount = 0;
 double tuning[96];
 
@@ -186,6 +187,7 @@ int main(int argc, char **argv)
     getparam(configfile, &patterndispmode);
     getparam(configfile, &sidaddress);
     getparam(configfile, &sid2address);
+    getfloatparam(configfile, &panning);
     getparam(configfile, &finevibrato);
     getparam(configfile, &optimizepulse);
     getparam(configfile, &optimizerealtime);
@@ -386,6 +388,8 @@ int main(int argc, char **argv)
   if (customclockrate < 100) customclockrate = 0;
   if (defaultpatternlength < 1) defaultpatternlength = 1;
   if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
+  if (panning < 0) panning = 0;
+  if (panning > 1) panning = 1;
   if (combwaves < 0) combwaves = 0;
   else if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
@@ -485,6 +489,7 @@ int main(int argc, char **argv)
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
                         ";SID baseaddress\n$%04x\n\n"
                         ";2nd SID baseaddress\n$%04x\n\n"
+                        ";Panning in stereo mode (0.00 - 1.00; 0 = channels reversed, 0.5 = mono, 1 = seperated)\n%.2f\n\n"
                         ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
                         ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
                         ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
@@ -516,6 +521,7 @@ int main(int argc, char **argv)
     patterndispmode,
     sidaddress,
     sid2address,
+    panning,
     finevibrato,
     optimizepulse,
     optimizerealtime,
@@ -1201,6 +1207,15 @@ void generalcommands(void)
     case KEY_F11:
     save();
     break;
+
+    case KEY_M:
+    if (altpressed)
+    {
+      key = 0;
+      rawkey = 0;
+      switchMode();
+    }
+    break;
   }
 }
 
@@ -1343,7 +1358,7 @@ void clear(void)
     int selectdone = 0;
     unsigned olddpl = defaultpatternlength;
 
-    printtext(dpos.statusBottomX+20, dpos.statusBottomY, 15,"Pattern length:");
+    printtext(dpos.statusBottomX+20, dpos.statusBottomY, 15, "Pattern length:");
     while (!selectdone)
     {
         if (patterndispmode)
@@ -1354,7 +1369,7 @@ void clear(void)
         {
             sprintf(textbuffer, "%02d ", defaultpatternlength);
         }
-        printtext(dpos.statusBottomX+35, dpos.statusBottomY, 15, textbuffer);
+        printtext(dpos.statusBottomX+35, dpos.statusBottomY, colors.CTITLE, textbuffer);
       waitkey();
       switch(rawkey)
       {
@@ -1728,5 +1743,51 @@ void readscalatuningfile()
       }
     }
     fclose(scalatuningfile);
-  }  
+  }
+}
+
+void switchMode(void)
+{
+    printtextcp(
+        dpos.statusBottomX+29,
+        dpos.statusBottomY,
+        colors.CTITLE,
+        "Switch mono / stereo mode (y/n)?"
+    );
+    printtextcp(
+        dpos.statusBottomX+29,
+        dpos.statusBottomY+1,
+        colors.CEDIT,
+        "!!!Songdata will be cleared!!!"
+    );
+
+    waitkey();
+
+    printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
+    printblank(dpos.statusBottomX, dpos.statusBottomY+1, 58);
+
+    if ((key == 'y') || (key == 'Y'))
+    {
+        printf("switchMode: yes\n");
+
+        memset(songfilename, 0, sizeof songfilename);
+
+        // SDL_PauseAudio(1);
+        numsids ^= 3;
+        clearsong(1, 1, 1, 1, 1);
+
+        sound_init(
+            mr,
+            writer,
+            sidmodel,
+            ntsc,
+            multiplier,
+            interpolate,
+            customclockrate, exsid, filterbias, combwaves
+        );
+        initDisplayPositions();
+        printmainscreen();
+    }
+    key = 0;
+    rawkey = 0;
 }

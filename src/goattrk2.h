@@ -68,6 +68,7 @@ extern unsigned ntsc;
 extern unsigned patterndispmode;
 extern unsigned sidaddress;
 extern unsigned sid2address;
+extern float panning;
 extern unsigned finevibrato;
 extern unsigned optimizepulse;
 extern unsigned optimizerealtime;
@@ -119,5 +120,6 @@ void editadsr(void);
 void calculatefreqtable(void);
 void setspecialnotenames(void);
 void readscalatuningfile(void);
+void switchMode(void);
 
 #endif
