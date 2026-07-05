@@ -1,6 +1,8 @@
-//
-// GOATTRACKER v2 pattern editor
-//
+/*
+ * =============================================================================
+ * pattern editor
+ * =============================================================================
+ */
 
 #define GPATTERN_C
 
@@ -144,7 +146,7 @@ void patterncommands(void)
 
     if (newnote > LASTNOTE) newnote = -1;
     if ((rawkey == KEY_BACKSPACE) && (!epcolumn)) newnote = REST;
-    if ((rawkey == 0x14) && (!epcolumn)) newnote = KEYOFF;
+    if ((rawkey == KEY_CAPSLOCK) && (!epcolumn)) newnote = KEYOFF;
     if (rawkey == KEY_ENTER)
     {
       switch(epcolumn)
@@ -993,6 +995,14 @@ void patterncommands(void)
     case KEY_3:
     if (shiftpressed)
       mutechannel(rawkey - KEY_1);
+    break;
+    case KEY_4:
+    case KEY_5:
+    case KEY_6:
+    if (shiftpressed && (numsids == 2))
+    {
+        mutechannel(rawkey - KEY_1);
+    }
     break;
   }
   if ((keypreset == KEY_DMC) && (hexnybble >= 0) && (hexnybble <= 7) && (!epcolumn))

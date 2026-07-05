@@ -1146,7 +1146,16 @@ void generalcommands(void)
     if (shiftpressed)
       mutechannel(epchn);
     else
-    stopsong();
+    {
+      if (isplaying())
+      {
+        stopsong();
+      }
+      else
+      {
+        releasenote(epchn);
+      }
+    }
     break;
 
     case KEY_F5:
