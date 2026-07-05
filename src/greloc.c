@@ -2238,7 +2238,7 @@ void relocator_stereo(void)
 
     memset(pattused, 0, sizeof pattused);
     memset(instrused, 0, sizeof instrused);
-    memset(chnused, 0, sizeof chnused);
+    memset(chnused_stereo, 0, sizeof chnused_stereo);
     memset(tableused, 0, sizeof tableused);
     memset(tablemap, 0, sizeof tablemap);
     tableerror = 0;
@@ -2270,7 +2270,7 @@ void relocator_stereo(void)
                         for (f = 0; f < pattlen[num]; f++)
                         {
                             if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
-                                chnused[d] = 1;
+                                chnused_stereo[d] = 1;
                         }
                     }
                     else

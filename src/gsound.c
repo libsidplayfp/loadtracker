@@ -38,11 +38,6 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
                unsigned multiplier, unsigned interpolate, unsigned customclockrate,
                unsigned exsid, float filterbias, unsigned combwaves)
 {
-#ifdef __WIN32__
-  if (!flushmutex)
-      flushmutex = SDL_CreateMutex();
-#endif
-
   sound_uninit();
 
   if (multiplier)
@@ -215,24 +210,6 @@ void sound_uninit(void)
     exsidfd = NULL;
   }
 #endif
-}
-
-void sound_suspend(void)
-{
-  #ifdef __WIN32__
-  SDL_LockMutex(flushmutex);
-  suspendplayroutine = TRUE;
-  SDL_UnlockMutex(flushmutex);
-  #endif
-}
-
-void sound_flush(void)
-{
-  #ifdef __WIN32__
-  SDL_LockMutex(flushmutex);
-  flushplayerthread = TRUE;
-  SDL_UnlockMutex(flushmutex);
-  #endif
 }
 
 Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval)
