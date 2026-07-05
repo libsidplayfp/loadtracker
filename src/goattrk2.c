@@ -40,6 +40,7 @@ int cursorcolortable[] = {1,2,7,2};
 int exitprogram = 0;
 int eacolumn = 0;
 int eamode = 0;
+int ebmode = 0;
 
 unsigned keypreset = KEY_TRACKER;
 unsigned playerversion = 0;
@@ -937,6 +938,8 @@ void mousecommands(void)
           (mousex <= dpos.statusTopFvX+28)) prevmultiplier();
       if ((mousex >= dpos.statusTopFvX+29) &&
           (mousex <= dpos.statusTopFvX+30)) nextmultiplier();
+      if ((mousex >= dpos.statusTopFvX+31) &&
+          (mousex <= dpos.statusTopFvX+33)) editbpm();
       if ((mousex >= dpos.statusTopEndX-8) &&
           (mousex <= dpos.statusTopEndX-1)) onlinehelp(0,0);
     }
@@ -1494,6 +1497,81 @@ void editadsr(void)
   }
 }
 
+void editbpm(void)
+{
+    eamode = 1;
+    ebmode = 1;
+    eacolumn = 0;
+
+    for (;;)
+    {
+        waitkeymouse();
+
+        if (win_quitted)
+        {
+            exitprogram = 1;
+            key = 0;
+            rawkey = 0;
+            return;
+        }
+
+        if (key >= 48 && key <= 58)
+        {
+            int number = key - 48;
+            int tempnum = 0;
+
+            switch(eacolumn)
+            {
+            case 0:
+                snd_bpmtempo = snd_bpmtempo - (((snd_bpmtempo / 100) % 10) * 100) + (number * 100);
+                break;
+
+            case 1:
+                snd_bpmtempo = snd_bpmtempo - (((snd_bpmtempo / 10) % 10) * 10) + (number * 10);
+                break;
+
+            case 2:
+                snd_bpmtempo = snd_bpmtempo - (((snd_bpmtempo / 1) % 10) * 1) + (number * 1);
+                break;
+            }
+            eacolumn++;
+        }
+
+        switch(rawkey)
+        {
+        case KEY_F7:
+            if (!shiftpressed) break;
+
+        case KEY_ESC:
+        case KEY_ENTER:
+        case KEY_TAB:
+            eamode = 0;
+            ebmode = 0;
+            key = 0;
+            rawkey = 0;
+            return;
+
+        case KEY_BACKSPACE:
+            if (!eacolumn) break;
+        case KEY_LEFT:
+            eacolumn--;
+            break;
+
+        case KEY_RIGHT:
+            eacolumn++;
+        }
+        eacolumn &= 3;
+        if (eacolumn == 3) eacolumn = 0;
+
+        if ((mouseb) && (!prevmouseb))
+        {
+            eamode = 0;
+            ebmode = 0;
+            return;
+        }
+    }
+}
+
 void getparam(FILE *handle, unsigned *value)
 {
   char *configptr;
@@ -1574,7 +1652,7 @@ void getstringparam(FILE *handle, char *value)
   }
 
   configptr = configbuf;
-  
+
   sscanf(configptr, "%s", value);
 }
 
@@ -1693,7 +1771,7 @@ void readscalatuningfile()
     }
     configptr = configbuf;
     sscanf(configptr, "%63[^\t\n]", tuningname);
-   
+
     // Tuning count
     for (;;)
     {
@@ -1703,7 +1781,7 @@ void readscalatuningfile()
     }
     configptr = configbuf;
     sscanf(configptr, "%d", &tuningcount);
-   
+
     // Tunings 
     for (i = 0; i < tuningcount; i++)
     {

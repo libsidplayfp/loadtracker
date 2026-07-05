@@ -88,6 +88,8 @@ int nocalculatedspeed;
 int nonormalspeed;
 int nozerospeed;
 
+int ciaval;
+
 struct membuf src = STATIC_MEMBUF_INIT;
 struct membuf dest = STATIC_MEMBUF_INIT;
 
@@ -518,8 +520,21 @@ void relocator(void)
   else
     sprintf(textbuffer, "%s Packer/Relocator - %s", programname, loadedsongfilename);
   textbuffer[MAX_COLUMNS] = 0;
-  printtext(0, 0, colors.CHEADER, textbuffer);
+  printtext(1, 0, colors.CHEADER, textbuffer);
   printtext(1, 2, colors.CTITLE, "SELECT PLAYROUTINE OPTIONS: (CURSORS=MOVE/CHANGE, ENTER=ACCEPT, ESC=CANCEL)");
+
+  if (multiplier == 1 && snd_bpmtempo != 125)
+  {
+    ciaval = 19566 - ((19655 / 125) * (snd_bpmtempo - 125));
+
+    sprintf(textbuffer, "[INFO] CIA timer value for %03d BPM: $%04X", snd_bpmtempo, ciaval);
+    printtext(1, 3+MAX_OPTIONS+8, colors.CEDIT, textbuffer);
+  }
+  else
+  {
+    ciaval = 0;
+  }
+
   selectdone = 0;
   while (!selectdone)
   {
@@ -1130,6 +1145,8 @@ void relocator(void)
   insertdefine("NUMLEGATOINSTR", numlegato);
   insertdefine("ADPARAM", adparam >> 8);
   insertdefine("SRPARAM", adparam & 0xff);
+  insertdefine("CIAVALLO", ciaval & 0xff);
+  insertdefine("CIAVALHI", ciaval >> 8);
   if ((instr[MAX_INSTR-1].ad >= 2) && (!(instr[MAX_INSTR-1].ptr[WTBL])))
     insertdefine("DEFAULTTEMPO", instr[MAX_INSTR-1].ad - 1);
   else
@@ -1625,7 +1642,7 @@ void relocator(void)
 
     // Song speed bits
     byte = 0x00;
-    if ((ntsc) || (multiplier > 1) || (!multiplier)) byte = 0xff;
+    if ((ntsc) || (multiplier > 1) || (!multiplier) || (ciaval)) byte = 0xff;
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
@@ -3182,6 +3199,8 @@ TABLETYPE_S:
     insertdefine("NUMLEGATOINSTR", numlegato);
     insertdefine("ADPARAM", adparam >> 8);
     insertdefine("SRPARAM", adparam & 0xff);
+    insertdefine("CIAVALLO", ciaval & 0xff);
+    insertdefine("CIAVALHI", ciaval >> 8);
     if ((instr[MAX_INSTR-1].ad >= 2) && (!(instr[MAX_INSTR-1].ptr[WTBL])))
         insertdefine("DEFAULTTEMPO", instr[MAX_INSTR-1].ad - 1);
     else
