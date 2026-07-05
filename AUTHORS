@@ -1,3 +1,9 @@
-Lasse Öörni: original GoatTracker
-Leaf Corcoran: MIDI input
-Leandro Nini: 
+Editor by Lasse Öörni and Jan Wassermann.
+Music playroutines by Lasse Öörni.
+MIDI input by Leaf Corcoran and Leandro Nini
+Uses 6510 crossassembler from Exomizer2 beta by Magnus Lind.
+Uses the SDL3 library.
+Command quick reference by Simon Bennett.
+Patches and further development by Stefan A. Haubenthal, Valerio Cannone,
+Raine M. Ekman, Tero Lindeman, Henrik Paulini, Groepaz and Leandro Nini.
+Microtonal support by Birgit Jauernig.

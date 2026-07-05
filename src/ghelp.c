@@ -37,8 +37,10 @@ void onlinehelp(int standalone,int context)
     "SHIFT+F5-F6 Change speed multiplier",
     "SHIFT+F7 Change hardrestart ADSR",
     "SHIFT+F8 Switch between 6581/8580 SID",
+    "SHIFT+F9 Mix to mono (in STEREO mode)",
     "SHIFT+F10 Merge-load song",
     "SHIFT+, . Move song startpos & restart",
+    "ALT+M Switch mono / stereo mode",
     "TAB Cycle between editing modes",
     "INS Insert row (Press on endmark to",
     "DEL Delete row change patt. length)",
@@ -340,7 +342,7 @@ void onlinehelp(int standalone,int context)
     sprintf(textbuffer, "%s Online Help", programname);
     printtext(1, 0, colors.CHEADER, textbuffer);
     if(standalone) {
-      printtext(55, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, ESC exits");
+      printtext(84, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, ESC exits");
     } else {
       printtext(61, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, F12 toggles context, others exit");
     }
@@ -400,8 +402,8 @@ void onlinehelp(int standalone,int context)
       break;
     }
 
-    if ((mouseb) && (mousey == 1)) hview++;
-    if ((mouseb) && (mousey == MAX_ROWS-1)) hview--;
+    if ((mouseb) && (mousey >= 1) && (mousey < ((MAX_ROWS-1) / 2))) hview++;
+    if ((mouseb) && (mousey > ((MAX_ROWS-1) / 2) && (mousey <= MAX_ROWS-1))) hview--;
 
     if (hview > -1) hview = -1;
     if (hview < -(lastrow-MAX_ROWS+1)) hview = -(lastrow-MAX_ROWS+1);

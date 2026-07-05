@@ -47,7 +47,6 @@ set(LOADTRK_SOURCES
     src/bme/bme_snd.c
     src/bme/bme_win.c
     src/bme/bme_mou.c
-    src/bme/bme_kbd.c
     src/bme/bme_io.c
     src/bme/bme_end.c
     src/bme/bme.c

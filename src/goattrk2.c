@@ -1211,8 +1211,6 @@ void generalcommands(void)
     case KEY_M:
     if (altpressed)
     {
-      key = 0;
-      rawkey = 0;
       switchMode();
     }
     break;
@@ -1748,17 +1746,31 @@ void readscalatuningfile()
 
 void switchMode(void)
 {
+    char nextMode[7];
+    char textbuffer[80];
+
+    if (numsids == 1)
+    {
+        strcpy(nextMode, "STEREO");
+    }
+    else
+    {
+        strcpy(nextMode, "MONO");
+    }
+
+    sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
+
     printtextcp(
         dpos.statusBottomX+29,
         dpos.statusBottomY,
         colors.CTITLE,
-        "Switch mono / stereo mode (y/n)?"
+        textbuffer
     );
     printtextcp(
         dpos.statusBottomX+29,
         dpos.statusBottomY+1,
         colors.CEDIT,
-        "!!!Songdata will be cleared!!!"
+        "!!! SONGDATA WILL BE LOST !!!"
     );
 
     waitkey();
@@ -1768,11 +1780,8 @@ void switchMode(void)
 
     if ((key == 'y') || (key == 'Y'))
     {
-        printf("switchMode: yes\n");
-
         memset(songfilename, 0, sizeof songfilename);
 
-        // SDL_PauseAudio(1);
         numsids ^= 3;
         clearsong(1, 1, 1, 1, 1);
 

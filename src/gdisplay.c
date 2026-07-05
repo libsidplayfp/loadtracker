@@ -232,11 +232,11 @@ void printstatus(void)
       textbuffer[3] = 0;
       if (p%stepsize)
       {
-        printtext(dpos.patternsX+c*13, dpos.patternsY+1+d, colors.CNORMAL, textbuffer);
+        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CNORMAL, textbuffer);
       }
       else
       {
-        printtext(dpos.patternsX+c*13, dpos.patternsY+1+d, colors.CCOMMAND, textbuffer);
+        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CCOMMAND, textbuffer);
       }
       if (color == colors.CNORMAL)
         color2 = colors.CCOMMAND;
