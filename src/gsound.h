@@ -13,8 +13,7 @@
 #define MIXBUFFERSIZE 65536
 
 int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
-               unsigned multiplier, unsigned interpolate,
-               unsigned customclockrate, unsigned numsids,
+               unsigned multiplier, unsigned interpolate, unsigned customclockrate,
                unsigned exsid, float filterbias, unsigned combwaves);
 void sound_uninit(void);
 void sound_suspend(void);

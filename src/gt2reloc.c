@@ -61,6 +61,9 @@ unsigned interpolate = 0;
 unsigned residdelay = 0;
 float basepitch = 0.0f;
 
+unsigned monomode = 0;
+unsigned numsids = 1;
+
 char configbuf[MAX_PATHNAME];
 char loadedsongfilename[MAX_FILENAME];
 char songfilename[MAX_FILENAME];

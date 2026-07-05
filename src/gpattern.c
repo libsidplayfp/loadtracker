@@ -73,6 +73,8 @@ void patterncommands(void)
 {
   size_t i;
   int c, scrrep;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   switch(key)
   {
@@ -886,7 +888,7 @@ void patterncommands(void)
         {
           int c;
 
-          for (c = 0; c < MAX_CHN; c++)
+          for (c = 0; c < maxChns; c++)
           {
             if (eseditpos < songlen[esnum][c]) espos[c] = eseditpos;
             if (esend[c] <= espos[c]) esend[c] = 0;
@@ -907,7 +909,7 @@ void patterncommands(void)
       {
         epcolumn = 0;
         epchn++;
-        if (epchn >= MAX_CHN) epchn = 0;
+        if (epchn >= maxChns) epchn = 0;
         if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
       }
     }
@@ -930,7 +932,7 @@ void patterncommands(void)
       {
         epcolumn = 5;
         epchn--;
-        if (epchn < 0) epchn = MAX_CHN-1;
+        if (epchn < 0) epchn = maxChns-1;
         if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
       }
     }
@@ -975,17 +977,17 @@ void patterncommands(void)
     if (!shiftpressed)
     {
       epchn++;
-      if (epchn >= MAX_CHN) epchn = 0;
+      if (epchn >= maxChns) epchn = 0;
       if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
     }
     else
     {
       epchn--;
-      if (epchn < 0) epchn = MAX_CHN-1;
+      if (epchn < 0) epchn = maxChns-1;
       if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
     }
     break;
-    
+
     case KEY_1:
     case KEY_2:
     case KEY_3:
@@ -1201,10 +1203,12 @@ void splitpattern(void)
   int c = epnum[epchn];
   int l = pattlen[c];
   int d;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   if (eppos == 0) return;
   if (eppos == l) return;
-  
+
   stopsong();
 
   if (insertpattern(c))
@@ -1229,7 +1233,7 @@ void splitpattern(void)
 
     for (esnum = 0; esnum < MAX_SONGS; esnum++)
     {
-      for (eschn = 0; eschn < MAX_CHN; eschn++)
+      for (eschn = 0; eschn < maxChns; eschn++)
       {
         for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
         {
@@ -1251,6 +1255,8 @@ void joinpattern(void)
 {
   int c = epnum[epchn];
   int d;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   if (eschn != epchn) return;
   if (songorder[esnum][epchn][eseditpos] != c) return;
@@ -1292,7 +1298,7 @@ void joinpattern(void)
 
     for (esnum = 0; esnum < MAX_SONGS; esnum++)
     {
-      for (eschn = 0; eschn < MAX_CHN; eschn++)
+      for (eschn = 0; eschn < maxChns; eschn++)
       {
         for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
         {

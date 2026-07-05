@@ -73,7 +73,7 @@ int initscreen(void)
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  printf("xsize: %d, ysize: %d", xsize, ysize);
+  printf("xsize: %d, ysize: %d\n", xsize, ysize);
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     return 0;
@@ -493,4 +493,20 @@ void getkey(void)
   if (rawkey == SDL_SCANCODE_KP_7) key = '7';
   if (rawkey == SDL_SCANCODE_KP_8) key = '8';
   if (rawkey == SDL_SCANCODE_KP_9) key = '9';
+}
+
+void initDisplayPositions(void)
+{
+    if (numsids == 1)
+    {
+        dpos.channelsX = MAX_COLUMNS-21;
+        dpos.orderlistX = 54;
+        dpos.patternsX = 14;
+    }
+    else if (numsids == 2)
+    {
+        dpos.channelsX = MAX_COLUMNS-42;
+        dpos.orderlistX = 80;
+        dpos.patternsX = 1;
+    }
 }

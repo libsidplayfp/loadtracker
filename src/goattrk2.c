@@ -62,13 +62,14 @@ unsigned writer = 0;
 unsigned exsid = 0;
 unsigned interpolate = 1;
 unsigned residdelay = 0;
+unsigned monomode = 0;
+unsigned numsids = 1;
 unsigned combwaves = 1;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
 float equaldivisionsperoctave = 12.0f;
 int tuningcount = 0;
 double tuning[96];
-unsigned numsids = 1;
 
 char configbuf[MAX_PATHNAME];
 char loadedsongfilename[MAX_FILENAME];
@@ -175,6 +176,7 @@ int main(int argc, char **argv)
     getparam(configfile, (unsigned *)&zeropageadr);
     getparam(configfile, &playerversion);
     getparam(configfile, &keypreset);
+    getparam(configfile, &defaultpatternlength);
     getparam(configfile, (unsigned *)&stepsize);
     getparam(configfile, &multiplier);
     getparam(configfile, &adparam);
@@ -378,10 +380,14 @@ int main(int argc, char **argv)
   if (optimizerealtime > 1) optimizerealtime = 1;
   if (residdelay > 63) residdelay = 63;
   if (customclockrate < 100) customclockrate = 0;
+  if (defaultpatternlength < 1) defaultpatternlength = 1;
+  if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
   if (combwaves < 0) combwaves = 0;
   else if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   else if (filterbias > 1.0) filterbias = 1.0;
+
+  initDisplayPositions();
 
   // Read Scala tuning file
   if (scalatuningfilepath[0] != '0' && scalatuningfilepath[1] != '\0')
@@ -410,7 +416,7 @@ int main(int argc, char **argv)
   clearsong(1,1,1,1,1);
 
   // Init sound
-  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves))
+  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -466,6 +472,7 @@ int main(int argc, char **argv)
                         ";Packer/relocator zeropage baseaddress\n$%02x\n\n"
                         ";Packer/relocator player type (0 = standard ... 3 = minimal)\n%d\n\n"
                         ";Key entry mode (0 = Protracker, 1 = DMC, 2 = Janko)\n%d\n\n"
+                        ";Pattern default size (default = 32 / $20)\n%d\n\n"
                         ";Pattern highlight step size\n%d\n\n"
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
@@ -494,6 +501,7 @@ int main(int argc, char **argv)
     zeropageadr,
     playerversion,
     keypreset,
+    defaultpatternlength,
     stepsize,
     multiplier,
     adparam,
@@ -631,11 +639,13 @@ void docommand(void)
 void mousecommands(void)
 {
   int c;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   if (!mouseb) return;
 
   // Pattern editpos & pattern number selection
-  for (c = 0; c < MAX_CHN; c++)
+  for (c = 0; c < maxChns; c++)
   {
     if ((mousey == dpos.patternsY) &&
             (mousex >= dpos.patternsX + 10 + c*13) &&
@@ -708,7 +718,7 @@ void mousecommands(void)
 
   // Song editpos & songnumber selection
   if ((mousey >= dpos.orderlistY) &&
-        (mousey <= dpos.orderlistY + MAX_CHN + 2) &&
+        (mousey <= dpos.orderlistY + maxChns + 2) &&
         (mousex >= dpos.orderlistX))
   {
     int newpos = esview + (mousex-(dpos.orderlistX+4)) / 3;
@@ -799,9 +809,9 @@ void mousecommands(void)
   for (c = 0; c < MAX_TABLES; c++)
   {
     if ((mousey >= dpos.instrumentsY+7) &&
-            (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS-1) &&
+            (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS) &&
             (mousex >= dpos.instrumentsX+3+c*10) &&
-            (mousex <= dpos.instrumentsX+7+10+c*10))
+            (mousex <= dpos.instrumentsX+7+c*10))
     {
       int newpos = mousey-(dpos.instrumentsY+7)+etview[etnum];
       if (newpos < 0) newpos = 0;
@@ -854,7 +864,7 @@ void mousecommands(void)
   {
     recordmode ^= 1;
   }
-  for (c = 0; c < MAX_CHN; c++)
+  for (c = 0; c < maxChns; c++)
   {
     if ((!prevmouseb) &&
             (mousey >= dpos.channelsY) &&
@@ -883,12 +893,12 @@ void mousecommands(void)
       if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         ntsc ^= 1;
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
       {
         sidmodel ^= 1;
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
+        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+22) &&
           (mousex <= dpos.statusTopFvX+25)) editadsr();
@@ -940,6 +950,8 @@ void mousecommands(void)
 void generalcommands(void)
 {
   int c;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   switch(key)
   {
@@ -992,7 +1004,7 @@ void generalcommands(void)
     break;
 
     case ';':
-    for (c = 0; c < MAX_CHN; c++)
+    for (c = 0; c < maxChns; c++)
     {
       if (espos[c]) espos[c]--;
       if (espos[c] < esview)
@@ -1006,7 +1018,7 @@ void generalcommands(void)
     break;
 
     case ':':
-    for (c = 0; c < MAX_CHN; c++)
+    for (c = 0; c < maxChns; c++)
     {
       if (espos[c] < songlen[esnum][c]-1)
         espos[c]++;
@@ -1113,12 +1125,19 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init( mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
+      sound_init( mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
     }
     break;
 
     case KEY_F9:
-    relocator();
+    if (!shiftpressed)
+    {
+        relocator();
+    }
+    else if (numsids == 2)
+    {
+        monomode ^= 1;
+    }
     break;
 
     case KEY_F10:
@@ -1488,7 +1507,7 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
@@ -1497,7 +1516,7 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, numsids, exsid, filterbias, combwaves);
+    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
