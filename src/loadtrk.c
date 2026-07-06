@@ -27,6 +27,9 @@
 
 #include <SDL3/SDL_main.h>
 
+// Increase if configuration has incompatible changes
+#define CFG_VERSION 2
+
 int menu = 0;
 int editmode = EDIT_PATTERN;
 int recordmode = 1;
@@ -146,14 +149,14 @@ int main(int argc, char **argv)
   io_openlinkeddatafile(datafile);
 
   // Load configuration
-  #ifdef __WIN32__
+#ifdef __WIN32__
   GetModuleFileName(NULL, filename, MAX_PATHNAME);
   filename[strlen(filename)-3] = 'c';
   filename[strlen(filename)-2] = 'f';
   filename[strlen(filename)-1] = 'g';
-  #elif __amigaos__
+#elif __amigaos__
   strcpy(filename, "PROGDIR:loadtrk.cfg");
-  #else
+#else
   char* xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
   {
@@ -165,43 +168,48 @@ int main(int argc, char **argv)
     strcpy(filename, getenv("HOME"));
     strcat(filename, "/.config/loadtrk/loadtrk.cfg");
   }
-  #endif
+#endif
   specialnotenames[0] = 0;
   scalatuningfilepath[0] = 0;
   configfile = fopen(filename, "rt");
   if (configfile)
   {
-    getparam(configfile, &mr);
-    getparam(configfile, &sidmodel);
-    getparam(configfile, &numsids);
-    getparam(configfile, &ntsc);
-    getparam(configfile, (unsigned *)&fileformat);
-    getparam(configfile, (unsigned *)&playeradr);
-    getparam(configfile, (unsigned *)&zeropageadr);
-    getparam(configfile, &playerversion);
-    getparam(configfile, &keypreset);
-    getparam(configfile, &defaultpatternlength);
-    getparam(configfile, (unsigned *)&stepsize);
-    getparam(configfile, &multiplier);
-    getparam(configfile, &adparam);
-    getparam(configfile, &interpolate);
-    getparam(configfile, &patterndispmode);
-    getparam(configfile, &sidaddress);
-    getparam(configfile, &sid2address);
-    getfloatparam(configfile, &panning);
-    getparam(configfile, &finevibrato);
-    getparam(configfile, &optimizepulse);
-    getparam(configfile, &optimizerealtime);
-    getparam(configfile, &residdelay);
-    getparam(configfile, &customclockrate);
-    getparam(configfile, (unsigned*)&win_fullscreen);
-    getfloatparam(configfile, &basepitch);
-    getfloatparam(configfile, &filterbias);
-    getparam(configfile, &combwaves);
-    getfloatparam(configfile, &equaldivisionsperoctave);
-    getstringparam(configfile, specialnotenames);
-    getstringparam(configfile, scalatuningfilepath);
-    getparam(configfile, &exsid);
+    unsigned cfg_version;
+    getparam(configfile, &cfg_version);
+    if (cfg_version == CFG_VERSION)
+    {
+        getparam(configfile, &mr);
+        getparam(configfile, &sidmodel);
+        getparam(configfile, &numsids);
+        getparam(configfile, &ntsc);
+        getparam(configfile, (unsigned *)&fileformat);
+        getparam(configfile, (unsigned *)&playeradr);
+        getparam(configfile, (unsigned *)&zeropageadr);
+        getparam(configfile, &playerversion);
+        getparam(configfile, &keypreset);
+        getparam(configfile, &defaultpatternlength);
+        getparam(configfile, (unsigned *)&stepsize);
+        getparam(configfile, &multiplier);
+        getparam(configfile, &adparam);
+        getparam(configfile, &interpolate);
+        getparam(configfile, &patterndispmode);
+        getparam(configfile, &sidaddress);
+        getparam(configfile, &sid2address);
+        getfloatparam(configfile, &panning);
+        getparam(configfile, &finevibrato);
+        getparam(configfile, &optimizepulse);
+        getparam(configfile, &optimizerealtime);
+        getparam(configfile, &residdelay);
+        getparam(configfile, &customclockrate);
+        getparam(configfile, (unsigned*)&win_fullscreen);
+        getfloatparam(configfile, &basepitch);
+        getfloatparam(configfile, &filterbias);
+        getparam(configfile, &combwaves);
+        getfloatparam(configfile, &equaldivisionsperoctave);
+        getstringparam(configfile, specialnotenames);
+        getstringparam(configfile, scalatuningfilepath);
+        getparam(configfile, &exsid);
+    }
     fclose(configfile);
   }
 
@@ -473,6 +481,7 @@ int main(int argc, char **argv)
                         ";Hex parameters are to be preceded with $ and decimal parameters with nothing. \n"
                         ";------------------------------------------------------------------------------\n"
                         "\n"
+                        ";config version\n%d\n\n"
                         ";reSIDfp mixing rate (in Hz)\n%d\n\n"
                         ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
                         ";Number of SIDs (1, 2, default 1)\n%d\n\n"
@@ -505,6 +514,7 @@ int main(int argc, char **argv)
                         ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                         ";Path to a Scala tuning file .scl\n%s\n\n"
                         ";Use exSID (0 = off, 1 = on)\n%d\n\n",
+    CFG_VERSION,
     mr,
     sidmodel,
     numsids,
