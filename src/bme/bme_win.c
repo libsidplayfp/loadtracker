@@ -42,6 +42,7 @@ unsigned win_mousexrel = 0;
 unsigned win_mouseyrel = 0;
 unsigned win_mousebuttons = 0;
 int win_mousemode = MOUSE_FULLSCREEN_HIDDEN;
+float win_mouseywheel = 0.f;
 unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
 
 // Static variables
@@ -123,6 +124,7 @@ void win_checkmessages(void)
     unsigned keynum;
 
     win_activateclick = 0;
+    win_mouseywheel = 0.f;
 
     SDL_PumpEvents();
 
@@ -190,6 +192,10 @@ void win_checkmessages(void)
                 win_mousebuttons &= ~MOUSEB_RIGHT;
                 break;
             }
+            break;
+
+            case SDL_EVENT_MOUSE_WHEEL:
+            win_mouseywheel = event.wheel.y;
             break;
 
             case SDL_EVENT_QUIT:
