@@ -5,6 +5,7 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 
 * ported to CMake build system
 * ported to SDL3
+* dual SID support, merged from [SpiderJ's fork](https://github.com/jansalleine/gt2fork)
 * dots display extended to tables and enabled by default (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * default to a C64 color theme, with an option to run with original colorscheme (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * using external [reSIDfp](https://github.com/libsidplayfp/libresidfp), reSID dropped
@@ -12,7 +13,7 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 * JACK audio output (from [leafo's fork](https://github.com/leafo/goattracker2))
 * MIDI input (based on leafo's fork with added cross-platform support using [RtMidi](https://www.music.mcgill.ca/~gary/rtmidi/))
 * XDG compliant
-* synced with goattrk 2.77 (no stereo version)
+* synced with goattrk 2.77
 
 https://github.com/libsidplayfp/loadtracker
 
