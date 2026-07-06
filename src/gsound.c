@@ -14,7 +14,7 @@
 #  include <exSID.h>
 #endif
 
-#include "goattrk2.h"
+#include "loadtrk.h"
 
 // General / reSID output
 int playspeed;

@@ -6,7 +6,7 @@
 
 #define GHELP_C
 
-#include "goattrk2.h"
+#include "loadtrk.h"
 
 #define HELP_HEADER 15
 #define HELP_NORMAL 7

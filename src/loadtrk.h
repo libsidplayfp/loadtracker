@@ -1,5 +1,5 @@
-#ifndef GOATTRK2_H
-#define GOATTRK2_H
+#ifndef LOADTRK_H
+#define LOADTRK_H
 
 #include <unistd.h>
 #include <stdio.h>
@@ -42,7 +42,7 @@
 
 #define PGUPDNREPEAT 8
 
-#ifndef GOATTRK2_C
+#ifndef LOADTRK_C
 extern int menu;
 extern int editmode;
 extern int recordmode;

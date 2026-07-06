@@ -6,10 +6,11 @@
 
 #define GCONSOLE_C
 
+#include "loadtrk.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "goattrk2.h"
 
 int gfxinitted = 0;
 unsigned *scrbuffer = NULL;

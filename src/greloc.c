@@ -6,7 +6,7 @@
 
 #define GRELOC_C
 
-#include "goattrk2.h"
+#include "loadtrk.h"
 #include "membuf.h"
 #include "parse.h"
 
