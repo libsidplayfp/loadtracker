@@ -1,6 +1,8 @@
-//
-// GOATTRACKER v2 online help
-//
+/*
+ * =============================================================================
+ * online help
+ * =============================================================================
+ */
 
 #define GHELP_C
 
@@ -37,8 +39,10 @@ void onlinehelp(int standalone,int context)
     "SHIFT+F5-F6 Change speed multiplier",
     "SHIFT+F7 Change hardrestart ADSR",
     "SHIFT+F8 Switch between 6581/8580 SID",
+    "SHIFT+F9 Mix to mono (in STEREO mode)",
     "SHIFT+F10 Merge-load song",
     "SHIFT+, . Move song startpos & restart",
+    "ALT+M Switch mono / stereo mode",
     "TAB Cycle between editing modes",
     "INS Insert row (Press on endmark to",
     "DEL Delete row change patt. length)",
@@ -242,7 +246,9 @@ void onlinehelp(int standalone,int context)
 
   int hview = -1;
 
-  int lastrow=0;
+  int lastrow = 0;
+
+  const int offsetX = 24;
 
   unsigned char color_header = HELP_HEADER;
   unsigned char color_normal = HELP_NORMAL;
@@ -259,70 +265,70 @@ void onlinehelp(int standalone,int context)
 
     clearscreen();
     if(!context) {
-      printtext(0, left++, color_header, "GENERAL KEYS");
-      left = printrows(0,left,color_normal, genkeys);
+      printtext(0 + offsetX, left++, color_header, "GENERAL KEYS");
+      left = printrows(0 + offsetX,left,color_normal, genkeys);
       left++;
 
-      printtext(40,right++, color_header, "PATTERN EDIT MODE");
-      right = printrows(40,right,color_normal, patternkeys);
+      printtext(40 + offsetX,right++, color_header, "PATTERN EDIT MODE");
+      right = printrows(40 + offsetX,right,color_normal, patternkeys);
       right++;
-    
-      printtext(0, left++, color_header, "SONG EDIT MODE");
-      left = printrows(0,left,color_normal, songkeys);
+
+      printtext(0 + offsetX, left++, color_header, "SONG EDIT MODE");
+      left = printrows(0 + offsetX,left,color_normal, songkeys);
       left++;
 
-      printtext(0, left++, color_header, "SONGNAME EDIT MODE");
-      printtext(0, left++, color_normal, "Use cursor UP/DOWN to change rows");
+      printtext(0 + offsetX, left++, color_header, "SONGNAME EDIT MODE");
+      printtext(0 + offsetX, left++, color_normal, "Use cursor UP/DOWN to change rows");
       left++;
 
-      printtext(40,right++, color_header, "INSTRUMENT/TABLE EDIT MODE");
-      right = printrows(40,right,color_normal, instkeys);
+      printtext(40 + offsetX,right++, color_header, "INSTRUMENT/TABLE EDIT MODE");
+      right = printrows(40 + offsetX,right,color_normal, instkeys);
       right++;
-    
+
       left = (left<right ? right : left);
-    
-      printtext(0, left++, color_header, "PATTERN COMMANDS");
-      left = printrows(0,left,color_normal, pattcmds);
+
+      printtext(0 + offsetX, left++, color_header, "PATTERN COMMANDS");
+      left = printrows(0 + offsetX,left,color_normal, pattcmds);
       left++;
 
-      printtext(0, left++, color_header, "INSTRUMENT PARAMETERS");
-      left = printrows(0,left,color_normal, instparm);
+      printtext(0 + offsetX, left++, color_header, "INSTRUMENT PARAMETERS");
+      left = printrows(0 + offsetX,left,color_normal, instparm);
       left++;
 
-      printtext(0, left++, color_header,"TABLES");
-      left = printrows(0,left,color_normal, tables);
+      printtext(0 + offsetX, left++, color_header,"TABLES");
+      left = printrows(0 + offsetX,left,color_normal, tables);
       left++;
     } else {
       switch(editmode) {
-      case EDIT_PATTERN:      
-        printtext(0,left++, color_header, "PATTERN EDIT MODE");
-        left = printrows(0,left,color_normal, patternkeys);
+      case EDIT_PATTERN:
+        printtext(0 + offsetX,left++, color_header, "PATTERN EDIT MODE");
+        left = printrows(0 + offsetX,left,color_normal, patternkeys);
         left++;
-        printtext(0, left++, color_header, "PATTERN COMMANDS");
-        left = printrows(0,left,color_normal, pattcmds);
+        printtext(0 + offsetX, left++, color_header, "PATTERN COMMANDS");
+        left = printrows(0 + offsetX,left,color_normal, pattcmds);
         left++;
         break;
       case EDIT_ORDERLIST:
-        printtext(0, left++, color_header, "SONG EDIT MODE");
-        left = printrows(0,left,color_normal, songkeys);
+        printtext(0 + offsetX, left++, color_header, "SONG EDIT MODE");
+        left = printrows(0 + offsetX,left,color_normal, songkeys);
         left++;
         break;
       case EDIT_INSTRUMENT:
-        printtext(0,left++, color_header, "INSTRUMENT/TABLE EDIT MODE");
-        left = printrows(0,left,color_normal, instkeys);
+        printtext(0 + offsetX,left++, color_header, "INSTRUMENT/TABLE EDIT MODE");
+        left = printrows(0 + offsetX,left,color_normal, instkeys);
         left++;
-        printtext(0, left++, color_header, "INSTRUMENT PARAMETERS");
-        left = printrows(0,left,color_normal, instparm);
+        printtext(0 + offsetX, left++, color_header, "INSTRUMENT PARAMETERS");
+        left = printrows(0 + offsetX,left,color_normal, instparm);
         left++;
         break;
       case EDIT_NAMES:
-        printtext(0, left++, color_header, "SONGNAME EDIT MODE");
-        printtext(0, left++, color_normal, "Use cursor UP/DOWN to change rows");
+        printtext(0 + offsetX, left++, color_header, "SONGNAME EDIT MODE");
+        printtext(0 + offsetX, left++, color_normal, "Use cursor UP/DOWN to change rows");
         left++;
         break;
       case EDIT_TABLES:
-        printtext(0,left++, color_header, "INSTRUMENT/TABLE EDIT MODE");
-        left = printrows(0,left++,color_normal, instkeys);
+        printtext(0 + offsetX,left++, color_header, "INSTRUMENT/TABLE EDIT MODE");
+        left = printrows(0 + offsetX,left++,color_normal, instkeys);
         left++;
         break;
       default:
@@ -336,11 +342,11 @@ void onlinehelp(int standalone,int context)
     printblank(0, 0, MAX_COLUMNS);
     printbg(0, 0, colors.CHDRBG, MAX_COLUMNS);
     sprintf(textbuffer, "%s Online Help", programname);
-    printtext(0, 0, colors.CHEADER, textbuffer);
+    printtext(1, 0, colors.CHEADER, textbuffer);
     if(standalone) {
-      printtext(55, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, ESC exits");
+      printtext(84, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, ESC exits");
     } else {
-      printtext(34, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, F12 toggles context, others exit");
+      printtext(61, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, F12 toggles context, others exit");
     }
 
     fliptoscreen();
@@ -398,8 +404,8 @@ void onlinehelp(int standalone,int context)
       break;
     }
 
-    if ((mouseb) && (mousey == 1)) hview++;
-    if ((mouseb) && (mousey == MAX_ROWS-1)) hview--;
+    if ((mouseb) && (mousey >= 1) && (mousey < ((MAX_ROWS-1) / 2))) hview++;
+    if ((mouseb) && (mousey > ((MAX_ROWS-1) / 2) && (mousey <= MAX_ROWS-1))) hview--;
 
     if (hview > -1) hview = -1;
     if (hview < -(lastrow-MAX_ROWS+1)) hview = -(lastrow-MAX_ROWS+1);

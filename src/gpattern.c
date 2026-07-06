@@ -1,6 +1,8 @@
-//
-// GOATTRACKER v2 pattern editor
-//
+/*
+ * =============================================================================
+ * pattern editor
+ * =============================================================================
+ */
 
 #define GPATTERN_C
 
@@ -73,6 +75,8 @@ void patterncommands(void)
 {
   size_t i;
   int c, scrrep;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   switch(key)
   {
@@ -97,14 +101,14 @@ void patterncommands(void)
         case KEY_TRACKER:
         for (i = 0; i < sizeof(notekeytbl1); i++)
         {
-          if ((rawkey == notekeytbl1[i]) && (!epcolumn) && (!shiftpressed))
+          if ((rawkey == notekeytbl1[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+epoctave*12;
           }
         }
         for (i = 0; i < sizeof(notekeytbl2); i++)
         {
-          if ((rawkey == notekeytbl2[i]) && (!epcolumn) && (!shiftpressed))
+          if ((rawkey == notekeytbl2[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+(epoctave+1)*12;
           }
@@ -114,24 +118,24 @@ void patterncommands(void)
         case KEY_DMC:
         for (i = 0; i < sizeof(dmckeytbl); i++)
         {
-          if ((rawkey == dmckeytbl[i]) && (!epcolumn) && (!shiftpressed))
+          if ((rawkey == dmckeytbl[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+epoctave*12;
           }
         }
         break;
-        
+
         case KEY_JANKO:
         for (i = 0; i < sizeof(jankokeytbl1); i++)
         {
-          if ((rawkey == jankokeytbl1[i]) && (!epcolumn) && (!shiftpressed))
+          if ((rawkey == jankokeytbl1[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+epoctave*12;
           }
         }
         for (i = 0; i < sizeof(jankokeytbl2); i++)
         {
-          if ((rawkey == jankokeytbl2[i]) && (!epcolumn) && (!shiftpressed))
+          if ((rawkey == jankokeytbl2[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+(epoctave+1)*12;
           }
@@ -142,7 +146,7 @@ void patterncommands(void)
 
     if (newnote > LASTNOTE) newnote = -1;
     if ((rawkey == KEY_BACKSPACE) && (!epcolumn)) newnote = REST;
-    if ((rawkey == 0x14) && (!epcolumn)) newnote = KEYOFF;
+    if ((rawkey == KEY_CAPSLOCK) && (!epcolumn)) newnote = KEYOFF;
     if (rawkey == KEY_ENTER)
     {
       switch(epcolumn)
@@ -886,7 +890,7 @@ void patterncommands(void)
         {
           int c;
 
-          for (c = 0; c < MAX_CHN; c++)
+          for (c = 0; c < maxChns; c++)
           {
             if (eseditpos < songlen[esnum][c]) espos[c] = eseditpos;
             if (esend[c] <= espos[c]) esend[c] = 0;
@@ -907,7 +911,7 @@ void patterncommands(void)
       {
         epcolumn = 0;
         epchn++;
-        if (epchn >= MAX_CHN) epchn = 0;
+        if (epchn >= maxChns) epchn = 0;
         if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
       }
     }
@@ -930,7 +934,7 @@ void patterncommands(void)
       {
         epcolumn = 5;
         epchn--;
-        if (epchn < 0) epchn = MAX_CHN-1;
+        if (epchn < 0) epchn = maxChns-1;
         if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
       }
     }
@@ -975,22 +979,30 @@ void patterncommands(void)
     if (!shiftpressed)
     {
       epchn++;
-      if (epchn >= MAX_CHN) epchn = 0;
+      if (epchn >= maxChns) epchn = 0;
       if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
     }
     else
     {
       epchn--;
-      if (epchn < 0) epchn = MAX_CHN-1;
+      if (epchn < 0) epchn = maxChns-1;
       if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
     }
     break;
-    
+
     case KEY_1:
     case KEY_2:
     case KEY_3:
     if (shiftpressed)
       mutechannel(rawkey - KEY_1);
+    break;
+    case KEY_4:
+    case KEY_5:
+    case KEY_6:
+    if (shiftpressed && (numsids == 2))
+    {
+        mutechannel(rawkey - KEY_1);
+    }
     break;
   }
   if ((keypreset == KEY_DMC) && (hexnybble >= 0) && (hexnybble <= 7) && (!epcolumn))
@@ -1201,10 +1213,12 @@ void splitpattern(void)
   int c = epnum[epchn];
   int l = pattlen[c];
   int d;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   if (eppos == 0) return;
   if (eppos == l) return;
-  
+
   stopsong();
 
   if (insertpattern(c))
@@ -1229,7 +1243,7 @@ void splitpattern(void)
 
     for (esnum = 0; esnum < MAX_SONGS; esnum++)
     {
-      for (eschn = 0; eschn < MAX_CHN; eschn++)
+      for (eschn = 0; eschn < maxChns; eschn++)
       {
         for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
         {
@@ -1251,6 +1265,8 @@ void joinpattern(void)
 {
   int c = epnum[epchn];
   int d;
+  int maxChns = MAX_CHN;
+  if (numsids == 1) maxChns = 3;
 
   if (eschn != epchn) return;
   if (songorder[esnum][epchn][eseditpos] != c) return;
@@ -1292,7 +1308,7 @@ void joinpattern(void)
 
     for (esnum = 0; esnum < MAX_SONGS; esnum++)
     {
-      for (eschn = 0; eschn < MAX_CHN; eschn++)
+      for (eschn = 0; eschn < maxChns; eschn++)
       {
         for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
         {

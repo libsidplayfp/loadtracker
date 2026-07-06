@@ -35,10 +35,10 @@
 #define KEY_DMC 1
 #define KEY_JANKO 2
 
-#define VISIBLEPATTROWS 31
-#define VISIBLEORDERLIST 15
+#define VISIBLEPATTROWS 34
+#define VISIBLEORDERLIST 23
 #define VISIBLETABLEROWS 15
-#define VISIBLEFILES 24
+#define VISIBLEFILES 28
 
 #define PGUPDNREPEAT 8
 
@@ -56,6 +56,7 @@ extern int cursorcolortable[];
 extern int exitprogram;
 extern int eacolumn;
 extern int eamode;
+extern int ebmode;
 extern unsigned keypreset;
 extern unsigned playerversion;
 extern int fileformat;
@@ -67,6 +68,8 @@ extern unsigned adparam;
 extern unsigned ntsc;
 extern unsigned patterndispmode;
 extern unsigned sidaddress;
+extern unsigned sid2address;
+extern float panning;
 extern unsigned finevibrato;
 extern unsigned optimizepulse;
 extern unsigned optimizerealtime;
@@ -74,12 +77,10 @@ extern unsigned usefinevib;
 extern unsigned b;
 extern unsigned mr;
 extern unsigned writer;
-extern unsigned hardsid;
-extern unsigned catweasel;
 extern unsigned exsid;
 extern unsigned interpolate;
-extern unsigned hardsidbufinteractive;
-extern unsigned hardsidbufplayback;
+extern unsigned numsids;
+extern unsigned monomode;
 extern float basepitch;
 extern char configbuf[MAX_PATHNAME];
 extern char loadedsongfilename[MAX_FILENAME];
@@ -117,8 +118,10 @@ void clear(void);
 void prevmultiplier(void);
 void nextmultiplier(void);
 void editadsr(void);
+void editbpm(void);
 void calculatefreqtable(void);
 void setspecialnotenames(void);
 void readscalatuningfile(void);
+void switchMode(void);
 
 #endif

@@ -1,5 +1,7 @@
 /*
- * GOATTRACKER "console" output routines
+ * =============================================================================
+ * "console" output routines
+ * =============================================================================
  */
 
 #define GCONSOLE_C
@@ -16,6 +18,7 @@ unsigned char *chardata = NULL;
 int key = 0;
 int rawkey = 0;
 int shiftpressed = 0;
+int altpressed = 0;
 int cursorflashdelay = 0;
 int mouseb = 0;
 int prevmouseb = 0;
@@ -31,7 +34,28 @@ int fontwidth = 8;
 int fontheight = 14;
 int mousesizex = 11;
 int mousesizey = 20;
-unsigned bigwindow = 1;
+
+POSITIONS dpos =
+{
+    MAX_COLUMNS-21,             // channelsX
+    MAX_ROWS-2,                 // channelsY
+    80,                         // instrumentsX
+    10,                         // instrumentsY
+    64,                         // loadboxX
+    2,                          // loadboxY
+    1,                          // octaveX
+    MAX_ROWS-2,                 // octaveY
+    54,                         // orderlistX
+    2,                          // orderlistY
+    14,                         // patternsX
+    2,                          // patternsY
+    ((MAX_COLUMNS/2) - 30),     // statusBottomX
+    MAX_ROWS-2,                 // statusBottomY
+    MAX_COLUMNS-1,              // statusTopEndX
+    80,                         // statusTopFvX
+    0,                          // statusTopX
+    0                           // statusTopY
+};
 
 void loadexternalpalette(void);
 void initicon(void);
@@ -51,14 +75,6 @@ int initscreen(void)
   int handle;
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
-
-  if (bigwindow > 1)
-  {
-    fontwidth *= bigwindow;
-    fontheight *= bigwindow;
-    mousesizex *= 2;
-    mousesizey *= 2;
-  }
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     return 0;
@@ -90,8 +106,7 @@ int initscreen(void)
   loadexternalpalette();
   gfx_setpalette();
 
-  if (bigwindow - 1) gfx_loadsprites(0, "bcursor.bin");
-  else gfx_loadsprites(0, "cursor.bin");
+  gfx_loadsprites(0, "cursor.bin");
 
   gfxinitted = 1;
   clearscreen();
@@ -378,172 +393,24 @@ void fliptoscreen(void)
           for (c = 0; c < 14; c++)
           {
             e = *chptr++;
-            
-            switch (bigwindow)
-            {
-              case 1:
-                if (e & 128) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 64) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 32) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 16) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 8) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 4) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 2) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                if (e & 1) *dptr++ = fgcolor;
-                else *dptr++ = bgcolor;
-                dptr += gfx_screen->pitch - fontwidth;
-              break;
-              case 2:
-                if (e & 128) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-              break;
-              case 3:
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-              break;
-              case 4:
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-                if (e & 128) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 64) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 32) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 16) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 8) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 4) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 2) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                if (e & 1) {*dptr++ = bgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor; *dptr++ = fgcolor;}
-                else {*dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor; *dptr++ = bgcolor;}
-                dptr += gfx_screen->pitch - fontwidth;
-              break;
-            }
+
+            if (e & 128) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 64) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 32) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 16) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 8) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 4) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 2) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            if (e & 1) *dptr++ = fgcolor;
+            else *dptr++ = bgcolor;
+            dptr += gfx_screen->pitch - fontwidth;
           }
         }
       }
@@ -609,7 +476,16 @@ void getkey(void)
   shiftpressed = 0;
   if ((win_keystate[SDL_SCANCODE_LSHIFT])||(win_keystate[SDL_SCANCODE_RSHIFT])||
       (win_keystate[SDL_SCANCODE_LCTRL])||(win_keystate[SDL_SCANCODE_RCTRL]))
+  {
     shiftpressed = 1;
+  }
+
+  altpressed = 0;
+  if ((win_keystate[SDL_SCANCODE_LALT])||
+      (win_keystate[SDL_SCANCODE_RALT]))
+  {
+    altpressed = 1;
+  }
 
   if (rawkey == SDL_SCANCODE_KP_ENTER)
   {
@@ -627,4 +503,20 @@ void getkey(void)
   if (rawkey == SDL_SCANCODE_KP_7) key = '7';
   if (rawkey == SDL_SCANCODE_KP_8) key = '8';
   if (rawkey == SDL_SCANCODE_KP_9) key = '9';
+}
+
+void initDisplayPositions(void)
+{
+    if (numsids == 1)
+    {
+        dpos.channelsX = MAX_COLUMNS-21;
+        dpos.orderlistX = 54;
+        dpos.patternsX = 14;
+    }
+    else if (numsids == 2)
+    {
+        dpos.channelsX = MAX_COLUMNS-42;
+        dpos.orderlistX = 80;
+        dpos.patternsX = 1;
+    }
 }

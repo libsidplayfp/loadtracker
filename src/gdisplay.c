@@ -1,6 +1,8 @@
-//
-// GOATTRACKER v2 screen display routines
-//
+/*
+ * =============================================================================
+ * screen display routines
+ * =============================================================================
+ */
 
 #define GDISPLAY_C
 
@@ -62,6 +64,13 @@ void printstatus(void)
 {
   int c, d, color, color2;
   int cc = cursorcolortable[cursorflash];
+  int visibleOrderlist = 14;
+  int maxChns = MAX_CHN;
+  if (numsids == 1)
+  {
+    maxChns = 3;
+    visibleOrderlist = VISIBLEORDERLIST;
+  }
   menu = 0;
 
   if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = 1;
@@ -75,49 +84,69 @@ void printstatus(void)
     else
       sprintf(textbuffer, "%s - %s", programname, loadedsongfilename);
     textbuffer[49] = 0;
-    printtext(0, 0, colors.CHEADER, textbuffer);
+    printtext(dpos.statusTopX+1, dpos.statusTopY, colors.CHEADER, textbuffer);
+
+    if ((numsids == 2) && monomode)
+      printtext(dpos.statusTopFvX-2, dpos.statusTopY, colors.CHEADER, "M");
 
     if (usefinevib)
-      printtext(40+10, 0, colors.CHEADER, "FV");
+      printtext(dpos.statusTopFvX, dpos.statusTopY, colors.CHEADER, "FV");
 
     if (optimizepulse)
-      printtext(43+10, 0, colors.CHEADER, "PO");
+      printtext(dpos.statusTopFvX+3, dpos.statusTopY, colors.CHEADER, "PO");
 
     if (optimizerealtime)
-      printtext(46+10, 0, colors.CHEADER, "RO");
+      printtext(dpos.statusTopFvX+6, dpos.statusTopY, colors.CHEADER, "RO");
 
     if (ntsc)
-      printtext(49+10, 0, colors.CHEADER, "NTSC");
+      printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, "NTSC");
     else
-      printtext(49+10, 0, colors.CHEADER, " PAL");
+      printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, " PAL");
 
     if (!sidmodel)
-      printtext(54+10, 0, colors.CHEADER, "6581");
+      printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, "6581");
     else
-      printtext(54+10, 0, colors.CHEADER, "8580");
+      printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, "8580");
 
     sprintf(textbuffer, "HR:%04X", adparam);
-    printtext(59+10, 0, colors.CHEADER, textbuffer);
-    if (eamode) printbg(62+10+eacolumn, 0, cc, 1);
+    printtext(dpos.statusTopFvX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
+    if (eamode && !ebmode) printbg(dpos.statusTopFvX+22+eacolumn, dpos.statusTopY, cc, 1);
 
     if (multiplier)
     {
       sprintf(textbuffer, "%2dX", multiplier);
-      printtext(67+10, 0, colors.CHEADER, textbuffer);
+      printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, textbuffer);
     }
-    else printtext(67+10, 0, colors.CHEADER, "25Hz");
+    else printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, "25Hz");
 
-    printtext(72+20, 0, colors.CHEADER, "F12=HELP");
+    if (multiplier == 1)
+    {
+      sprintf(textbuffer, "%03dBPM", snd_bpmtempo);
+      printtext(dpos.statusTopFvX+31, dpos.statusTopY, colors.CHEADER, textbuffer);
+
+      if (eamode && ebmode) printbg(dpos.statusTopFvX+31+eacolumn, dpos.statusTopY, cc, 1);
+    }
+
+    printtext(dpos.statusTopEndX-8, dpos.statusTopY, colors.CHEADER, "F12=HELP");
   }
   else
   {
-    printtext(0, 0, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
+    printtext(0, dpos.statusTopY, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
   }
 
   if ((followplay) && (isplaying()))
   {
-    for (c = 0; c < MAX_CHN; c++)
+    for (c = 0; c < maxChns; c++)
     {
+      int currentSonglen = 0;
+      if (numsids == 1)
+      {
+        currentSonglen = songlen[esnum][c];
+      }
+      else if (numsids == 2)
+      {
+        currentSonglen = songlen_stereo[esnum][c];
+      }
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
@@ -132,7 +161,7 @@ void printstatus(void)
       newpos = chn[c].songptr;
       newpos--;
       if (newpos < 0) newpos = 0;
-      if (newpos > songlen[esnum][c]) newpos = songlen[esnum][c];
+      if (newpos > currentSonglen) newpos = currentSonglen;
 
       if ((c == eschn) && (chn[c].advance))
       {
@@ -141,18 +170,24 @@ void printstatus(void)
         {
           esview = newpos;
         }
-        if (newpos - esview >= VISIBLEORDERLIST)
+        if (newpos - esview >= visibleOrderlist)
         {
-          esview = newpos - VISIBLEORDERLIST + 1;
+          esview = newpos - visibleOrderlist + 1;
         }
       }
     }
   }
 
-  for (c = 0; c < MAX_CHN; c++)
+  for (c = 0; c < maxChns; c++)
   {
-    sprintf(textbuffer, "CHN %d PATT.%02X", c+1, epnum[c]);
-    printtext(2+c*15, 2, colors.CTITLE, textbuffer);
+    sprintf(textbuffer, "CH.");
+    printtext(dpos.patternsX+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
+    sprintf(textbuffer, "%d", c+1);
+    printtext(dpos.patternsX+3+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
+    sprintf(textbuffer, "PATT.");
+    printtext(dpos.patternsX+5+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
+    sprintf(textbuffer, "%02X", epnum[c]);
+    printtext(dpos.patternsX+10+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
 
     for (d = 0; d < VISIBLEPATTROWS; d++)
     {
@@ -207,31 +242,31 @@ void printstatus(void)
       textbuffer[3] = 0;
       if (p%stepsize)
       {
-        printtext(2+c*15, 3+d, colors.CNORMAL, textbuffer);
+        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CNORMAL, textbuffer);
       }
       else
       {
-        printtext(2+c*15, 3+d, colors.CCOMMAND, textbuffer);
+        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CCOMMAND, textbuffer);
       }
       if (color == colors.CNORMAL)
         color2 = colors.CCOMMAND;
       else
         color2 = color;
-      printtext(6+c*15, 3+d, color2, &textbuffer[4]);
-      printtext(10+c*15, 3+d, color, &textbuffer[8]);
-      printtext(12+c*15, 3+d, color2, &textbuffer[10]);
-      printtext(13+c*15, 3+d, color, &textbuffer[11]);
+      printtext(dpos.patternsX+3+c*13, dpos.patternsY+1+d, color2, &textbuffer[4]);
+      printtext(dpos.patternsX+7+c*13, dpos.patternsY+1+d, color, &textbuffer[8]);
+      printtext(dpos.patternsX+9+c*13, dpos.patternsY+1+d, color2, &textbuffer[10]);
+      printtext(dpos.patternsX+10+c*13, dpos.patternsY+1+d, color, &textbuffer[11]);
       if (c == epmarkchn)
       {
         if (epmarkstart <= epmarkend)
         {
           if ((p >= epmarkstart) && (p <= epmarkend))
-            printbg(2+c*15+4, 3+d, 8, 9);
+            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, 8, 9);
         }
         else
         {
           if ((p <= epmarkstart) && (p >= epmarkend))
-            printbg(2+c*15+4, 3+d, 8, 9);
+            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, 8, 9);
         }
       }
       if ((color == colors.CEDIT) && (editmode == EDIT_PATTERN) && (epchn == c))
@@ -239,26 +274,47 @@ void printstatus(void)
         switch(epcolumn)
         {
           case 0:
-          if (!eamode) printbg(2+c*15+4, 3+d, cc, 3);
+          if (!eamode) printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, cc, 3);
           break;
 
           default:
-          if (!eamode) printbg(2+c*15+7+epcolumn, 3+d, cc, 1);
+          if (!eamode) printbg(dpos.patternsX+c*13+6+epcolumn, dpos.patternsY+1+d, cc, 1);
           break;
         }
       }
     }
   }
 
-  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE %02X, POS %02X)", esnum, eseditpos);
-  printtext(40+10, 2, colors.CTITLE, textbuffer);
-  for (c = 0; c < MAX_CHN; c++)
+  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ", esnum, eseditpos);
+  printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE, textbuffer);
+  sprintf(textbuffer, "%02X", esnum);
+  printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT, textbuffer);
+  sprintf(textbuffer, ", POS ");
+  printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE, textbuffer);
+  sprintf(textbuffer, "%02X", eseditpos);
+  printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT, textbuffer);
+  sprintf(textbuffer, ")");
+  printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE, textbuffer);
+
+  for (c = 0; c < maxChns; c++)
   {
     sprintf(textbuffer, " %d ", c+1);
-    printtext(40+10, 3+c, colors.CTITLE, textbuffer);
-    for (d = 0; d < VISIBLEORDERLIST; d++)
+    printtext(dpos.orderlistX, dpos.orderlistY+1+c, colors.CTITLE, textbuffer);
+    for (d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
+      unsigned char currentSongorder = 0;
+      int currentSonglen = 0;
+      if (numsids == 1)
+      {
+        currentSongorder = songorder[esnum][c][p];
+        currentSonglen = songlen[esnum][c];
+      }
+      else if (numsids == 2)
+      {
+        currentSongorder = songorder_stereo[esnum][c][p];
+        currentSonglen = songlen_stereo[esnum][c];
+      }
       color = colors.CNORMAL;
       if (isplaying())
       {
@@ -270,48 +326,49 @@ void printstatus(void)
       if (p == espos[c]) color = colors.CEDIT;
       if ((esend[c]) && (p == esend[c])) color = colors.CEDIT;
 
-      if ((p < 0) || (p > (songlen[esnum][c]+1)) || (p > MAX_SONGLEN+1))
+      if ((p < 0) || (p > (currentSonglen+1)) || (p > MAX_SONGLEN+1))
       {
         sprintf(textbuffer, "   ");
       }
       else
       {
-        if (songorder[esnum][c][p] < LOOPSONG)
+        if (currentSongorder < LOOPSONG)
         {
-          if ((songorder[esnum][c][p] < REPEAT) || (p >= songlen[esnum][c]))
+          if ((currentSongorder < REPEAT) || (p >= currentSonglen))
           {
-            sprintf(textbuffer, "%02X ", songorder[esnum][c][p]);
-            if ((p >= songlen[esnum][c]) && (color == colors.CNORMAL)) color = colors.CCOMMAND;
+            sprintf(textbuffer, "%02X ", currentSongorder);
+            if ((p >= currentSonglen) && (color == colors.CNORMAL)) color = colors.CCOMMAND;
           }
           else
           {
-            if (songorder[esnum][c][p] >= TRANSUP)
+            if (currentSongorder >= TRANSUP)
             {
-              sprintf(textbuffer, "+%01X ", songorder[esnum][c][p]&0xf);
+              sprintf(textbuffer, "+%01X ", currentSongorder&0xf);
               if (color == colors.CNORMAL) color = colors.CCOMMAND;
             }
             else
             {
-              if (songorder[esnum][c][p] >= TRANSDOWN)
+              if (currentSongorder >= TRANSDOWN)
               {
-                sprintf(textbuffer, "-%01X ", 16-(songorder[esnum][c][p] & 0x0f));
+                sprintf(textbuffer, "-%01X ", 16-(currentSongorder & 0x0f));
                 if (color == colors.CNORMAL) color = colors.CCOMMAND;
               }
               else
               {
-                sprintf(textbuffer, "R%01X ", (songorder[esnum][c][p]+1) & 0x0f);
+                sprintf(textbuffer, "R%01X ", (currentSongorder+1) & 0x0f);
                 if (color == colors.CNORMAL) color = colors.CCOMMAND;
               }
             }
           }
         }
-        if (songorder[esnum][c][p] == LOOPSONG)
+        if (currentSongorder == LOOPSONG)
         {
           sprintf(textbuffer, "RST");
           if (color == colors.CNORMAL) color = colors.CCOMMAND;
         }
       }
-      printtext(44+10+d*3, 3+c, color, textbuffer);
+      if (chn[c].mute) color = colors.CMUTE;
+      printtext(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, color, textbuffer);
       if (c == esmarkchn)
       {
         if (esmarkstart <= esmarkend)
@@ -319,9 +376,9 @@ void printstatus(void)
           if ((p >= esmarkstart) && (p <= esmarkend))
           {
             if (p != esmarkend)
-              printbg(44+10+d*3, 3+c, 1, 3);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 3);
             else
-              printbg(44+10+d*3, 3+c, 1, 2);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 2);
           }
         }
         else
@@ -329,72 +386,72 @@ void printstatus(void)
           if ((p <= esmarkstart) && (p >= esmarkend))
           {
             if (p != esmarkstart)
-              printbg(44+10+d*3, 3+c, 1, 3);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 3);
             else
-              printbg(44+10+d*3, 3+c, 1, 2);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 2);
           }
         }
       }
       if ((p == eseditpos) && (editmode == EDIT_ORDERLIST) && (eschn == c))
       {
-        if (!eamode) printbg(44+10+d*3+escolumn, 3+c, cc, 1);
+        if (!eamode) printbg(dpos.orderlistX+4+d*3+escolumn, dpos.orderlistY+1+c, cc, 1);
       }
     }
   }
 
   sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s", einum, instr[einum].name);
-  printtext(40+10, 7, colors.CTITLE, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE, textbuffer);
 
   sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
   if (eipos == 0) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(40+10, 8, color, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+1, color, textbuffer);
 
   sprintf(textbuffer, "Sustain/Release %02X", instr[einum].sr);
   if (eipos == 1) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(40+10, 9, color, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+2, color, textbuffer);
 
   sprintf(textbuffer, "Wavetable Pos   %02X", instr[einum].ptr[WTBL]);
   if (eipos == 2) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(40+10, 10, color, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+3, color, textbuffer);
 
   sprintf(textbuffer, "Pulsetable Pos  %02X", instr[einum].ptr[PTBL]);
   if (eipos == 3) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(40+10, 11, color, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+4, color, textbuffer);
 
   sprintf(textbuffer, "Filtertable Pos %02X", instr[einum].ptr[FTBL]);
   if (eipos == 4) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(40+10, 12, color, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+5, color, textbuffer);
 
   sprintf(textbuffer, "Vibrato Param   %02X", instr[einum].ptr[STBL]);
   if (eipos == 5) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(60+10, 8, color, textbuffer);
+  printtext(dpos.instrumentsX+20, dpos.instrumentsY+1, color, textbuffer);
 
   sprintf(textbuffer, "Vibrato Delay   %02X", instr[einum].vibdelay);
   if (eipos == 6) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(60+10, 9, color, textbuffer);
+  printtext(dpos.instrumentsX+20, dpos.instrumentsY+2, color, textbuffer);
 
   sprintf(textbuffer, "HR/Gate Timer   %02X", instr[einum].gatetimer);
   if (eipos == 7) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(60+10, 10, color, textbuffer);
+  printtext(dpos.instrumentsX+20, dpos.instrumentsY+3, color, textbuffer);
 
   sprintf(textbuffer, "1stFrame Wave   %02X", instr[einum].firstwave);
   if (eipos == 8) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(60+10, 11, color, textbuffer);
+  printtext(dpos.instrumentsX+20, dpos.instrumentsY+4, color, textbuffer);
 
   if (editmode == EDIT_INSTRUMENT)
   {
     if (eipos < 9)
     {
-      if (!eamode) printbg(56+10+eicolumn+20*(eipos/5), 8+(eipos%5), cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+16+eicolumn+20*(eipos/5), dpos.instrumentsY+1+(eipos%5), cc, 1);
     }
     else
     {
-      if (!eamode) printbg(60+10+strlen(instr[einum].name), 7, cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+20+strlen(instr[einum].name), dpos.instrumentsY, cc, 1);
     }
   }
 
   sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
-  printtext(40+10, 14, colors.CTITLE, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE, textbuffer);
 
   for (c = 0; c < MAX_TABLES; c++)
   {
@@ -427,19 +484,19 @@ void printstatus(void)
           memset(&textbuffer[6], '.', 2);
         }
       }
-      printtext(40+10+10*c, 15+d, color, textbuffer);
+      printtext(dpos.instrumentsX+10*c, dpos.instrumentsY+8+d, color, textbuffer);
 
       if (etmarknum == c)
       {
         if (etmarkstart <= etmarkend)
         {
           if ((p >= etmarkstart) && (p <= etmarkend))
-            printbg(40+10+10*c+3, 15+d, 1, 5);
+            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, 1, 5);
         }
         else
         {
           if ((p <= etmarkstart) && (p >= etmarkend))
-            printbg(40+10+10*c+3, 15+d, 1, 5);
+            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, 1, 5);
         }
       }
     }
@@ -447,38 +504,38 @@ void printstatus(void)
 
   if (editmode == EDIT_TABLES)
   {
-    if (!eamode) printbg(43+10+etnum*10+(etcolumn & 1)+(etcolumn/2)*3, 15+etpos-etview[etnum], cc, 1);
+    if (!eamode) printbg(dpos.instrumentsX+3+etnum*10+(etcolumn & 1)+(etcolumn/2)*3, dpos.instrumentsY+8+etpos-etview[etnum], cc, 1);
   }
 
-  printtext(40+10, 31, colors.CTITLE, "NAME     ");
+  printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CTITLE, "NAME     ");
   sprintf(textbuffer, "%-32s", songname);
-  printtext(49+10, 31, colors.CEDIT, textbuffer);
+  printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CEDIT, textbuffer);
 
-  printtext(40+10, 32, colors.CTITLE, "AUTHOR   ");
+  printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CTITLE, "AUTHOR   ");
   sprintf(textbuffer, "%-32s", authorname);
-  printtext(49+10, 32, colors.CEDIT, textbuffer);
+  printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CEDIT, textbuffer);
 
-  printtext(40+10, 33, colors.CTITLE, "RELEASED ");
+  printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CTITLE, "RELEASED ");
   sprintf(textbuffer, "%-32s", copyrightname);
-  printtext(49+10, 33, colors.CEDIT, textbuffer);
+  printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CEDIT, textbuffer);
 
   if ((editmode == EDIT_NAMES) && (!eamode))
   {
     switch(enpos)
     {
       case 0:
-      printbg(49+10+strlen(songname), 31, cc, 1);
+      printbg(dpos.instrumentsX+9+strlen(songname), dpos.instrumentsY+8+VISIBLETABLEROWS+1, cc, 1);
       break;
       case 1:
-      printbg(49+10+strlen(authorname), 32, cc, 1);
+      printbg(dpos.instrumentsX+9+strlen(authorname), dpos.instrumentsY+8+VISIBLETABLEROWS+2, cc, 1);
       break;
       case 2:
-      printbg(49+10+strlen(copyrightname), 33, cc, 1);
+      printbg(dpos.instrumentsX+9+strlen(copyrightname), dpos.instrumentsY+8+VISIBLETABLEROWS+3, cc, 1);
       break;
     }
   }
   sprintf(textbuffer, "OCTAVE %d", epoctave);
-  printtext(0, 35, colors.CTITLE, textbuffer);
+  printtext(dpos.octaveX, dpos.octaveY, colors.CTITLE, textbuffer);
 
   switch(autoadvance)
   {
@@ -495,11 +552,11 @@ void printstatus(void)
     break;
   }
 
-  if (recordmode) printtext(0, 36, color, "EDITMODE");
-  else printtext(0, 36, color, "JAM MODE");
+  if (recordmode) printtext(dpos.octaveX, dpos.octaveY+1, color, "EDITMODE");
+  else printtext(dpos.octaveX, dpos.octaveY+1, color, "JAM MODE");
 
-  if (isplaying()) printtext(10, 35, colors.CTITLE, "PLAYING");
-  else printtext(10, 35, colors.CTITLE, "STOPPED");
+  if (isplaying()) printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, "PLAYING");
+  else printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, "STOPPED");
   if (multiplier)
   {
     if (!ntsc)
@@ -515,10 +572,27 @@ void printstatus(void)
       sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/15) & 1], timesec);
   }
 
-  printtext(10, 36, colors.CEDIT, textbuffer);
+  printtext(dpos.octaveX+10, dpos.octaveY+1, colors.CEDIT, textbuffer);
 
-  printtext(80, 35, colors.CTITLE, " CHN1   CHN2   CHN3 ");
-  for (c = 0; c < MAX_CHN; c++)
+  if (numsids == 1)
+  {
+    printtext(
+        dpos.channelsX,
+        dpos.channelsY,
+        colors.CTITLE,
+        " CHN1   CHN2   CHN3 "
+    );
+  }
+  else if (numsids == 2)
+  {
+    printtext(
+        dpos.channelsX,
+        dpos.channelsY,
+        colors.CTITLE,
+        " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 "
+    );
+  }
+  for (c = 0; c < maxChns; c++)
   {
     int chnpos = chn[c].songptr;
     int chnrow = chn[c].pattptr/4;
@@ -527,13 +601,13 @@ void printstatus(void)
     if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
     if (chnrow >= 100) chnrow -= 100;
 
-    sprintf(textbuffer, "%03d/%02d",
+    sprintf(textbuffer, "%03X/%02X",
       chnpos,chnrow);
-    printtext(80+7*c, 36, colors.CEDIT, textbuffer);
+    printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 
-  if (etlock) printtext(78, 36, colors.CTITLE, " ");
-    else printtext(78, 36, colors.CTITLE, "U");
+  if (etlock) printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, " ");
+    else printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, "U");
 }
 
 

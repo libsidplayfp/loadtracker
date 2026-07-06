@@ -1,5 +1,7 @@
 /*
- * GOATTRACKER reSID interface
+ * =============================================================================
+ * reSIDfp interface
+ * =============================================================================
  */
 
 #define GSID_C
@@ -14,6 +16,7 @@
 int clockrate;
 int samplerate;
 unsigned char sidreg[NUMSIDREGS];
+unsigned char sidreg2[NUMSIDREGS];
 unsigned char sidorder[] =
   {0x15,0x16,0x18,0x17,
    0x05,0x06,0x02,0x03,0x00,0x01,0x04,
@@ -27,11 +30,15 @@ unsigned char altsidorder[] =
    0x12,0x0e,0x0f,0x10,0x11,0x13,0x14};
 
 reSIDfp::residfp *sid = nullptr;
+reSIDfp::residfp *sid2 = nullptr;
 
 extern unsigned residdelay;
 extern unsigned adparam;
 
-void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate, float filterbias, unsigned combwaves)
+void sid_init(int speed, unsigned m,
+              unsigned ntsc, unsigned interpolate,
+              unsigned customclockrate, unsigned numsids,
+              float filterbias, unsigned combwaves)
 {
   if (ntsc) clockrate = NTSCCLOCKRATE;
     else clockrate = PALCLOCKRATE;
@@ -42,35 +49,47 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   samplerate = speed;
 
   if (!sid) sid = new reSIDfp::residfp;
+  if (numsids == 2 && !sid2) sid2 = new reSIDfp::residfp;
 
   switch(interpolate)
   {
     case 0:
         sid->setSamplingParameters(clockrate, reSIDfp::DECIMATE, speed);
+        if (sid2) sid2->setSamplingParameters(clockrate, reSIDfp::DECIMATE, speed);
         break;
 
     default:
     case 1:
         sid->setSamplingParameters(clockrate, reSIDfp::RESAMPLE, speed);
+        if (sid2) sid2->setSamplingParameters(clockrate, reSIDfp::RESAMPLE, speed);
         break;
   }
 
   sid->reset();
   sid->setFilter6581Curve(filterbias);
   sid->setFilter8580Curve(filterbias);
+  if (sid2)
+  {
+    sid2->reset();
+    sid2->setFilter6581Curve(filterbias);
+    sid2->setFilter8580Curve(filterbias);
+  }
   switch(combwaves)
   {
     case 0:
         sid->setCombinedWaveforms(reSIDfp::WEAK);
+        if (sid2) sid2->setCombinedWaveforms(reSIDfp::WEAK);
         break;
 
     default:
     case 1:
         sid->setCombinedWaveforms(reSIDfp::AVERAGE);
+        if (sid2) sid2->setCombinedWaveforms(reSIDfp::AVERAGE);
         break;
 
     case 2:
         sid->setCombinedWaveforms(reSIDfp::STRONG);
+        if (sid2) sid2->setCombinedWaveforms(reSIDfp::STRONG);
         break;
   }
 
@@ -78,14 +97,17 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   for (int c = 0; c < NUMSIDREGS; c++)
   {
     sidreg[c] = 0x00;
+    sidreg2[c] = 0x00;
   }
   if (m == 1)
   {
     sid->setChipModel(reSIDfp::CSG8580);
+    if (sid2) sid2->setChipModel(reSIDfp::CSG8580);
   }
   else
   {
     sid->setChipModel(reSIDfp::MOS6581);
+    if (sid2) sid2->setChipModel(reSIDfp::MOS6581);
   }
 }
 
@@ -152,6 +174,96 @@ int sid_fillbuffer(short *ptr, int samples)
     result = sid->clock(tdelta, ptr);
     total += result;
     ptr += result;
+    samples -= result;
+  }
+
+  return total;
+}
+
+int sid_fillbuffer_stereo(short *lptr, short *rptr, int samples)
+{
+  if (!sid || !sid2)
+    return 0;
+
+  int tdelta2;
+  int result = 0;
+  int total = 0;
+
+  int badline = rand() % NUMSIDREGS;
+
+  int tdelta = clockrate * samples / samplerate;
+  if (tdelta <= 0) return total;
+
+  for (int c = 0; c < NUMSIDREGS; c++)
+  {
+    unsigned char o = sid_getorder(c);
+
+    // Extra delay for loading the waveform (and mt_chngate,x)
+    if ((o == 4) || (o == 11) || (o == 18))
+    {
+        tdelta2 = SIDWAVEDELAY;
+        result = sid->clock(tdelta2, lptr);
+        tdelta2 = SIDWAVEDELAY;
+        sid2->clock(tdelta2, rptr);
+
+        total += result;
+        lptr += result;
+        rptr += result;
+        samples -= result;
+        tdelta -= SIDWAVEDELAY;
+    }
+
+    // Possible random badline delay once per writing
+    if ((badline == c) && (residdelay))
+    {
+      tdelta2 = residdelay;
+      result = sid->clock(tdelta2, lptr);
+      tdelta2 = residdelay;
+      result = sid2->clock(tdelta2, rptr);
+      total += result;
+      lptr += result;
+      rptr += result;
+      samples -= result;
+      tdelta -= residdelay;
+    }
+
+    sid->write(o, sidreg[o]);
+    sid2->write(o, sidreg2[o]);
+
+    tdelta2 = SIDWRITEDELAY-5;
+    result = sid->clock(tdelta2, lptr);
+    tdelta2 = SIDWRITEDELAY-5;
+    result = sid2->clock(tdelta2, rptr);
+    total += result;
+    lptr += result;
+    rptr += result;
+    samples -= result;
+    tdelta -= SIDWRITEDELAY;
+
+    if (tdelta <= 0) return total;
+  }
+
+  tdelta2 = tdelta;
+  result = sid->clock(tdelta, lptr);
+  tdelta2 = tdelta;
+  result = sid2->clock(tdelta, rptr);
+  total += result;
+  lptr += result;
+  rptr += result;
+  samples -= result;
+
+  // Loop extra cycles until all samples produced
+  while (samples)
+  {
+    tdelta = clockrate * samples / samplerate;
+    if (tdelta <= 0) return total;
+
+    result = sid->clock(tdelta, lptr);
+    tdelta = clockrate * samples / samplerate;
+    result = sid2->clock(tdelta, rptr);
+    total += result;
+    lptr += result;
+    rptr += result;
     samples -= result;
   }
 
