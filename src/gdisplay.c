@@ -79,12 +79,18 @@ void printstatus(void)
 
   if (!menu)
   {
+    printtext(dpos.statusTopX+1,  dpos.statusTopY,  CDBLUE|(colors.CHDRBG<<4), " \"\"\"");
+    printtext(dpos.statusTopX+5,  dpos.statusTopY, CDGREEN|(colors.CHDRBG<<4), "\"\"\"");
+    printtext(dpos.statusTopX+8,  dpos.statusTopY, CYELLOW|(colors.CHDRBG<<4), "\"\"\"");
+    printtext(dpos.statusTopX+11, dpos.statusTopY, CLBROWN|(colors.CHDRBG<<4), "\"\"\"");
+    printtext(dpos.statusTopX+14, dpos.statusTopY,   CDRED|(colors.CHDRBG<<4), "\"\"\" ");
+
     if (!strlen(loadedsongfilename))
       sprintf(textbuffer, "%s", programname);
     else
       sprintf(textbuffer, "%s - %s", programname, loadedsongfilename);
     textbuffer[49] = 0;
-    printtext(dpos.statusTopX+1, dpos.statusTopY, colors.CHEADER, textbuffer);
+    printtext(dpos.statusTopX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
 
     if ((numsids == 2) && monomode)
       printtext(dpos.statusTopFvX-2, dpos.statusTopY, colors.CHEADER, "M");
