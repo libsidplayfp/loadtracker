@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(loadtracker)
+project(loadtracker VERSION 1.99.0 HOMEPAGE_URL https://github.com/libsidplayfp/loadtracker)
 
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_C_STANDARD 99)
