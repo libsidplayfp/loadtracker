@@ -573,7 +573,7 @@ void waitkeymouse(void)
     getkey();
     if ((rawkey) || (key)) break;
     if (win_quitted) break;
-    if (mouseb) break;
+    if (mouseb || (win_mouseywheel != 0.f)) break;
   }
 
   converthex();
@@ -681,6 +681,20 @@ void mousecommands(void)
   else if (numsids == 2)
   {
     currentSonglen = songlen_stereo[esnum][eschn];
+  }
+
+  if (win_mouseywheel != 0.f)
+  {
+    if ((mousey >= dpos.patternsY) &&
+        (mousey <= dpos.statusBottomY - 1) &&
+        (mousex >= dpos.patternsX) &&
+        (mousex <= dpos.patternsX + 11 + (maxChns-1)*13))
+    {
+        if (win_mouseywheel > 0.f)
+          patternup();
+        else if (win_mouseywheel < 0.f)
+          patterndown();
+    }
   }
 
   if (!mouseb) return;
@@ -844,7 +858,6 @@ void mousecommands(void)
     if (mouseb & MOUSEB_LEFT) nextinstr();
     if (mouseb & MOUSEB_RIGHT) previnstr();
   }
-
 
   // Table editpos
   for (c = 0; c < MAX_TABLES; c++)
