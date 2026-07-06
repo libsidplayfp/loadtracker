@@ -506,7 +506,6 @@ int main(int argc, char **argv)
                         ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
                         ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
                         ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
-                        ";window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window)\n%d\n\n"
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
                         ";Filter curve (0.0 (dark) to 1.0 (light))\n%f\n\n"
                         ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
