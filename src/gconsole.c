@@ -77,7 +77,7 @@ int initscreen(void)
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     return 0;
   win_openwindow(xsize, ysize, "LoadTracker", NULL);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
