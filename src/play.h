@@ -1,5 +1,23 @@
-#ifndef GPLAY_H
-#define GPLAY_H
+/*
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#ifndef PLAY_H
+#define PLAY_H
 
 #define PLAY_PLAYING 0x00
 #define PLAY_BEGINNING 0x01
@@ -43,7 +61,7 @@ typedef struct
   unsigned char gatetimer;
 } CHN;
 
-#ifndef GPLAY_C
+#ifndef PLAY_C
 extern CHN chn[MAX_CHN];
 extern unsigned char masterfader;
 extern unsigned char freqtbllo[];

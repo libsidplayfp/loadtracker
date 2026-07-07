@@ -16,7 +16,7 @@
 #include "gsound.h"
 #include "gsid.h"
 #include "gsong.h"
-#include "gplay.h"
+#include "play.h"
 #include "display.h"
 #include "greloc.h"
 #include "file.h"

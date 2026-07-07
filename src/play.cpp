@@ -1,14 +1,32 @@
 /*
- * =============================================================================
- * playroutine
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GPLAY_C
+// =============================================================================
+// playroutine
+// =============================================================================
+
+#define PLAY_C
 
 extern "C" {
 #include "loadtrk.h"
 }
+
+#include <cstring>
 
 unsigned char freqtbllo[] = {
   0x17,0x27,0x39,0x4b,0x5f,0x74,0x8a,0xa1,0xba,0xd4,0xf0,0x0e,
@@ -61,14 +79,13 @@ void sequencer_stereo(int c, CHN *cptr);
 
 void initchannels(void)
 {
-  int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
   CHN *cptr = &chn[0];
 
-  memset(chn, 0, sizeof chn);
+  std::memset(chn, 0, sizeof chn);
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     chn[c].trans = 0;
     chn[c].instr = 1;
@@ -176,7 +193,6 @@ void playroutine(void)
 {
   INSTR *iptr;
   CHN *cptr = &chn[0];
-  int c;
   int maxChns = 3;
 
   if (songinit == PLAY_STOP)
@@ -197,7 +213,7 @@ void playroutine(void)
          songinit = 0x01;
     }
 
-    for (c = 0; c < maxChns; c++)
+    for (int c = 0; c < maxChns; c++)
     {
       cptr->songptr = 0;
       cptr->command = 0;
@@ -316,7 +332,7 @@ void playroutine(void)
     sidreg[0x17] = filterctrl;
     sidreg[0x18] = filtertype | masterfader;
 
-    for (c = 0; c < maxChns; c++)
+    for (int c = 0; c < maxChns; c++)
     {
       iptr = &instr[cptr->instr];
 
@@ -955,7 +971,7 @@ void playroutine(void)
           }
         }
       }
-      NEXTCHN:
+NEXTCHN:
       if (cptr->mute)
         sidreg[0x4+7*c] = cptr->wave = 0x08;
       else
@@ -1030,7 +1046,6 @@ void playroutine_stereo(void)
 {
     INSTR *iptr;
     CHN *cptr = &chn[0];
-    int c;
 
     if (songinit == PLAY_STOP)
         followplay = 0;
@@ -1048,14 +1063,14 @@ void playroutine_stereo(void)
 
         if ((songinit == 0x02) || (songinit == 0x03))
         {
-            for (c = 0; c< MAX_CHN; c++)
+            for (int c = 0; c< MAX_CHN; c++)
             {
                 if (espos[c] >= songlen_stereo[psnum][c])
                     songinit = 0x01;
             }
         }
 
-        for (c = 0; c < MAX_CHN; c++)
+        for (int c = 0; c < MAX_CHN; c++)
         {
             cptr->songptr = 0;
             cptr->command = 0;
@@ -1227,7 +1242,7 @@ FILTER2STOP_S:
         sidreg2[0x17] = filter2ctrl;
         sidreg2[0x18] = filter2type | masterfader;
 
-        for (c = 0; c < MAX_CHN; c++)
+        for (int c = 0; c < MAX_CHN; c++)
         {
             iptr = &instr[cptr->instr];
 
