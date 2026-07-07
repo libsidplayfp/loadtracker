@@ -291,7 +291,7 @@ void printstatus(void)
     }
   }
 
-  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ", esnum, eseditpos);
+  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ");
   printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE, textbuffer);
   sprintf(textbuffer, "%02X", esnum);
   printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT, textbuffer);
