@@ -80,8 +80,8 @@ include_directories(${CMAKE_BINARY_DIR}/src/residfp)
 
 find_package(SDL3 REQUIRED)
 
-add_executable(datafile src/bme/datafile.c src/bme/bme_end.cpp)
-add_executable(dat2inc src/bme/dat2inc.c)
+add_executable(datafile src/bme/datafile.cpp src/bme/bme_end.cpp)
+add_executable(dat2inc src/bme/dat2inc.cpp)
 
 target_include_directories(datafile PUBLIC SDL3::Headers)
 
