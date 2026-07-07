@@ -23,7 +23,7 @@
 #include "pattern.h"
 #include "order.h"
 #include "instr.h"
-#include "gtable.h"
+#include "table.h"
 
 #define EDIT_PATTERN 0
 #define EDIT_ORDERLIST 1

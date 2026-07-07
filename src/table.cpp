@@ -1,14 +1,32 @@
 /*
- * =============================================================================
- * table editor
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GTABLE_C
+// =============================================================================
+// table editor
+// =============================================================================
+
+#define TABLE_C
 
 extern "C" {
 #include "loadtrk.h"
 }
+
+#include <cstring>
 
 unsigned char ltablecopybuffer[MAX_TABLELEN];
 unsigned char rtablecopybuffer[MAX_TABLELEN];
@@ -25,8 +43,6 @@ int etmarkend;
 
 void tablecommands(void)
 {
-  int c;
-
   switch(rawkey)
   {
     case KEY_Q:
@@ -53,7 +69,7 @@ void tablecommands(void)
       rtable[etnum][etpos] = speed & 0xff;
     }
     break;
-    
+
     case KEY_W:
     if ((shiftpressed) && (etnum == STBL))
     {
@@ -74,7 +90,7 @@ void tablecommands(void)
       rtable[etnum][etpos] = speed;
     }
     break;
-    
+
     case KEY_S:
     if ((shiftpressed) && (etnum == STBL))
     {
@@ -129,17 +145,17 @@ void tablecommands(void)
     case KEY_HOME:
     while (etpos != 0) tableup();
     break;
-    
+
     case KEY_END:
     while (etpos != MAX_TABLELEN-1) tabledown();
     break;
 
     case KEY_PGUP:
-    for (c = 0; c < PGUPDNREPEAT; c++) tableup();
+    for (int c = 0; c < PGUPDNREPEAT; c++) tableup();
     break;
 
     case KEY_PGDN:
-    for (c = 0; c < PGUPDNREPEAT; c++) tabledown();
+    for (int c = 0; c < PGUPDNREPEAT; c++) tabledown();
     break;
 
     case KEY_UP:
@@ -159,7 +175,7 @@ void tablecommands(void)
         int d = 0;
         if (etmarkstart <= etmarkend)
         {
-          for (c = etmarkstart; c <= etmarkend; c++)
+          for (int c = etmarkstart; c <= etmarkend; c++)
           {
             ltablecopybuffer[d] = ltable[etmarknum][c];
             rtablecopybuffer[d] = rtable[etmarknum][c];
@@ -173,7 +189,7 @@ void tablecommands(void)
         }
         else
         {
-          for (c = etmarkend; c <= etmarkstart; c++)
+          for (int c = etmarkend; c <= etmarkstart; c++)
           {
             ltablecopybuffer[d] = ltable[etmarknum][c];
             rtablecopybuffer[d] = rtable[etmarknum][c];
@@ -196,7 +212,7 @@ void tablecommands(void)
     {
       if (tablecopyrows)
       {
-        for (c = 0; c < tablecopyrows; c++)
+        for (int c = 0; c < tablecopyrows; c++)
         {
           ltable[etnum][etpos] = ltablecopybuffer[c];
           rtable[etnum][etpos] = rtablecopybuffer[c];
@@ -246,7 +262,6 @@ void tablecommands(void)
     case KEY_L:
     if (etnum == PTBL)
     {
-      int c;
       int currentpulse = -1;
       int targetpulse = ltable[etnum][etpos] << 4;
       int speed = rtable[etnum][etpos];
@@ -255,6 +270,7 @@ void tablecommands(void)
 
       if (!speed) break;
 
+      int c;
       // Follow the chain of pulse commands backwards to the nearest set command so we know what current pulse is
       for (c = etpos-1; c >= 0; c--)
       {
@@ -294,7 +310,7 @@ void tablecommands(void)
 
       while (time)
       {
-        if (abs(speed) < 128)
+        if (std::abs(speed) < 128)
         {
           if (time < 127) ltable[etnum][etpos] = time;
             else ltable[etnum][etpos] = 127;
@@ -314,7 +330,6 @@ void tablecommands(void)
     }
     if (etnum == FTBL)
     {
-      int c;
       int currentfilter = -1;
       int targetfilter = ltable[etnum][etpos];
       int speed = rtable[etnum][etpos] & 0x7f;
@@ -323,6 +338,7 @@ void tablecommands(void)
 
       if (!speed) break;
 
+      int c;
       // Follow the chain of filter commands backwards to the nearest set command so we know what current pulse is
       for (c = etpos-1; c >= 0; c--)
       {
@@ -494,7 +510,7 @@ void tablecommands(void)
       return;
     }
     break;
-    
+
     case KEY_APOST2:
     if (shiftpressed)
     {
@@ -629,10 +645,8 @@ void deletetable(int num, int pos)
 
 void inserttable(int num, int pos, int mode)
 {
-  int c, d;
-
   // Shift tablepointers in instruments
-  for (c = 1; c < MAX_INSTR; c++)
+  for (int c = 1; c < MAX_INSTR; c++)
   {
     if (!mode)
     {
@@ -645,7 +659,7 @@ void inserttable(int num, int pos, int mode)
   }
 
   // Shift tablepointers in wavetable commands
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
     {
@@ -684,9 +698,9 @@ void inserttable(int num, int pos, int mode)
 
 
   // Shift tablepointers in patterns
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
-    for (d = 0; d <= MAX_PATTROWS; d++)
+    for (int d = 0; d <= MAX_PATTROWS; d++)
     {
       if (num < STBL)
       {
@@ -723,7 +737,7 @@ void inserttable(int num, int pos, int mode)
   // Shift jumppointers in the table itself
   if (num != STBL)
   {
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
       if (ltable[num][c] == 0xff)
       {
@@ -739,7 +753,7 @@ void inserttable(int num, int pos, int mode)
     }
   }
 
-  for (c = MAX_TABLELEN-1; c >= pos; c--)
+  for (int c = MAX_TABLELEN-1; c >= pos; c--)
   {
     if (c > pos)
     {
@@ -765,7 +779,6 @@ void inserttable(int num, int pos, int mode)
 int gettablelen(int num)
 {
   int c;
-
   for (c = MAX_TABLELEN-1; c >= 0; c--)
   {
     if (ltable[num][c] | rtable[num][c]) break;
@@ -775,11 +788,10 @@ int gettablelen(int num)
 
 int gettablepartlen(int num, int pos)
 {
-  int c;
-
   if (pos < 0) return 0;
   if (num == STBL) return 1;
 
+  int c;
   for (c = pos; c < MAX_TABLELEN; c++)
   {
     if (ltable[num][c] == 0xff)
@@ -793,13 +805,11 @@ int gettablepartlen(int num, int pos)
 
 void optimizetable(int num)
 {
-  int c,d;
+  std::memset(tableused, 0, sizeof tableused);
 
-  memset(tableused, 0, sizeof tableused);
-
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
-    for (d = 0; d < pattlen[c]; d++)
+    for (int d = 0; d < pattlen[c]; d++)
     {
       if ((pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (pattern[c][d*4+2] <= CMD_SETFILTERPTR))
         exectable(pattern[c][d*4+2] - CMD_SETWAVEPTR, pattern[c][d*4+3]);
@@ -810,21 +820,21 @@ void optimizetable(int num)
     }
   }
 
-  for (c = 0; c < MAX_INSTR; c++)
+  for (int c = 0; c < MAX_INSTR; c++)
   {
-    for (d = 0; d < MAX_TABLES; d++)
+    for (int d = 0; d < MAX_TABLES; d++)
     {
       exectable(d, instr[c].ptr[d]);
     }
   }
 
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[WTBL][c+1])
     {
       if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
       {
-        d = -1;
+        int d = -1;
 
         switch(ltable[WTBL][c] - WAVECMD)
         {
@@ -849,6 +859,7 @@ void optimizetable(int num)
     }
   }
 
+  int c;
   for (c = MAX_TABLELEN-1; c >= 0; c--)
   {
     if ((ltable[num][c]) || (rtable[num][c])) break;
@@ -861,7 +872,6 @@ void optimizetable(int num)
 
 int makespeedtable(unsigned data, int mode, int makenew)
 {
-  int c;
   unsigned char l = 0, r = 0;
 
   if (!data) return -1;
@@ -887,7 +897,7 @@ int makespeedtable(unsigned data, int mode, int makenew)
     l = (data << 2) >> 8;
     r = (data << 2) & 0xff;
     break;
-    
+
     case MST_RAW:
     r = data & 0xff;
     l = data >> 8;
@@ -896,14 +906,14 @@ int makespeedtable(unsigned data, int mode, int makenew)
 
   if (makenew == 0)
   {
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
       if ((ltable[STBL][c] == l) && (rtable[STBL][c] == r))
         return c;
     }
   }
 
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if ((!ltable[STBL][c]) && (!rtable[STBL][c]))
     {
@@ -919,10 +929,9 @@ int makespeedtable(unsigned data, int mode, int makenew)
 
 void deleteinstrtable(int i)
 {
-  int c,d;
   int eraseok = 1;
 
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
     if (instr[i].ptr[c])
     {
@@ -930,7 +939,7 @@ void deleteinstrtable(int i)
       int len = gettablepartlen(c, pos);
 
       // Check that this table area isn't used by another instrument
-      for (d = 1; d < MAX_INSTR; d++)
+      for (int d = 1; d < MAX_INSTR; d++)
       {
         if ((d != i) && (instr[d].ptr[c]))
         {
@@ -974,9 +983,7 @@ void validatetableview(void)
   // Table view lock?
   if (etlock)
   {
-    int c;
-
-    for (c = 0; c < MAX_TABLES; c++) etview[c] = etview[etnum];
+    for (int c = 0; c < MAX_TABLES; c++) etview[c] = etview[etnum];
   }
 }
 
@@ -1051,8 +1058,7 @@ void exectable(int num, int ptr)
 
 int findfreespeedtable(void)
 {
-  int c;
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if ((!ltable[STBL][c]) && (!rtable[STBL][c]))
     {
