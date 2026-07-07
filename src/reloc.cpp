@@ -1,16 +1,34 @@
 /*
- * =============================================================================
- * packer/relocator
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GRELOC_C
+// =============================================================================
+// packer/relocator
+// =============================================================================
+
+#define RELOC_C
 
 extern "C" {
 #include "loadtrk.h"
 #include "membuf.h"
 #include "parse.h"
 }
+
+#include <cstring>
 
 const char *playeroptname[] =
 {
@@ -95,7 +113,7 @@ int ciaval;
 struct membuf src = STATIC_MEMBUF_INIT;
 struct membuf dest = STATIC_MEMBUF_INIT;
 
-void relocator(void)
+void relocator()
 {
   char packedsongname[MAX_FILENAME];
   char packedfilter[MAX_FILENAME];
@@ -137,10 +155,7 @@ void relocator(void)
 #endif
   unsigned char speedcode[] = {0xa2,0x00,0x8e,0x04,0xdc,0xa2,0x00,0x8e,0x05,0xdc};
 
-#ifndef GT2RELOC
-  size_t i;
-#endif
-  int c,d,e;
+  int d;
 
   unsigned char patttemp[512];
   unsigned char *songwork = NULL;
@@ -187,12 +202,12 @@ void relocator(void)
 
   stopsong();
 
-  memset(pattused, 0, sizeof pattused);
-  memset(instrused, 0, sizeof instrused);
-  memset(chnused, 0, sizeof chnused);
-  memset(chnused_stereo, 0, sizeof chnused_stereo);
-  memset(tableused, 0, sizeof tableused);
-  memset(tablemap, 0, sizeof tablemap);
+  std::memset(pattused, 0, sizeof pattused);
+  std::memset(instrused, 0, sizeof instrused);
+  std::memset(chnused, 0, sizeof chnused);
+  std::memset(chnused_stereo, 0, sizeof chnused_stereo);
+  std::memset(tableused, 0, sizeof tableused);
+  std::memset(tablemap, 0, sizeof tablemap);
   tableerror = 0;
 
   membuf_free(&src);
@@ -203,25 +218,24 @@ void relocator(void)
   // Process song-orderlists
   countpatternlengths();
   // Calculate amount of songs with nonzero length
-  for (c = 0; c < MAX_SONGS; c++)
+  for (int c = 0; c < MAX_SONGS; c++)
   {
     if ((songlen[c][0]) &&
         (songlen[c][1]) &&
         (songlen[c][2]))
     {
       // See which patterns are used in this song
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         songdatasize += songlen[c][d]+2;
-        for (e = 0; e < songlen[c][d]; e++)
+        for (int e = 0; e < songlen[c][d]; e++)
         {
           if (songorder[c][d][e] < REPEAT)
           {
-            int f;
             int num = songorder[c][d][e];
 
             pattused[num] = 1;
-            for (f = 0; f < pattlen[num]; f++)
+            for (int f = 0; f < pattlen[num]; f++)
             {
               if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                 chnused[d] = 1;
@@ -278,7 +292,7 @@ void relocator(void)
   // Build the pattern-mapping
   // Instrument 1 is always used
   instrused[1] = 1;
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
     if (pattused[c])
     {
@@ -345,7 +359,7 @@ void relocator(void)
 
   // Count amount of normal, nohr, and legato instruments
   // Also see if special first wave parameters are used
-  for (c = 0; c < MAX_INSTR; c++)
+  for (int c = 0; c < MAX_INSTR; c++)
   {
     if (instrused[c])
     {
@@ -364,7 +378,7 @@ void relocator(void)
   freelegato = freenohr + numnohr;
 
   // Build the instrument-mapping
-  for (c = 0; c < MAX_INSTR; c++)
+  for (int c = 0; c < MAX_INSTR; c++)
   {
     if (instrused[c])
     {
@@ -392,13 +406,13 @@ void relocator(void)
   }
 
   // Execute tableprograms invoked from wavetable commands
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[WTBL][c+1])
     {
       if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
       {
-        d = -1;
+        int d = -1;
         tableerror = 0;
 
         switch(ltable[WTBL][c] - WAVECMD)
@@ -415,7 +429,7 @@ void relocator(void)
           d = PTBL;
           nopulse = 0;
            break;
-           
+
            case CMD_SETFILTERPTR:
            d = FTBL;
           nofilter = 0;
@@ -446,10 +460,10 @@ void relocator(void)
   }
 
   // Build the table-mapping
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
     int e = 1;
-    for (d = 0; d < MAX_TABLELEN; d++)
+    for (int d = 0; d < MAX_TABLELEN; d++)
     {
       if (tableused[c][d+1])
       {
@@ -489,18 +503,18 @@ void relocator(void)
       switch (tableerrorsource2)
       {
         case WTBL:
-        strcat(textbuffer, "WAVE");
+        std::strcat(textbuffer, "WAVE");
         break;
 
         case PTBL:
-        strcat(textbuffer, "PULSE");
+        std::strcat(textbuffer, "PULSE");
         break;
 
         case FTBL:
-        strcat(textbuffer, "FILTER");
+        std::strcat(textbuffer, "FILTER");
         break;
       }
-      strcat(textbuffer, ")");
+      std::strcat(textbuffer, ")");
       break;
     }
     printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
@@ -511,7 +525,7 @@ void relocator(void)
   }
 
   // Find duplicate ranges in tables
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
     findtableduplicates(c);
 
   // Select playroutine options
@@ -540,7 +554,7 @@ void relocator(void)
   selectdone = 0;
   while (!selectdone)
   {
-    for (c = 0; c < MAX_OPTIONS; c++)
+    for (int c = 0; c < MAX_OPTIONS; c++)
     {
       int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
 
@@ -665,17 +679,18 @@ void relocator(void)
 
   // Generate songorderlists & songtable
   songdatasize = 0;
-  for (c = 0; c < songs; c++)
+  for (int c = 0; c < songs; c++)
   {
     if ((songlen[c][0]) &&
         (songlen[c][1]) &&
         (songlen[c][2]))
     {
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         songoffset[c][d] = songdatasize;
         songsize[c][d] = songlen[c][d] + 2;
 
+        int e;
         for (e = 0; e < songlen[c][d]; e++)
         {
           // Pattern
@@ -714,7 +729,7 @@ void relocator(void)
     }
     else
     {
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         songoffset[c][d] = songdatasize;
         songsize[c][d] = 0;
@@ -723,7 +738,7 @@ void relocator(void)
   }
 
   // Calculate total size of patterns
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
     if (pattused[c])
     {
@@ -756,7 +771,7 @@ void relocator(void)
   // This time pack the patterns for real
   pattdatasize = 0;
   d = 0;
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
     if (pattused[c])
     {
@@ -779,7 +794,7 @@ void relocator(void)
     goto PRCLEANUP;
   }
 
-  for (c = 1; c < MAX_INSTR; c++)
+  for (int c = 1; c < MAX_INSTR; c++)
   {
     if (instrused[c])
     {
@@ -836,7 +851,7 @@ void relocator(void)
   if (nofilter) instrsize -= instruments;
 
   // Process tables
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[WTBL][c+1])
     {
@@ -914,7 +929,7 @@ void relocator(void)
       }
     }
   }
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[PTBL][c+1])
     {
@@ -930,7 +945,7 @@ void relocator(void)
       }
     }
   }
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[FTBL][c+1])
     {
@@ -938,7 +953,7 @@ void relocator(void)
       if (ltable[FTBL][c] < 0x80) nofiltermod = 0;
     }
   }
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (tableused[STBL][c+1]) speedtblsize += 2;
   }
@@ -1173,18 +1188,17 @@ void relocator(void)
     waitkeynoupdate();
     goto PRCLEANUP;
   }
-  
+
   // Modify ghostregs to not be zeropage if needed
   if ((playerversion & PLAYER_FULLBUFFERED) && (playerversion & PLAYER_ZPGHOSTREGS) == 0)
   {
     int bufsize = membuf_get_size(&src);
     char* bufdata = (char*)membuf_get(&src);
-    int c;
-    for (c = 0; c < bufsize; c++)
+    for (int c = 0; c < bufsize; c++)
     {
       if (bufdata[c] == '<')
       {
-        if (memcmp(bufdata + c + 1, "ghost", 5) == 0)
+        if (std::memcmp(bufdata + c + 1, "ghost", 5) == 0)
           bufdata[c] = ' ';
       }
     }
@@ -1198,13 +1212,13 @@ void relocator(void)
 
   // Insert songtable
   insertlabel("mt_songtbllo");
-  for (c = 0; c < songs*3; c++)
+  for (int c = 0; c < songs*3; c++)
   {
     sprintf(textbuffer, "mt_song%d", c);
     insertaddrlo(textbuffer);
   }
   insertlabel("mt_songtblhi");
-  for (c = 0; c < songs*3; c++)
+  for (int c = 0; c < songs*3; c++)
   {
     sprintf(textbuffer, "mt_song%d", c);
     insertaddrhi(textbuffer);
@@ -1212,13 +1226,13 @@ void relocator(void)
 
   // Insert patterntable
   insertlabel("mt_patttbllo");
-  for (c = 0; c < patterns; c++)
+  for (int c = 0; c < patterns; c++)
   {
     sprintf(textbuffer, "mt_patt%d", c);
     insertaddrlo(textbuffer);
   }
   insertlabel("mt_patttblhi");
-  for (c = 0; c < patterns; c++)
+  for (int c = 0; c < patterns; c++)
   {
     sprintf(textbuffer, "mt_patt%d", c);
     insertaddrhi(textbuffer);
@@ -1257,7 +1271,7 @@ void relocator(void)
   }
 
   // Insert tables
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
     if ((c == PTBL) && (nopulse)) goto SKIPTABLE;
     if ((c == FTBL) && (nofilter)) goto SKIPTABLE;
@@ -1269,7 +1283,7 @@ void relocator(void)
     insertlabel(tableleftname[c]);
 
     // Table data
-    for (d = 0; d < MAX_TABLELEN; d++)
+    for (int d = 0; d < MAX_TABLELEN; d++)
     {
       if (tableused[c][d+1])
       {
@@ -1313,7 +1327,7 @@ void relocator(void)
     // Table label
     insertlabel(tablerightname[c]);
 
-    for (d = 0; d < MAX_TABLELEN; d++)
+    for (int d = 0; d < MAX_TABLELEN; d++)
     {
       if (tableused[c][d+1])
       {
@@ -1389,9 +1403,9 @@ void relocator(void)
   }
 
   // Insert orderlists
-  for (c = 0; c < songs; c++)
+  for (int c = 0; c < songs; c++)
   {
-    for (d = 0; d < maxChns; d++)
+    for (int d = 0; d < maxChns; d++)
     {
       sprintf(textbuffer, "mt_song%d", c*3+d);
       insertlabel(textbuffer);
@@ -1400,7 +1414,7 @@ void relocator(void)
   }
 
   // Insert patterns
-  for (c = 0; c < patterns; c++)
+  for (int c = 0; c < patterns; c++)
   {
     sprintf(textbuffer, "mt_patt%d", c);
     insertlabel(textbuffer);
@@ -1423,7 +1437,7 @@ void relocator(void)
   // Copy author info
   if (playerversion & PLAYER_AUTHORINFO)
   {
-    for (c = 0; c < 32; c++)
+    for (int c = 0; c < 32; c++)
     {
       packeddata[32+c] = authorname[c];
       // Convert 0 to space
@@ -1474,17 +1488,17 @@ void relocator(void)
     {
       case FORMAT_SID:
       printtext(1, 14, colors.CEDIT, "SID - SIDPlay music file format          ");
-      strcpy(packedfilter, "*.sid");
+      std::strcpy(packedfilter, "*.sid");
       break;
 
       case FORMAT_PRG:
       printtext(1, 14, colors.CEDIT, "PRG - C64 native format                  ");
-      strcpy(packedfilter, "*.prg");
+      std::strcpy(packedfilter, "*.prg");
       break;
 
       case FORMAT_BIN:
       printtext(1, 14, colors.CEDIT, "BIN - Raw binary format (no startaddress)");
-      strcpy(packedfilter, "*.bin");
+      std::strcpy(packedfilter, "*.bin");
       break;
     }
 
@@ -1523,8 +1537,8 @@ void relocator(void)
   if (selectdone == -1) goto PRCLEANUP;
 
   // By default, copy loaded song name up to the extension
-  memset(packedsongname, 0, sizeof packedsongname);
-  for (i = 0; i < strlen(loadedsongfilename); i++)
+  std::memset(packedsongname, 0, sizeof packedsongname);
+  for (size_t i = 0; i < std::strlen(loadedsongfilename); i++)
   {
     if (loadedsongfilename[i] == '.') break;
     packedsongname[i] = loadedsongfilename[i];
@@ -1532,15 +1546,15 @@ void relocator(void)
   switch (fileformat)
   {
     case FORMAT_PRG:
-    strcat(packedsongname, ".prg");
+    std::strcat(packedsongname, ".prg");
     break;
 
     case FORMAT_BIN:
-    strcat(packedsongname, ".bin");
+    std::strcat(packedsongname, ".bin");
     break;
 
     case FORMAT_SID:
-    strcat(packedsongname, ".sid");
+    std::strcat(packedsongname, ".sid");
     break;
   }
 
@@ -1553,7 +1567,7 @@ void relocator(void)
     if (strlen(packedsongname) < MAX_FILENAME-4)
     {
       int extfound = 0;
-      for (c = strlen(packedsongname)-1; c >= 0; c--)
+      for (int c = strlen(packedsongname)-1; c >= 0; c--)
       {
         if (packedsongname[c] == '.') extfound = 1;
       }
@@ -1562,15 +1576,15 @@ void relocator(void)
         switch (fileformat)
         {
           case FORMAT_PRG:
-          strcat(packedsongname, ".prg");
+          std::strcat(packedsongname, ".prg");
           break;
 
           case FORMAT_BIN:
-          strcat(packedsongname, ".bin");
+          std::strcat(packedsongname, ".bin");
           break;
 
           case FORMAT_SID:
-          strcat(packedsongname, ".sid");
+          std::strcat(packedsongname, ".sid");
           break;
         }
       }
@@ -2140,13 +2154,12 @@ int isusedandselfcontained(int num, int start)
 {
   int len = gettablepartlen(num, start - 1);
   int end = start + len - 1;
-  int c;
 
   // Don't use jumps only
   if (len == 1) return 0;
 
   // Check that whole table is used
-  for (c = start; c <= end; c++)
+  for (int c = start; c <= end; c++)
   {
     if (tableused[num][c] == 0) return 0;
   }
@@ -2156,9 +2169,9 @@ int isusedandselfcontained(int num, int start)
     if ((rtable[num][end-1] < start) || (rtable[num][end-1] > end)) return 0;
   }
   // Check for jump from outside
-  for (c = 1; c < start; c++)
+  for (int c = 1; c < start; c++)
     if ((tableused[num][c]) && (ltable[num][c-1] == 0xff) && (rtable[num][c-1] >= start) && (rtable[num][c-1] <= end)) return 0;
-  for (c = end+1; c <= MAX_TABLELEN; c++)
+  for (int c = end+1; c <= MAX_TABLELEN; c++)
     if ((tableused[num][c]) && (ltable[num][c-1] == 0xff) && (rtable[num][c-1] >= start) && (rtable[num][c-1] <= end)) return 0;
 
   // OK!
@@ -2178,7 +2191,7 @@ void calcspeedtest(unsigned char pos)
 }
 
 
-void relocator_stereo(void)
+void relocator_stereo()
 {
     char packedsongname[MAX_FILENAME];
     char packedfilter[MAX_FILENAME];
@@ -2215,7 +2228,7 @@ void relocator_stereo(void)
     int selectdone;
     int opt = 0;
     unsigned char speedcode[] = {0xa2,0x00,0x8e,0x04,0xdc,0xa2,0x00,0x8e,0x05,0xdc};
-    int c,d,e;
+    int d;
     unsigned char patttemp[512];
     unsigned char *songwork = NULL;
     unsigned char *pattwork = NULL;
@@ -2260,11 +2273,11 @@ void relocator_stereo(void)
 
     stopsong();
 
-    memset(pattused, 0, sizeof pattused);
-    memset(instrused, 0, sizeof instrused);
-    memset(chnused_stereo, 0, sizeof chnused_stereo);
-    memset(tableused, 0, sizeof tableused);
-    memset(tablemap, 0, sizeof tablemap);
+    std::memset(pattused, 0, sizeof pattused);
+    std::memset(instrused, 0, sizeof instrused);
+    std::memset(chnused_stereo, 0, sizeof chnused_stereo);
+    std::memset(tableused, 0, sizeof tableused);
+    std::memset(tablemap, 0, sizeof tablemap);
     tableerror = 0;
 
     membuf_free(&src);
@@ -2273,25 +2286,24 @@ void relocator_stereo(void)
     // Process song-orderlists
     countpatternlengths();
     // Calculate amount of songs with nonzero length
-    for (c = 0; c < MAX_SONGS; c++)
+    for (int c = 0; c < MAX_SONGS; c++)
     {
         if ((songlen_stereo[c][0]) &&
                 (songlen_stereo[c][1]) &&
                 (songlen_stereo[c][2]))
         {
             // See which patterns are used in this song
-            for (d = 0; d < MAX_CHN; d++)
+            for (int d = 0; d < MAX_CHN; d++)
             {
                 songdatasize += songlen_stereo[c][d]+2;
-                for (e = 0; e < songlen_stereo[c][d]; e++)
+                for (int e = 0; e < songlen_stereo[c][d]; e++)
                 {
                     if (songorder_stereo[c][d][e] < REPEAT)
                     {
-                        int f;
                         int num = songorder_stereo[c][d][e];
 
                         pattused[num] = 1;
-                        for (f = 0; f < pattlen[num]; f++)
+                        for (int f = 0; f < pattlen[num]; f++)
                         {
                             if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                                 chnused_stereo[d] = 1;
@@ -2342,7 +2354,7 @@ void relocator_stereo(void)
     // Build the pattern-mapping
     // Instrument 1 is always used
     instrused[1] = 1;
-    for (c = 0; c < MAX_PATT; c++)
+    for (int c = 0; c < MAX_PATT; c++)
     {
         if (pattused[c])
         {
@@ -2350,7 +2362,7 @@ void relocator_stereo(void)
             patterns++;
 
             // See which instruments/tablecommands are used
-            for (d = 0; d < pattlen[c]; d++)
+            for (int d = 0; d < pattlen[c]; d++)
             {
                 tableerror = 0;
 
@@ -2409,7 +2421,7 @@ void relocator_stereo(void)
 
     // Count amount of normal, nohr, and legato instruments
     // Also see if special first wave parameters are used
-    for (c = 0; c < MAX_INSTR; c++)
+    for (int c = 0; c < MAX_INSTR; c++)
     {
         if (instrused[c])
         {
@@ -2428,7 +2440,7 @@ void relocator_stereo(void)
     freelegato = freenohr + numnohr;
 
     // Build the instrument-mapping
-    for (c = 0; c < MAX_INSTR; c++)
+    for (int c = 0; c < MAX_INSTR; c++)
     {
         if (instrused[c])
         {
@@ -2456,13 +2468,13 @@ void relocator_stereo(void)
     }
 
     // Execute tableprograms invoked from wavetable commands
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
         if (tableused[WTBL][c+1])
         {
             if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
             {
-                d = -1;
+                int d = -1;
                 tableerror = 0;
 
                 switch(ltable[WTBL][c] - WAVECMD)
@@ -2510,10 +2522,10 @@ void relocator_stereo(void)
     }
 
     // Build the table-mapping
-    for (c = 0; c < MAX_TABLES; c++)
+    for (int c = 0; c < MAX_TABLES; c++)
     {
         int e = 1;
-        for (d = 0; d < MAX_TABLELEN; d++)
+        for (int d = 0; d < MAX_TABLELEN; d++)
         {
             if (tableused[c][d+1])
             {
@@ -2553,18 +2565,18 @@ TABLETYPE_S:
             switch (tableerrorsource2)
             {
             case WTBL:
-                strcat(textbuffer, "WAVE");
+                std::strcat(textbuffer, "WAVE");
                 break;
 
             case PTBL:
-                strcat(textbuffer, "PULSE");
+                std::strcat(textbuffer, "PULSE");
                 break;
 
             case FTBL:
-                strcat(textbuffer, "FILTER");
+                std::strcat(textbuffer, "FILTER");
                 break;
             }
-            strcat(textbuffer, ")");
+            std::strcat(textbuffer, ")");
             break;
         }
         printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
@@ -2575,7 +2587,7 @@ TABLETYPE_S:
     }
 
     // Find duplicate ranges in tables
-    for (c = 0; c < MAX_TABLES; c++)
+    for (int c = 0; c < MAX_TABLES; c++)
         findtableduplicates(c);
 
     // Select playroutine options
@@ -2595,7 +2607,7 @@ TABLETYPE_S:
     selectdone = 0;
     while (!selectdone)
     {
-        for (c = 0; c < (MAX_OPTIONS-1); c++)
+        for (int c = 0; c < (MAX_OPTIONS-1); c++)
         {
             int color = colors.CNORMAL;
             if (opt == c) color = colors.CEDIT;
@@ -2719,7 +2731,7 @@ TABLETYPE_S:
 
     // Generate songorderlists & songtable
     songdatasize = 0;
-    for (c = 0; c < songs; c++)
+    for (int c = 0; c < songs; c++)
     {
         if ((songlen_stereo[c][0]) &&
                 (songlen_stereo[c][1]) &&
@@ -2730,6 +2742,7 @@ TABLETYPE_S:
                 songoffset_stereo[c][d] = songdatasize;
                 songsize_stereo[c][d] = songlen_stereo[c][d] + 2;
 
+                int e;
                 for (e = 0; e < songlen_stereo[c][d]; e++)
                 {
                     // Pattern
@@ -2768,7 +2781,7 @@ TABLETYPE_S:
         }
         else
         {
-            for (d = 0; d < MAX_CHN; d++)
+            for (int d = 0; d < MAX_CHN; d++)
             {
                 songoffset_stereo[c][d] = songdatasize;
                 songsize_stereo[c][d] = 0;
@@ -2777,7 +2790,7 @@ TABLETYPE_S:
     }
 
     // Calculate total size of patterns
-    for (c = 0; c < MAX_PATT; c++)
+    for (int c = 0; c < MAX_PATT; c++)
     {
         if (pattused[c])
         {
@@ -2810,7 +2823,7 @@ TABLETYPE_S:
     // This time pack the patterns for real
     pattdatasize = 0;
     d = 0;
-    for (c = 0; c < MAX_PATT; c++)
+    for (int c = 0; c < MAX_PATT; c++)
     {
         if (pattused[c])
         {
@@ -2833,7 +2846,7 @@ TABLETYPE_S:
         goto PRCLEANUP_S;
     }
 
-    for (c = 1; c < MAX_INSTR; c++)
+    for (int c = 1; c < MAX_INSTR; c++)
     {
         if (instrused[c])
         {
@@ -2890,7 +2903,7 @@ TABLETYPE_S:
     if (nofilter) instrsize -= instruments;
 
     // Process tables
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
         if (tableused[WTBL][c+1])
         {
@@ -2968,7 +2981,7 @@ TABLETYPE_S:
             }
         }
     }
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
         if (tableused[PTBL][c+1])
         {
@@ -2984,7 +2997,7 @@ TABLETYPE_S:
             }
         }
     }
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
         if (tableused[FTBL][c+1])
         {
@@ -2992,7 +3005,7 @@ TABLETYPE_S:
             if (ltable[FTBL][c] < 0x80) nofiltermod = 0;
         }
     }
-    for (c = 0; c < MAX_TABLELEN; c++)
+    for (int c = 0; c < MAX_TABLELEN; c++)
     {
         if (tableused[STBL][c+1]) speedtblsize += 2;
     }
@@ -3236,13 +3249,13 @@ TABLETYPE_S:
 
     // Insert songtable
     insertlabel("mt_songtbllo");
-    for (c = 0; c < songs*6; c++)
+    for (int c = 0; c < songs*6; c++)
     {
         sprintf(textbuffer, "mt_song%d", c);
         insertaddrlo(textbuffer);
     }
     insertlabel("mt_songtblhi");
-    for (c = 0; c < songs*6; c++)
+    for (int c = 0; c < songs*6; c++)
     {
         sprintf(textbuffer, "mt_song%d", c);
         insertaddrhi(textbuffer);
@@ -3250,13 +3263,13 @@ TABLETYPE_S:
 
     // Insert patterntable
     insertlabel("mt_patttbllo");
-    for (c = 0; c < patterns; c++)
+    for (int c = 0; c < patterns; c++)
     {
         sprintf(textbuffer, "mt_patt%d", c);
         insertaddrlo(textbuffer);
     }
     insertlabel("mt_patttblhi");
-    for (c = 0; c < patterns; c++)
+    for (int c = 0; c < patterns; c++)
     {
         sprintf(textbuffer, "mt_patt%d", c);
         insertaddrhi(textbuffer);
@@ -3295,7 +3308,7 @@ TABLETYPE_S:
     }
 
     // Insert tables
-    for (c = 0; c < MAX_TABLES; c++)
+    for (int c = 0; c < MAX_TABLES; c++)
     {
         if ((c == PTBL) && (nopulse)) goto SKIPTABLE_S;
         if ((c == FTBL) && (nofilter)) goto SKIPTABLE_S;
@@ -3351,7 +3364,7 @@ TABLETYPE_S:
         // Table label
         insertlabel(tablerightname[c]);
 
-        for (d = 0; d < MAX_TABLELEN; d++)
+        for (int d = 0; d < MAX_TABLELEN; d++)
         {
             if (tableused[c][d+1])
             {
@@ -3428,9 +3441,9 @@ SKIPTABLE_S:
     }
 
     // Insert orderlists
-    for (c = 0; c < songs; c++)
+    for (int c = 0; c < songs; c++)
     {
-        for (d = 0; d < MAX_CHN; d++)
+        for (int d = 0; d < MAX_CHN; d++)
         {
             sprintf(textbuffer, "mt_song%d", c*6+d);
             insertlabel(textbuffer);
@@ -3439,7 +3452,7 @@ SKIPTABLE_S:
     }
 
     // Insert patterns
-    for (c = 0; c < patterns; c++)
+    for (int c = 0; c < patterns; c++)
     {
         sprintf(textbuffer, "mt_patt%d", c);
         insertlabel(textbuffer);
@@ -3462,7 +3475,7 @@ SKIPTABLE_S:
     // Copy author info
     if (playerversion & PLAYER_AUTHORINFO)
     {
-        for (c = 0; c < 32; c++)
+        for (int c = 0; c < 32; c++)
         {
             packeddata[32+c] = authorname[c];
             // Convert 0 to space
@@ -3513,17 +3526,17 @@ SKIPTABLE_S:
         {
         case FORMAT_SID:
             printtext(1, 14, colors.CEDIT, "SID - SIDPlay music file format          ");
-            strcpy(packedfilter, "*.sid");
+            std::strcpy(packedfilter, "*.sid");
             break;
 
         case FORMAT_PRG:
             printtext(1, 14, colors.CEDIT, "PRG - C64 native format                  ");
-            strcpy(packedfilter, "*.prg");
+            std::strcpy(packedfilter, "*.prg");
             break;
 
         case FORMAT_BIN:
             printtext(1, 14, colors.CEDIT, "BIN - Raw binary format (no startaddress)");
-            strcpy(packedfilter, "*.bin");
+            std::strcpy(packedfilter, "*.bin");
             break;
         }
 
@@ -3562,8 +3575,8 @@ SKIPTABLE_S:
     if (selectdone == -1) goto PRCLEANUP_S;
 
     // By default, copy loaded song name up to the extension
-    memset(packedsongname, 0, sizeof packedsongname);
-    for (c = 0; c < strlen(loadedsongfilename); c++)
+    std::memset(packedsongname, 0, sizeof packedsongname);
+    for (size_t c = 0; c < std::strlen(loadedsongfilename); c++)
     {
         if (loadedsongfilename[c] == '.') break;
         packedsongname[c] = loadedsongfilename[c];
@@ -3571,15 +3584,15 @@ SKIPTABLE_S:
     switch (fileformat)
     {
     case FORMAT_PRG:
-        strcat(packedsongname, ".prg");
+        std::strcat(packedsongname, ".prg");
         break;
 
     case FORMAT_BIN:
-        strcat(packedsongname, ".bin");
+        std::strcat(packedsongname, ".bin");
         break;
 
     case FORMAT_SID:
-        strcat(packedsongname, ".sid");
+        std::strcat(packedsongname, ".sid");
         break;
     }
 
@@ -3589,10 +3602,10 @@ SKIPTABLE_S:
         if (!fileselector(packedsongname, packedpath, packedfilter, "Save Music+Playroutine", 3))
             goto PRCLEANUP_S;
 
-        if (strlen(packedsongname) < MAX_FILENAME-4)
+        if (std::strlen(packedsongname) < MAX_FILENAME-4)
         {
             int extfound = 0;
-            for (c = strlen(packedsongname)-1; c >= 0; c--)
+            for (int c = std::strlen(packedsongname)-1; c >= 0; c--)
             {
                 if (packedsongname[c] == '.') extfound = 1;
             }
@@ -3601,15 +3614,15 @@ SKIPTABLE_S:
                 switch (fileformat)
                 {
                 case FORMAT_PRG:
-                    strcat(packedsongname, ".prg");
+                    std::strcat(packedsongname, ".prg");
                     break;
 
                 case FORMAT_BIN:
-                    strcat(packedsongname, ".bin");
+                    std::strcat(packedsongname, ".bin");
                     break;
 
                 case FORMAT_SID:
-                    strcat(packedsongname, ".sid");
+                    std::strcat(packedsongname, ".sid");
                     break;
                 }
             }

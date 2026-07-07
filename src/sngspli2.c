@@ -7,7 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "bme_end.h"
-#include "gcommon.h"
+#include "common.h"
 
 #define MAX_SPLITS 16
 

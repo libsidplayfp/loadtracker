@@ -11,14 +11,14 @@
 #include <math.h>
 #include "bme.h"
 
-#include "gcommon.h"
+#include "common.h"
 #include "console.h"
 #include "sound.h"
 #include "sid.h"
 #include "song.h"
 #include "play.h"
 #include "display.h"
-#include "greloc.h"
+#include "reloc.h"
 #include "file.h"
 #include "pattern.h"
 #include "order.h"
