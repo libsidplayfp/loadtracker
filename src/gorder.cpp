@@ -6,7 +6,11 @@
 
 #define GORDER_C
 
+extern "C" {
+
 #include "loadtrk.h"
+
+}
 
 unsigned char trackcopybuffer[MAX_SONGLEN+2];
 int trackcopyrows = 0;

@@ -73,10 +73,9 @@ void instrumentcommands(void)
       std::memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
       if (cutinstr != -1)
       {
-        int c, d;
-        for (c = 0; c < MAX_PATT; c++)
+        for (int c = 0; c < MAX_PATT; c++)
         {
-          for (d = 0; d < pattlen[c]; d++)
+          for (int d = 0; d < pattlen[c]; d++)
             if (pattern[c][d*4+1] == cutinstr) pattern[c][d*4+1] = einum;
         }
       }

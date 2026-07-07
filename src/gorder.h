@@ -1,6 +1,10 @@
 #ifndef GORDER_H
 #define GORDER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef GORDER_C
 extern int espos[MAX_CHN];
 extern int esend[MAX_CHN];
@@ -30,5 +34,9 @@ void orderleft_stereo(void);
 void orderright_stereo(void);
 void deleteorder_stereo(void);
 void insertorder_stereo(unsigned char byte);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

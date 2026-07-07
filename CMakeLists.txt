@@ -20,7 +20,7 @@ set(LOADTRK_SOURCES
     ${CMAKE_BINARY_DIR}/src/goatdata.c
     src/loadtrk.c
     src/gsong.c
-    src/gorder.c
+    src/gorder.cpp
     src/gpattern.c
     src/instr.cpp
     src/gtable.c
