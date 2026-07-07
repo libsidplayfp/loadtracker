@@ -21,7 +21,7 @@ set(LOADTRK_SOURCES
     src/loadtrk.c
     src/gsong.c
     src/order.cpp
-    src/gpattern.c
+    src/gpattern.cpp
     src/instr.cpp
     src/gtable.c
     src/gplay.c

@@ -1,6 +1,10 @@
 #ifndef GPATTERN_H
 #define GPATTERN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef GPATTERN_C
 extern int epnum[MAX_CHN];
 extern int eppos;
@@ -22,5 +26,9 @@ void shrinkpattern(void);
 void expandpattern(void);
 void splitpattern(void);
 void joinpattern(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

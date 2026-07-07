@@ -6,7 +6,9 @@
 
 #define GPATTERN_C
 
+extern "C" {
 #include "loadtrk.h"
+}
 
 unsigned char notekeytbl1[] = {KEY_Z, KEY_S, KEY_X, KEY_D, KEY_C, KEY_V,
   KEY_G, KEY_B, KEY_H, KEY_N, KEY_J, KEY_M, KEY_COMMA, KEY_L, KEY_COLON};
@@ -37,6 +39,8 @@ int epoctave = 2;
 int epmarkchn = -1;
 int epmarkstart;
 int epmarkend;
+
+extern "C" { // used in bme_snd for midi input
 
 void insertnote(int newnote) {
     if ((recordmode) && (eppos < pattlen[epnum[epchn]]))
@@ -69,6 +73,7 @@ void insertnote(int newnote) {
         }
     }
     playtestnote(newnote, einum, epchn);
+}
 }
 
 void patterncommands(void)
