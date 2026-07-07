@@ -34,7 +34,7 @@ typedef struct
 } DIRENTRY;
 
 void initpaths(void);
-int fileselector(char *name, char *path, char *filter, char *title, int filemode);
+int fileselector(char *name, char *path, char *filter, const char *title, int filemode);
 void editstring(char *buffer, int maxlength);
 int cmpname(char *string1, char *string2);
 

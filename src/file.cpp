@@ -31,6 +31,7 @@ extern "C" {
 #include <cstring>
 #include <cctype>
 
+#include <string.h>
 #include <unistd.h>
 
 #ifdef __WIN32__
@@ -41,10 +42,8 @@ DIRENTRY direntry[MAX_DIRFILES];
 
 void initpaths(void)
 {
-  int c;
-
-  for (c = 0; c < MAX_DIRFILES; c++)
-     direntry[c].name = NULL;
+  for (int c = 0; c < MAX_DIRFILES; c++)
+     direntry[c].name = nullptr;
 
   std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
   std::memset(songfilename, 0, sizeof songfilename);
@@ -60,18 +59,12 @@ void initpaths(void)
   std::strcpy(packedpath, songpath);
 }
 
-int fileselector(char *name, char *path, char *filter, char *title, int filemode)
+int fileselector(char *name, char *path, char *filter, const char *title, int filemode)
 {
-  size_t i;
-  int c, d, scrrep;
-  int color;
-  int files;
   int filepos = 0;
   int fileview = 0;
   int lastclick = 0;
   int lastfile = 0;
-  int lowest;
-  int exitfilesel;
 
   DIR *dir;
   struct dirent *de;
@@ -84,7 +77,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
   char tempname[MAX_PATHNAME];
 
   // Set initial path (if any)
-  if (strlen(path)) chdir(path);
+  if (std::strlen(path)) chdir(path);
 
   // Scan for all existing drives
 #ifdef __WIN32__
@@ -99,14 +92,14 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
   // Read new directory
   NEWPATH:
   getcwd(path, MAX_PATHNAME);
-  files = 0;
+  int files = 0;
   // Deallocate old names
-  for (c = 0; c < MAX_DIRFILES; c++)
+  for (int c = 0; c < MAX_DIRFILES; c++)
   {
     if (direntry[c].name)
     {
       free(direntry[c].name);
-      direntry[c].name = NULL;
+      direntry[c].name = nullptr;
     }
   }
 #ifdef __WIN32__
@@ -134,12 +127,12 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     char *filtptr = strstr(filter, "*");
     if (!filtptr) filtptr = filter;
     else filtptr++;
-    for (i = 0; i < strlen(filter); i++)
+    for (size_t i = 0; i < std::strlen(filter); i++)
       filter[i] = std::tolower(filter[i]);
 
     while ((de = readdir(dir)))
     {
-      if ((files < MAX_DIRFILES) && (strlen(de->d_name) < MAX_FILENAME))
+      if ((files < MAX_DIRFILES) && (std::strlen(de->d_name) < MAX_FILENAME))
       {
         direntry[files].name = strdup(de->d_name);
         direntry[files].attribute = 0;
@@ -153,18 +146,18 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
         {
           // If a file, must match filter
           strcpy(cmpbuf, de->d_name);
-          if ((!strcmp(filtptr, "*")) || (!strcmp(filtptr, ".*")))
+          if ((!std::strcmp(filtptr, "*")) || (!strcmp(filtptr, ".*")))
             files++;
           else
           {
-            for (i = 0; i < strlen(cmpbuf); i++)
+            for (size_t i = 0; i < strlen(cmpbuf); i++)
               cmpbuf[i] = std::tolower(cmpbuf[i]);
-            if (strstr(cmpbuf, filtptr))
+            if (std::strstr(cmpbuf, filtptr))
               files++;
             else
             {
               free(direntry[files].name);
-              direntry[files].name = NULL;
+              direntry[files].name = nullptr;
             }
           }
         }
@@ -173,10 +166,10 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     closedir(dir);
   }
   // Sort the filelist in a most horrible fashion
-  for (c = 0; c < files; c++)
+  for (int c = 0; c < files; c++)
   {
-    lowest = c;
-    for (d = c+1; d < files; d++)
+    int lowest = c;
+    for (int d = c+1; d < files; d++)
     {
       if (direntry[d].attribute < direntry[lowest].attribute)
       {
@@ -204,7 +197,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
   // Search for the current filename
   fileview = 0;
   filepos = 0;
-  for (c = 0; c < files; c++)
+  for (int c = 0; c < files; c++)
   {
     if ((!direntry[c].attribute) && (!cmpname(name, direntry[c].name)))
     {
@@ -212,7 +205,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     }
   }
 
-  exitfilesel = -1;
+  int exitfilesel = -1;
   while (exitfilesel < 0)
   {
     int cc = cursorcolortable[cursorflash];
@@ -229,12 +222,12 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     if (win_quitted)
     {
       exitprogram = 1;
-      for (c = 0; c < MAX_DIRFILES; c++)
+      for (int c = 0; c < MAX_DIRFILES; c++)
       {
         if (direntry[c].name)
         {
           free(direntry[c].name);
-          direntry[c].name = NULL;
+          direntry[c].name = nullptr;
         }
       }
       return 0;
@@ -324,7 +317,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       break;
 
       case KEY_PGUP:
-      for (scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
       {
         if ((!filemode) && (filepos > 0))
         {
@@ -343,7 +336,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       break;
 
       case KEY_PGDN:
-      for (scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
       {
         if ((!filemode) && (filepos < files-1))
         {
@@ -437,7 +430,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
 
     // Refresh fileselector display
     if (isplaying()) printstatus();
-    for (c = 0; c < VISIBLEFILES+7; c++)
+    for (int c = 0; c < VISIBLEFILES+7; c++)
     {
       printblank(dpos.loadboxX-(MAX_FILENAME+10)/2, dpos.loadboxY+c, MAX_FILENAME+10);
     }
@@ -445,7 +438,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     printblankc(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+1, colors.CHEADER, MAX_FILENAME+8);
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+1, colors.CHEADER, title);
 
-    for (c = 0; c < VISIBLEFILES; c++)
+    for (int c = 0; c < VISIBLEFILES; c++)
     {
       if ((fileview+c >= 0) && (fileview+c < files))
       {
@@ -468,7 +461,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       {
         sprintf(textbuffer, "                                                                    ");
       }
-      color = colors.CNORMAL;
+      int color = colors.CNORMAL;
       if ((fileview+c) == filepos) color = colors.CEDIT;
       textbuffer[68] = 0;
       printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+2+c, color, textbuffer);
@@ -478,7 +471,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+3+VISIBLEFILES, 15, "PATH:   ");
     sprintf(textbuffer, "%-60s", path);
     textbuffer[MAX_FILENAME] = 0;
-    color = (filemode == 1) ? colors.CEDIT : colors.CNORMAL;
+    int color = (filemode == 1) ? colors.CEDIT : colors.CNORMAL;
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+3+VISIBLEFILES, color, textbuffer);
     if ((filemode == 1) && (strlen(path) < MAX_FILENAME)) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(path), dpos.loadboxY+3+VISIBLEFILES, cc, 1);
 
@@ -506,12 +499,12 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
   }
 
   // Deallocate all used names
-  for (c = 0; c < MAX_DIRFILES; c++)
+  for (int c = 0; c < MAX_DIRFILES; c++)
   {
     if (direntry[c].name)
     {
       free(direntry[c].name);
-      direntry[c].name = NULL;
+      direntry[c].name = nullptr;
     }
   }
 
