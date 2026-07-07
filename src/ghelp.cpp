@@ -6,12 +6,16 @@
 
 #define GHELP_C
 
+extern "C" {
+
 #include "loadtrk.h"
+
+}
 
 #define HELP_HEADER 15
 #define HELP_NORMAL 7
 
-int printrows(int column, int row, int color, char *strings[] ) {
+int printrows(int column, int row, int color, const char *strings[] ) {
   int n = 0;
   while(strings[n]) {
     printtext(column, row++, color, strings[n++]);
@@ -21,7 +25,7 @@ int printrows(int column, int row, int color, char *strings[] ) {
 
 void onlinehelp(int standalone,int context)
 {
-  char *genkeys[] = {
+  const char *genkeys[] = {
     "F1  Play from beginning",
     "F2  Play from current position",
     "F3  Play current pattern",
@@ -51,7 +55,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *patternkeys[] = {
+  const char *patternkeys[] = {
     "Enter notes like on piano (PT or DMC)",
     "0-9 & A-F to enter commands",
     "SPC Switch between jam/editmode",
@@ -78,7 +82,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *songkeys[] = {
+  const char *songkeys[] = {
     "0-9 & A-F to enter pattern numbers",
     "SPC Set start position for F2 key",
     "BACKSPC Set end position for F2 key",
@@ -93,7 +97,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *instkeys[] = {
+  const char *instkeys[] = {
     "0-9 & A-F to enter parameters",
     "SPC Play test note",
     "SHIFT+SPC Silence test note",
@@ -116,7 +120,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *pattcmds[] = {
+  const char *pattcmds[] = {
     "                                                                               ",
     "Command 0XY: Do nothing. Databyte will always be 00.                           ",
     "                                                                               ",
@@ -163,7 +167,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *instparm[] = {
+  const char *instparm[] = {
     "                                                                               ",
     "Attack/Decay          0 is fastest attack or decay, F is slowest               ",
     "                                                                               ",
@@ -199,7 +203,7 @@ void onlinehelp(int standalone,int context)
     NULL
   };
 
-  char *tables[] = {
+  const char *tables[] = {
     "                                                                               ",
     "Wavetable left side:  00    Leave waveform unchanged                           ",
     "                      01-0F Delay this step by 1-15 frames                     ",
