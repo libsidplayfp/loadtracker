@@ -10,7 +10,8 @@
 
 #include "bme_main.h"
 #include "bme_err.h"
-#include "bme_cfg.h"
+
+#define MAX_HANDLES 16          // Up to 16 simultaneous files open from the datafile
 
 typedef struct
 {

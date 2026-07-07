@@ -12,12 +12,7 @@
 #include "bme_mou.h"
 #include "bme_io.h"
 #include "bme_err.h"
-#include "bme_cfg.h"
 
-SDL_Joystick *joy[MAX_JOYSTICKS] = {NULL};
-Sint16 joyx[MAX_JOYSTICKS];
-Sint16 joyy[MAX_JOYSTICKS];
-Uint32 joybuttons[MAX_JOYSTICKS];
 SDL_Window *win_window = NULL;
 
 // Prototypes
@@ -132,27 +127,6 @@ void win_checkmessages(void)
     {
         switch (event.type)
         {
-            case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
-            joybuttons[event.jbutton.which] |= 1 << event.jbutton.button;
-            break;
-
-            case SDL_EVENT_JOYSTICK_BUTTON_UP:
-            joybuttons[event.jbutton.which] &= ~(1 << event.jbutton.button);
-            break;
-
-            case SDL_EVENT_JOYSTICK_AXIS_MOTION:
-            switch (event.jaxis.axis)
-            {
-                case 0:
-                joyx[event.jaxis.which] = event.jaxis.value;
-                break;
-
-                case 1:
-                joyy[event.jaxis.which] = event.jaxis.value;
-                break;
-            }
-            break;
-
             case SDL_EVENT_MOUSE_MOTION:
             win_mousexpos = event.motion.x;
             win_mouseypos = event.motion.y;

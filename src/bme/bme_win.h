@@ -20,9 +20,5 @@ extern unsigned win_mouseyrel;
 extern unsigned win_mousebuttons;
 extern int win_mousemode;
 extern float win_mouseywheel;
-extern SDL_Joystick *joy[MAX_JOYSTICKS];
-extern Sint16 joyx[MAX_JOYSTICKS];
-extern Sint16 joyy[MAX_JOYSTICKS];
-extern Uint32 joybuttons[MAX_JOYSTICKS];
 extern SDL_Window *win_window;
 

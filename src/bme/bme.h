@@ -9,7 +9,6 @@ extern "C" {
 
 #include <SDL3/SDL.h>
 #include "bme_main.h"
-#include "bme_cfg.h"
 #include "bme_err.h"
 #include "bme_snd.h"
 #include "bme_gfx.h"

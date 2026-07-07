@@ -16,9 +16,9 @@ int gfx_loadpalette(const char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
 void gfx_setpalette(void);
 int gfx_loadblocks(char *name);
-int gfx_loadsprites(unsigned num, const char *name);
 void gfx_freesprites(unsigned num);
 
+int gfx_loadsprites(unsigned num, const char *name);
 void gfx_drawsprite(int x, int y, unsigned num);
 
 extern int gfx_initted;

@@ -8,10 +8,11 @@
 #include <SDL3/SDL.h>
 
 #include "bme_main.h"
-#include "bme_cfg.h"
 #include "bme_win.h"
 #include "bme_io.h"
 #include "bme_err.h"
+
+#define MAX_COLORS 256          // 8bit oldskool mode
 
 // Prototypes
 
@@ -320,7 +321,7 @@ int gfx_loadsprites(unsigned num, const char *name)
 
     if (!gfx_spriteheaders)
     {
-        gfx_setmaxspritefiles(DEFAULT_MAX_SPRFILES);
+        gfx_setmaxspritefiles(1);
     }
 
     bme_error = BME_OPEN_ERROR;
@@ -360,7 +361,7 @@ int gfx_loadsprites(unsigned num, const char *name)
     gfx_spritedata[num] = (Uint8*)malloc(size - datastart);
     if (!gfx_spritedata[num])
     {
-        bme_error = BME_OUT_OF_MEMORY;    
+        bme_error = BME_OUT_OF_MEMORY;
         io_close(handle);
         return BME_ERROR;
     }
