@@ -9,7 +9,18 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <math.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "bme.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #include "common.h"
 #include "console.h"
@@ -41,6 +52,10 @@
 #define VISIBLEFILES 28
 
 #define PGUPDNREPEAT 8
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef LOADTRK_C
 extern int menu;
@@ -91,7 +106,7 @@ extern char instrfilename[MAX_FILENAME];
 extern char instrfilter[MAX_FILENAME];
 extern char instrpath[MAX_PATHNAME];
 extern char packedpath[MAX_PATHNAME];
-extern char *programname;
+extern const char *programname;
 extern const char *notename[];
 extern char textbuffer[MAX_PATHNAME];
 extern unsigned char hexkeytbl[16];
@@ -123,5 +138,9 @@ void calculatefreqtable(void);
 void setspecialnotenames(void);
 void readscalatuningfile(void);
 void switchMode(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

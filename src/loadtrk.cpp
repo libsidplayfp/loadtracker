@@ -23,9 +23,15 @@
 #endif
 
 #include "loadtrk.h"
+
+extern "C" {
 #include "bme.h"
+}
 
 #include <SDL3/SDL_main.h>
+
+#include <cstring>
+#include <cstdio>
 
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
@@ -88,7 +94,7 @@ char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 
 extern char *notename[];
-char *programname = "$VER: LoadTracker v1.99";
+const char *programname = "$VER: LoadTracker v1.99";
 char specialnotenames[186];
 char scalatuningfilepath[MAX_PATHNAME];
 char tuningname[64];
@@ -102,7 +108,7 @@ extern unsigned char datafile[];
 
 COLORS colors;
 
-char* usage[] = {
+const char* usage[] = {
     "Usage: loadtrk [songname] [options]",
     "Options:",
     "-Axx Set ADSR parameter for hardrestart in hex. DEFAULT=0F00",
@@ -140,7 +146,6 @@ int main(int argc, char **argv)
 {
   char filename[MAX_PATHNAME];
   FILE *configfile;
-  int c,d;
 
   int dark = 0;
 
@@ -155,18 +160,18 @@ int main(int argc, char **argv)
   filename[strlen(filename)-2] = 'f';
   filename[strlen(filename)-1] = 'g';
 #elif __amigaos__
-  strcpy(filename, "PROGDIR:loadtrk.cfg");
+  std::strcpy(filename, "PROGDIR:loadtrk.cfg");
 #else
   char* xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
   {
-    strcpy(filename, xdg_home);
-    strcat(filename, "/loadtrk/loadtrk.cfg");
+    std::strcpy(filename, xdg_home);
+    std::strcat(filename, "/loadtrk/loadtrk.cfg");
   }
   else
   {
-    strcpy(filename, getenv("HOME"));
-    strcat(filename, "/.config/loadtrk/loadtrk.cfg");
+    std::strcpy(filename, getenv("HOME"));
+    std::strcat(filename, "/.config/loadtrk/loadtrk.cfg");
   }
 #endif
   specialnotenames[0] = 0;
@@ -217,7 +222,7 @@ int main(int argc, char **argv)
   initpaths();
 
   // Scan command line
-  for (c = 1; c < argc; c++)
+  for (int c = 1; c < argc; c++)
   {
     #ifdef __WIN32__
     if ((argv[c][0] == '-') || (argv[c][0] == '/'))
@@ -225,11 +230,10 @@ int main(int argc, char **argv)
     if (argv[c][0] == '-')
     #endif
     {
-      int y;
       switch (argv[c][1]) //switch (toupper(argv[c][1]))
       {
         case '-':
-        if (strcmp(argv[c], "--dark") == 0)
+        if (std::strcmp(argv[c], "--dark") == 0)
         {
             dark = 1;
             break;
@@ -248,45 +252,45 @@ int main(int argc, char **argv)
 #ifdef __WIN32__
         if (!initscreen())
           return EXIT_FAILURE;
-        for (y = 0; y < usagelen; ++y)
+        for (int y = 0; y < usagelen; ++y)
           printtext(0,y,15,usage[y]);
         waitkeynoupdate();
 #else
-        for (y = 0; y < usagelen; ++y)
+        for (int y = 0; y < usagelen; ++y)
           printf("%s\n", usage[y]);
 #endif
         return EXIT_SUCCESS;
 
         case 'Z':
-        sscanf(&argv[c][2], "%u", &residdelay);
+        std::sscanf(&argv[c][2], "%u", &residdelay);
         break;
 
         case 'A':
-        sscanf(&argv[c][2], "%x", &adparam);
+        std::sscanf(&argv[c][2], "%x", &adparam);
         break;
 
         case 'S':
-        sscanf(&argv[c][2], "%u", &multiplier);
+        std::sscanf(&argv[c][2], "%u", &multiplier);
         break;
 
         case 'D':
-        sscanf(&argv[c][2], "%u", &patterndispmode);
+        std::sscanf(&argv[c][2], "%u", &patterndispmode);
         break;
 
         case 'E':
-        sscanf(&argv[c][2], "%u", &sidmodel);
+        std::sscanf(&argv[c][2], "%u", &sidmodel);
         break;
 
         case 'I':
-        sscanf(&argv[c][2], "%u", &interpolate);
+        std::sscanf(&argv[c][2], "%u", &interpolate);
         break;
 
         case 'K':
-        sscanf(&argv[c][2], "%u", &keypreset);
+        std::sscanf(&argv[c][2], "%u", &keypreset);
         break;
 
         case 'L':
-        sscanf(&argv[c][2], "%x", &sidaddress);
+        std::sscanf(&argv[c][2], "%x", &sidaddress);
         break;
 
         case 'N':
@@ -300,23 +304,23 @@ int main(int argc, char **argv)
         break;
 
         case 'F':
-        sscanf(&argv[c][2], "%u", &customclockrate);
+        std::sscanf(&argv[c][2], "%u", &customclockrate);
         break;
 
         case 'M':
-        sscanf(&argv[c][2], "%u", &mr);
+        std::sscanf(&argv[c][2], "%u", &mr);
         break;
 
         case 'O':
-        sscanf(&argv[c][2], "%u", &optimizepulse);
+        std::sscanf(&argv[c][2], "%u", &optimizepulse);
         break;
 
         case 'R':
-        sscanf(&argv[c][2], "%u", &optimizerealtime);
+        std::sscanf(&argv[c][2], "%u", &optimizerealtime);
         break;
 
         case 'V':
-        sscanf(&argv[c][2], "%u", &finevibrato);
+        std::sscanf(&argv[c][2], "%u", &finevibrato);
         break;
 
         case 'W':
@@ -324,35 +328,35 @@ int main(int argc, char **argv)
         break;
 
         case 'X':
-        sscanf(&argv[c][2], "%d", &win_fullscreen);
+        std::sscanf(&argv[c][2], "%d", &win_fullscreen);
         break;
 
         case 'G':
-        sscanf(&argv[c][2], "%f", &basepitch);
+        std::sscanf(&argv[c][2], "%f", &basepitch);
         break;
 
         case 'b':
-        sscanf(&argv[c][2], "%f", &filterbias);
+        std::sscanf(&argv[c][2], "%f", &filterbias);
         break;
 
         case 'c':
-        sscanf(&argv[c][2], "%u", &combwaves);
+        std::sscanf(&argv[c][2], "%u", &combwaves);
         break;
 
         case 'Q':
-        sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
+        std::sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
         break;
 
         case 'J':
-        sscanf(&argv[c][2], "%s", specialnotenames);
+        std::sscanf(&argv[c][2], "%s", specialnotenames);
         break;
 
         case 'Y':
-        sscanf(&argv[c][2], "%s", scalatuningfilepath);
+        std::sscanf(&argv[c][2], "%s", scalatuningfilepath);
         break;
 
         case 'x':
-        sscanf(&argv[c][2], "%u", &exsid);
+        std::sscanf(&argv[c][2], "%u", &exsid);
         break;
       }
     }
@@ -360,12 +364,12 @@ int main(int argc, char **argv)
     {
       char startpath[MAX_PATHNAME];
 
-      strcpy(songfilename, argv[c]);
-      for (d = strlen(argv[c])-1; d >= 0; d--)
+      std::strcpy(songfilename, argv[c]);
+      for (int d = strlen(argv[c])-1; d >= 0; d--)
       {
         if ((argv[c][d] == '/') || (argv[c][d] == '\\'))
         {
-          strcpy(startpath, argv[c]);
+          std::strcpy(startpath, argv[c]);
           startpath[d+1] = 0;
           chdir(startpath);
           initpaths();
@@ -453,25 +457,25 @@ int main(int argc, char **argv)
   sound_uninit();
 
   // Save configuration
-  #ifndef __WIN32__
-  #ifdef __amigaos__
+#ifndef __WIN32__
+#  ifdef __amigaos__
   strcpy(filename, "PROGDIR:loadtrk.cfg");
-  #else
+#  else
   xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
   {
-    strcpy(filename, xdg_home);
-    strcat(filename, "/loadtrk");
+    std::strcpy(filename, xdg_home);
+    std::strcat(filename, "/loadtrk");
   }
   else
   {
-    strcpy(filename, getenv("HOME"));
-    strcat(filename, "/.config/loadtrk");
+    std::strcpy(filename, getenv("HOME"));
+    std::strcat(filename, "/.config/loadtrk");
   }
   mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
-  strcat(filename, "/loadtrk.cfg");
-  #endif
-  #endif
+  std::strcat(filename, "/loadtrk.cfg");
+#  endif
+#endif
   configfile = fopen(filename, "wt");
   if (configfile)
   {
@@ -668,7 +672,6 @@ void docommand(void)
 
 void mousecommands(void)
 {
-  int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
@@ -699,7 +702,7 @@ void mousecommands(void)
   if (!mouseb) return;
 
   // Pattern editpos & pattern number selection
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     if ((mousey == dpos.patternsY) &&
             (mousex >= dpos.patternsX + 10 + c*13) &&
@@ -859,7 +862,7 @@ void mousecommands(void)
   }
 
   // Table editpos
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
     if ((mousey >= dpos.instrumentsY+7) &&
             (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS) &&
@@ -917,7 +920,7 @@ void mousecommands(void)
   {
     recordmode ^= 1;
   }
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     if ((!prevmouseb) &&
             (mousey >= dpos.channelsY) &&
@@ -1013,7 +1016,6 @@ void mousecommands(void)
 
 void generalcommands(void)
 {
-  int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
   int visibleOrderlist = 14;
@@ -1070,7 +1072,7 @@ void generalcommands(void)
     break;
 
     case ';':
-    for (c = 0; c < maxChns; c++)
+    for (int c = 0; c < maxChns; c++)
     {
       if (espos[c]) espos[c]--;
       if (espos[c] < esview)
@@ -1088,7 +1090,7 @@ void generalcommands(void)
     {
         visibleOrderlist = VISIBLEORDERLIST;
     }
-    for (c = 0; c < maxChns; c++)
+    for (int c = 0; c < maxChns; c++)
     {
       if (numsids == 1)
       {
@@ -1561,7 +1563,7 @@ void editbpm(void)
         {
         case KEY_F7:
             if (!shiftpressed) break;
-
+            // fall through
         case KEY_ESC:
         case KEY_ENTER:
         case KEY_TAB:
@@ -1573,6 +1575,7 @@ void editbpm(void)
 
         case KEY_BACKSPACE:
             if (!eacolumn) break;
+            // fall through
         case KEY_LEFT:
             eacolumn--;
             break;
@@ -1594,16 +1597,14 @@ void editbpm(void)
 
 void getparam(FILE *handle, unsigned *value)
 {
-  char *configptr;
-
   for (;;)
   {
     if (feof(handle)) return;
-    fgets(configbuf, MAX_PATHNAME, handle);
+    std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
 
-  configptr = configbuf;
+  char *configptr = configbuf;
   if (*configptr == '$')
   {
     *value = 0;
@@ -1646,34 +1647,30 @@ void getparam(FILE *handle, unsigned *value)
 
 void getfloatparam(FILE *handle, float *value)
 {
-  char *configptr;
-
   for (;;)
   {
     if (feof(handle)) return;
-    fgets(configbuf, MAX_PATHNAME, handle);
+    std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
 
-  configptr = configbuf;
+  char *configptr = configbuf;
   *value = 0.0f;
-  sscanf(configptr, "%f", value);
+  std::sscanf(configptr, "%f", value);
 }
 
 void getstringparam(FILE *handle, char *value)
 {
-  char *configptr;
-
   for (;;)
   {
     if (feof(handle)) return;
-    fgets(configbuf, MAX_PATHNAME, handle);
+    std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
 
-  configptr = configbuf;
+  char *configptr = configbuf;
 
-  sscanf(configptr, "%s", value);
+  std::sscanf(configptr, "%s", value);
 }
 
 void prevmultiplier(void)
@@ -1699,15 +1696,13 @@ void calculatefreqtable()
   double basefreq = (double)basepitch * (16777216.0 / 985248.0) * pow(2.0, 0.25) / 32.0;
   double cyclebasefreq = basefreq;
   double freq = basefreq;
-  int c;
-  int i;
 
   if (tuningcount)
   {
-    c = 0;
+    int c = 0;
     while (c < 96)
     {
-      for (i = 0; i < tuningcount; i++)
+      for (int i = 0; i < tuningcount; i++)
       {
         if (c < 96)
         {
@@ -1725,7 +1720,7 @@ void calculatefreqtable()
   }
   else
   {
-    for (c = 0; c < 8*12 ; c++)
+    for (int c = 0; c < 8*12 ; c++)
     {
       double note = c;
       double freq = basefreq * pow(2.0, note/(double)equaldivisionsperoctave);
@@ -1740,26 +1735,22 @@ void calculatefreqtable()
 
 void setspecialnotenames()
 {
-  int i;
-  int j;
-  int oct;
-  char *name;
   char octave[11];
-  
-  i = 0;
-  oct = 0;
+
+  int i = 0;
+  int oct = 0;
   while (i < 93)
   {
-    for (j = 0; j < 186; j += 2)
+    for (int j = 0; j < 186; j += 2)
     {
       if (specialnotenames[j] == '\0')
         break;
       if (i < 93)
       {
-        name = malloc(4);
-        strncpy(name, specialnotenames + j, 2);
+        char *name = (char*)std::malloc(4);
+        std::strncpy(name, specialnotenames + j, 2);
         sprintf(octave, "%d", oct);
-        strcpy(name + 2, octave);
+        std::strcpy(name + 2, octave);
         notename[i] = name;
         i++;
       }
@@ -1774,7 +1765,6 @@ void readscalatuningfile()
   char *configptr;
   char strbuf[64];
   char name[3];
-  int i;
   double numerator;
   double denominator;
   double centvalue;
@@ -1790,7 +1780,7 @@ void readscalatuningfile()
       if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
     }
     configptr = configbuf;
-    sscanf(configptr, "%63[^\t\n]", tuningname);
+    std::sscanf(configptr, "%63[^\t\n]", tuningname);
 
     // Tuning count
     for (;;)
@@ -1800,10 +1790,10 @@ void readscalatuningfile()
       if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
     }
     configptr = configbuf;
-    sscanf(configptr, "%d", &tuningcount);
+    std::sscanf(configptr, "%d", &tuningcount);
 
     // Tunings 
-    for (i = 0; i < tuningcount; i++)
+    for (int i = 0; i < tuningcount; i++)
     {
       for (;;)
       {
@@ -1813,7 +1803,7 @@ void readscalatuningfile()
       }
       configptr = configbuf;
       name[0] = '\0';
-      sscanf(configptr, "%63s %2s", strbuf, name);
+      std::sscanf(configptr, "%63s %2s", strbuf, name);
       if (!i)
       {
         strcpy(specialnotenames, name);
@@ -1834,16 +1824,16 @@ void readscalatuningfile()
       }
       if (!strchr(strbuf, '.'))
       {
-        sscanf(strbuf, "%lf", &numerator);
+        std::sscanf(strbuf, "%lf", &numerator);
         if (strchr(strbuf, '/'))
         {
-          sscanf(strchr(strbuf, '/') + 1, "%lf", &denominator);
+          std::sscanf(strchr(strbuf, '/') + 1, "%lf", &denominator);
           tuning[i] = numerator / denominator;
         }
       }
       else
       {
-        sscanf(configptr, "%lf", &centvalue);
+        std::sscanf(configptr, "%lf", &centvalue);
         tuning[i] = pow(2.0, centvalue / 1200.0);
       }
     }
