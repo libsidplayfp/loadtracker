@@ -13,7 +13,7 @@
 
 #include "gcommon.h"
 #include "console.h"
-#include "gsound.h"
+#include "sound.h"
 #include "sid.h"
 #include "song.h"
 #include "play.h"

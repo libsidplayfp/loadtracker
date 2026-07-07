@@ -24,7 +24,7 @@
 
 #include "sid.h"
 
-#include "gsound.h"
+#include "sound.h"
 
 #include <residfp/residfp.h>
 

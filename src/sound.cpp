@@ -1,10 +1,30 @@
 /*
- * =============================================================================
- * sound routines
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GSOUND_C
+// =============================================================================
+// sound routines
+// =============================================================================
+
+#define SOUND_C
+
+extern "C" {
+#include "loadtrk.h"
+}
 
 #ifdef __WIN32__
 #include <windows.h>
@@ -14,14 +34,12 @@
 #  include <exSID.h>
 #endif
 
-extern "C" {
-#include "loadtrk.h"
-}
+#include <cstdlib>
 
 // General / reSID output
 int playspeed;
-int useexsid = 0;
-int initted = 0;
+bool useexsid = false;
+bool initted = false;
 unsigned framerate = PALFRAMERATE;
 Sint16 *buffer = nullptr;
 Sint16 *lbuffer = nullptr;
@@ -103,7 +121,7 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
     exsidDelay /= framerate;
     exsidDelay -= SIDWRITEDELAY*NUMSIDREGS;
 
-    useexsid = 1;
+    useexsid = true;
     timer = SDL_AddTimer(1000 / framerate, sound_timer, nullptr);
     goto SOUNDOK;
   }
@@ -135,15 +153,17 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
   snd_player = &sound_playrout;
   snd_setcustommixer(sound_mixer);
 
+#ifdef USE_EXSID
 SOUNDOK:
-  initted = 1;
+#endif
+  initted = true;
   return 1;
 }
 
 void sound_uninit(void)
 {
   if (!initted) return;
-  initted = 0;
+  initted = false;
 
   // Apparently a delay is needed to make sure the sound timer thread is
   // not mixing stuff anymore, and we can safely delete related structures
@@ -167,19 +187,19 @@ void sound_uninit(void)
 
   if (buffer)
   {
-    free(buffer);
+    std::free(buffer);
     buffer = nullptr;
   }
 
   if (lbuffer)
   {
-      free(lbuffer);
+      std::free(lbuffer);
       lbuffer = nullptr;
   }
 
   if (rbuffer)
   {
-      free(rbuffer);
+      std::free(rbuffer);
       rbuffer = nullptr;
   }
 
@@ -188,7 +208,7 @@ void sound_uninit(void)
   {
     if (exsidfd != nullptr)
     {
-      for (c = 0; c < NUMSIDREGS; c++)
+      for (int c = 0; c < NUMSIDREGS; c++)
       {
         exSID_clkdwrite(exsidfd, SIDWRITEDELAY, c, 0x00);
       }
@@ -225,7 +245,7 @@ void sound_playrout(void)
   if (useexsid)
   {
     exSID_delay(exsidfd, exsidDelay);
-    for (c = 0; c < NUMSIDREGS; c++)
+    for (int c = 0; c < NUMSIDREGS; c++)
     {
       unsigned o = sid_getorder(c);
       exSID_clkdwrite(exsidfd, SIDWRITEDELAY, o, sidreg[o]);
@@ -236,8 +256,6 @@ void sound_playrout(void)
 
 void sound_mixer(Sint32 *dest, unsigned samples)
 {
-  int c;
-
   if (!initted) return;
   if (samples > MIXBUFFERSIZE) return;
 
@@ -250,7 +268,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
       fwrite(buffer, samples * sizeof(Uint16), 1, writehandle);
     }
 
-    for (c = 0; c < samples; c++)
+    for (unsigned c = 0; c < samples; c++)
     {
       dest[c] = buffer[c];
     }
@@ -260,7 +278,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     sid_fillbuffer_stereo(lbuffer, rbuffer, samples);
     if (writehandle)
     {
-      for (c = 0; c < samples; c++)
+      for (unsigned c = 0; c < samples; c++)
       {
         fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
         fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
@@ -268,7 +286,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     }
     if (monomode)
     {
-      for (c = 0; c < samples; c++)
+      for (unsigned c = 0; c < samples; c++)
       {
         dest[c*2] = lbuffer[c] / 2 + rbuffer[c] / 2;
         dest[c*2+1] = dest[c*2];
@@ -276,7 +294,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     }
     else
     {
-      for (c = 0; c < samples; c++)
+      for (unsigned c = 0; c < samples; c++)
       {
         dest[c*2] = lbuffer[c] * panning + rbuffer[c] * (1-panning);
         dest[c*2+1] = rbuffer[c] * panning + lbuffer[c] * (1-panning);

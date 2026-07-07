@@ -29,7 +29,7 @@ set(LOADTRK_SOURCES
     src/file.cpp
     src/greloc.c
     src/help.cpp
-    src/gsound.cpp
+    src/sound.cpp
     src/console.cpp
     src/sid.cpp
     src/asm/asmtab.c
