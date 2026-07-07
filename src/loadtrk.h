@@ -20,7 +20,7 @@
 #include "display.h"
 #include "greloc.h"
 #include "file.h"
-#include "gpattern.h"
+#include "pattern.h"
 #include "order.h"
 #include "instr.h"
 #include "gtable.h"

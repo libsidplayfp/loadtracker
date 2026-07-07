@@ -1,14 +1,32 @@
 /*
- * =============================================================================
- * pattern editor
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GPATTERN_C
+// =============================================================================
+// pattern editor
+// =============================================================================
+
+#define PATTERN_C
 
 extern "C" {
 #include "loadtrk.h"
 }
+
+#include <cstring>
 
 unsigned char notekeytbl1[] = {KEY_Z, KEY_S, KEY_X, KEY_D, KEY_C, KEY_V,
   KEY_G, KEY_B, KEY_H, KEY_N, KEY_J, KEY_M, KEY_COMMA, KEY_L, KEY_COLON};
@@ -78,8 +96,6 @@ void insertnote(int newnote) {
 
 void patterncommands(void)
 {
-  size_t i;
-  int c, scrrep;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
@@ -104,14 +120,14 @@ void patterncommands(void)
       switch (keypreset)
       {
         case KEY_TRACKER:
-        for (i = 0; i < sizeof(notekeytbl1); i++)
+        for (size_t i = 0; i < sizeof(notekeytbl1); i++)
         {
           if ((rawkey == notekeytbl1[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+epoctave*12;
           }
         }
-        for (i = 0; i < sizeof(notekeytbl2); i++)
+        for (size_t i = 0; i < sizeof(notekeytbl2); i++)
         {
           if ((rawkey == notekeytbl2[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
@@ -121,7 +137,7 @@ void patterncommands(void)
         break;
 
         case KEY_DMC:
-        for (i = 0; i < sizeof(dmckeytbl); i++)
+        for (size_t i = 0; i < sizeof(dmckeytbl); i++)
         {
           if ((rawkey == dmckeytbl[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
@@ -131,14 +147,14 @@ void patterncommands(void)
         break;
 
         case KEY_JANKO:
-        for (i = 0; i < sizeof(jankokeytbl1); i++)
+        for (size_t i = 0; i < sizeof(jankokeytbl1); i++)
         {
           if ((rawkey == jankokeytbl1[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
             newnote = FIRSTNOTE+i+epoctave*12;
           }
         }
-        for (i = 0; i < sizeof(jankokeytbl2); i++)
+        for (size_t i = 0; i < sizeof(jankokeytbl2); i++)
         {
           if ((rawkey == jankokeytbl2[i]) && (!epcolumn) && (!shiftpressed) && (!altpressed))
           {
@@ -375,7 +391,7 @@ void patterncommands(void)
         if (epmarkstart < epmarkend)
         {
           int d = 0;
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
@@ -387,7 +403,7 @@ void patterncommands(void)
         else
         {
           int d = 0;
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
@@ -413,7 +429,7 @@ void patterncommands(void)
     case KEY_R:
     if (shiftpressed)
     {
-      for (c = 0; c < cmdcopyrows; c++)
+      for (int c = 0; c < cmdcopyrows; c++)
       {
         if (eppos >= pattlen[epnum[epchn]]) break;
         pattern[epnum[epchn]][eppos*4+2] = cmdcopybuffer[c*4+2];
@@ -426,17 +442,16 @@ void patterncommands(void)
     case KEY_I:
     if (shiftpressed)
     {
-      int d, e;
       char temp;
       if (epmarkchn != -1)
       {
         if (epmarkstart <= epmarkend)
         {
-          e = epmarkend;
-          for (c = epmarkstart; c <= epmarkend; c++)
+          int e = epmarkend;
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
-            for (d = 0; d < 4; d++)
+            for (int d = 0; d < 4; d++)
             {
               temp = pattern[epnum[epmarkchn]][c*4+d];
               pattern[epnum[epmarkchn]][c*4+d] = pattern[epnum[epmarkchn]][e*4+d];
@@ -448,11 +463,11 @@ void patterncommands(void)
         }
         else
         {
-          e = epmarkstart;
-          for (c = epmarkend; c <= epmarkstart; c++)
+          int e = epmarkstart;
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
-            for (d = 0; d < 4; d++)
+            for (int d = 0; d < 4; d++)
             {
               temp = pattern[epnum[epmarkchn]][c*4+d];
               pattern[epnum[epmarkchn]][c*4+d] = pattern[epnum[epmarkchn]][e*4+d];
@@ -465,10 +480,10 @@ void patterncommands(void)
       }
       else
       {
-        e = pattlen[epnum[epchn]] - 1;
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        int e = pattlen[epnum[epchn]] - 1;
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
-          for (d = 0; d < 4; d++)
+          for (int d = 0; d < 4; d++)
           {
             temp = pattern[epnum[epchn]][c*4+d];
             pattern[epnum[epchn]][c*4+d] = pattern[epnum[epchn]][e*4+d];
@@ -488,7 +503,7 @@ void patterncommands(void)
       {
         if (epmarkstart <= epmarkend)
         {
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
@@ -498,7 +513,7 @@ void patterncommands(void)
         }
         else
         {
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
@@ -509,7 +524,7 @@ void patterncommands(void)
       }
       else
       {
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
           if ((pattern[epnum[epchn]][c*4] < LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -526,7 +541,7 @@ void patterncommands(void)
       {
         if (epmarkstart <= epmarkend)
         {
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -536,7 +551,7 @@ void patterncommands(void)
         }
         else
         {
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -547,7 +562,7 @@ void patterncommands(void)
       }
       else
       {
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] > FIRSTNOTE))
@@ -564,7 +579,7 @@ void patterncommands(void)
       {
         if (epmarkstart <= epmarkend)
         {
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -578,7 +593,7 @@ void patterncommands(void)
         }
         else
         {
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -593,7 +608,7 @@ void patterncommands(void)
       }
       else
       {
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -614,7 +629,7 @@ void patterncommands(void)
       {
         if (epmarkstart <= epmarkend)
         {
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -628,7 +643,7 @@ void patterncommands(void)
         }
         else
         {
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
@@ -643,7 +658,7 @@ void patterncommands(void)
       }
       else
       {
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -676,6 +691,7 @@ void patterncommands(void)
     case KEY_H:
     if (shiftpressed)
     {
+      int c;
       switch (pattern[epnum[epchn]][eppos*4+2])
       {
         case CMD_PORTAUP:
@@ -691,18 +707,14 @@ void patterncommands(void)
           if ((pattern[epnum[epchn]][c*4] >= FIRSTNOTE) &&
               (pattern[epnum[epchn]][c*4] <= LASTNOTE))
           {
-            int delta;
-            int pitch1;
-            int pitch2;
-            int pos;
             int note = pattern[epnum[epchn]][c*4] - FIRSTNOTE;
             int right = pattern[epnum[epchn]][eppos*4+3] & 0xf;
             int left = pattern[epnum[epchn]][eppos*4+3] >> 4;
 
             if (note > MAX_NOTES-1) note--;
-            pitch1 = freqtbllo[note] | (freqtblhi[note] << 8);
-            pitch2 = freqtbllo[note+1] | (freqtblhi[note+1] << 8);
-            delta = pitch2 - pitch1;
+            int pitch1 = freqtbllo[note] | (freqtblhi[note] << 8);
+            int pitch2 = freqtbllo[note+1] | (freqtblhi[note+1] << 8);
+            int delta = pitch2 - pitch1;
 
             while (left--) delta <<= 1;
             while (right--) delta >>= 1;
@@ -711,7 +723,7 @@ void patterncommands(void)
             {
               if (delta > 0xff) delta = 0xff;
             }
-            pos = makespeedtable(delta, MST_RAW, 1);
+            int pos = makespeedtable(delta, MST_RAW, 1);
             pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             break;
           }
@@ -743,7 +755,7 @@ void patterncommands(void)
         if (epmarkstart <= epmarkend)
         {
           int d = 0;
-          for (c = epmarkstart; c <= epmarkend; c++)
+          for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
@@ -764,7 +776,7 @@ void patterncommands(void)
         else
         {
           int d = 0;
-          for (c = epmarkend; c <= epmarkstart; c++)
+          for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= pattlen[epnum[epmarkchn]]) break;
             patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
@@ -787,7 +799,7 @@ void patterncommands(void)
       else
       {
         int d = 0;
-        for (c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
         {
           patterncopybuffer[d*4] = pattern[epnum[epchn]][c*4];
           patterncopybuffer[d*4+1] = pattern[epnum[epchn]][c*4+1];
@@ -810,7 +822,7 @@ void patterncommands(void)
     case KEY_V:
     if ((shiftpressed) && (patterncopyrows))
     {
-      for (c = 0; c < patterncopyrows; c++)
+      for (int c = 0; c < patterncopyrows; c++)
       {
         if (eppos >= pattlen[epnum[epchn]]) break;
         pattern[epnum[epchn]][eppos*4] = patterncopybuffer[c*4];
@@ -893,9 +905,7 @@ void patterncommands(void)
       {
         if (eseditpos != espos[eschn])
         {
-          int c;
-
-          for (c = 0; c < maxChns; c++)
+          for (int c = 0; c < maxChns; c++)
           {
             if (eseditpos < songlen[esnum][c]) espos[c] = eseditpos;
             if (esend[c] <= espos[c]) esend[c] = 0;
@@ -963,12 +973,12 @@ void patterncommands(void)
     break;
 
     case KEY_PGUP:
-    for (scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
       patternup();
     break;
 
     case KEY_PGDN:
-    for (scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
       patterndown();
     break;
 
@@ -1180,7 +1190,6 @@ void expandpattern(void)
   int c = epnum[epchn];
   int l = pattlen[c];
   int nl = l*2;
-  int d;
   unsigned char temp[MAX_PATTROWS*4+4];
 
   if (nl > MAX_PATTROWS) return;
@@ -1188,7 +1197,7 @@ void expandpattern(void)
 
   stopsong();
 
-  for (d = 0; d <= nl; d++)
+  for (int d = 0; d <= nl; d++)
   {
     if (d & 1)
     {
@@ -1206,7 +1215,7 @@ void expandpattern(void)
     }
   }
 
-  memcpy(pattern[c], temp, (nl+1)*4);
+  std::memcpy(pattern[c], temp, (nl+1)*4);
 
   eppos *= 2;
 
@@ -1217,7 +1226,6 @@ void splitpattern(void)
 {
   int c = epnum[epchn];
   int l = pattlen[c];
-  int d;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
@@ -1232,7 +1240,7 @@ void splitpattern(void)
     int oldeschn = eschn;
     int oldeseditpos = eseditpos;
 
-    for (d = eppos; d <= l; d++)
+    for (int d = eppos; d <= l; d++)
     {
       pattern[c+1][(d-eppos)*4] = pattern[c][d*4];
       pattern[c+1][(d-eppos)*4+1] = pattern[c][d*4+1];
