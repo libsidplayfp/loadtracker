@@ -22,9 +22,7 @@
 
 #define SOUND_C
 
-extern "C" {
 #include "loadtrk.h"
-}
 
 #ifdef __WIN32__
 #include <windows.h>

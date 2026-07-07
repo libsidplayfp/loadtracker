@@ -22,11 +22,7 @@
 
 #define CONSOLE_C
 
-extern "C" {
-
 #include "loadtrk.h"
-
-}
 
 #include <cstdio>
 #include <cstdlib>

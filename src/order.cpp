@@ -22,11 +22,7 @@
 
 #define ORDER_C
 
-extern "C" {
-
 #include "loadtrk.h"
-
-}
 
 #include <cstring>
 

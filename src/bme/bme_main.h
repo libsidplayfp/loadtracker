@@ -1,5 +1,7 @@
 // BME main definitions header file
 
+#include <SDL3/SDL.h>
+
 #define GFX_SCANLINES 1
 #define GFX_DOUBLESIZE 2
 #define GFX_USE1PAGE 0

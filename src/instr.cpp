@@ -22,11 +22,7 @@
 
 #define INSTR_C
 
-extern "C" {
-
 #include "loadtrk.h"
-
-}
 
 #include <cstring>
 

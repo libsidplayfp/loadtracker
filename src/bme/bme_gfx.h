@@ -1,9 +1,12 @@
 // BME graphics module header file
 
+#ifndef BME_GFX_H
+#define BME_GFX_H
+
 int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
-int gfx_reinit(void);
+int gfx_reinit();
 void gfx_uninit(void);
-int gfx_lock(void);
+int gfx_lock();
 void gfx_unlock(void);
 void gfx_flip(void);
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
@@ -39,3 +42,5 @@ extern Uint8 *gfx_blocks;
 extern Uint8 gfx_palette[];
 extern SDL_Surface *gfx_screen;
 extern SDL_Renderer *gfx_renderer;
+
+#endif

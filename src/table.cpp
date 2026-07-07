@@ -22,9 +22,7 @@
 
 #define TABLE_C
 
-extern "C" {
 #include "loadtrk.h"
-}
 
 #include <cmath>
 #include <cstring>

@@ -16,9 +16,9 @@
 // Prototypes
 
 int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
-int gfx_reinit(void);
+int gfx_reinit();
 void gfx_uninit(void);
-int gfx_lock(void);
+int gfx_lock();
 void gfx_unlock(void);
 void gfx_flip(void);
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
@@ -150,7 +150,7 @@ int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
     else return BME_ERROR;
 }
 
-int gfx_reinit(void)
+int gfx_reinit()
 {
     gfx_uninit();
     return gfx_init(gfx_last_xsize, gfx_last_ysize, gfx_last_framerate,
@@ -166,7 +166,7 @@ void gfx_uninit(void)
     return;
 }
 
-int gfx_lock(void)
+int gfx_lock()
 {
     if (gfx_locked) return 1;
     if (!gfx_initted) return 0;
@@ -294,9 +294,9 @@ void gfx_setmaxspritefiles(unsigned num)
 {
     if (gfx_spriteheaders) return;
 
-    gfx_spriteheaders = malloc(num * sizeof(Uint8 *));
-    gfx_spritedata = malloc(num * sizeof(Uint8 *));
-    gfx_spriteamount = malloc(num * sizeof(unsigned));
+    gfx_spriteheaders = (SPRITEHEADER**)malloc(num * sizeof(Uint8 *));
+    gfx_spritedata = (Uint8**)malloc(num * sizeof(Uint8 *));
+    gfx_spriteamount = (unsigned int*)malloc(num * sizeof(unsigned));
     if ((gfx_spriteheaders) && (gfx_spritedata) && (gfx_spriteamount))
     {
         unsigned c;
@@ -336,11 +336,11 @@ int gfx_loadsprites(unsigned num, const char *name)
 
     gfx_spriteamount[num] = io_readle32(handle);
 
-    gfx_spriteheaders[num] = malloc(gfx_spriteamount[num] * sizeof(SPRITEHEADER));
+    gfx_spriteheaders[num] = (SPRITEHEADER*)malloc(gfx_spriteamount[num] * sizeof(SPRITEHEADER));
 
     if (!gfx_spriteheaders[num])
     {
-        bme_error = BME_OUT_OF_MEMORY;    
+        bme_error = BME_OUT_OF_MEMORY;
         io_close(handle);
         return BME_ERROR;
     }
@@ -357,7 +357,7 @@ int gfx_loadsprites(unsigned num, const char *name)
     }
 
     datastart = io_lseek(handle, 0, SEEK_CUR);
-    gfx_spritedata[num] = malloc(size - datastart);
+    gfx_spritedata[num] = (Uint8*)malloc(size - datastart);
     if (!gfx_spritedata[num])
     {
         bme_error = BME_OUT_OF_MEMORY;    

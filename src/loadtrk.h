@@ -19,17 +19,7 @@
 #ifndef LOADTRK_H
 #define LOADTRK_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "bme.h"
-
-#ifdef __cplusplus
-}
-#endif
-
-
 #include "common.h"
 #include "console.h"
 #include "sound.h"

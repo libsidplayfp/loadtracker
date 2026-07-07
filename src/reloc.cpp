@@ -22,8 +22,9 @@
 
 #define RELOC_C
 
-extern "C" {
 #include "loadtrk.h"
+
+extern "C" {
 #include "membuf.h"
 #include "parse.h"
 }

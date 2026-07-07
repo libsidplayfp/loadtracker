@@ -22,11 +22,7 @@
 
 #define HELP_C
 
-extern "C" {
-
 #include "loadtrk.h"
-
-}
 
 #include <cstdio>
 

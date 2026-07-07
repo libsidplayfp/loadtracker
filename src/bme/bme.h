@@ -3,6 +3,10 @@
 #ifndef BME_H
 #define BME_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <SDL3/SDL.h>
 #include "bme_main.h"
 #include "bme_cfg.h"
@@ -13,5 +17,9 @@
 #include "bme_mou.h"
 #include "bme_io.h"
 #include "bme_end.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -24,9 +24,7 @@
 
 #include "loadtrk.h"
 
-extern "C" {
 #include "bme.h"
-}
 
 #include <SDL3/SDL_main.h>
 
@@ -606,7 +604,7 @@ void waitkeynoupdate(void)
 {
   for (;;)
   {
-  	fliptoscreen();
+    fliptoscreen();
     getkey();
     if ((rawkey) || (key)) break;
     if ((mouseb) && (!prevmouseb)) break;
