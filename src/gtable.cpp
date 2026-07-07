@@ -6,7 +6,9 @@
 
 #define GTABLE_C
 
+extern "C" {
 #include "loadtrk.h"
+}
 
 unsigned char ltablecopybuffer[MAX_TABLELEN];
 unsigned char rtablecopybuffer[MAX_TABLELEN];

@@ -23,7 +23,7 @@ set(LOADTRK_SOURCES
     src/order.cpp
     src/pattern.cpp
     src/instr.cpp
-    src/gtable.c
+    src/gtable.cpp
     src/play.cpp
     src/display.cpp
     src/file.cpp
