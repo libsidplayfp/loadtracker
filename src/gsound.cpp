@@ -14,17 +14,19 @@
 #  include <exSID.h>
 #endif
 
+extern "C" {
 #include "loadtrk.h"
+}
 
 // General / reSID output
 int playspeed;
 int useexsid = 0;
 int initted = 0;
 unsigned framerate = PALFRAMERATE;
-Sint16 *buffer = NULL;
-Sint16 *lbuffer = NULL;
-Sint16 *rbuffer = NULL;
-FILE *writehandle = NULL;
+Sint16 *buffer = nullptr;
+Sint16 *lbuffer = nullptr;
+Sint16 *rbuffer = nullptr;
+FILE *writehandle = nullptr;
 SDL_TimerID timer = 0;
 
 void sound_playrout(void);
@@ -32,7 +34,7 @@ void sound_mixer(Sint32 *dest, unsigned samples);
 Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
 #ifdef USE_EXSID
-void* exsidfd = NULL;
+void* exsidfd = nullptr;
 unsigned exsidDelay = 0;
 #endif
 
@@ -102,7 +104,7 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
     exsidDelay -= SIDWRITEDELAY*NUMSIDREGS;
 
     useexsid = 1;
-    timer = SDL_AddTimer(1000 / framerate, sound_timer, NULL);
+    timer = SDL_AddTimer(1000 / framerate, sound_timer, nullptr);
     goto SOUNDOK;
   }
 #endif
@@ -153,38 +155,38 @@ void sound_uninit(void)
   }
   else
   {
-    snd_setcustommixer(NULL);
-    snd_player = NULL;
+    snd_setcustommixer(nullptr);
+    snd_player = nullptr;
   }
 
   if (writehandle)
   {
     fclose(writehandle);
-    writehandle = NULL;
+    writehandle = nullptr;
   }
 
   if (buffer)
   {
     free(buffer);
-    buffer = NULL;
+    buffer = nullptr;
   }
 
   if (lbuffer)
   {
       free(lbuffer);
-      lbuffer = NULL;
+      lbuffer = nullptr;
   }
 
   if (rbuffer)
   {
       free(rbuffer);
-      rbuffer = NULL;
+      rbuffer = nullptr;
   }
 
 #ifdef USE_EXSID
   if (useexsid)
   {
-    if (exsidfd != NULL)
+    if (exsidfd != nullptr)
     {
       for (c = 0; c < NUMSIDREGS; c++)
       {
@@ -196,7 +198,7 @@ void sound_uninit(void)
     exSID_exit(exsidfd);
 
     exSID_free(exsidfd);
-    exsidfd = NULL;
+    exsidfd = nullptr;
   }
 #endif
 }
