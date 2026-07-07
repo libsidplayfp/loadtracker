@@ -12,7 +12,7 @@
 #include "bme.h"
 
 #include "gcommon.h"
-#include "gconsole.h"
+#include "console.h"
 #include "gsound.h"
 #include "gsid.h"
 #include "gsong.h"

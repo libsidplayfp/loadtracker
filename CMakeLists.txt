@@ -30,7 +30,7 @@ set(LOADTRK_SOURCES
     src/greloc.c
     src/ghelp.c
     src/gsound.c
-    src/gconsole.c
+    src/console.cpp
     src/gsid.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
