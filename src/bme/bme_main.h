@@ -21,15 +21,6 @@
 #define MOUSEB_RIGHT 2
 #define MOUSEB_MIDDLE 4
 
-#define JOY_LEFT 1
-#define JOY_RIGHT 2
-#define JOY_UP 4
-#define JOY_DOWN 8
-#define JOY_FIRE1 16
-#define JOY_FIRE2 32
-#define JOY_FIRE3 64
-#define JOY_FIRE4 128
-
 #define LEFT 0
 #define MIDDLE 128
 #define RIGHT 255

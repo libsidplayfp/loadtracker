@@ -105,7 +105,7 @@ char driveexists[26];
   }
 #ifdef __WIN32__
   // Create drive letters
-  for (c = 0; c < 26; c++)
+  for (int c = 0; c < 26; c++)
   {
     if (driveexists[c])
     {
