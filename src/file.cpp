@@ -30,9 +30,13 @@ extern "C" {
 
 #include <cstring>
 #include <cctype>
+#include <cstdio>
+#include <cstdlib>
 
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #ifdef __WIN32__
 #include <windows.h>
@@ -98,7 +102,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
   {
     if (direntry[c].name)
     {
-      free(direntry[c].name);
+      std::free(direntry[c].name);
       direntry[c].name = nullptr;
     }
   }
@@ -156,7 +160,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
               files++;
             else
             {
-              free(direntry[files].name);
+              std::free(direntry[files].name);
               direntry[files].name = nullptr;
             }
           }
@@ -226,7 +230,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
       {
         if (direntry[c].name)
         {
-          free(direntry[c].name);
+          std::free(direntry[c].name);
           direntry[c].name = nullptr;
         }
       }
@@ -445,21 +449,21 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
         switch (direntry[fileview+c].attribute)
         {
           case 0:
-          sprintf(textbuffer, "%-60s        ", direntry[fileview+c].name);
+          std::sprintf(textbuffer, "%-60s        ", direntry[fileview+c].name);
           break;
 
           case 1:
-          sprintf(textbuffer, "%-60s   <DIR>", direntry[fileview+c].name);
+          std::sprintf(textbuffer, "%-60s   <DIR>", direntry[fileview+c].name);
           break;
 
           case 2:
-          sprintf(textbuffer, "%-60s   <DRV>", direntry[fileview+c].name);
+          std::sprintf(textbuffer, "%-60s   <DRV>", direntry[fileview+c].name);
           break;
         }
       }
       else
       {
-        sprintf(textbuffer, "                                                                    ");
+        std::sprintf(textbuffer, "                                                                    ");
       }
       int color = colors.CNORMAL;
       if ((fileview+c) == filepos) color = colors.CEDIT;
@@ -469,21 +473,21 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
     }
 
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+3+VISIBLEFILES, 15, "PATH:   ");
-    sprintf(textbuffer, "%-60s", path);
+    std::sprintf(textbuffer, "%-60s", path);
     textbuffer[MAX_FILENAME] = 0;
     int color = (filemode == 1) ? colors.CEDIT : colors.CNORMAL;
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+3+VISIBLEFILES, color, textbuffer);
     if ((filemode == 1) && (strlen(path) < MAX_FILENAME)) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(path), dpos.loadboxY+3+VISIBLEFILES, cc, 1);
 
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+4+VISIBLEFILES, 15, "FILTER: ");
-    sprintf(textbuffer, "%-60s", filter);
+    std::sprintf(textbuffer, "%-60s", filter);
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 2) ? colors.CEDIT : colors.CNORMAL;
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+4+VISIBLEFILES, color, textbuffer);
     if (filemode == 2) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(filter), dpos.loadboxY+4+VISIBLEFILES, cc, 1);
 
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+1, dpos.loadboxY+5+VISIBLEFILES, 15, "NAME:   ");
-    sprintf(textbuffer, "%-60s", name);
+    std::sprintf(textbuffer, "%-60s", name);
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 3) ? colors.CEDIT : colors.CNORMAL;
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+5+VISIBLEFILES, color, textbuffer);
@@ -503,7 +507,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
   {
     if (direntry[c].name)
     {
-      free(direntry[c].name);
+      std::free(direntry[c].name);
       direntry[c].name = nullptr;
     }
   }

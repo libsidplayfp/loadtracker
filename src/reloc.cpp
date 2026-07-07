@@ -29,6 +29,8 @@ extern "C" {
 }
 
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 const char *playeroptname[] =
 {
@@ -667,7 +669,7 @@ void relocator()
 
   // Allocate memory for song-orderlists
   songtblsize = songs*6;
-  songwork = (unsigned char*)malloc(songdatasize);
+  songwork = (unsigned char*)std::malloc(songdatasize);
   if (!songwork)
   {
     clearscreen();
@@ -758,7 +760,7 @@ void relocator()
   }
 
   patttblsize = patterns*2;
-  pattwork = (unsigned char*)malloc(pattdatasize);
+  pattwork = (unsigned char*)std::malloc(pattdatasize);
   if (!pattwork)
   {
     clearscreen();
@@ -784,7 +786,7 @@ void relocator()
 
   // Then process instruments
   instrsize = instruments*9;
-  instrwork = (unsigned char*)malloc(instrsize);
+  instrwork = (unsigned char*)std::malloc(instrsize);
   if (!instrwork)
   {
     clearscreen();
@@ -1422,9 +1424,9 @@ void relocator()
   }
 
   /* {
-    FILE *handle = fopen("debug.s", "wb");
-    fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
-    fclose(handle);
+    FILE *handle = std::fopen("debug.s", "wb");
+    std::fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
+    std::fclose(handle);
   } */
 
   // Assemble; on error fail in a rude way (the parser does so too)
@@ -1589,7 +1591,7 @@ void relocator()
         }
       }
     }
-    songhandle = fopen(packedsongname, "wb");
+    songhandle = std::fopen(packedsongname, "wb");
   }
 
   if (fileformat == FORMAT_PRG)
@@ -1601,7 +1603,7 @@ void relocator()
     unsigned char ident[] = {'P', 'S', 'I', 'D', 0x00, 0x02, 0x00, 0x7c};
     unsigned char byte;
     // Identification
-    fwrite(ident, sizeof ident, 1, songhandle);
+    std::fwrite(ident, sizeof ident, 1, songhandle);
 
     // Load address
     byte = 0x00;
@@ -1665,9 +1667,9 @@ void relocator()
     fwrite8(songhandle, byte);
 
     // Songname etc.
-    fwrite(songname, sizeof songname, 1, songhandle);
-    fwrite(authorname, sizeof authorname, 1, songhandle);
-    fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
+    std::fwrite(songname, sizeof songname, 1, songhandle);
+    std::fwrite(authorname, sizeof authorname, 1, songhandle);
+    std::fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
 
     // Flags
     byte = 0x00;
@@ -1700,19 +1702,19 @@ void relocator()
       byte = (playeradr) >> 8;
       fwrite8(songhandle, byte);
     }
-    if ((multiplier > 1) || (!multiplier)) fwrite(speedcode, 10, 1, songhandle);
+    if ((multiplier > 1) || (!multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
   }
 
-  fwrite(packeddata, packedsize, 1, songhandle);
-  fclose(songhandle);
+  std::fwrite(packeddata, packedsize, 1, songhandle);
+  std::fclose(songhandle);
 
   PRCLEANUP:
   membuf_free(&src);
   membuf_free(&dest);
 
-  if (pattwork) free(pattwork);
-  if (songwork) free(songwork);
-  if (instrwork) free(instrwork);
+  if (pattwork) std::free(pattwork);
+  if (songwork) std::free(songwork);
+  if (instrwork) std::free(instrwork);
   printmainscreen();
   key = 0;
   rawkey = 0;
@@ -3460,9 +3462,9 @@ SKIPTABLE_S:
     }
 
     //{
-    //  FILE *handle = fopen("debug.s", "wb");
-    //  fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
-    //  fclose(handle);
+    //  FILE *handle = std::fopen("debug.s", "wb");
+    //  std::fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
+    //  std::fclose(handle);
     //}
 
     // Assemble; on error fail in a rude way (the parser does so too)
@@ -3627,7 +3629,7 @@ SKIPTABLE_S:
                 }
             }
         }
-        songhandle = fopen(packedsongname, "wb");
+        songhandle = std::fopen(packedsongname, "wb");
     }
 
     if (fileformat == FORMAT_PRG)
@@ -3639,7 +3641,7 @@ SKIPTABLE_S:
         unsigned char ident[] = {'P', 'S', 'I', 'D', 0x00, 0x03, 0x00, 0x7c};
         unsigned char byte;
         // Identification
-        fwrite(ident, sizeof ident, 1, songhandle);
+        std::fwrite(ident, sizeof ident, 1, songhandle);
 
         // Load address
         byte = 0x00;
@@ -3703,9 +3705,9 @@ SKIPTABLE_S:
         fwrite8(songhandle, byte);
 
         // Songname etc.
-        fwrite(songname, sizeof songname, 1, songhandle);
-        fwrite(authorname, sizeof authorname, 1, songhandle);
-        fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
+        std::fwrite(songname, sizeof songname, 1, songhandle);
+        std::fwrite(authorname, sizeof authorname, 1, songhandle);
+        std::fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
 
         // Flags
         byte = 0x00;
@@ -3739,19 +3741,19 @@ SKIPTABLE_S:
             byte = (playeradr) >> 8;
             fwrite8(songhandle, byte);
         }
-        if ((multiplier > 1) || (!multiplier)) fwrite(speedcode, 10, 1, songhandle);
+        if ((multiplier > 1) || (!multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
     }
 
-    fwrite(packeddata, packedsize, 1, songhandle);
-    fclose(songhandle);
+    std::fwrite(packeddata, packedsize, 1, songhandle);
+    std::fclose(songhandle);
 
 PRCLEANUP_S:
     membuf_free(&src);
     membuf_free(&dest);
 
-    if (pattwork) free(pattwork);
-    if (songwork) free(songwork);
-    if (instrwork) free(instrwork);
+    if (pattwork) std::free(pattwork);
+    if (songwork) std::free(songwork);
+    if (instrwork) std::free(instrwork);
     printmainscreen();
     key = 0;
     rawkey = 0;

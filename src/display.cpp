@@ -28,6 +28,8 @@ extern "C" {
 
 }
 
+#include <cstdio>
+
 const char *notename[] =
  {"C-0", "C#0", "D-0", "D#0", "E-0", "F-0", "F#0", "G-0", "G#0", "A-0", "A#0", "B-0",
   "C-1", "C#1", "D-1", "D#1", "E-1", "F-1", "F#1", "G-1", "G#1", "A-1", "A#1", "B-1",
@@ -106,9 +108,9 @@ void printstatus(void)
     printtext(dpos.statusTopX+14, dpos.statusTopY,   CDRED|(colors.CHDRBG<<4), "\"\"\" ");
 
     if (!strlen(loadedsongfilename))
-      sprintf(textbuffer, "%s", programname);
+      std::sprintf(textbuffer, "%s", programname);
     else
-      sprintf(textbuffer, "%s - %s", programname, loadedsongfilename);
+      std::sprintf(textbuffer, "%s - %s", programname, loadedsongfilename);
     textbuffer[49] = 0;
     printtext(dpos.statusTopX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
 
@@ -134,20 +136,20 @@ void printstatus(void)
     else
       printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, "8580");
 
-    sprintf(textbuffer, "HR:%04X", adparam);
+    std::sprintf(textbuffer, "HR:%04X", adparam);
     printtext(dpos.statusTopFvX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
     if (eamode && !ebmode) printbg(dpos.statusTopFvX+22+eacolumn, dpos.statusTopY, cc, 1);
 
     if (multiplier)
     {
-      sprintf(textbuffer, "%2dX", multiplier);
+      std::sprintf(textbuffer, "%2dX", multiplier);
       printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, textbuffer);
     }
     else printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, "25Hz");
 
     if (multiplier == 1)
     {
-      sprintf(textbuffer, "%03dBPM", snd_bpmtempo);
+      std::sprintf(textbuffer, "%03dBPM", snd_bpmtempo);
       printtext(dpos.statusTopFvX+31, dpos.statusTopY, colors.CHEADER, textbuffer);
 
       if (eamode && ebmode) printbg(dpos.statusTopFvX+31+eacolumn, dpos.statusTopY, cc, 1);
@@ -206,13 +208,13 @@ void printstatus(void)
 
   for (c = 0; c < maxChns; c++)
   {
-    sprintf(textbuffer, "CH.");
+    std::sprintf(textbuffer, "CH.");
     printtext(dpos.patternsX+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    sprintf(textbuffer, "%d", c+1);
+    std::sprintf(textbuffer, "%d", c+1);
     printtext(dpos.patternsX+3+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    sprintf(textbuffer, "PATT.");
+    std::sprintf(textbuffer, "PATT.");
     printtext(dpos.patternsX+5+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    sprintf(textbuffer, "%02X", epnum[c]);
+    std::sprintf(textbuffer, "%02X", epnum[c]);
     printtext(dpos.patternsX+10+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
 
     for (d = 0; d < VISIBLEPATTROWS; d++)
@@ -230,28 +232,28 @@ void printstatus(void)
       if (p == eppos) color = colors.CEDIT;
       if ((p < 0) || (p > pattlen[epnum[c]]))
       {
-        sprintf(textbuffer, "             ");
+        std::sprintf(textbuffer, "             ");
       }
       else
       {
         if (!(patterndispmode & 1))
         {
           if (p < 100)
-            sprintf(textbuffer, " %02d", p);
+            std::sprintf(textbuffer, " %02d", p);
           else
-            sprintf(textbuffer, "%03d", p);
+            std::sprintf(textbuffer, "%03d", p);
         }
         else
-          sprintf(textbuffer, " %02X", p);
+          std::sprintf(textbuffer, " %02X", p);
 
         if (pattern[epnum[c]][p*4] == ENDPATT)
         {
-          sprintf(&textbuffer[3], " PATT. END");
+          std::sprintf(&textbuffer[3], " PATT. END");
           if (color == colors.CNORMAL) color = colors.CCOMMAND;
         }
         else
         {
-          sprintf(&textbuffer[3], " %s %02X%01X%02X",
+          std::sprintf(&textbuffer[3], " %s %02X%01X%02X",
             notename[pattern[epnum[c]][p*4]-FIRSTNOTE],
             pattern[epnum[c]][p*4+1],
             pattern[epnum[c]][p*4+2],
@@ -311,20 +313,20 @@ void printstatus(void)
     }
   }
 
-  sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ");
+  std::sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ");
   printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE, textbuffer);
-  sprintf(textbuffer, "%02X", esnum);
+  std::sprintf(textbuffer, "%02X", esnum);
   printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT, textbuffer);
-  sprintf(textbuffer, ", POS ");
+  std::sprintf(textbuffer, ", POS ");
   printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE, textbuffer);
-  sprintf(textbuffer, "%02X", eseditpos);
+  std::sprintf(textbuffer, "%02X", eseditpos);
   printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT, textbuffer);
-  sprintf(textbuffer, ")");
+  std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE, textbuffer);
 
   for (c = 0; c < maxChns; c++)
   {
-    sprintf(textbuffer, " %d ", c+1);
+    std::sprintf(textbuffer, " %d ", c+1);
     printtext(dpos.orderlistX, dpos.orderlistY+1+c, colors.CTITLE, textbuffer);
     for (d = 0; d < visibleOrderlist; d++)
     {
@@ -354,7 +356,7 @@ void printstatus(void)
 
       if ((p < 0) || (p > (currentSonglen+1)) || (p > MAX_SONGLEN+1))
       {
-        sprintf(textbuffer, "   ");
+        std::sprintf(textbuffer, "   ");
       }
       else
       {
@@ -362,26 +364,26 @@ void printstatus(void)
         {
           if ((currentSongorder < REPEAT) || (p >= currentSonglen))
           {
-            sprintf(textbuffer, "%02X ", currentSongorder);
+            std::sprintf(textbuffer, "%02X ", currentSongorder);
             if ((p >= currentSonglen) && (color == colors.CNORMAL)) color = colors.CCOMMAND;
           }
           else
           {
             if (currentSongorder >= TRANSUP)
             {
-              sprintf(textbuffer, "+%01X ", currentSongorder&0xf);
+              std::sprintf(textbuffer, "+%01X ", currentSongorder&0xf);
               if (color == colors.CNORMAL) color = colors.CCOMMAND;
             }
             else
             {
               if (currentSongorder >= TRANSDOWN)
               {
-                sprintf(textbuffer, "-%01X ", 16-(currentSongorder & 0x0f));
+                std::sprintf(textbuffer, "-%01X ", 16-(currentSongorder & 0x0f));
                 if (color == colors.CNORMAL) color = colors.CCOMMAND;
               }
               else
               {
-                sprintf(textbuffer, "R%01X ", (currentSongorder+1) & 0x0f);
+                std::sprintf(textbuffer, "R%01X ", (currentSongorder+1) & 0x0f);
                 if (color == colors.CNORMAL) color = colors.CCOMMAND;
               }
             }
@@ -389,7 +391,7 @@ void printstatus(void)
         }
         if (currentSongorder == LOOPSONG)
         {
-          sprintf(textbuffer, "RST");
+          std::sprintf(textbuffer, "RST");
           if (color == colors.CNORMAL) color = colors.CCOMMAND;
         }
       }
@@ -425,42 +427,42 @@ void printstatus(void)
     }
   }
 
-  sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s", einum, instr[einum].name);
+  std::sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s", einum, instr[einum].name);
   printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE, textbuffer);
 
-  sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
+  std::sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
   if (eipos == 0) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+1, color, textbuffer);
 
-  sprintf(textbuffer, "Sustain/Release %02X", instr[einum].sr);
+  std::sprintf(textbuffer, "Sustain/Release %02X", instr[einum].sr);
   if (eipos == 1) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+2, color, textbuffer);
 
-  sprintf(textbuffer, "Wavetable Pos   %02X", instr[einum].ptr[WTBL]);
+  std::sprintf(textbuffer, "Wavetable Pos   %02X", instr[einum].ptr[WTBL]);
   if (eipos == 2) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+3, color, textbuffer);
 
-  sprintf(textbuffer, "Pulsetable Pos  %02X", instr[einum].ptr[PTBL]);
+  std::sprintf(textbuffer, "Pulsetable Pos  %02X", instr[einum].ptr[PTBL]);
   if (eipos == 3) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+4, color, textbuffer);
 
-  sprintf(textbuffer, "Filtertable Pos %02X", instr[einum].ptr[FTBL]);
+  std::sprintf(textbuffer, "Filtertable Pos %02X", instr[einum].ptr[FTBL]);
   if (eipos == 4) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+5, color, textbuffer);
 
-  sprintf(textbuffer, "Vibrato Param   %02X", instr[einum].ptr[STBL]);
+  std::sprintf(textbuffer, "Vibrato Param   %02X", instr[einum].ptr[STBL]);
   if (eipos == 5) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX+20, dpos.instrumentsY+1, color, textbuffer);
 
-  sprintf(textbuffer, "Vibrato Delay   %02X", instr[einum].vibdelay);
+  std::sprintf(textbuffer, "Vibrato Delay   %02X", instr[einum].vibdelay);
   if (eipos == 6) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX+20, dpos.instrumentsY+2, color, textbuffer);
 
-  sprintf(textbuffer, "HR/Gate Timer   %02X", instr[einum].gatetimer);
+  std::sprintf(textbuffer, "HR/Gate Timer   %02X", instr[einum].gatetimer);
   if (eipos == 7) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX+20, dpos.instrumentsY+3, color, textbuffer);
 
-  sprintf(textbuffer, "1stFrame Wave   %02X", instr[einum].firstwave);
+  std::sprintf(textbuffer, "1stFrame Wave   %02X", instr[einum].firstwave);
   if (eipos == 8) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX+20, dpos.instrumentsY+4, color, textbuffer);
 
@@ -476,7 +478,7 @@ void printstatus(void)
     }
   }
 
-  sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
+  std::sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
   printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE, textbuffer);
 
   for (c = 0; c < MAX_TABLES; c++)
@@ -501,7 +503,7 @@ void printstatus(void)
         break;
       }
       if ((p == etpos) && (etnum == c)) color = colors.CEDIT;
-      sprintf(textbuffer, "%02X:%02X %02X", p+1, ltable[c][p], rtable[c][p]);
+      std::sprintf(textbuffer, "%02X:%02X %02X", p+1, ltable[c][p], rtable[c][p]);
       if (patterndispmode & 2)
       {
         if (!ltable[c][p] && !rtable[c][p] && !ltable[c][p+1] && !rtable[c][p+1])
@@ -534,15 +536,15 @@ void printstatus(void)
   }
 
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CTITLE, "NAME     ");
-  sprintf(textbuffer, "%-32s", songname);
+  std::sprintf(textbuffer, "%-32s", songname);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CEDIT, textbuffer);
 
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CTITLE, "AUTHOR   ");
-  sprintf(textbuffer, "%-32s", authorname);
+  std::sprintf(textbuffer, "%-32s", authorname);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CEDIT, textbuffer);
 
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CTITLE, "RELEASED ");
-  sprintf(textbuffer, "%-32s", copyrightname);
+  std::sprintf(textbuffer, "%-32s", copyrightname);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CEDIT, textbuffer);
 
   if ((editmode == EDIT_NAMES) && (!eamode))
@@ -560,7 +562,7 @@ void printstatus(void)
       break;
     }
   }
-  sprintf(textbuffer, "OCTAVE %d", epoctave);
+  std::sprintf(textbuffer, "OCTAVE %d", epoctave);
   printtext(dpos.octaveX, dpos.octaveY, colors.CTITLE, textbuffer);
 
   switch(autoadvance)
@@ -586,16 +588,16 @@ void printstatus(void)
   if (multiplier)
   {
     if (!ntsc)
-      sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(25*multiplier) & 1], timesec);
+      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(25*multiplier) & 1], timesec);
     else
-      sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(30*multiplier) & 1], timesec);
+      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(30*multiplier) & 1], timesec);
   }
   else
   {
     if (!ntsc)
-      sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/13) & 1], timesec);
+      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/13) & 1], timesec);
     else
-      sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/15) & 1], timesec);
+      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/15) & 1], timesec);
   }
 
   printtext(dpos.octaveX+10, dpos.octaveY+1, colors.CEDIT, textbuffer);
@@ -627,7 +629,7 @@ void printstatus(void)
     if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
     if (chnrow >= 100) chnrow -= 100;
 
-    sprintf(textbuffer, "%03X/%02X",
+    std::sprintf(textbuffer, "%03X/%02X",
       chnpos,chnrow);
     printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }

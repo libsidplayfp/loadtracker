@@ -26,6 +26,7 @@ extern "C" {
 #include "loadtrk.h"
 }
 
+#include <cmath>
 #include <cstring>
 
 unsigned char ltablecopybuffer[MAX_TABLELEN];
@@ -295,7 +296,7 @@ void tablecommands(void)
         }
       }
 
-      time = abs(targetpulse - currentpulse) / speed;
+      time = std::abs(targetpulse - currentpulse) / speed;
       if (speed < 128)
         steps = (time + 126) / 127;
       else
@@ -361,7 +362,7 @@ void tablecommands(void)
         }
       }
 
-      time = abs(targetfilter - currentfilter) / speed;
+      time = std::abs(targetfilter - currentfilter) / speed;
       steps = (time + 126) / 127;
       if (!steps) break;
       if (etpos + steps > MAX_TABLELEN) break;

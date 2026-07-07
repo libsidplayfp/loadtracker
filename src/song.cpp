@@ -27,6 +27,7 @@ extern "C" {
 }
 
 #include <cstring>
+#include <cstdio>
 
 INSTR instr[MAX_INSTR];
 unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
@@ -53,7 +54,7 @@ int savesong(void)
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
-  if (strlen(songfilename) < MAX_FILENAME-4)
+  if (std::strlen(songfilename) < MAX_FILENAME-4)
   {
     int extfound = 0;
     for (int c = strlen(songfilename)-1; c >= 0; c--)
@@ -62,13 +63,13 @@ int savesong(void)
     }
     if (!extfound) strcat(songfilename, ".sng");
   }
-  handle = fopen(songfilename, "wb");
+  handle = std::fopen(songfilename, "wb");
   if (handle)
   {
     int length;
     int amount;
     int writebytes;
-    fwrite(ident, 4, 1, handle);
+    std::fwrite(ident, 4, 1, handle);
 
     // Determine amount of patterns & instruments
     countpatternlengths();
@@ -82,9 +83,9 @@ int savesong(void)
     }
 
     // Write infotexts
-    fwrite(songname, sizeof songname, 1, handle);
-    fwrite(authorname, sizeof authorname, 1, handle);
-    fwrite(copyrightname, sizeof copyrightname, 1, handle);
+    std::fwrite(songname, sizeof songname, 1, handle);
+    std::fwrite(authorname, sizeof authorname, 1, handle);
+    std::fwrite(copyrightname, sizeof copyrightname, 1, handle);
 
     // Determine amount of songs to be saved
     int c = MAX_SONGS - 1;
@@ -124,7 +125,7 @@ int savesong(void)
          fwrite8(handle, length);
          writebytes = length;
          writebytes++;
-         fwrite(songorder[d][c], writebytes, 1, handle);
+         std::fwrite(songorder[d][c], writebytes, 1, handle);
         }
         else if (numsids == 2)
         {
@@ -132,7 +133,7 @@ int savesong(void)
           fwrite8(handle, length);
           writebytes = length;
           writebytes++;
-          fwrite(songorder_stereo[d][c], writebytes, 1, handle);
+          std::fwrite(songorder_stereo[d][c], writebytes, 1, handle);
         }
       }
     }
@@ -157,8 +158,8 @@ int savesong(void)
     {
       writebytes = gettablelen(c);
       fwrite8(handle, writebytes);
-      fwrite(ltable[c], writebytes, 1, handle);
-      fwrite(rtable[c], writebytes, 1, handle);
+      std::fwrite(ltable[c], writebytes, 1, handle);
+      std::fwrite(rtable[c], writebytes, 1, handle);
     }
     // Write patterns
     amount = highestusedpattern + 1;
@@ -169,8 +170,8 @@ int savesong(void)
       fwrite8(handle, length);
       fwrite(pattern[c], length * 4, 1, handle);
     }
-    fclose(handle);
-    strcpy(loadedsongfilename, songfilename);
+    std::fclose(handle);
+    std::strcpy(loadedsongfilename, songfilename);
     return 1;
   }
   return 0;

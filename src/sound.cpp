@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 #include <cstdlib>
+#include <cstdio>
 
 // General / reSID output
 int playspeed;
@@ -133,7 +134,7 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
   if ((!buffer) || (!lbuffer) || (!rbuffer)) return 0;
 
   if (writer)
-    writehandle = fopen("sidaudio.raw", "wb");
+    writehandle = std::fopen("sidaudio.raw", "wb");
 
   playspeed = mr;
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
@@ -181,7 +182,7 @@ void sound_uninit(void)
 
   if (writehandle)
   {
-    fclose(writehandle);
+    std::fclose(writehandle);
     writehandle = nullptr;
   }
 
@@ -265,7 +266,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     sid_fillbuffer(buffer, samples);
     if (writehandle)
     {
-      fwrite(buffer, samples * sizeof(Uint16), 1, writehandle);
+      std::fwrite(buffer, samples * sizeof(Uint16), 1, writehandle);
     }
 
     for (unsigned c = 0; c < samples; c++)
@@ -280,8 +281,8 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     {
       for (unsigned c = 0; c < samples; c++)
       {
-        fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
-        fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
+        std::fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
+        std::fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
       }
     }
     if (monomode)

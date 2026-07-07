@@ -1,20 +1,20 @@
-//
-// LoadTracker
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
+/*
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #define LOADTRK_C
 
@@ -32,6 +32,12 @@ extern "C" {
 
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cctype>
+
+#include <sys/stat.h>
+#include <unistd.h>
 
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
@@ -615,7 +621,7 @@ void converthex()
   hexnybble = -1;
   for (c = 0; c < 16; c++)
   {
-    if (tolower(key) == hexkeytbl[c])
+    if (std::tolower(key) == hexkeytbl[c])
     {
       if (c >= 10)
       {
@@ -1611,7 +1617,7 @@ void getparam(FILE *handle, unsigned *value)
     configptr++;
     for (;;)
     {
-      char c = tolower(*configptr++);
+      char c = std::tolower(*configptr++);
       int h = -1;
 
       if ((c >= 'a') && (c <= 'f')) h = c - 'a' + 10;
@@ -1630,7 +1636,7 @@ void getparam(FILE *handle, unsigned *value)
     *value = 0;
     for (;;)
     {
-      char c = tolower(*configptr++);
+      char c = std::tolower(*configptr++);
       int d = -1;
 
       if ((c >= '0') && (c <= '9')) d = c - '0';
@@ -1693,7 +1699,7 @@ void nextmultiplier(void)
 
 void calculatefreqtable()
 {
-  double basefreq = (double)basepitch * (16777216.0 / 985248.0) * pow(2.0, 0.25) / 32.0;
+  double basefreq = (double)basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
   double cyclebasefreq = basefreq;
   double freq = basefreq;
 
@@ -1834,7 +1840,7 @@ void readscalatuningfile()
       else
       {
         std::sscanf(configptr, "%lf", &centvalue);
-        tuning[i] = pow(2.0, centvalue / 1200.0);
+        tuning[i] = std::pow(2.0, centvalue / 1200.0);
       }
     }
     fclose(scalatuningfile);
