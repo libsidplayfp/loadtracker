@@ -1,5 +1,12 @@
 // BME windows, input & timing module header file
 
+#ifndef BME_WIN_H
+#define BME_WIN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *icon);
 void win_closewindow(void);
 void win_checkmessages(void);
@@ -22,3 +29,8 @@ extern int win_mousemode;
 extern float win_mouseywheel;
 extern SDL_Window *win_window;
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

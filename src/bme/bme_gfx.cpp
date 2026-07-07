@@ -2,17 +2,20 @@
 // BME (Blasphemous Multimedia Engine) graphics main module
 //
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <SDL3/SDL.h>
-
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_io.h"
 #include "bme_err.h"
 
+#include <SDL3/SDL.h>
+
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
 #define MAX_COLORS 256          // 8bit oldskool mode
+
+extern "C" {
 
 // Prototypes
 
@@ -579,4 +582,4 @@ void gfx_drawsprite(int x, int y, unsigned num)
     }
 }
 
-
+}

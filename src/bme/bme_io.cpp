@@ -2,16 +2,19 @@
 // BME (Blasphemous Multimedia Engine) datafile IO main module
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <SDL3/SDL.h>
-
 #include "bme_main.h"
 #include "bme_err.h"
 
+#include <SDL3/SDL.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
+
 #define MAX_HANDLES 16          // Up to 16 simultaneous files open from the datafile
+
+extern "C" {
 
 typedef struct
 {
@@ -31,7 +34,7 @@ static int io_usedatafile = 0;
 static HEADER *fileheaders;
 static unsigned files;
 static char ident[4];
-static char *idstring = "DAT!";
+static const char *idstring = "DAT!";
 static HANDLE handle[MAX_HANDLES];
 static FILE *fileptr[MAX_HANDLES] = {NULL};
 static FILE *datafilehandle = NULL;
@@ -50,8 +53,6 @@ void io_setfilemode(int usedf)
 
 int io_openlinkeddatafile(unsigned char *ptr)
 {
-    unsigned index;
-
     if (datafilehandle) fclose(datafilehandle);
     datafilehandle = NULL;
 
@@ -66,29 +67,27 @@ int io_openlinkeddatafile(unsigned char *ptr)
     }
 
     files = linkedreadle32();
-    fileheaders = malloc(files * sizeof(HEADER));
+    fileheaders = (HEADER*)std::malloc(files * sizeof(HEADER));
     if (!fileheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
         return BME_ERROR;
     }
-    for (index = 0; index < files; index++)
+    for (unsigned index = 0; index < files; index++)
     {
         fileheaders[index].offset = linkedreadle32();
         fileheaders[index].length = linkedreadle32();
         linkedread(&fileheaders[index].name, 13);
     }
 
-    for (index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
+    for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
     io_usedatafile = 1;
     bme_error = BME_OK;
     return BME_OK;
 }
 
-int io_opendatafile(char *name)
+int io_opendatafile(const char *name)
 {
-    unsigned index;
-
     if (name)
     {
         datafilehandle = fopen(name, "rb");
@@ -107,20 +106,20 @@ int io_opendatafile(char *name)
     }
 
     files = freadle32(datafilehandle);
-    fileheaders = malloc(files * sizeof(HEADER));
+    fileheaders = (HEADER*)std::malloc(files * sizeof(HEADER));
     if (!fileheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
         return BME_ERROR;
     }
-    for (index = 0; index < files; index++)
+    for (unsigned index = 0; index < files; index++)
     {
         fileheaders[index].offset = freadle32(datafilehandle);
         fileheaders[index].length = freadle32(datafilehandle);
         fread(&fileheaders[index].name, 13, 1, datafilehandle);
     }
 
-    for (index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
+    for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
     io_usedatafile = 1;
     bme_error = BME_OK;
     return BME_OK;
@@ -162,7 +161,7 @@ int io_open(const char *name)
 
         namelength = strlen(name);
         if (namelength > 12) namelength = 12;
-        memcpy(namecopy, name, namelength + 1);
+        std::memcpy(namecopy, name, namelength + 1);
         for (index = 0; index < strlen(namecopy); index++)
         {
             namecopy[index] = toupper(namecopy[index]);
@@ -177,7 +176,7 @@ int io_open(const char *name)
 
                 while (count)
                 {
-                    if (!strcmp(namecopy, handle[index].currentheader->name))
+                    if (!std::strcmp(namecopy, handle[index].currentheader->name))
                     {
                          handle[index].open = 1;
                          handle[index].filepos = 0;
@@ -248,7 +247,7 @@ int io_read(int index, void *buffer, int length)
         if (!handle[index].open) return -1;
         if (length + handle[index].filepos > handle[index].currentheader->length)
         length = handle[index].currentheader->length - handle[index].filepos;
-        
+
         if (datafilehandle)
         {
             fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
@@ -350,5 +349,7 @@ static unsigned linkedreadle32(void)
 
     linkedread(&bytes, 4);
     return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
-}    
+}
+
+}
 

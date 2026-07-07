@@ -25,6 +25,8 @@
 typedef jack_default_audio_sample_t sample_t;
 #endif
 
+extern "C" {
+
 // Prototypes
 int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit(void);
@@ -48,8 +50,8 @@ static void snd_float_postprocess(Sint32 *src, float* dest, unsigned samples);
 static void snd_16bit_postprocess(Sint32 *src, Sint16 *dest, unsigned samples);
 static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples);
 
-void (*snd_player)(void) = NULL;
-CHANNEL *snd_channel = NULL;
+void (*snd_player)(void) = nullptr;
+CHANNEL *snd_channel = nullptr;
 int snd_channels = 0;
 int snd_sndinitted = 0;
 int snd_bpmcount;
@@ -57,25 +59,25 @@ int snd_bpmtempo = 125;
 unsigned snd_mixmode;
 unsigned snd_mixrate;
 
-static void (*snd_custommixer)(Sint32 *dest, unsigned samples) = NULL;
+static void (*snd_custommixer)(Sint32 *dest, unsigned samples) = nullptr;
 static unsigned snd_buffersize;
 static unsigned snd_framesize;
 static unsigned snd_previouschannels = 0xffffffff;
 static int snd_atexit_registered = 0;
-static Sint32 *snd_clipbuffer = NULL;
-SDL_AudioStream *stream = NULL;
+static Sint32 *snd_clipbuffer = nullptr;
+SDL_AudioStream *stream = nullptr;
 static SDL_AudioSpec spec;
 
 #ifdef USE_JACK
-static int use_jack = 1;
-static int use_jack_audio = 0;
+static bool use_jack = true;
+static bool use_jack_audio = false;
 
 static jack_client_t* client;
 static jack_port_t* output_port;
 #endif
 
 #ifdef USE_MIDI_INPUT
-RtMidiInPtr midi_device = NULL;
+RtMidiInPtr midi_device = nullptr;
 #endif
 
 void playtestnote(int note, int ins, int chnnum);
@@ -93,7 +95,7 @@ int current_note_on = -1;
 #ifdef USE_JACK
 int snd_jack_process(jack_nframes_t nframes, void *arg) {
     if (use_jack_audio) {
-        sample_t* buffer = jack_port_get_buffer(output_port, nframes);
+        sample_t* buffer = (sample_t*)jack_port_get_buffer(output_port, nframes);
         snd_mixdata((Uint8*)buffer, sizeof(sample_t) * nframes);
     }
     return 0;
@@ -209,7 +211,7 @@ int snd_init_midi() {
         return BME_ERROR;
     }
 
-    rtmidi_in_set_callback(midi_device, snd_midi_process, NULL);
+    rtmidi_in_set_callback(midi_device, snd_midi_process, nullptr);
     if (!midi_device->ok) {
         fprintf(stderr, "failed to set midi callback: %s\n", midi_device->msg);
         return BME_ERROR;
@@ -266,7 +268,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
 
     snd_bpmcount = 0;
 
-    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, snd_mixer_callback, NULL);
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, snd_mixer_callback, nullptr);
 
     if (!stream)
     {
@@ -332,19 +334,18 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
 }
 
 int snd_initchannels(unsigned channels) {
-    int c;
 
     if (snd_previouschannels != channels)
     {
         CHANNEL *chptr;
         if (snd_channel)
         {
-            free(snd_channel);
-            snd_channel = NULL;
+            std::free(snd_channel);
+            snd_channel = nullptr;
             snd_channels = 0;
         }
 
-        snd_channel = malloc(channels * sizeof(CHANNEL));
+        snd_channel = (CHANNEL*)std::malloc(channels * sizeof(CHANNEL));
         if (!snd_channel)
         {
             bme_error = BME_OUT_OF_MEMORY;
@@ -356,10 +357,10 @@ int snd_initchannels(unsigned channels) {
         snd_previouschannels = channels;
 
         // Init all channels (no sound played, no sample, mastervolume 64)
-        for (c = snd_channels; c > 0; c--)
+        for (int c = snd_channels; c > 0; c--)
         {
             chptr->voicemode = VM_OFF;
-            chptr->smp = NULL;
+            chptr->smp = nullptr;
             chptr->mastervol = 64;
             chptr++;
         }
@@ -382,7 +383,7 @@ void snd_uninit(void)
     }
     snd_uninitmixer();
 #ifdef USE_MIDI_INPUT
-    if (midi_device != NULL)
+    if (midi_device != nullptr)
         rtmidi_in_free(midi_device);
 #endif
 }
@@ -402,7 +403,7 @@ static int snd_initmixer(void)
         bufSize *= 2;
     }
 
-    snd_clipbuffer = malloc(bufSize);
+    snd_clipbuffer = (Sint32*)std::malloc(bufSize);
     if (!snd_clipbuffer) return 0;
 
     return 1;
@@ -412,8 +413,8 @@ static void snd_uninitmixer(void)
 {
     if (snd_clipbuffer)
     {
-        free(snd_clipbuffer);
-        snd_clipbuffer = NULL;
+        std::free(snd_clipbuffer);
+        snd_clipbuffer = nullptr;
     }
 }
 
@@ -783,4 +784,6 @@ static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples)
                 }
           }
     }
+}
+
 }

@@ -3,6 +3,10 @@
 #ifndef BME_GFX_H
 #define BME_GFX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
 int gfx_reinit();
 void gfx_uninit(void);
@@ -42,5 +46,9 @@ extern Uint8 *gfx_blocks;
 extern Uint8 gfx_palette[];
 extern SDL_Surface *gfx_screen;
 extern SDL_Renderer *gfx_renderer;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

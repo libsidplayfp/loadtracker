@@ -43,13 +43,13 @@ set(LOADTRK_SOURCES
     src/asm/parse.c
     src/asm/pc.c
     src/asm/vec.c
-    src/bme/bme_gfx.c
-    src/bme/bme_snd.c
-    src/bme/bme_win.c
-    src/bme/bme_mou.c
-    src/bme/bme_io.c
-    src/bme/bme_end.c
-    src/bme/bme.c
+    src/bme/bme_gfx.cpp
+    src/bme/bme_snd.cpp
+    src/bme/bme_win.cpp
+    src/bme/bme_mou.cpp
+    src/bme/bme_io.cpp
+    src/bme/bme_end.cpp
+    src/bme/bme.cpp
     src/rtmidi/rtmidi_c.h
     src/rtmidi/rtmidi_c.cpp
     src/rtmidi/RtMidi.h
@@ -63,15 +63,15 @@ endif(MINGW)
 
 set(MOD2SNG_SOURCES
     src/mod2sng.c
-    src/bme/bme_end.c)
+    src/bme/bme_end.cpp)
 
 set(INS2SND2_SOURCES
     src/ins2snd2.c
-    src/bme/bme_end.c)
+    src/bme/bme_end.cpp)
 
 set(SNGSPLI2_SOURCES
     src/sngspli2.c
-    src/bme/bme_end.c)
+    src/bme/bme_end.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
@@ -80,7 +80,7 @@ include_directories(${CMAKE_BINARY_DIR}/src/residfp)
 
 find_package(SDL3 REQUIRED)
 
-add_executable(datafile src/bme/datafile.c src/bme/bme_end.c)
+add_executable(datafile src/bme/datafile.c src/bme/bme_end.cpp)
 add_executable(dat2inc src/bme/dat2inc.c)
 
 target_include_directories(datafile PUBLIC SDL3::Headers)

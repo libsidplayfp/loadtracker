@@ -2,29 +2,24 @@
 // BME (Blasphemous Multimedia Engine) mouse module
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <SDL3/SDL.h>
-
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_gfx.h"
 #include "bme_io.h"
 #include "bme_err.h"
 
-void mou_init(void);
-void mou_uninit(void);
-void mou_getpos(unsigned *x, unsigned *y);
-void mou_getmove(int *dx, int *dy);
-unsigned mou_getbuttons(void);
+#include <SDL3/SDL.h>
 
-void mou_init(void)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void mou_init()
 {
     win_mousebuttons = 0;
 }
 
-void mou_uninit(void)
+void mou_uninit()
 {
 }
 
@@ -48,11 +43,14 @@ void mou_getmove(int *dx, int *dy)
     *dy = win_mouseyrel;
     win_mousexrel = 0;
     win_mouseyrel = 0;
-
 }
 
 unsigned mou_getbuttons(void)
 {
     return win_mousebuttons;
 }
+
+#ifdef __cplusplus
+}
+#endif
 

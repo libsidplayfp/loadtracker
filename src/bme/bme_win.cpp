@@ -2,18 +2,21 @@
 // BME (Blasphemous Multimedia Engine) windows & timing module
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <SDL3/SDL.h>
 #include "bme_main.h"
 #include "bme_gfx.h"
 #include "bme_mou.h"
 #include "bme_io.h"
 #include "bme_err.h"
 
-SDL_Window *win_window = NULL;
+#include <SDL3/SDL.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+extern "C" {
+
+SDL_Window *win_window = nullptr;
 
 // Prototypes
 
@@ -241,3 +244,4 @@ void win_setmousemode(int mode)
     }
 }
 
+}

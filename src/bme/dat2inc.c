@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     if (!out)
     {
         printf("Includefile open error!\n");
-	fclose(in);
+        fclose(in);
         return 1;
     }
     fseek(in, 0, SEEK_END);
@@ -48,4 +48,3 @@ int main(int argc, char *argv[])
     fclose(out);
     return 0;
 }
-
