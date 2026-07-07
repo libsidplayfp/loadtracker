@@ -26,6 +26,10 @@
 
 #define MAX_BYTES_PER_ROW 16
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef GRELOC_C
 extern unsigned char pattused[MAX_PATT];
 extern unsigned char instrused[MAX_INSTR];
@@ -45,7 +49,7 @@ void findtableduplicates(int num);
 int isusedandselfcontained(int num, int start);
 void calcspeedtest(unsigned char pos);
 
-int insertfile(char *name);
+int insertfile(const char *name);
 void inserttext(const char *text);
 void insertdefine(const char *name, int value);
 void insertlabel(const char *name);
@@ -53,5 +57,9 @@ void insertbyte(unsigned char byte);
 void insertbytes(const unsigned char *bytes, int size);
 void insertaddrlo(const char *name);
 void insertaddrhi(const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

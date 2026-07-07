@@ -6,11 +6,13 @@
 
 #define GRELOC_C
 
+extern "C" {
 #include "loadtrk.h"
 #include "membuf.h"
 #include "parse.h"
+}
 
-char *playeroptname[] =
+const char *playeroptname[] =
 {
   "Buffered SID-writes",
   "Sound effect support",
@@ -21,13 +23,13 @@ char *playeroptname[] =
   "Full SID buffering"
 };
 
-char *tableleftname[] = {
+const char *tableleftname[] = {
   "mt_wavetbl",
   "mt_pulsetimetbl",
   "mt_filttimetbl",
   "mt_speedlefttbl"};
 
-char *tablerightname[] = {
+const char *tablerightname[] = {
   "mt_notetbl",
   "mt_pulsespdtbl",
   "mt_filtspdtbl",
@@ -99,7 +101,7 @@ void relocator(void)
   char packedfilter[MAX_FILENAME];
 
   unsigned char *packeddata = NULL;
-  char *playername = "player.s";
+  const char *playername = "player.s";
 
   int tableerrortype = TYPE_NONE;
   int tableerrorcause = CAUSE_NONE;
@@ -1958,7 +1960,7 @@ unsigned char swapnybbles(unsigned char n)
   return (lownybble << 4) | highnybble;
 }
 
-int insertfile(char *name)
+int insertfile(const char *name)
 {
   int size;
   int handle = io_open(name);
@@ -2181,7 +2183,7 @@ void relocator_stereo(void)
     char packedsongname[MAX_FILENAME];
     char packedfilter[MAX_FILENAME];
     unsigned char *packeddata = NULL;
-    char *playername = "player_s.s";
+    const char *playername = "player_s.s";
 
     int tableerrortype = TYPE_NONE;
     int tableerrorcause = CAUSE_NONE;
@@ -2705,7 +2707,7 @@ TABLETYPE_S:
 
     // Allocate memory for song-orderlists
     songtblsize = songs*6;
-    songwork = malloc(songdatasize);
+    songwork = (unsigned char*)std::malloc(songdatasize);
     if (!songwork)
     {
         clearscreen();
@@ -2795,7 +2797,7 @@ TABLETYPE_S:
     }
 
     patttblsize = patterns*2;
-    pattwork = malloc(pattdatasize);
+    pattwork = (unsigned char*)std::malloc(pattdatasize);
     if (!pattwork)
     {
         clearscreen();
@@ -2821,7 +2823,7 @@ TABLETYPE_S:
 
     // Then process instruments
     instrsize = instruments*9;
-    instrwork = malloc(instrsize);
+    instrwork = (unsigned char*)std::malloc(instrsize);
     if (!instrwork)
     {
         clearscreen();
@@ -3453,7 +3455,7 @@ SKIPTABLE_S:
     // Assemble; on error fail in a rude way (the parser does so too)
     if (assemble(&src, &dest)) exit(1);
 
-    packeddata = membuf_get(&dest);
+    packeddata = (unsigned char*)membuf_get(&dest);
     packedsize = membuf_memlen(&dest);
     playersize = packedsize - songtblsize - songdatasize - patttblsize - pattdatasize - instrsize - wavetblsize - pulsetblsize - filttblsize - speedtblsize;
 
