@@ -2,12 +2,13 @@
  * GoatTracker V2.0 Instrument -> Sound effect convertor
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "bme_end.h"
 #include "common.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 
 unsigned char swapnybbles(unsigned char n);
 void outputbyte(unsigned char c);
@@ -20,7 +21,6 @@ FILE *out;
 
 int main(int argc, char **argv)
 {
-  int c,d;
   int prevwave = 0xff;
   int currwave = 0;
   int fileok = 0;
@@ -54,11 +54,11 @@ int main(int argc, char **argv)
 
   if (argc > 3)
   {
-    for (c = 3; c < argc; c++)
+    for (int c = 3; c < argc; c++)
     {
       if (((argv[c][0] == '-') || (argv[c][0] == '/')) && (strlen(argv[c]) > 1))
       {
-        int ch = tolower(argv[c][1]);
+        int ch = std::tolower(argv[c][1]);
         switch(ch)
         {
           case 'b':
@@ -74,19 +74,19 @@ int main(int argc, char **argv)
   }
 
 
-  handle = fopen(argv[1], "rb");
+  handle = std::fopen(argv[1], "rb");
   if (!handle)
   {
     printf("ERROR: Can't open instrumentfile\n");
     return EXIT_FAILURE;
   }
 
-  memset(wavetable, 0, MAX_TABLELEN*2);
-  memset(pulsetable, 0, MAX_TABLELEN*2);
-  memset(filttable, 0, MAX_TABLELEN*2);
+  std::memset(wavetable, 0, MAX_TABLELEN*2);
+  std::memset(pulsetable, 0, MAX_TABLELEN*2);
+  std::memset(filttable, 0, MAX_TABLELEN*2);
 
-  fread(ident, 4, 1, handle);
-  if (!memcmp(ident, "GTI!", 4))
+  std::fread(ident, 4, 1, handle);
+  if (!std::memcmp(ident, "GTI!", 4))
   {
     fileok = 1;
     instr.ad = fread8(handle);
@@ -97,10 +97,10 @@ int main(int argc, char **argv)
     fread8(handle); // Throw away pulse limit high
     fread8(handle); // Throw away filtersetting
     wavelen = fread8(handle);
-    fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
-    fread(wavetable, wavelen, 1, handle);
+    std::fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
+    std::fread(wavetable, wavelen, 1, handle);
   }
-  if (!memcmp(ident, "GTI2", 4))
+  if (!std::memcmp(ident, "GTI2", 4))
   {
     fileok = 1;
     instr.ad = fread8(handle);
@@ -114,23 +114,23 @@ int main(int argc, char **argv)
     instr.firstwave = fread8(handle);
     fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
     wavelen = fread8(handle);
-    for (c = 0; c < wavelen; c++)
+    for (int c = 0; c < wavelen; c++)
       wavetable[c*2] = fread8(handle);
-    for (c = 0; c < wavelen; c++)
+    for (int c = 0; c < wavelen; c++)
       wavetable[c*2+1] = fread8(handle);
     pulselen = fread8(handle);
-    for (c = 0; c < pulselen; c++)
+    for (int c = 0; c < pulselen; c++)
       pulsetable[c*2] = fread8(handle);
-    for (c = 0; c < pulselen; c++)
+    for (int c = 0; c < pulselen; c++)
       pulsetable[c*2+1] = fread8(handle);
     filtlen = fread8(handle);
-    for (c = 0; c < filtlen; c++)
+    for (int c = 0; c < filtlen; c++)
       filttable[c*2] = fread8(handle);
-    for (c = 0; c < filtlen; c++)
+    for (int c = 0; c < filtlen; c++)
       filttable[c*2+1] = fread8(handle);
     pulse = (pulsetable[0] << 4) | (pulsetable[1] >> 4);
   }
-  if ((!memcmp(ident, "GTI3", 4)) || (!memcmp(ident, "GTI4", 4) || (!memcmp(ident, "GTI5", 4))))
+  if ((!std::memcmp(ident, "GTI3", 4)) || (!std::memcmp(ident, "GTI4", 4) || (!std::memcmp(ident, "GTI5", 4))))
   {
     fileok = 1;
     instr.ad = fread8(handle);
@@ -142,25 +142,25 @@ int main(int argc, char **argv)
     instr.vibdelay = fread8(handle);
     instr.gatetimer = fread8(handle);
     instr.firstwave = fread8(handle);
-    fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
+    std::fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
     wavelen = fread8(handle);
-    for (c = 0; c < wavelen; c++)
+    for (int c = 0; c < wavelen; c++)
       wavetable[c*2] = fread8(handle);
-    for (c = 0; c < wavelen; c++)
+    for (int c = 0; c < wavelen; c++)
       wavetable[c*2+1] = fread8(handle);
     pulselen = fread8(handle);
-    for (c = 0; c < pulselen; c++)
+    for (int c = 0; c < pulselen; c++)
       pulsetable[c*2] = fread8(handle);
-    for (c = 0; c < pulselen; c++)
+    for (int c = 0; c < pulselen; c++)
       pulsetable[c*2+1] = fread8(handle);
     filtlen = fread8(handle);
-    for (c = 0; c < filtlen; c++)
+    for (int c = 0; c < filtlen; c++)
       filttable[c*2] = fread8(handle);
-    for (c = 0; c < filtlen; c++)
+    for (int c = 0; c < filtlen; c++)
       filttable[c*2+1] = fread8(handle);
     pulse = (pulsetable[0] << 4) | (pulsetable[1] >> 4);
   }
-  fclose(handle);
+  std::fclose(handle);
   if (!fileok)
   {
     printf("ERROR: File is not a GoatTracker instrument!\n");
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  d = 0;
+  int d = 0;
   outputbyte(instr.ad);
   d++;
   outputbyte(instr.sr);
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
   outputbyte(swapnybbles(pulse));
   d++;
 
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (wavetable[c*2] == 0xff)
     {
@@ -221,11 +221,11 @@ int main(int argc, char **argv)
   }
   if (d > 255)
   {
-    fclose(out);
+    std::fclose(out);
     printf("ERROR: Sound effect exceeds 255 bytes\n");
     return EXIT_FAILURE;
   }
-  fclose(out);
+  std::fclose(out);
   return EXIT_SUCCESS;
 }
 

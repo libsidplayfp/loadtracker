@@ -2,6 +2,8 @@
 #ifndef BME_END_H
 #define BME_END_H
 
+#include <cstdio>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

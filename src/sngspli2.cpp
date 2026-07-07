@@ -2,12 +2,13 @@
  * GoatTracker V2.xx pattern splitter
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "bme_end.h"
 #include "common.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 
 #define MAX_SPLITS 16
 
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
            "Default length is 16.\n");
     return EXIT_FAILURE;
   }
-  if (!strcmp(argv[1], argv[2]))
+  if (!std::strcmp(argv[1], argv[2]))
   {
     printf("ERROR: Source and destination are not allowed to be the same.");
     return EXIT_FAILURE;
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
 
   if (argc >= 4)
   {
-    sscanf(argv[3], "%d", &targetlen);
+    std::sscanf(argv[3], "%d", &targetlen);
     if (targetlen < 1) targetlen = 1;
     if (targetlen > MAX_PATTROWS) targetlen = MAX_PATTROWS;
   }
@@ -90,28 +91,27 @@ int main(int argc, char **argv)
 
 int processsong(void)
 {
-  int c,d,e;
   int splitsize;
   int songs;
   int dsl;
 
   dp = 0; // Destination patterns
 
-  for (c = 0; c <= highestusedpattern; c++)
+  for (int c = 0; c <= highestusedpattern; c++)
   {
     destpattsplits[c] = 0;
     splitsize = targetlen;
     while (pattlen[c] / splitsize > MAX_SPLITS) splitsize *= 2;
     if (pattlen[c] <= splitsize) splitsize = pattlen[c];
 
-    d = 0;
+    int d = 0;
     while (d < pattlen[c])
     {
       int remain = pattlen[c] - d;
       int splitfound = 0;
 
       // Check existing patterns for matches
-      for (e = 0; e < dp; e++)
+      for (int e = 0; e < dp; e++)
       {
         if ((destpattlen[e] <= remain) && (destpattlen[e] >= splitsize) && (!memcmp(&pattern[c][d*4], destpattern[e], destpattlen[e]*4)))
         {
@@ -169,7 +169,7 @@ int processsong(void)
 
   // Now convert all songs 
   // Determine amount of songs to be processed
-  c = 0;
+  int c = 0;
   for (;;)
   {
     if (c == MAX_SONGS) break;
@@ -180,12 +180,12 @@ int processsong(void)
   }
   songs = c;
 
-  for (c = 0; c < songs; c++)
+  for (int c = 0; c < songs; c++)
   {
-    for (d = 0; d < MAX_CHN; d++)
+    for (int d = 0; d < MAX_CHN; d++)
     {
       dsl = 0;
-      for (e = 0; e <= songlen[c][d]+1; e++)
+      for (int e = 0; e <= songlen[c][d]+1; e++)
       {
         int pattnum = songorder[c][d][e];
 
@@ -239,23 +239,23 @@ int processsong(void)
     int destpatttbl = 0, destpatt = 0, destsong = 0;
     int srcpatttbl = 0, srcpatt = 0, srcsong = 0;
 
-    for (c = 0; c < MAX_SONGS; c++)
+    for (int c = 0; c < MAX_SONGS; c++)
     {
       if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
       {
-        for (d = 0; d < MAX_CHN; d++)
+        for (int d = 0; d < MAX_CHN; d++)
         {
           srcsong += songlen[c][d]+1;
           destsong += destsonglen[c][d]+1;
         }
       }
     }
-    for (c = 0; c < highestusedpattern; c++)
+    for (int c = 0; c < highestusedpattern; c++)
     {
       srcpatt += pattlen[c]*4 + 4;
       srcpatttbl += 2;
     }
-    for (c = 0; c < dp; c++)
+    for (int c = 0; c < dp; c++)
     {
       destpatt += destpattlen[c]*4 + 4;
       destpatttbl += 2;
@@ -272,8 +272,6 @@ int processsong(void)
 
 int loadsong(char *name)
 {
-  int c;
-
   FILE *srchandle = fopen(name, "rb");
   if (srchandle)
   {
@@ -285,7 +283,6 @@ int loadsong(char *name)
 
     if (tables)
     {
-      int d;
       unsigned char length;
       unsigned char amount;
       int loadbytes;
@@ -298,9 +295,9 @@ int loadsong(char *name)
 
       // Read songorderlists
       amount = fread8(srchandle);
-      for (d = 0; d < amount; d++)
+      for (int d = 0; d < amount; d++)
       {
-        for (c = 0; c < MAX_CHN; c++)
+        for (int c = 0; c < MAX_CHN; c++)
         {
           length = fread8(srchandle);
           loadbytes = length;
@@ -310,7 +307,7 @@ int loadsong(char *name)
       }
       // Read instruments
       highestusedinstr = fread8(srchandle);
-      for (c = 1; c <= highestusedinstr; c++)
+      for (int c = 1; c <= highestusedinstr; c++)
       {
         instr[c].ad = fread8(srchandle);
         instr[c].sr = fread8(srchandle);
@@ -324,7 +321,7 @@ int loadsong(char *name)
         fread(&instr[c].name, MAX_INSTRNAMELEN, 1, srchandle);
       }
       // Read tables
-      for (c = 0; c < tables; c++)
+      for (int c = 0; c < tables; c++)
       {
         loadbytes = fread8(srchandle);
         fread(ltable[c], loadbytes, 1, srchandle);
@@ -332,7 +329,7 @@ int loadsong(char *name)
       }
       // Read patterns
       amount = fread8(srchandle);
-      for (c = 0; c < amount; c++)
+      for (int c = 0; c < amount; c++)
       {
         length = fread8(srchandle);
         fread(pattern[c], length*4, 1, srchandle);
@@ -349,12 +346,10 @@ int loadsong(char *name)
 int savesong(char *name)
 {
   FILE *handle;
-  int c;
 
   handle = fopen(name, "wb");
   if (handle)
   {
-    int d;
     unsigned char length;
     unsigned char amount;
     int writebytes;
@@ -368,7 +363,7 @@ int savesong(char *name)
     fwrite(copyrightname, sizeof copyrightname, 1, handle);
 
     // Determine amount of songs to be saved
-    c = 0;
+    int c = 0;
     for (;;)
     {
       if (c == MAX_SONGS) break;
@@ -381,9 +376,9 @@ int savesong(char *name)
 
     fwrite8(handle, amount);
     // Write songorderlists
-    for (d = 0; d < amount; d++)
+    for (int d = 0; d < amount; d++)
     {
-      for (c = 0; c < MAX_CHN; c++)
+      for (int c = 0; c < MAX_CHN; c++)
       {
         length = destsonglen[d][c]+1;
         fwrite8(handle, length);
@@ -433,21 +428,21 @@ int savesong(char *name)
 
 void countpatternlengths(void)
 {
-  int c, d, e;
-
   highestusedpattern = 0;
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
+    int d;
     for (d = 0; d <= MAX_PATTROWS; d++)
     {
       if (pattern[c][d*4] == ENDPATT) break;
     }
     pattlen[c] = d;
   }
-  for (e = 0; e < MAX_SONGS; e++)
+  for (int e = 0; e < MAX_SONGS; e++)
   {
-    for (c = 0; c < MAX_CHN; c++)
+    for (int c = 0; c < MAX_CHN; c++)
     {
+      int d;
       for (d = 0; d < MAX_SONGLEN; d++)
       {
         if (songorder[e][c][d] >= LOOPSONG) break;
@@ -464,20 +459,20 @@ void countpatternlengths(void)
 
 void countdestpatternlengths(void)
 {
-  int c, d, e;
-
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
+    int d;
     for (d = 0; d <= MAX_PATTROWS; d++)
     {
       if (destpattern[c][d*4] == ENDPATT) break;
     }
     destpattlen[c] = d;
   }
-  for (e = 0; e < MAX_SONGS; e++)
+  for (int e = 0; e < MAX_SONGS; e++)
   {
-    for (c = 0; c < MAX_CHN; c++)
+    for (int c = 0; c < MAX_CHN; c++)
     {
+      int d;
       for (d = 0; d < MAX_SONGLEN; d++)
       {
         if (destsongorder[e][c][d] >= LOOPSONG) break;
@@ -489,17 +484,14 @@ void countdestpatternlengths(void)
 
 void clearsong(void)
 {
-  int c;
-
-  for (c = 0; c < MAX_CHN; c++)
+  for (int c = 0; c < MAX_CHN; c++)
   {
-    int d;
-    for (d = 0; d < MAX_SONGS; d++)
+    for (int d = 0; d < MAX_SONGS; d++)
     {
       destsonglen[d][c] = 0;
       destsongorder[d][c][0] = LOOPSONG;
 
-      memset(&songorder[d][c][0], 0, MAX_SONGLEN);
+      std::memset(&songorder[d][c][0], 0, MAX_SONGLEN);
       if (!d)
       {
         songorder[d][c][0] = c;
@@ -513,23 +505,22 @@ void clearsong(void)
       }
     }
   }
-  memset(songname, 0, sizeof songname);
-  memset(authorname, 0, sizeof authorname);
-  memset(copyrightname, 0, sizeof copyrightname);
+  std::memset(songname, 0, sizeof songname);
+  std::memset(authorname, 0, sizeof authorname);
+  std::memset(copyrightname, 0, sizeof copyrightname);
 
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
-    int d;
-    memset(&pattern[c][0], 0, MAX_PATTROWS*4);
-    for (d = 0; d < MAX_PATTROWS; d++) pattern[c][d*4] = REST;
-    for (d = MAX_PATTROWS; d <= MAX_PATTROWS; d++) pattern[c][d*4] = ENDPATT;
+    std::memset(&pattern[c][0], 0, MAX_PATTROWS*4);
+    for (int d = 0; d < MAX_PATTROWS; d++) pattern[c][d*4] = REST;
+    for (int d = MAX_PATTROWS; d <= MAX_PATTROWS; d++) pattern[c][d*4] = ENDPATT;
   }
-  for (c = 0; c < MAX_INSTR; c++)
+  for (int c = 0; c < MAX_INSTR; c++)
   {
-    memset(&instr[c], 0, sizeof(INSTR));
+    std::memset(&instr[c], 0, sizeof(INSTR));
   }
-  memset(ltable, 0, sizeof ltable);
-  memset(rtable, 0, sizeof rtable);
+  std::memset(ltable, 0, sizeof ltable);
+  std::memset(rtable, 0, sizeof rtable);
   countpatternlengths();
 }
 
@@ -537,7 +528,6 @@ void clearsong(void)
 int gettablelen(int num)
 {
   int c;
-
   for (c = MAX_TABLELEN-1; c >= 0; c--)
   {
     if (ltable[num][c] | rtable[num][c]) break;

@@ -3,10 +3,11 @@
  * Dedicated to T.M.R!
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "bme_end.h"
+
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 typedef struct
 {
@@ -65,7 +66,6 @@ int goatpatt = 0;
 int main(int argc, char **argv)
 {
   FILE *in, *out;
-  int c, d;
   unsigned char *srcptr;
   NOTE *destptr;
 
@@ -78,58 +78,58 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  in = fopen(argv[1], "rb");
+  in = std::fopen(argv[1], "rb");
   if (!in)
   {
     printf("Source open error.\n");
     return EXIT_FAILURE;
   }
-  out = fopen(argv[2], "wb");
+  out = std::fopen(argv[2], "wb");
   if (!out)
   {
     printf("Destination open error.\n");
-    fclose(in);
+    std::fclose(in);
     return EXIT_FAILURE;
   }
   if (argc > 3)
   {
-    sscanf(argv[3], "%d", &leaveout);
+    std::sscanf(argv[3], "%d", &leaveout);
     leaveout--;
     if ((leaveout < 0) || (leaveout > 3))
     {
       printf("Illegal channel number.\n");
-      fclose(in);
-      fclose(out);
+      std::fclose(in);
+      std::fclose(out);
       return EXIT_FAILURE;
     }
   }
 
   if (argc > 4)
   {
-    sscanf(argv[4], "%d", &transpose);
+    std::sscanf(argv[4], "%d", &transpose);
   }
 
-  for (c = 0; c < 1084; c++)
+  for (int c = 0; c < 1084; c++)
   {
     modheader[c] = fread8(in);
   }
   orderlen = modheader[950];
-  for (c = 0; c < 128; c++)
+  for (int c = 0; c < 128; c++)
   {
     if (modheader[952+c] > maxpatt) maxpatt = modheader[952+c];
   }
   maxpatt++;
-  for (c = 0; c < maxpatt * 1024; c++)
+  for (int c = 0; c < maxpatt * 1024; c++)
   {
     modpatterns[c] = fread8(in);
   }
-  fclose(in);
+  std::fclose(in);
 
   // Convert patterns into easier-to-read format
 
   destptr = modnotes;
   srcptr = modpatterns;
-  for (c = 0; c < maxpatt * 256; c++)
+  for (int c = 0; c < maxpatt * 256; c++)
   {
     // Note: FT2 saves the 13th bit of period into 5th bit of
     // samplenumber, and when loading it ofcourse cannot read
@@ -162,11 +162,11 @@ int main(int argc, char **argv)
   }
 
   // Convert patterns into goatpatterns, and create orderlists
-  for (c = 0; c < 4; c++)
+  for (int c = 0; c < 4; c++)
   {
     if (c != leaveout)
     {
-      for (d = 0; d < orderlen; d++)
+      for (int d = 0; d < orderlen; d++)
       {
         int patt = modheader[952+d];
         int e = 0;
@@ -252,13 +252,12 @@ int main(int argc, char **argv)
         // No same pattern pattern
         if (e == goatpatt)
         {
-          int f;
           if (goatpatt >= 208)
           {
             printf("208 patterns exceeded!\n");
             return EXIT_FAILURE;
           }
-          for (f = 0; f < 65; f++)
+          for (int f = 0; f < 65; f++)
           {
             goatnotes[goatpatt][f].note = tempnotes[f].note;
             goatnotes[goatpatt][f].command = tempnotes[f].command;
@@ -271,17 +270,17 @@ int main(int argc, char **argv)
       goatchan++;
     }
   }
-  fwrite(ident, 4, 1, out); // Ident
-  fwrite(&modheader[0], 20, 1, out); // Infotexts
-  fwrite(zeroarray, 12, 1, out);
-  fwrite(zeroarray, 32, 1, out);
-  fwrite(zeroarray, 32, 1, out);
+  std::fwrite(ident, 4, 1, out); // Ident
+  std::fwrite(&modheader[0], 20, 1, out); // Infotexts
+  std::fwrite(zeroarray, 12, 1, out);
+  std::fwrite(zeroarray, 32, 1, out);
+  std::fwrite(zeroarray, 32, 1, out);
   fwrite8(out, 1); // Number of songs
   // Orderlist
-  for (c = 0; c < 3; c++)
+  for (int c = 0; c < 3; c++)
   {
     fwrite8(out, orderlen+1);
-    for (d = 0; d < orderlen; d++)
+    for (int d = 0; d < orderlen; d++)
     {
       fwrite8(out, orderlist[c][d]);
     }
@@ -289,7 +288,7 @@ int main(int argc, char **argv)
     fwrite8(out, 0x0); // From beginning
   }
   // Instruments
-  for (c = 1; c < 32; c++)
+  for (int c = 1; c < 32; c++)
   {
     fwrite8(out, 0);
     fwrite8(out, 0);
@@ -306,17 +305,17 @@ int main(int argc, char **argv)
   }
   // Patterns
   fwrite8(out, goatpatt);
-  for (c = 0; c < goatpatt; c++)
+  for (int c = 0; c < goatpatt; c++)
   {
     fwrite8(out, 65*3);
-    for (d = 0; d < 65; d++)
+    for (int d = 0; d < 65; d++)
     {
       fwrite8(out, goatnotes[c][d].note);
       fwrite8(out, goatnotes[c][d].command);
       fwrite8(out, goatnotes[c][d].data);
     }
   }
-  fclose(out);
+  std::fclose(out);
   printf("Converted successfully.\n");
   return EXIT_SUCCESS;
 }

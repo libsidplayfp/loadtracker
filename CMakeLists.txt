@@ -62,15 +62,15 @@ if(MINGW)
 endif(MINGW)
 
 set(MOD2SNG_SOURCES
-    src/mod2sng.c
+    src/mod2sng.cpp
     src/bme/bme_end.cpp)
 
 set(INS2SND2_SOURCES
-    src/ins2snd2.c
+    src/ins2snd2.cpp
     src/bme/bme_end.cpp)
 
 set(SNGSPLI2_SOURCES
-    src/sngspli2.c
+    src/sngspli2.cpp
     src/bme/bme_end.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
