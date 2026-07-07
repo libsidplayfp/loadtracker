@@ -18,11 +18,19 @@
 #define CYELLOW 0xE
 #define CWHITE  0xF
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void initcolorscheme(int dark);
 void printmainscreen(void);
 void displayupdate(void);
 void printstatus(void);
 void resettime(void);
 void incrementtime(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
