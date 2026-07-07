@@ -38,6 +38,15 @@
 #include <windows.h>
 #endif
 
+#define MAX_DIRFILES 16384
+#define DOUBLECLICKDELAY 15
+
+typedef struct
+{
+  char *name;
+  int attribute;
+} DIRENTRY;
+
 DIRENTRY direntry[MAX_DIRFILES];
 
 void initpaths(void)
@@ -61,17 +70,9 @@ void initpaths(void)
 
 int fileselector(char *name, char *path, char *filter, const char *title, int filemode)
 {
-  int filepos = 0;
-  int fileview = 0;
-  int lastclick = 0;
-  int lastfile = 0;
-
-  DIR *dir;
-  struct dirent *de;
-  struct stat st;
-  #ifdef __WIN32__
+#ifdef __WIN32__
   char drivestr[] = "A:\\";
-  char driveexists[26];
+char driveexists[26];
   #endif
   char cmpbuf[MAX_PATHNAME];
   char tempname[MAX_PATHNAME];
@@ -81,7 +82,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 
   // Scan for all existing drives
 #ifdef __WIN32__
-  for (c = 0; c < 26; c++)
+  for (int c = 0; c < 26; c++)
   {
     drivestr[0] = 'A'+c;
     if (GetDriveType(drivestr) > 1) driveexists[c] = 1;
@@ -117,6 +118,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 #endif
 
   // Process directory
+  DIR *dir;
 #ifdef __amigaos__
   dir = opendir("");
 #else
@@ -124,16 +126,18 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 #endif
   if (dir)
   {
-    char *filtptr = strstr(filter, "*");
+    char *filtptr = std::strstr(filter, "*");
     if (!filtptr) filtptr = filter;
     else filtptr++;
     for (size_t i = 0; i < std::strlen(filter); i++)
       filter[i] = std::tolower(filter[i]);
 
+    struct dirent *de;
     while ((de = readdir(dir)))
     {
       if ((files < MAX_DIRFILES) && (std::strlen(de->d_name) < MAX_FILENAME))
       {
+        struct stat st;
         direntry[files].name = strdup(de->d_name);
         direntry[files].attribute = 0;
         stat(de->d_name, &st);
@@ -195,8 +199,11 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
   }
 
   // Search for the current filename
-  fileview = 0;
-  filepos = 0;
+  int fileview = 0;
+  int filepos = 0;
+  int lastclick = 0;
+  int lastfile = 0;
+
   for (int c = 0; c < files; c++)
   {
     if ((!direntry[c].attribute) && (!cmpname(name, direntry[c].name)))
@@ -515,7 +522,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 
 void editstring(char *buffer, int maxlength)
 {
-  int len = strlen(buffer);
+  int len = std::strlen(buffer);
 
   if ((key >= 32) && (key < 256))
   {

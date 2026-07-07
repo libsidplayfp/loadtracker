@@ -37,6 +37,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define HOLDDELAY 24
+
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
 

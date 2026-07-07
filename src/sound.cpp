@@ -35,6 +35,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#define MIXBUFFERSIZE 65536
+
 // General / reSID output
 int playspeed;
 bool useexsid = false;

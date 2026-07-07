@@ -81,7 +81,7 @@ RtMidiInPtr midi_device = NULL;
 void playtestnote(int note, int ins, int chnnum);
 void insertnote(int newnote);
 
-#define VISIBLEPATTROWS 31
+#define VISIBLEPATTROWS 34
 
 extern int einum;
 extern int epchn;

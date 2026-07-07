@@ -19,12 +19,12 @@
 #ifndef PLAY_H
 #define PLAY_H
 
-#define PLAY_PLAYING 0x00
-#define PLAY_BEGINNING 0x01
-#define PLAY_POS 0x02
-#define PLAY_PATTERN 0x03
-#define PLAY_STOP 0x04
-#define PLAY_STOPPED 0x80
+#define PLAY_PLAYING    0x00
+#define PLAY_BEGINNING  0x01
+#define PLAY_POS        0x02
+#define PLAY_PATTERN    0x03
+#define PLAY_STOP       0x04
+#define PLAY_STOPPED    0x80
 
 #ifdef __cplusplus
 extern "C" {

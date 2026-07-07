@@ -23,26 +23,11 @@
 #define FORMAT_PRG 1
 #define FORMAT_BIN 2
 
-#define PLAYER_BUFFERED 8
-#define PLAYER_SOUNDEFFECTS 16
-#define PLAYER_VOLUME 32
-#define PLAYER_AUTHORINFO 64
-#define PLAYER_ZPGHOSTREGS 128
-#define PLAYER_NOOPTIMIZATION 256
-#define PLAYER_FULLBUFFERED 512
-
 #define MAX_OPTIONS 7
 
 #define TYPE_NONE 0
 #define TYPE_OVERFLOW 1
 #define TYPE_JUMP 2
-
-#define CAUSE_NONE 0
-#define CAUSE_PATTERN 1
-#define CAUSE_INSTRUMENT 2
-#define CAUSE_WAVECMD 3
-
-#define MAX_BYTES_PER_ROW 16
 
 #ifdef __cplusplus
 extern "C" {

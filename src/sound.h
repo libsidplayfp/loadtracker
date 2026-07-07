@@ -28,8 +28,6 @@
 #define NTSCFRAMERATE 60
 #define NTSCCLOCKRATE 1022727
 
-#define MIXBUFFERSIZE 65536
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -21,8 +21,6 @@
 
 #define MAX_COLUMNS 128
 #define MAX_ROWS 40
-#define HOLDDELAY 24
-#define DOUBLECLICKDELAY 15
 
 #ifdef __cplusplus
 extern "C" {

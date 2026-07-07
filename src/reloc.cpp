@@ -33,6 +33,21 @@ extern "C" {
 #include <cstdio>
 #include <cstdlib>
 
+#define PLAYER_BUFFERED 8
+#define PLAYER_SOUNDEFFECTS 16
+#define PLAYER_VOLUME 32
+#define PLAYER_AUTHORINFO 64
+#define PLAYER_ZPGHOSTREGS 128
+#define PLAYER_NOOPTIMIZATION 256
+#define PLAYER_FULLBUFFERED 512
+
+#define CAUSE_NONE 0
+#define CAUSE_PATTERN 1
+#define CAUSE_INSTRUMENT 2
+#define CAUSE_WAVECMD 3
+
+#define MAX_BYTES_PER_ROW 16
+
 const char *playeroptname[] =
 {
   "Buffered SID-writes",
