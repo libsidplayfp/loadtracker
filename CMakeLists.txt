@@ -22,7 +22,7 @@ set(LOADTRK_SOURCES
     src/gsong.c
     src/gorder.c
     src/gpattern.c
-    src/ginstr.c
+    src/ginstr.cpp
     src/gtable.c
     src/gplay.c
     src/display.cpp

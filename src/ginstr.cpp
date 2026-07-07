@@ -6,7 +6,11 @@
 
 #define GINSTR_C
 
+extern "C" {
+
 #include "loadtrk.h"
+
+}
 
 INSTR instrcopybuffer;
 int cutinstr = -1;
