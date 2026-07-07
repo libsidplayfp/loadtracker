@@ -14,7 +14,7 @@
 #include "gcommon.h"
 #include "console.h"
 #include "gsound.h"
-#include "gsid.h"
+#include "sid.h"
 #include "song.h"
 #include "play.h"
 #include "display.h"

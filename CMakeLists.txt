@@ -31,7 +31,7 @@ set(LOADTRK_SOURCES
     src/help.cpp
     src/gsound.c
     src/console.cpp
-    src/gsid.cpp
+    src/sid.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
