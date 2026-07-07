@@ -1539,7 +1539,6 @@ void editbpm(void)
         if (key >= 48 && key <= 58)
         {
             int number = key - 48;
-            int tempnum = 0;
 
             switch(eacolumn)
             {
