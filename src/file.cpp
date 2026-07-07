@@ -1,14 +1,26 @@
 /*
- * =============================================================================
- * file selector
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GFILE_C
+// =============================================================================
+// file selector
+// =============================================================================
 
-#ifdef __WIN32__
-#include <windows.h>
-#endif
+#define FILE_C
 
 extern "C" {
 
@@ -16,27 +28,36 @@ extern "C" {
 
 }
 
+#include <cstring>
+#include <cctype>
+
+#include <unistd.h>
+
+#ifdef __WIN32__
+#include <windows.h>
+#endif
+
 DIRENTRY direntry[MAX_DIRFILES];
 
 void initpaths(void)
 {
   int c;
-  
+
   for (c = 0; c < MAX_DIRFILES; c++)
      direntry[c].name = NULL;
 
-  memset(loadedsongfilename, 0, sizeof loadedsongfilename);
-  memset(songfilename, 0, sizeof songfilename);
-  memset(instrfilename, 0, sizeof instrfilename);
-  memset(songpath, 0, sizeof songpath);
-  memset(instrpath, 0, sizeof instrpath);
-  memset(packedpath, 0, sizeof packedpath);
-  strcpy(songfilter, "*.sng");
-  strcpy(instrfilter, "*.ins");
+  std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
+  std::memset(songfilename, 0, sizeof songfilename);
+  std::memset(instrfilename, 0, sizeof instrfilename);
+  std::memset(songpath, 0, sizeof songpath);
+  std::memset(instrpath, 0, sizeof instrpath);
+  std::memset(packedpath, 0, sizeof packedpath);
+  std::strcpy(songfilter, "*.sng");
+  std::strcpy(instrfilter, "*.ins");
 
   getcwd(songpath, MAX_PATHNAME);
-  strcpy(instrpath, songpath);
-  strcpy(packedpath, songpath);
+  std::strcpy(instrpath, songpath);
+  std::strcpy(packedpath, songpath);
 }
 
 int fileselector(char *name, char *path, char *filter, char *title, int filemode)
@@ -66,14 +87,14 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
   if (strlen(path)) chdir(path);
 
   // Scan for all existing drives
-  #ifdef __WIN32__
+#ifdef __WIN32__
   for (c = 0; c < 26; c++)
   {
     drivestr[0] = 'A'+c;
     if (GetDriveType(drivestr) > 1) driveexists[c] = 1;
     else driveexists[c] = 0;
   }
-  #endif
+#endif
 
   // Read new directory
   NEWPATH:
@@ -88,7 +109,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       direntry[c].name = NULL;
     }
   }
-  #ifdef __WIN32__
+#ifdef __WIN32__
   // Create drive letters
   for (c = 0; c < 26; c++)
   {
@@ -100,21 +121,21 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       files++;
     }
   }
-  #endif
+#endif
 
   // Process directory
-  #ifdef __amigaos__
+#ifdef __amigaos__
   dir = opendir("");
-  #else
+#else
   dir = opendir(".");
-  #endif
+#endif
   if (dir)
   {
     char *filtptr = strstr(filter, "*");
     if (!filtptr) filtptr = filter;
     else filtptr++;
     for (i = 0; i < strlen(filter); i++)
-      filter[i] = tolower(filter[i]);
+      filter[i] = std::tolower(filter[i]);
 
     while ((de = readdir(dir)))
     {
@@ -137,7 +158,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
           else
           {
             for (i = 0; i < strlen(cmpbuf); i++)
-              cmpbuf[i] = tolower(cmpbuf[i]);
+              cmpbuf[i] = std::tolower(cmpbuf[i]);
             if (strstr(cmpbuf, filtptr))
               files++;
             else
@@ -253,15 +274,15 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
     {
       if (((key >= '0') && (key <= '0')) || ((key >= 'a') && (key <= 'z')) || ((key >= 'A') && (key <= 'Z')))
       {
-        char k = tolower(key);
+        char k = std::tolower(key);
         int oldfilepos = filepos;
 
         for (filepos = oldfilepos + 1; filepos < files; filepos++)
-          if (tolower(direntry[filepos].name[0]) == k) break;
+          if (std::tolower(direntry[filepos].name[0]) == k) break;
         if (filepos >= files)
         {
           for (filepos = 0; filepos < oldfilepos; filepos++)
-             if (tolower(direntry[filepos].name[0]) == k) break;
+             if (std::tolower(direntry[filepos].name[0]) == k) break;
         }
 
         if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
@@ -277,11 +298,11 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
       case KEY_BACKSPACE:
       if (!filemode)
       {
-      #ifdef __amigaos__
+#ifdef __amigaos__
         chdir("/");
-      #else
+#else
         chdir("..");
-      #endif
+#endif
         goto NEWPATH;
       }
       break;
@@ -522,8 +543,8 @@ int cmpname(char *string1, char *string2)
 {
   for (;;)
   {
-    unsigned char char1 = tolower(*string1++);
-    unsigned char char2 = tolower(*string2++);
+    unsigned char char1 = std::tolower(*string1++);
+    unsigned char char2 = std::tolower(*string2++);
     if (char1 < char2) return -1;
     if (char1 > char2) return 1;
     if ((!char1) || (!char2)) return 0;

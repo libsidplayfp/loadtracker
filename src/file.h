@@ -16,39 +16,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef FILE_H
+#define FILE_H
 
-#define CBLACK  0x0
-#define CDBLUE  0x1
-#define CDGREEN 0x2
-#define CDGREY  0x3
-#define CDRED   0x4
-#define CDBROWN 0x5
-#define CLBROWN 0x6
-#define CLGREY  0x7
-#define CGREY   0x8
-#define CLBLUE  0x9
-#define CLGREEN 0xA
-#define CCYAN   0xB
-#define CLRED   0xC
-#define CPURPLE 0xD
-#define CYELLOW 0xE
-#define CWHITE  0xF
+#define MAX_DIRFILES 16384
+#define MAX_FILENAME 60
+#define MAX_PATHNAME 256
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void initcolorscheme(int dark);
-void printmainscreen(void);
-void displayupdate(void);
-void printstatus(void);
-void resettime(void);
-void incrementtime(void);
+typedef struct
+{
+  char *name;
+  int attribute;
+} DIRENTRY;
+
+void initpaths(void);
+int fileselector(char *name, char *path, char *filter, char *title, int filemode);
+void editstring(char *buffer, int maxlength);
+int cmpname(char *string1, char *string2);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+

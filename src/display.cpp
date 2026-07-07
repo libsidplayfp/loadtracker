@@ -20,7 +20,7 @@
 // screen display routines
 // =============================================================================
 
-#define GDISPLAY_C
+#define DISPLAY_C
 
 extern "C" {
 

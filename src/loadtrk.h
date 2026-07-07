@@ -19,7 +19,7 @@
 #include "gplay.h"
 #include "display.h"
 #include "greloc.h"
-#include "gfile.h"
+#include "file.h"
 #include "gpattern.h"
 #include "gorder.h"
 #include "ginstr.h"
