@@ -29,11 +29,10 @@ void win_setmousemode(int mode);
 // Global variables
 
 int win_fullscreen = 0; // By default windowed
-int win_windowinitted = 0;
+bool win_windowinitted = false;
 int win_quitted = 0;
 unsigned char win_keytable[SDL_SCANCODE_COUNT] = {0};
 unsigned char win_asciikey = 0;
-unsigned win_virtualkey = 0;
 unsigned win_mousexpos = 0;
 unsigned win_mouseypos = 0;
 unsigned win_mousexrel = 0;
@@ -62,7 +61,7 @@ int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *ic
             return BME_ERROR;
         }
         atexit(SDL_Quit);
-        win_windowinitted = 1;
+        win_windowinitted = true;
     }
 
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -184,7 +183,6 @@ void win_checkmessages(void)
             break;
 
             case SDL_EVENT_KEY_DOWN:
-            win_virtualkey = event.key.key;
             keynum = event.key.scancode;
             if (keynum < SDL_SCANCODE_COUNT)
             {
@@ -211,7 +209,7 @@ void win_checkmessages(void)
 
             case SDL_EVENT_WINDOW_RESIZED:
             //case SDL_VIDEOEXPOSE:
-            gfx_redraw = 1;
+            gfx_redraw = true;
             break;
         }
     }

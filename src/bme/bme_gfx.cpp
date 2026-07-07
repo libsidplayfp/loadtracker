@@ -21,25 +21,23 @@ extern "C" {
 
 int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
 int gfx_reinit();
-void gfx_uninit(void);
+void gfx_uninit();
 int gfx_lock();
-void gfx_unlock(void);
-void gfx_flip(void);
+void gfx_unlock();
+void gfx_flip();
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
 void gfx_setmaxspritefiles(unsigned num);
-void gfx_setmaxcolors(int num);
 int gfx_loadpalette(const char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
-void gfx_setpalette(void);
-int gfx_loadblocks(char *name);
+void gfx_setpalette();
 int gfx_loadsprites(unsigned num, const char *name);
 void gfx_freesprites(unsigned num);
 
 void gfx_drawsprite(int x, int y, unsigned num);
 void gfx_getspriteinfo(unsigned num);
 
-int gfx_initted = 0;
-int gfx_redraw = 0;
+bool gfx_initted = false;
+bool gfx_redraw = false;
 int gfx_scanlinemode = 0;
 int gfx_preventswitch = 0;
 unsigned gfx_virtualxsize;
@@ -145,8 +143,8 @@ int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
     gfx_initexec = 0;
     if (gfx_screen)
     {
-        gfx_initted = 1;
-        gfx_redraw = 1;
+        gfx_initted = true;
+        gfx_redraw = true;
         gfx_setpalette();
         win_setmousemode(win_mousemode);
         return BME_OK;
@@ -161,12 +159,12 @@ int gfx_reinit()
         gfx_last_flags);
 }
 
-void gfx_uninit(void)
+void gfx_uninit()
 {
     SDL_DestroyTexture(sdlTexture);
     SDL_DestroySurface(gfx_screen);
     SDL_DestroyRenderer(gfx_renderer);
-    gfx_initted = 0;
+    gfx_initted = false;
     return;
 }
 
@@ -182,7 +180,7 @@ int gfx_lock()
     else return 0;
 }
 
-void gfx_unlock(void)
+void gfx_unlock()
 {
     if (gfx_locked)
     {
@@ -199,12 +197,7 @@ void gfx_flip()
     SDL_RenderClear(gfx_renderer);
     SDL_RenderTexture(gfx_renderer, sdlTexture, NULL, NULL);
     SDL_RenderPresent(gfx_renderer);
-    gfx_redraw = 0;
-}
-
-void gfx_setmaxcolors(int num)
-{
-    gfx_maxcolors = num;
+    gfx_redraw = false;
 }
 
 int gfx_loadpalette(const char *name)
@@ -271,7 +264,7 @@ void gfx_calcpalette(int fade, int radd, int gadd, int badd)
     }
 }
 
-void gfx_setpalette(void)
+void gfx_setpalette()
 {
     if (!gfx_initted) return;
 

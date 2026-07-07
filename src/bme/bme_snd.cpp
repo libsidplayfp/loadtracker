@@ -53,7 +53,7 @@ static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples);
 void (*snd_player)(void) = nullptr;
 CHANNEL *snd_channel = nullptr;
 int snd_channels = 0;
-int snd_sndinitted = 0;
+bool snd_sndinitted = false;
 int snd_bpmcount;
 int snd_bpmtempo = 125;
 unsigned snd_mixmode;
@@ -114,7 +114,7 @@ int snd_init_jack() {
         snd_mixrate = jack_get_sample_rate(client);
 
         snd_bpmcount = 0;
-        snd_sndinitted = 1;
+        snd_sndinitted = true;
 
         // force 16 bit
         snd_mixmode = SIXTEENBIT;
@@ -276,7 +276,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
         snd_uninit();
         return BME_ERROR;
     }
-    snd_sndinitted = 1;
+    snd_sndinitted = true;
 
     snd_mixmode = 0;
     snd_framesize = 1;
@@ -370,7 +370,7 @@ int snd_initchannels(unsigned channels) {
 }
 
 
-void snd_uninit(void)
+void snd_uninit()
 {
     if (snd_sndinitted
 #ifdef USE_JACK
@@ -379,7 +379,7 @@ void snd_uninit(void)
         )
     {
         SDL_DestroyAudioStream(stream);
-        snd_sndinitted = 0;
+        snd_sndinitted = false;
     }
     snd_uninitmixer();
 #ifdef USE_MIDI_INPUT

@@ -19,10 +19,6 @@ void mou_init()
     win_mousebuttons = 0;
 }
 
-void mou_uninit()
-{
-}
-
 void mou_getpos(unsigned *x, unsigned *y)
 {
     if (!gfx_initted)
@@ -35,14 +31,6 @@ void mou_getpos(unsigned *x, unsigned *y)
         *x = win_mousexpos * gfx_virtualxsize / gfx_windowxsize;
         *y = win_mouseypos * gfx_virtualysize / gfx_windowysize;
     }
-}
-
-void mou_getmove(int *dx, int *dy)
-{
-    *dx = win_mousexrel;
-    *dy = win_mouseyrel;
-    win_mousexrel = 0;
-    win_mouseyrel = 0;
 }
 
 unsigned mou_getbuttons(void)

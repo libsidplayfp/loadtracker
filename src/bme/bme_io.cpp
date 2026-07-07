@@ -30,7 +30,7 @@ typedef struct
     int open;
 } HANDLE;
 
-static int io_usedatafile = 0;
+static bool io_usedatafile = false;
 static HEADER *fileheaders;
 static unsigned files;
 static char ident[4];
@@ -45,11 +45,6 @@ static unsigned freadle32(FILE *index);
 static void linkedseek(unsigned pos);
 static void linkedread(void *buffer, int length);
 static unsigned linkedreadle32(void);
-
-void io_setfilemode(int usedf)
-{
-    io_usedatafile = usedf;
-}
 
 int io_openlinkeddatafile(unsigned char *ptr)
 {
@@ -81,7 +76,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     }
 
     for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
-    io_usedatafile = 1;
+    io_usedatafile = true;
     bme_error = BME_OK;
     return BME_OK;
 }
@@ -120,7 +115,7 @@ int io_opendatafile(const char *name)
     }
 
     for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
-    io_usedatafile = 1;
+    io_usedatafile = true;
     bme_error = BME_OK;
     return BME_OK;
 }

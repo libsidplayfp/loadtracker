@@ -9,27 +9,25 @@ extern "C" {
 
 int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
 int gfx_reinit();
-void gfx_uninit(void);
+void gfx_uninit();
 int gfx_lock();
-void gfx_unlock(void);
-void gfx_flip(void);
+void gfx_unlock();
+void gfx_flip();
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
 void gfx_setmaxspritefiles(unsigned num);
-void gfx_setmaxcolors(int num);
 int gfx_loadpalette(const char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
-void gfx_setpalette(void);
-int gfx_loadblocks(char *name);
-void gfx_freesprites(unsigned num);
+void gfx_setpalette();
 
 int gfx_loadsprites(unsigned num, const char *name);
 void gfx_drawsprite(int x, int y, unsigned num);
+void gfx_freesprites(unsigned num);
 
-extern int gfx_initted;
+extern bool gfx_initted;
 extern int gfx_scanlinemode;
 extern int gfx_preventswitch;
 extern int gfx_fullscreen;
-extern int gfx_redraw;
+extern bool gfx_redraw;
 extern unsigned gfx_windowxsize;
 extern unsigned gfx_windowysize;
 extern unsigned gfx_virtualxsize;

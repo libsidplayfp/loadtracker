@@ -369,7 +369,7 @@ void fliptoscreen(void)
   // If redraw requested, mark whole screen changed
   if (gfx_redraw)
   {
-    gfx_redraw = 0;
+    gfx_redraw = false;
     std::memset(prevscrbuffer, 0xff, MAX_COLUMNS*MAX_ROWS*sizeof(unsigned));
   }
 

@@ -8,9 +8,7 @@ extern "C" {
 #endif
 
 void mou_init();
-void mou_uninit();
 void mou_getpos(unsigned *x, unsigned *y);
-void mou_getmove(int *dx, int *dy);
 unsigned mou_getbuttons();
 
 #ifdef __cplusplus
