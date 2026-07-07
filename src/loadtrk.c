@@ -336,7 +336,7 @@ int main(int argc, char **argv)
         break;
 
         case 'c':
-        sscanf(&argv[c][2], "%f", &combwaves);
+        sscanf(&argv[c][2], "%u", &combwaves);
         break;
 
         case 'Q':
@@ -399,8 +399,7 @@ int main(int argc, char **argv)
   if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
   if (panning < 0) panning = 0;
   if (panning > 1) panning = 1;
-  if (combwaves < 0) combwaves = 0;
-  else if (combwaves > 2) combwaves = 2;
+  if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   else if (filterbias > 1.0) filterbias = 1.0;
 
