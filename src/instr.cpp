@@ -1,16 +1,34 @@
 /*
- * =============================================================================
- * instrument editor
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GINSTR_C
+// =============================================================================
+// instrument editor
+// =============================================================================
+
+#define INSTR_C
 
 extern "C" {
 
 #include "loadtrk.h"
 
 }
+
+#include <cstring>
 
 INSTR instrcopybuffer;
 int cutinstr = -1;
@@ -36,7 +54,7 @@ void instrumentcommands(void)
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = einum;
-      memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
       clearinstr(einum);
     }
     break;
@@ -45,14 +63,14 @@ void instrumentcommands(void)
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = -1;
-      memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
     }
     break;
 
     case KEY_S:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
       if (cutinstr != -1)
       {
         int c, d;
@@ -68,7 +86,7 @@ void instrumentcommands(void)
     case KEY_V:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
     }
     break;
 
@@ -215,7 +233,7 @@ void instrumentcommands(void)
 
 void clearinstr(int num)
 {
-  memset(&instr[num], 0, sizeof(INSTR));
+  std::memset(&instr[num], 0, sizeof(INSTR));
   if (num)
   {
     if (multiplier)
@@ -229,8 +247,7 @@ void clearinstr(int num)
 
 void gotoinstr(int i)
 {
-  if (i < 0) return;
-  if (i >= MAX_INSTR) return;
+  if ((i < 0) || (i >= MAX_INSTR)) return;
 
   einum = i;
   showinstrtable();
@@ -256,9 +273,7 @@ void showinstrtable(void)
 {
   if (!etlock)
   {
-    int c;
-
-    for (c = MAX_TABLES-1; c >= 0; c--)
+    for (int c = MAX_TABLES-1; c >= 0; c--)
     {
       if (instr[einum].ptr[c])
         settableviewfirst(c, instr[einum].ptr[c] - 1);

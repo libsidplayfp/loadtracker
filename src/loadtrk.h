@@ -22,7 +22,7 @@
 #include "file.h"
 #include "gpattern.h"
 #include "gorder.h"
-#include "ginstr.h"
+#include "instr.h"
 #include "gtable.h"
 
 #define EDIT_PATTERN 0
