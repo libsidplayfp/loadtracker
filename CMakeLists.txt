@@ -28,7 +28,7 @@ set(LOADTRK_SOURCES
     src/display.cpp
     src/file.cpp
     src/greloc.c
-    src/ghelp.cpp
+    src/help.cpp
     src/gsound.c
     src/console.cpp
     src/gsid.cpp
