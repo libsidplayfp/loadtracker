@@ -17,7 +17,7 @@
 #include "gsid.h"
 #include "gsong.h"
 #include "gplay.h"
-#include "gdisplay.h"
+#include "display.h"
 #include "greloc.h"
 #include "gfile.h"
 #include "gpattern.h"
