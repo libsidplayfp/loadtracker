@@ -1,14 +1,32 @@
 /*
- * =============================================================================
- * song data model, loading/saving/conversion
- * =============================================================================
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define GSONG_C
+// =============================================================================
+// song data model, loading/saving/conversion
+// =============================================================================
+
+#define SONG_C
 
 extern "C" {
 #include "loadtrk.h"
 }
+
+#include <cstring>
 
 INSTR instr[MAX_INSTR];
 unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
@@ -29,7 +47,6 @@ int determinechannels(FILE* handle);
 
 int savesong(void)
 {
-  int c;
   char ident[] = {'G', 'T', 'S', '5'};
   FILE *handle;
 
@@ -39,7 +56,7 @@ int savesong(void)
   if (strlen(songfilename) < MAX_FILENAME-4)
   {
     int extfound = 0;
-    for (c = strlen(songfilename)-1; c >= 0; c--)
+    for (int c = strlen(songfilename)-1; c >= 0; c--)
     {
       if (songfilename[c] == '.') extfound = 1;
     }
@@ -48,7 +65,6 @@ int savesong(void)
   handle = fopen(songfilename, "wb");
   if (handle)
   {
-    int d;
     int length;
     int amount;
     int writebytes;
@@ -56,7 +72,7 @@ int savesong(void)
 
     // Determine amount of patterns & instruments
     countpatternlengths();
-    for (c = 1; c < MAX_INSTR; c++)
+    for (int c = 1; c < MAX_INSTR; c++)
     {
       if ((instr[c].ad) || (instr[c].sr) || (instr[c].ptr[0]) || (instr[c].ptr[1]) ||
           (instr[c].ptr[2]) || (instr[c].vibdelay) || (instr[c].ptr[3]))
@@ -71,7 +87,7 @@ int savesong(void)
     fwrite(copyrightname, sizeof copyrightname, 1, handle);
 
     // Determine amount of songs to be saved
-    c = MAX_SONGS - 1;
+    int c = MAX_SONGS - 1;
     if (numsids == 1)
     {
       for (;;)
@@ -98,9 +114,9 @@ int savesong(void)
 
     fwrite8(handle, amount);
     // Write songorderlists
-    for (d = 0; d < amount; d++)
+    for (int d = 0; d < amount; d++)
     {
-      for (c = 0; c < maxChns; c++)
+      for (int c = 0; c < maxChns; c++)
       {
         if (numsids == 1)
         {
@@ -123,7 +139,7 @@ int savesong(void)
     // Write amount of instruments
     fwrite8(handle, highestusedinstr);
     // Write instruments
-    for (c = 1; c <= highestusedinstr; c++)
+    for (int c = 1; c <= highestusedinstr; c++)
     {
       fwrite8(handle, instr[c].ad);
       fwrite8(handle, instr[c].sr);
@@ -137,7 +153,7 @@ int savesong(void)
       fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
     }
     // Write tables
-    for (c = 0; c < MAX_TABLES; c++)
+    for (int c = 0; c < MAX_TABLES; c++)
     {
       writebytes = gettablelen(c);
       fwrite8(handle, writebytes);
@@ -162,14 +178,13 @@ int savesong(void)
 
 int saveinstrument(void)
 {
-  int c;
   char ident[] = {'G', 'T', 'I', '5'};
   FILE *handle;
 
   if (strlen(instrfilename) < MAX_FILENAME-4)
   {
     int extfound = 0;
-    for (c = strlen(instrfilename)-1; c >= 0; c--)
+    for (int c = strlen(instrfilename)-1; c >= 0; c--)
     {
       if (instrfilename[c] == '.') extfound = 1;
     }
@@ -192,7 +207,7 @@ int saveinstrument(void)
     fwrite8(handle, instr[einum].gatetimer);
     fwrite8(handle, instr[einum].firstwave);
     fwrite(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
-    for (c = 0; c < MAX_TABLES; c++)
+    for (int c = 0; c < MAX_TABLES; c++)
     {
       if (instr[einum].ptr[c])
       {
@@ -212,7 +227,6 @@ int saveinstrument(void)
 
 void loadsong(void)
 {
-  int c;
   int ok = 0;
   char ident[4];
   FILE *handle;
@@ -225,9 +239,8 @@ void loadsong(void)
   if (handle)
   {
     fread(ident, 4, 1, handle);
-    if ((!memcmp(ident, "GTS3", 4)) || (!memcmp(ident, "GTS4", 4)) || (!memcmp(ident, "GTS5", 4)))
+    if ((!std::memcmp(ident, "GTS3", 4)) || (!std::memcmp(ident, "GTS4", 4)) || (!std::memcmp(ident, "GTS5", 4)))
     {
-      int d;
       int length;
       int amount;
       int loadsize;
@@ -242,9 +255,9 @@ void loadsong(void)
       // Read songorderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
-      for (d = 0; d < amount; d++)
+      for (int d = 0; d < amount; d++)
       {
-        for (c = 0; c < channelstoload; c++)
+        for (int c = 0; c < channelstoload; c++)
         {
           length = fread8(handle);
           loadsize = length;
@@ -261,7 +274,7 @@ void loadsong(void)
       }
       // Read instruments
       amount = fread8(handle);
-      for (c = 1; c <= amount; c++)
+      for (int c = 1; c <= amount; c++)
       {
         instr[c].ad = fread8(handle);
         instr[c].sr = fread8(handle);
@@ -275,7 +288,7 @@ void loadsong(void)
         fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
-      for (c = 0; c < MAX_TABLES; c++)
+      for (int c = 0; c < MAX_TABLES; c++)
       {
         loadsize = fread8(handle);
         fread(ltable[c], loadsize, 1, handle);
@@ -283,7 +296,7 @@ void loadsong(void)
       }
       // Read patterns
       amount = fread8(handle);
-      for (c = 0; c < amount; c++)
+      for (int c = 0; c < amount; c++)
       {
         length = fread8(handle) * 4;
         fread(pattern[c], length, 1, handle);
@@ -293,9 +306,8 @@ void loadsong(void)
     }
 
     // Goattracker v2.xx (3-table) import
-    if (!memcmp(ident, "GTS2", 4))
+    if (!std::memcmp(ident, "GTS2", 4))
     {
-      int d;
       int length;
       int amount;
       int loadsize;
@@ -310,9 +322,9 @@ void loadsong(void)
       // Read songorderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
-      for (d = 0; d < amount; d++)
+      for (int d = 0; d < amount; d++)
       {
-        for (c = 0; c < channelstoload; c++)
+        for (int c = 0; c < channelstoload; c++)
         {
           length = fread8(handle);
           loadsize = length;
@@ -329,7 +341,7 @@ void loadsong(void)
       }
       // Read instruments
       amount = fread8(handle);
-      for (c = 1; c <= amount; c++)
+      for (int c = 1; c <= amount; c++)
       {
         instr[c].ad = fread8(handle);
         instr[c].sr = fread8(handle);
@@ -343,7 +355,7 @@ void loadsong(void)
         fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
-      for (c = 0; c < MAX_TABLES-1; c++)
+      for (int c = 0; c < MAX_TABLES-1; c++)
       {
         loadsize = fread8(handle);
         fread(ltable[c], loadsize, 1, handle);
@@ -351,14 +363,13 @@ void loadsong(void)
       }
       // Read patterns
       amount = fread8(handle);
-      for (c = 0; c < amount; c++)
+      for (int c = 0; c < amount; c++)
       {
-        int d;
         length = fread8(handle) * 4;
         fread(pattern[c], length, 1, handle);
 
         // Convert speedtable-requiring commands
-        for (d = 0; d < length; d++)
+        for (int d = 0; d < length; d++)
         {
           switch (pattern[c][d*4+2])
           {
@@ -382,9 +393,8 @@ void loadsong(void)
       songchange();
     }
     // Goattracker 1.xx import
-    if (!memcmp(ident, "GTS!", 4))
+    if (!std::memcmp(ident, "GTS!", 4))
     {
-      int d;
       int length;
       int amount;
       int loadsize;
@@ -410,9 +420,9 @@ void loadsong(void)
       // Read songorderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
-      for (d = 0; d < amount; d++)
+      for (int d = 0; d < amount; d++)
       {
-        for (c = 0; c < channelstoload; c++)
+        for (int c = 0; c < channelstoload; c++)
         {
           length = fread8(handle);
           loadsize = length;
@@ -429,7 +439,7 @@ void loadsong(void)
       }
 
       // Convert instruments
-      for (c = 1; c < 32; c++)
+      for (int c = 1; c < 32; c++)
       {
         unsigned char wavelen;
 
@@ -448,7 +458,7 @@ void loadsong(void)
         instr[c].ptr[WTBL] = fw+1;
 
         // Convert wavetable
-        for (d = 0; d < wavelen; d++)
+        for (int d = 0; d < wavelen; d++)
         {
           if (fw < MAX_TABLELEN)
           {
@@ -484,7 +494,7 @@ void loadsong(void)
           int pulsetime, pulsedist, hlpos;
 
           // Check for duplicate pulse settings
-          for (d = 1; d < c; d++)
+          for (int d = 1; d < c; d++)
           {
             if ((pulse[d] == pulse[c]) && (pulseadd[d] == pulseadd[c]) && (pulselimitlow[d] == pulselimitlow[c]) &&
                 (pulselimithigh[d] == pulselimithigh[c]))
@@ -604,10 +614,10 @@ void loadsong(void)
       }
       // Convert patterns
       amount = fread8(handle);
-      for (c = 0; c < amount; c++)
+      for (int c = 0; c < amount; c++)
       {
         length = fread8(handle);
-        for (d = 0; d < length/3; d++)
+        for (int d = 0; d < length/3; d++)
         {
           unsigned char note, cmd, data, instr;
           note = fread8(handle);
@@ -665,7 +675,7 @@ void loadsong(void)
       fread(filtertable, 256, 1, handle);
 
       // Convert filtertable
-      for (c = 0; c < 64; c++)
+      for (int c = 0; c < 64; c++)
       {
         filterjumppos[c] = -1;
         filtermap[c] = 0;
@@ -674,7 +684,7 @@ void loadsong(void)
 
       if (numfilter > 63) numfilter = 63;
 
-      for (c = 1; c <= numfilter; c++)
+      for (int c = 1; c <= numfilter; c++)
       {
         filtermap[c] = ff+1;
 
@@ -721,22 +731,22 @@ void loadsong(void)
       }
 
       // Now fix jumps as the filterstep mapping is known
-      for (c = 1; c <= numfilter; c++)
+      for (int c = 1; c <= numfilter; c++)
       {
         if (filterjumppos[c] != -1)
           rtable[FTBL][filterjumppos[c]] = filtermap[rtable[FTBL][filterjumppos[c]]];
       }
 
       // Fix filterpointers in instruments
-      for (c = 1; c < 32; c++)
+      for (int c = 1; c < 32; c++)
         instr[c].ptr[FTBL] = filtermap[instr[c].ptr[FTBL]];
 
       // Now fix pattern commands
-      memset(arpmap, 0, sizeof arpmap);
-      for (c = 0; c < MAX_PATT; c++)
+      std::memset(arpmap, 0, sizeof arpmap);
+      for (int c = 0; c < MAX_PATT; c++)
       {
         unsigned char i = 0;
-        for (d = 0; d <= MAX_PATTROWS; d++)
+        for (int d = 0; d <= MAX_PATTROWS; d++)
         {
           if (pattern[c][d*4+1]) i = pattern[c][d*4+1];
 
@@ -871,15 +881,15 @@ void loadsong(void)
   }
   if (ok)
   {
-    strcpy(loadedsongfilename, songfilename);
+    std::strcpy(loadedsongfilename, songfilename);
 
     // Reset table views
-    for (c = 0; c < MAX_TABLES; c++) settableview(c, 0);
+    for (int c = 0; c < MAX_TABLES; c++) settableview(c, 0);
 
     // Convert pulsemodulation speed of < v2.4 songs
     if (ident[3] < '4')
     {
-      for (c = 0; c < MAX_TABLELEN; c++)
+      for (int c = 0; c < MAX_TABLELEN; c++)
       {
         if ((ltable[PTBL][c] < 0x80) && (rtable[PTBL][c]))
         {
@@ -895,7 +905,7 @@ void loadsong(void)
     // Convert old legato/nohr parameters
     if (ident[3] < '5')
     {
-        for (c = 1; c < MAX_INSTR; c++)
+        for (int c = 1; c < MAX_INSTR; c++)
         {
             if (instr[c].firstwave >= 0x80)
             {
@@ -912,7 +922,7 @@ void loadsong(void)
       int emptypatt = MAX_PATT-1;
 
       findusedpatterns();
-      for (c = 0; c < MAX_PATT; c++)
+      for (int c = 0; c < MAX_PATT; c++)
       {
         if (!pattused[c])
         {
@@ -933,12 +943,11 @@ void loadsong(void)
         }
       }
 
-      for (c = 0; c < MAX_SONGS; c++)
+      for (int c = 0; c < MAX_SONGS; c++)
       {
         if (songlen_stereo[c][0])
         {
-           int d;
-           for (d = channelstoload; d < MAX_CHN; d++)
+           for (int d = channelstoload; d < MAX_CHN; d++)
            {
              songorder_stereo[c][d][0] = emptypatt;
              songorder_stereo[c][d][1] = 0xff;
@@ -956,7 +965,6 @@ void loadinstrument(void)
 {
   char ident[4];
   FILE *handle;
-  int c,d;
   int pulsestart = -1;
   int pulseend = -1;
 
@@ -966,7 +974,7 @@ void loadinstrument(void)
     stopsong();
     fread(ident, 4, 1, handle);
 
-    if ((!memcmp(ident, "GTI3", 4)) || (!memcmp(ident, "GTI4", 4)) || (!memcmp(ident, "GTI5", 4)))
+    if ((!std::memcmp(ident, "GTI3", 4)) || (!std::memcmp(ident, "GTI4", 4)) || (!std::memcmp(ident, "GTI5", 4)))
     {
       unsigned char optr[4];
 
@@ -985,13 +993,14 @@ void loadinstrument(void)
       deleteinstrtable(einum);
 
       // Load new tabledata
-      for (c = 0; c < MAX_TABLES; c++)
+      for (int c = 0; c < MAX_TABLES; c++)
       {
         int start = gettablelen(c);
         int len = fread8(handle);
 
         if (len)
         {
+          int d;
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
             ltable[c][d] = fread8(handle);
           while (d < start+len)
@@ -1008,7 +1017,7 @@ void loadinstrument(void)
           }
           if (c != STBL)
           {
-            for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
+            for (int d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
             {
               if (ltable[c][d] == 0xff)
               {
@@ -1029,7 +1038,7 @@ void loadinstrument(void)
     }
 
     // Goattracker v2.xx (3-table) import
-    if (!memcmp(ident, "GTI2", 4))
+    if (!std::memcmp(ident, "GTI2", 4))
     {
       unsigned char optr[3];
 
@@ -1048,13 +1057,14 @@ void loadinstrument(void)
       deleteinstrtable(einum);
 
       // Load new tabledata
-      for (c = 0; c < MAX_TABLES-1; c++)
+      for (int c = 0; c < MAX_TABLES-1; c++)
       {
         int start = gettablelen(c);
         int len = fread8(handle);
 
         if (len)
         {
+          int d;
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
             ltable[c][d] = fread8(handle);
           while (d < start+len)
@@ -1069,7 +1079,7 @@ void loadinstrument(void)
             fread8(handle);
             d++;
           }
-          for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
+          for (int d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
           {
             if (ltable[c][d] == 0xff)
             {
@@ -1088,7 +1098,7 @@ void loadinstrument(void)
       }
     }
     // Goattracker 1.xx import
-    if (!memcmp(ident, "GTI!", 4))
+    if (!std::memcmp(ident, "GTI!", 4))
     {
 
       unsigned char pulse, pulseadd, pulselimitlow, pulselimithigh, wavelen;
@@ -1120,7 +1130,7 @@ void loadinstrument(void)
       instr[einum].ptr[WTBL] = fw+1;
 
       // Convert wavetable
-      for (d = 0; d < wavelen; d++)
+      for (int d = 0; d < wavelen; d++)
       {
         if (fw < MAX_TABLELEN)
         {
@@ -1303,13 +1313,13 @@ void loadinstrument(void)
         ff++;
       }
     }
-    
+
     fclose(handle);
 
     // Convert pulsemodulation speed of < v2.4 instruments
     if ((ident[3] < '4') && (pulsestart != -1))
     {
-      for (c = pulsestart; (c < pulseend) && (c < MAX_TABLELEN); c++)
+      for (int c = pulsestart; (c < pulseend) && (c < MAX_TABLELEN); c++)
       {
         if ((ltable[PTBL][c] < 0x80) && (rtable[PTBL][c]))
         {
@@ -1361,12 +1371,12 @@ void clearsong(int cs, int cp, int ci, int ct, int cn)
     chn[c].pattptr = 0;
     if (cs)
     {
-      memset(loadedsongfilename, 0, sizeof loadedsongfilename);
+      std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
       for (d = 0; d < MAX_SONGS; d++)
       {
         if (numsids == 1)
         {
-          memset(&songorder[d][c][0], 0, MAX_SONGLEN+2);
+          std::memset(&songorder[d][c][0], 0, MAX_SONGLEN+2);
           if (!d)
           {
             songorder[d][c][0] = c;
@@ -1379,7 +1389,7 @@ void clearsong(int cs, int cp, int ci, int ct, int cn)
         }
         else if (numsids == 2)
         {
-          memset(&songorder_stereo[d][c][0], 0, MAX_SONGLEN+2);
+          std::memset(&songorder_stereo[d][c][0], 0, MAX_SONGLEN+2);
           if (!d)
           {
             songorder_stereo[d][c][0] = c;
@@ -1417,14 +1427,14 @@ void clearsong(int cs, int cp, int ci, int ct, int cn)
   }
   if (cn)
   {
-    memset(songname, 0, sizeof songname);
-    memset(authorname, 0, sizeof authorname);
-    memset(copyrightname, 0, sizeof copyrightname);
+    std::memset(songname, 0, sizeof songname);
+    std::memset(authorname, 0, sizeof authorname);
+    std::memset(copyrightname, 0, sizeof copyrightname);
     enpos = 0;
   }
   if (cp)
   {
-    memset(loadedsongfilename, 0, sizeof loadedsongfilename);
+    std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
     for (c = 0; c < MAX_PATT; c++)
       clearpattern(c);
   }
@@ -1432,7 +1442,7 @@ void clearsong(int cs, int cp, int ci, int ct, int cn)
   {
     for (c = 0; c < MAX_INSTR; c++)
       clearinstr(c);
-    memset(&instrcopybuffer, 0, sizeof(INSTR));
+    std::memset(&instrcopybuffer, 0, sizeof(INSTR));
     eipos = 0;
     eicolumn = 0;
     einum = 1;
@@ -1441,8 +1451,8 @@ void clearsong(int cs, int cp, int ci, int ct, int cn)
   {
     for (c = MAX_TABLES-1; c >= 0; c--)
     {
-      memset(ltable[c], 0, MAX_TABLELEN);
-      memset(rtable[c], 0, MAX_TABLELEN);
+      std::memset(ltable[c], 0, MAX_TABLELEN);
+      std::memset(rtable[c], 0, MAX_TABLELEN);
       settableview(c, 0);
     }
   }
@@ -1550,7 +1560,6 @@ void countthispattern(void)
 
 int insertpattern(int p)
 {
-  int c, d, e;
   int tmp = 0;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
@@ -1558,16 +1567,16 @@ int insertpattern(int p)
   findusedpatterns();
   if (p >= MAX_PATT-2) return 0;
   if (pattused[MAX_PATT-1]) return 0;
-  memmove(pattern[p+2], pattern[p+1], (MAX_PATT-p-2)*(MAX_PATTROWS*4+4));  
+  std::memmove(pattern[p+2], pattern[p+1], (MAX_PATT-p-2)*(MAX_PATTROWS*4+4));  
   countpatternlengths();
 
-  for (c = 0; c < MAX_SONGS; c++)
+  for (int c = 0; c < MAX_SONGS; c++)
   {
     if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
             ((numsids==2)&&(songlen_stereo[c][0])&&
                 (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
     {
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         if (numsids == 1)
         {
@@ -1577,7 +1586,7 @@ int insertpattern(int p)
         {
           tmp = songlen_stereo[c][d];
         }
-        for (e = 0; e < tmp; e++)
+        for (int e = 0; e < tmp; e++)
         {
           if (numsids == 1)
           {
@@ -1602,7 +1611,7 @@ int insertpattern(int p)
     }
   }
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     if ((epnum[c] > p) && (epnum[c] != MAX_PATT-1)) epnum[c]++;
   }
@@ -1612,24 +1621,23 @@ int insertpattern(int p)
 
 void deletepattern(int p)
 {
-  int c, d, e;
   int tmp;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
   if (p == MAX_PATT-1) return;
 
-  memmove(pattern[p], pattern[p+1], (MAX_PATT-p-1)*(MAX_PATTROWS*4+4));
+  std::memmove(pattern[p], pattern[p+1], (MAX_PATT-p-1)*(MAX_PATTROWS*4+4));
   clearpattern(MAX_PATT-1);
   countpatternlengths();
 
-  for (c = 0; c < MAX_SONGS; c++)
+  for (int c = 0; c < MAX_SONGS; c++)
   {
     if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
             ((numsids==2)&&(songlen_stereo[c][0])&&
                 (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
     {
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         if (numsids == 1)
         {
@@ -1639,7 +1647,7 @@ void deletepattern(int p)
         {
           tmp = songlen_stereo[c][d];
         }
-        for (e = 0; e < tmp; e++)
+        for (int e = 0; e < tmp; e++)
         {
           if (numsids == 1)
           {
@@ -1661,8 +1669,8 @@ void deletepattern(int p)
       }
     }
   }
-  
-  for (c = 0; c < maxChns; c++)
+
+  for (int c = 0; c < maxChns; c++)
   {
     if (epnum[c] > p) epnum[c]--;
   }
@@ -1670,29 +1678,26 @@ void deletepattern(int p)
 
 void clearpattern(int p)
 {
-  int c;
-
-  memset(pattern[p], 0, MAX_PATTROWS*4);
-  for (c = 0; c < defaultpatternlength; c++) pattern[p][c*4] = REST;
-  for (c = defaultpatternlength; c <= MAX_PATTROWS; c++) pattern[p][c*4] = ENDPATT;
+  std::memset(pattern[p], 0, MAX_PATTROWS*4);
+  for (int c = 0; c < defaultpatternlength; c++) pattern[p][c*4] = REST;
+  for (int c = defaultpatternlength; c <= MAX_PATTROWS; c++) pattern[p][c*4] = ENDPATT;
 }
 
 void findusedpatterns(void)
 {
-  int c, d, e;
   int tmp;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
   countpatternlengths();
-  memset(pattused, 0, sizeof pattused);
-  for (c = 0; c < MAX_SONGS; c++)
+  std::memset(pattused, 0, sizeof pattused);
+  for (int c = 0; c < MAX_SONGS; c++)
   {
     if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
             ((numsids==2)&&(songlen_stereo[c][0])&&
                 (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
     {
-      for (d = 0; d < maxChns; d++)
+      for (int d = 0; d < maxChns; d++)
       {
         if (numsids == 1)
         {
@@ -1702,7 +1707,7 @@ void findusedpatterns(void)
         {
           tmp = songlen_stereo[c][d];
         }
-        for (e = 0; e < tmp; e++)
+        for (int e = 0; e < tmp; e++)
         {
           if (numsids == 1)
           {
@@ -1726,7 +1731,6 @@ void findusedpatterns(void)
 
 void findduplicatepatterns(void)
 {
-  int c, d;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
 
@@ -1734,27 +1738,25 @@ void findduplicatepatterns(void)
 
   if (numsids == 1)
   {
-    for (c = 0; c < MAX_PATT; c++)
+    for (int c = 0; c < MAX_PATT; c++)
     {
       if (pattused[c])
       {
-        for (d = c+1; d < MAX_PATT; d++)
+        for (int d = c+1; d < MAX_PATT; d++)
         {
           if (pattlen[d] == pattlen[c])
           {
-            if (!memcmp(pattern[c], pattern[d], pattlen[c]*4))
+            if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
             {
-              int f, g, h;
-
-              for (f = 0; f < MAX_SONGS; f++)
+              for (int f = 0; f < MAX_SONGS; f++)
               {
                 if ((songlen[f][0]) &&
                     (songlen[f][1]) &&
                     (songlen[f][2]))
                 {
-                  for (g = 0; g < maxChns; g++)
+                  for (int g = 0; g < maxChns; g++)
                   {
-                    for (h = 0; h < songlen[f][g]; h++)
+                    for (int h = 0; h < songlen[f][g]; h++)
                     {
                       if (songorder[f][g][h] == d)
                         songorder[f][g][h] = c;
@@ -1762,7 +1764,7 @@ void findduplicatepatterns(void)
                   }
                 }
               }
-              for (f = 0; f < maxChns; f++)
+              for (int f = 0; f < maxChns; f++)
                 if (epnum[f] == d) epnum[f] = c;
             }
           }
@@ -1772,27 +1774,25 @@ void findduplicatepatterns(void)
   }
   else if (numsids == 2)
   {
-    for (c = 0; c < MAX_PATT; c++)
+    for (int c = 0; c < MAX_PATT; c++)
     {
       if (pattused[c])
       {
-        for (d = c+1; d < MAX_PATT; d++)
+        for (int d = c+1; d < MAX_PATT; d++)
         {
           if (pattlen[d] == pattlen[c])
           {
-            if (!memcmp(pattern[c], pattern[d], pattlen[c]*4))
+            if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
             {
-              int f, g, h;
-
-              for (f = 0; f < MAX_SONGS; f++)
+              for (int f = 0; f < MAX_SONGS; f++)
               {
                 if ((songlen_stereo[f][0]) &&
                     (songlen_stereo[f][1]) &&
                     (songlen_stereo[f][2]))
                 {
-                  for (g = 0; g < maxChns; g++)
+                  for (int g = 0; g < maxChns; g++)
                   {
-                    for (h = 0; h < songlen_stereo[f][g]; h++)
+                    for (int h = 0; h < songlen_stereo[f][g]; h++)
                     {
                       if (songorder_stereo[f][g][h] == d)
                       {
@@ -1802,7 +1802,7 @@ void findduplicatepatterns(void)
                   }
                 }
               }
-              for (f = 0; f < maxChns; f++)
+              for (int f = 0; f < maxChns; f++)
                 if (epnum[f] == d) epnum[f] = c;
             }
           }
@@ -1816,19 +1816,17 @@ void findduplicatepatterns(void)
 
 void optimizeeverything(int oi, int ot)
 {
-  int c, d, e;
-
   stopsong();
 
   findduplicatepatterns();
 
-  memset(instrused, 0, sizeof instrused);
+  std::memset(instrused, 0, sizeof instrused);
 
-  for (c = MAX_PATT-1; c >= 0; c--)
+  for (int c = MAX_PATT-1; c >= 0; c--)
   {
     if (pattused[c])
     {
-      for (d = 0; d < MAX_PATTROWS; d++)
+      for (int d = 0; d < MAX_PATTROWS; d++)
       {
         if (pattern[c][d*4] == ENDPATT) break;
         if (pattern[c][d*4+1])
@@ -1842,7 +1840,7 @@ void optimizeeverything(int oi, int ot)
 
   if (oi)
   {
-    for (c = MAX_INSTR-2; c >= 1; c--)
+    for (int c = MAX_INSTR-2; c >= 1; c--)
     {
       if (!instrused[c])
       {
@@ -1850,11 +1848,11 @@ void optimizeeverything(int oi, int ot)
 
         if (c < MAX_INSTR-2)
         {
-          memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
+          std::memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
           clearinstr(MAX_INSTR-2);
-          for (d = 0; d < MAX_PATT; d++)
+          for (int d = 0; d < MAX_PATT; d++)
           {
-            for (e = 0; e < pattlen[d]; e++)
+            for (int e = 0; e < pattlen[d]; e++)
             {
               if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
                 pattern[d][e*4+1]--;
@@ -1867,13 +1865,12 @@ void optimizeeverything(int oi, int ot)
 
   if (ot)
   {
-    for (c = 0; c < MAX_TABLES; c++) optimizetable(c);
+    for (int c = 0; c < MAX_TABLES; c++) optimizetable(c);
   }
 }
 
 void mergesong(void)
 {
-  int c;
   char ident[4];
   FILE *handle;
   int songbase;
@@ -1884,7 +1881,7 @@ void mergesong(void)
   // Determine amount of patterns & instruments
   countpatternlengths();
   highestusedinstr = 0;
-  for (c = 1; c < MAX_INSTR; c++)
+  for (int c = 1; c < MAX_INSTR; c++)
   {
     if ((instr[c].ad) || (instr[c].sr) || (instr[c].ptr[0]) || (instr[c].ptr[1]) ||
         (instr[c].ptr[2]) || (instr[c].vibdelay) || (instr[c].ptr[3]))
@@ -1894,7 +1891,7 @@ void mergesong(void)
   }
 
   // Determine amount of songs
-  c = MAX_SONGS - 1;
+  int c = MAX_SONGS - 1;
   if (numsids == 1)
   {
     for (;;)
@@ -1922,7 +1919,7 @@ void mergesong(void)
   instrbase = highestusedinstr;
   songbase = c + 1;
 
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
     tablebase[c] = gettablelen(c);
   }
@@ -1932,10 +1929,8 @@ void mergesong(void)
   if (handle)
   {
     fread(ident, 4, 1, handle);
-    if ((!memcmp(ident, "GTS3", 4)) || (!memcmp(ident, "GTS4", 4)) || (!memcmp(ident, "GTS5", 4)))
+    if ((!std::memcmp(ident, "GTS3", 4)) || (!std::memcmp(ident, "GTS4", 4)) || (!std::memcmp(ident, "GTS5", 4)))
     {
-      int d;
-      int e;
       int length;
       int amount;
       int loadsize;
@@ -1949,9 +1944,9 @@ void mergesong(void)
       amount = fread8(handle);
       if (amount + songbase > MAX_SONGS)
         goto ABORT;
-      for (d = 0; d < amount; d++)
+      for (int d = 0; d < amount; d++)
       {
-        for (c = 0; c < channelstoload; c++)
+        for (int c = 0; c < channelstoload; c++)
         {
           length = fread8(handle);
           loadsize = length;
@@ -1970,7 +1965,7 @@ void mergesong(void)
             );
           }
           // Remap patterns
-          for (e = 0; e < loadsize - 1; e++)
+          for (int e = 0; e < loadsize - 1; e++)
           {
             if (numsids == 1)
             {
@@ -1989,7 +1984,7 @@ void mergesong(void)
       amount = fread8(handle);
       if (amount + instrbase > MAX_INSTR)
         goto ABORT;
-      for (c = 1; c <= amount; c++)
+      for (int c = 1; c <= amount; c++)
       {
         instr[c + instrbase].ad = fread8(handle);
         instr[c + instrbase].sr = fread8(handle);
@@ -2011,7 +2006,7 @@ void mergesong(void)
         fread(&instr[c + instrbase].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
-      for (c = 0; c < MAX_TABLES; c++)
+      for (int c = 0; c < MAX_TABLES; c++)
       {
         loadsize = fread8(handle);
         if (loadsize + tablebase[c] > MAX_TABLELEN)
@@ -2019,7 +2014,7 @@ void mergesong(void)
         fread(&ltable[c][tablebase[c]], loadsize, 1, handle);
         fread(&rtable[c][tablebase[c]], loadsize, 1, handle);
         // Remap jumps and tablecommands
-        for (d = tablebase[c]; d < tablebase[c] + loadsize; d++)
+        for (int d = tablebase[c]; d < tablebase[c] + loadsize; d++)
         {
           if (ltable[c][d] == 0xff && rtable[c][d] > 0)
             rtable[c][d] += tablebase[c];
@@ -2042,12 +2037,12 @@ void mergesong(void)
       if (amount + pattbase > MAX_PATT)
         goto ABORT;
 
-      for (c = 0; c < amount; c++)
+      for (int c = 0; c < amount; c++)
       {
         length = fread8(handle) * 4;
         fread(pattern[c + pattbase], length, 1, handle);
         // Remap pattern instruments and commands
-        for (d = 0; d < length; d += 4)
+        for (int d = 0; d < length; d += 4)
         {
           if (pattern[c + pattbase][d + 1] > 0)
             pattern[c + pattbase][d + 1] += instrbase;
@@ -2065,7 +2060,7 @@ void mergesong(void)
     }
   }
 
-  ABORT:
+ABORT:
   fclose(handle);
   countpatternlengths();
   songchange();
@@ -2074,17 +2069,16 @@ void mergesong(void)
 int determinechannels(FILE* handle)
 {
     int returnpos = ftell(handle);
-    int c, d;
     int songs = fread8(handle);
     unsigned char songbuffer[257];
 
-    for (d = 0; d < songs; d++)
+    for (int d = 0; d < songs; d++)
     {
-        for (c = 0; c < MAX_CHN; c++)
+        for (int c = 0; c < MAX_CHN; c++)
         {
             int loadsize = fread8(handle);
             loadsize++;
-            memset(songbuffer, 0, 257);
+            std::memset(songbuffer, 0, 257);
             fread(songbuffer, loadsize, 1, handle);
 
             // Check that each track of each song has a valid endmark.

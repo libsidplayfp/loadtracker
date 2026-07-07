@@ -15,7 +15,7 @@
 #include "console.h"
 #include "gsound.h"
 #include "gsid.h"
-#include "gsong.h"
+#include "song.h"
 #include "play.h"
 #include "display.h"
 #include "greloc.h"
