@@ -127,7 +127,7 @@ int io_opendatafile(char *name)
 
 // Returns nonnegative file handle if successful, -1 on error
 
-int io_open(char *name)
+int io_open(const char *name)
 {
     if (!name) return -1;
 

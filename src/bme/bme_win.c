@@ -22,7 +22,7 @@ SDL_Window *win_window = NULL;
 
 // Prototypes
 
-int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon);
+int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *icon);
 void win_closewindow(void);
 void win_checkmessages(void);
 int win_getspeed(int framerate);
@@ -52,7 +52,7 @@ static int win_currenttime = 0;
 static int win_framecounter = 0;
 static int win_activateclick = 0;
 
-int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
+int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *icon)
 {
     Uint32 flags = SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE;
     if (win_fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
