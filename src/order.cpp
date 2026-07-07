@@ -28,6 +28,8 @@ extern "C" {
 
 }
 
+#include <cstring>
+
 unsigned char trackcopybuffer[MAX_SONGLEN+2];
 int trackcopyrows = 0;
 int trackcopywhole;
@@ -51,7 +53,6 @@ void namecommands(void);
 
 void orderlistcommands(void)
 {
-  int c, scrrep;
   int maxChns = 3;
 
   if (hexnybble >= 0)
@@ -174,7 +175,7 @@ void orderlistcommands(void)
         songlen[esnum][schn] = songlen[esnum][tchn];
         songlen[esnum][tchn] = lentemp;
 
-        for (c = 0; c < MAX_SONGLEN+2; c++)
+        for (int c = 0; c < MAX_SONGLEN+2; c++)
         {
           unsigned char temp = songorder[esnum][schn][c];
           songorder[esnum][schn][c] = songorder[esnum][tchn][c];
@@ -195,14 +196,14 @@ void orderlistcommands(void)
         if (esmarkstart <= esmarkend)
         {
           eseditpos = esmarkstart;
-          for (c = esmarkstart; c <= esmarkend; c++)
+          for (int c = esmarkstart; c <= esmarkend; c++)
             trackcopybuffer[d++] = songorder[esnum][eschn][c];
           trackcopyrows = d;
         }
         else
         {
           eseditpos = esmarkend;
-          for (c = esmarkend; c <= esmarkstart; c++)
+          for (int c = esmarkend; c <= esmarkstart; c++)
             trackcopybuffer[d++] = songorder[esnum][eschn][c];
           trackcopyrows = d;
         }
@@ -212,7 +213,7 @@ void orderlistcommands(void)
           trackcopyrpos = songorder[esnum][eschn][songlen[esnum][eschn]+1];
         }
         else trackcopywhole = 0;
-        for (c = 0; c < trackcopyrows; c++) deleteorder();
+        for (int c = 0; c < trackcopyrows; c++) deleteorder();
         esmarkchn = -1;
       }
     }
@@ -226,13 +227,13 @@ void orderlistcommands(void)
         int d = 0;
         if (esmarkstart <= esmarkend)
         {
-          for (c = esmarkstart; c <= esmarkend; c++)
+          for (int c = esmarkstart; c <= esmarkend; c++)
             trackcopybuffer[d++] = songorder[esnum][eschn][c];
           trackcopyrows = d;
         }
         else
         {
-          for (c = esmarkend; c <= esmarkstart; c++)
+          for (int c = esmarkend; c <= esmarkstart; c++)
             trackcopybuffer[d++] = songorder[esnum][eschn][c];
           trackcopyrows = d;
         }
@@ -251,15 +252,15 @@ void orderlistcommands(void)
     if (shiftpressed)
     {
       int oldlen = songlen[esnum][eschn];
-      
+
       if (eseditpos < songlen[esnum][eschn])
       {
-        for (c = trackcopyrows-1; c >= 0; c--)
+        for (int c = trackcopyrows-1; c >= 0; c--)
           insertorder(trackcopybuffer[c]);
       }
       else
       {
-        for (c = 0; c < trackcopyrows; c++)
+        for (int c = 0; c < trackcopyrows; c++)
           insertorder(trackcopybuffer[c]);
       }
       if ((trackcopywhole) && (!oldlen))
@@ -289,7 +290,7 @@ void orderlistcommands(void)
     }
     else
     {
-      for (c = 0; c < maxChns; c++)
+      for (int c = 0; c < maxChns; c++)
       {
         if (eseditpos < songlen[esnum][c]) espos[c] = eseditpos;
         if (esend[c] < espos[c]) esend[c] = 0;
@@ -310,14 +311,14 @@ void orderlistcommands(void)
     {
       if ((esend[eschn] != eseditpos) && (eseditpos > espos[eschn]))
       {
-        for (c = 0; c < maxChns; c++)
+        for (int c = 0; c < maxChns; c++)
         {
           if (eseditpos < songlen[esnum][c]) esend[c] = eseditpos;
         }
       }
       else
       {
-        for (c = 0; c < maxChns; c++) esend[c] = 0;
+        for (int c = 0; c < maxChns; c++) esend[c] = 0;
       }
     }
     break;
@@ -332,16 +333,14 @@ void orderlistcommands(void)
       }
       else
       {
-        int c, d;
-
-        for (c = 0; c < maxChns; c++)
+        for (int c = 0; c < maxChns; c++)
         {
           int start;
 
           if (eseditpos != espos[eschn]) start = eseditpos;
           else start = espos[c];
 
-          for (d = start; d < songlen[esnum][c]; d++)
+          for (int d = start; d < songlen[esnum][c]; d++)
           {
             if (songorder[esnum][c][d] < MAX_PATT)
             {
@@ -383,12 +382,12 @@ void orderlistcommands(void)
     break;
 
     case KEY_PGUP:
-    for (scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
+    for (int scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
       orderleft();
     break;
 
     case KEY_PGDN:
-    for (scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
+    for (int scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
       orderright();
     break;
 
@@ -434,7 +433,6 @@ void orderlistcommands(void)
 
 void orderlistcommands_stereo(void)
 {
-    int c, scrrep;
     int maxChns = MAX_CHN;
     int visibleOrderlist = 14;
 
@@ -558,7 +556,7 @@ void orderlistcommands_stereo(void)
                 songlen_stereo[esnum][schn] = songlen_stereo[esnum][tchn];
                 songlen_stereo[esnum][tchn] = lentemp;
 
-                for (c = 0; c < MAX_SONGLEN+2; c++)
+                for (int c = 0; c < MAX_SONGLEN+2; c++)
                 {
                     unsigned char temp = songorder_stereo[esnum][schn][c];
                     songorder_stereo[esnum][schn][c] = songorder_stereo[esnum][tchn][c];
@@ -579,14 +577,14 @@ void orderlistcommands_stereo(void)
                 if (esmarkstart <= esmarkend)
                 {
                     eseditpos = esmarkstart;
-                    for (c = esmarkstart; c <= esmarkend; c++)
+                    for (int c = esmarkstart; c <= esmarkend; c++)
                         trackcopybuffer[d++] = songorder_stereo[esnum][eschn][c];
                     trackcopyrows = d;
                 }
                 else
                 {
                     eseditpos = esmarkend;
-                    for (c = esmarkend; c <= esmarkstart; c++)
+                    for (int c = esmarkend; c <= esmarkstart; c++)
                         trackcopybuffer[d++] = songorder_stereo[esnum][eschn][c];
                     trackcopyrows = d;
                 }
@@ -596,7 +594,7 @@ void orderlistcommands_stereo(void)
                     trackcopyrpos = songorder_stereo[esnum][eschn][songlen_stereo[esnum][eschn]+1];
                 }
                 else trackcopywhole = 0;
-                for (c = 0; c < trackcopyrows; c++) deleteorder_stereo();
+                for (int c = 0; c < trackcopyrows; c++) deleteorder_stereo();
                 esmarkchn = -1;
             }
         }
@@ -610,13 +608,13 @@ void orderlistcommands_stereo(void)
                 int d = 0;
                 if (esmarkstart <= esmarkend)
                 {
-                    for (c = esmarkstart; c <= esmarkend; c++)
+                    for (int c = esmarkstart; c <= esmarkend; c++)
                         trackcopybuffer[d++] = songorder_stereo[esnum][eschn][c];
                     trackcopyrows = d;
                 }
                 else
                 {
-                    for (c = esmarkend; c <= esmarkstart; c++)
+                    for (int c = esmarkend; c <= esmarkstart; c++)
                         trackcopybuffer[d++] = songorder_stereo[esnum][eschn][c];
                     trackcopyrows = d;
                 }
@@ -638,12 +636,12 @@ void orderlistcommands_stereo(void)
 
             if (eseditpos < songlen_stereo[esnum][eschn])
             {
-                for (c = trackcopyrows-1; c >= 0; c--)
+                for (int c = trackcopyrows-1; c >= 0; c--)
                     insertorder_stereo(trackcopybuffer[c]);
             }
             else
             {
-                for (c = 0; c < trackcopyrows; c++)
+                for (int c = 0; c < trackcopyrows; c++)
                     insertorder_stereo(trackcopybuffer[c]);
             }
             if ((trackcopywhole) && (!oldlen))
@@ -673,7 +671,7 @@ void orderlistcommands_stereo(void)
         }
         else
         {
-            for (c = 0; c < maxChns; c++)
+            for (int c = 0; c < maxChns; c++)
             {
                 if (eseditpos < songlen_stereo[esnum][c]) espos[c] = eseditpos;
                 if (esend[c] < espos[c]) esend[c] = 0;
@@ -694,14 +692,14 @@ void orderlistcommands_stereo(void)
         {
             if ((esend[eschn] != eseditpos) && (eseditpos > espos[eschn]))
             {
-                for (c = 0; c < maxChns; c++)
+                for (int c = 0; c < maxChns; c++)
                 {
                     if (eseditpos < songlen_stereo[esnum][c]) esend[c] = eseditpos;
                 }
             }
             else
             {
-                for (c = 0; c < maxChns; c++) esend[c] = 0;
+                for (int c = 0; c < maxChns; c++) esend[c] = 0;
             }
         }
         break;
@@ -767,12 +765,12 @@ void orderlistcommands_stereo(void)
         break;
 
     case KEY_PGUP:
-        for (scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
+        for (int scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
             orderleft_stereo();
         break;
 
     case KEY_PGDN:
-        for (scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
+        for (int scrrep = PGUPDNREPEAT * 2; scrrep; scrrep--)
             orderright_stereo();
         break;
 
@@ -851,21 +849,20 @@ void insertorder(unsigned char byte)
 {
   if ((songlen[esnum][eschn] - eseditpos)-1 >= 0)
   {
-    int len;
     if (songlen[esnum][eschn] < MAX_SONGLEN)
     {
-      len = songlen[esnum][eschn]+1;
+      int len = songlen[esnum][eschn]+1;
       songorder[esnum][eschn][len+1] =
         songorder[esnum][eschn][len];
       songorder[esnum][eschn][len] = LOOPSONG;
       if (len) songorder[esnum][eschn][len-1] = byte;
       countthispattern();
     }
-    memmove(&songorder[esnum][eschn][eseditpos+1],
+    std::memmove(&songorder[esnum][eschn][eseditpos+1],
       &songorder[esnum][eschn][eseditpos],
       (songlen[esnum][eschn] - eseditpos)-1);
     songorder[esnum][eschn][eseditpos] = byte;
-    len = songlen[esnum][eschn]+1;
+    int len = songlen[esnum][eschn]+1;
     if ((songorder[esnum][eschn][len] > eseditpos) &&
        (songorder[esnum][eschn][len] < (len-2)))
        songorder[esnum][eschn][len]++;
@@ -891,21 +888,20 @@ void insertorder_stereo(unsigned char byte)
 {
     if ((songlen_stereo[esnum][eschn] - eseditpos)-1 >= 0)
     {
-        int len;
         if (songlen_stereo[esnum][eschn] < MAX_SONGLEN)
         {
-            len = songlen_stereo[esnum][eschn]+1;
+            int len = songlen_stereo[esnum][eschn]+1;
             songorder_stereo[esnum][eschn][len+1] =
                 songorder_stereo[esnum][eschn][len];
             songorder_stereo[esnum][eschn][len] = LOOPSONG;
             if (len) songorder_stereo[esnum][eschn][len-1] = byte;
             countthispattern();
         }
-        memmove(&songorder_stereo[esnum][eschn][eseditpos+1],
+        std::memmove(&songorder_stereo[esnum][eschn][eseditpos+1],
                 &songorder_stereo[esnum][eschn][eseditpos],
                 (songlen_stereo[esnum][eschn] - eseditpos)-1);
         songorder_stereo[esnum][eschn][eseditpos] = byte;
-        len = songlen_stereo[esnum][eschn]+1;
+        int len = songlen_stereo[esnum][eschn]+1;
         if ((songorder_stereo[esnum][eschn][len] > eseditpos) &&
                 (songorder_stereo[esnum][eschn][len] < (len-2)))
             songorder_stereo[esnum][eschn][len]++;
@@ -931,8 +927,7 @@ void deleteorder(void)
 {
   if ((songlen[esnum][eschn] - eseditpos)-1 >= 0)
   {
-    int len;
-    memmove(&songorder[esnum][eschn][eseditpos],
+    std::memmove(&songorder[esnum][eschn][eseditpos],
       &songorder[esnum][eschn][eseditpos+1],
       (songlen[esnum][eschn] - eseditpos)-1);
     songorder[esnum][eschn][songlen[esnum][eschn]-1] = 0x00;
@@ -945,7 +940,7 @@ void deleteorder(void)
       countthispattern();
     }
     if (eseditpos == songlen[esnum][eschn]) eseditpos++;
-    len = songlen[esnum][eschn]+1;
+    int len = songlen[esnum][eschn]+1;
     if ((songorder[esnum][eschn][len] > eseditpos) &&
        (songorder[esnum][eschn][len] > 0))
        songorder[esnum][eschn][len]--;
@@ -972,7 +967,7 @@ void deleteorder_stereo(void)
     if ((songlen_stereo[esnum][eschn] - eseditpos)-1 >= 0)
     {
         int len;
-        memmove(&songorder_stereo[esnum][eschn][eseditpos],
+        std::memmove(&songorder_stereo[esnum][eschn][eseditpos],
                 &songorder_stereo[esnum][eschn][eseditpos+1],
                 (songlen_stereo[esnum][eschn] - eseditpos)-1);
         songorder_stereo[esnum][eschn][songlen_stereo[esnum][eschn]-1] = 0x00;
@@ -1128,7 +1123,6 @@ void prevsong(void)
 
 void songchange(void)
 {
-  int c;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
   int currentSonglen = 0;
@@ -1141,7 +1135,7 @@ void songchange(void)
     currentSonglen = songlen_stereo[esnum][eschn];
   }
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     espos[c] = 0;
     esend[c] = 0;
@@ -1161,13 +1155,12 @@ void songchange(void)
 
 void updateviewtopos(void)
 {
-  int c, d;
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
   int currentSonglen = 0;
   int currentSongorder = 0;
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     if (numsids == 1)
     {
@@ -1177,7 +1170,7 @@ void updateviewtopos(void)
     {
       currentSonglen = songlen_stereo[esnum][c];
     }
-    for (d = espos[c]; d < currentSonglen; d++)
+    for (int d = espos[c]; d < currentSonglen; d++)
     {
       if (numsids == 1)
       {
