@@ -10,7 +10,11 @@
 #include <windows.h>
 #endif
 
+extern "C" {
+
 #include "loadtrk.h"
+
+}
 
 DIRENTRY direntry[MAX_DIRFILES];
 

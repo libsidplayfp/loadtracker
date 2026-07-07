@@ -26,7 +26,7 @@ set(LOADTRK_SOURCES
     src/gtable.c
     src/gplay.c
     src/display.cpp
-    src/gfile.c
+    src/gfile.cpp
     src/greloc.c
     src/ghelp.c
     src/gsound.c
