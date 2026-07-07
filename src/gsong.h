@@ -1,6 +1,10 @@
 #ifndef GSONG_H
 #define GSONG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef GSONG_C
 extern INSTR instr[MAX_INSTR];
 extern unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
@@ -32,5 +36,9 @@ void deletepattern(int p);
 void findusedpatterns(void);
 void findduplicatepatterns(void);
 void optimizeeverything(int oi, int ot);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

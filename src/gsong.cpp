@@ -6,7 +6,9 @@
 
 #define GSONG_C
 
+extern "C" {
 #include "loadtrk.h"
+}
 
 INSTR instr[MAX_INSTR];
 unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
