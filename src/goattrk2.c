@@ -351,7 +351,7 @@ int main(int argc, char **argv)
         break;
  
         case 'c':
-        sscanf(&argv[c][2], "%f", &combwaves);
+        sscanf(&argv[c][2], "%u", &combwaves);
         break;
  
         case 'Q':
@@ -415,8 +415,7 @@ int main(int argc, char **argv)
   if (customclockrate < 100) customclockrate = 0;
   if (bigwindow < 1) bigwindow = 1;
   if (bigwindow > 4) bigwindow = 4;
-  if (combwaves < 0) combwaves = 0;
-  else if (combwaves > 2) combwaves = 2;
+  if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   else if (filterbias > 1.0) filterbias = 1.0;
 
