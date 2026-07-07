@@ -19,7 +19,6 @@
 // =============================================================================
 // "console" output routines
 // =============================================================================
-//
 
 #define CONSOLE_C
 
@@ -33,10 +32,10 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
-int gfxinitted = 0;
-unsigned *scrbuffer = NULL;
-unsigned *prevscrbuffer = NULL;
-unsigned char *chardata = NULL;
+bool gfxinitted = false;
+unsigned *scrbuffer = nullptr;
+unsigned *prevscrbuffer = nullptr;
+unsigned char *chardata = nullptr;
 int key = 0;
 int rawkey = 0;
 int shiftpressed = 0;
@@ -100,7 +99,7 @@ int initscreen(void)
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     return 0;
-  win_openwindow(xsize, ysize, "LoadTracker", NULL);
+  win_openwindow(xsize, ysize, "LoadTracker", nullptr);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
 
@@ -115,7 +114,7 @@ int initscreen(void)
   prevscrbuffer = (unsigned*)malloc(MAX_COLUMNS * MAX_ROWS * sizeof(unsigned));
   if ((!scrbuffer) || (!prevscrbuffer)) return 0;
 
-  memset(region, 0, sizeof region);
+  std::memset(region, 0, sizeof region);
 
   chardata = (unsigned char*)malloc(4096);
   if (!chardata) return 0;
@@ -130,7 +129,7 @@ int initscreen(void)
 
   gfx_loadsprites(0, "cursor.bin");
 
-  gfxinitted = 1;
+  gfxinitted = true;
   clearscreen();
   atexit(closescreen);
   return 1;
@@ -141,23 +140,23 @@ void loadexternalpalette(void)
   FILE *ext_f;
   if ((ext_f = fopen("custom.pal", "rt")))
   {
-    int p = 0;
     char ln[100];
-    strcpy(ln, "");
-    fgets(ln, sizeof(ln), ext_f);
+    std::strcpy(ln, "");
+    std::fgets(ln, sizeof(ln), ext_f);
 
-    if (strncmp("JASC-PAL", ln, 8) == 0)
+    if (std::strncmp("JASC-PAL", ln, 8) == 0)
     {
       int colors;
-      fgets(ln, sizeof(ln), ext_f);
-      fgets(ln, sizeof(ln), ext_f);
-      if (sscanf(ln, "%d", &colors) == 1 && colors == 256)
+      int p = 0;
+      std::fgets(ln, sizeof(ln), ext_f);
+      std::fgets(ln, sizeof(ln), ext_f);
+      if (std::sscanf(ln, "%d", &colors) == 1 && colors == 256)
       {
         while (!feof(ext_f))
         {
           int r, g, b;
-          if (!fgets(ln, sizeof(ln), ext_f)) break;
-          if (sscanf(ln, "%d %d %d", &r, &g, &b) == 3)
+          if (!std::fgets(ln, sizeof(ln), ext_f)) break;
+          if (std::sscanf(ln, "%d %d %d", &r, &g, &b) == 3)
           {
             // JASC palette is 8-bit and goat palette is 6-bit
             gfx_palette[p++] = r / 4;
@@ -180,20 +179,15 @@ void initicon(void)
   int handle = io_open("loadtrk.bmp");
   if (handle != -1)
   {
-    SDL_IOStream *rw;
-    SDL_Surface *icon;
-    char *iconbuffer;
-    int size;
-
-    size = io_lseek(handle, 0, SEEK_END);
+    int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
-    iconbuffer = (char*)malloc(size);
+    char *iconbuffer = (char*)malloc(size);
     if (iconbuffer)
     {
       io_read(handle, iconbuffer, size);
       io_close(handle);
-      rw = SDL_IOFromMem(iconbuffer, size);
-      icon = SDL_LoadBMP_IO(rw, 0);
+      SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
+      SDL_Surface *icon = SDL_LoadBMP_IO(rw, 0);
       SDL_SetWindowIcon(win_window, icon);
       free(iconbuffer);
     }
@@ -204,30 +198,29 @@ void closescreen(void)
   if (scrbuffer)
   {
     free(scrbuffer);
-    scrbuffer = NULL;
+    scrbuffer = nullptr;
   }
   if (prevscrbuffer)
   {
     free(prevscrbuffer);
-    prevscrbuffer = NULL;
+    prevscrbuffer = nullptr;
   }
   if (chardata)
   {
     free(chardata);
-    chardata = NULL;
+    chardata = nullptr;
   }
 
-  gfxinitted = 0;
+  gfxinitted = false;
 }
 
 void clearscreen(void)
 {
-  int c;
-  unsigned *dptr = scrbuffer;
-
   if (!gfxinitted) return;
 
-  for (c = 0; c < MAX_ROWS * MAX_COLUMNS; c++)
+  unsigned *dptr = scrbuffer;
+
+  for (int c = 0; c < MAX_ROWS * MAX_COLUMNS; c++)
   {
     setcharcolor(dptr, 0x20, 0x7);
     dptr++;
@@ -236,11 +229,11 @@ void clearscreen(void)
 
 void printtext(int x, int y, int color, const char *text)
 {
+  if (!gfxinitted) return;
+  if ((y < 0) || (y >= MAX_ROWS)) return;
+
   unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
 
-  if (!gfxinitted) return;
-  if (y < 0) return;
-  if (y >= MAX_ROWS) return;
   while (*text)
   {
     setcharcolor(dptr, *text, color);
@@ -251,14 +244,14 @@ void printtext(int x, int y, int color, const char *text)
 
 void printtextc(int y, int color, const char *text)
 {
-  int x = (MAX_COLUMNS - strlen(text)) / 2;
+  int x = (MAX_COLUMNS - std::strlen(text)) / 2;
 
   printtext(x, y, color, text);
 }
 
 void printtextcp(int cp, int y, int color, const char *text)
 {
-  int x = cp - (strlen(text) / 2);
+  int x = cp - (std::strlen(text) / 2);
 
   printtext(x, y, color, text);
 }
@@ -266,11 +259,11 @@ void printtextcp(int cp, int y, int color, const char *text)
 
 void printblank(int x, int y, int length)
 {
+  if (!gfxinitted) return;
+  if ((y < 0) | (y >= MAX_ROWS)) return;
+
   unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
 
-  if (!gfxinitted) return;
-  if (y < 0) return;
-  if (y >= MAX_ROWS) return;
   while (length--)
   {
     setcharcolor(dptr, 0x20, 0x7);
@@ -280,11 +273,11 @@ void printblank(int x, int y, int length)
 
 void printblankc(int x, int y, int color, int length)
 {
+  if (!gfxinitted) return;
+  if ((y < 0) || (y >= MAX_ROWS)) return;
+
   unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
 
-  if (!gfxinitted) return;
-  if (y < 0) return;
-  if (y >= MAX_ROWS) return;
   while (length--)
   {
     setcharcolor(dptr, 0x20, color);
@@ -294,19 +287,15 @@ void printblankc(int x, int y, int color, int length)
 
 void drawbox(int x, int y, int color, int sx, int sy)
 {
-  unsigned *dptr;
-  unsigned *dptr2;
-  int counter;
-
   if (!gfxinitted) return;
   if (y < 0) return;
   if (y >= MAX_ROWS) return;
   if (y+sy > MAX_ROWS) return;
   if ((!sx) || (!sy)) return;
 
-  dptr = scrbuffer + (x + y * MAX_COLUMNS);
-  dptr2 = scrbuffer + ((x+sx-1) + y * MAX_COLUMNS);
-  counter = sy;
+  unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
+  unsigned *dptr2 = scrbuffer + ((x+sx-1) + y * MAX_COLUMNS);
+  int counter = sy;
 
   while (counter--)
   {
@@ -343,11 +332,11 @@ void drawbox(int x, int y, int color, int sx, int sy)
 
 void printbg(int x, int y, int color, int length)
 {
+  if (!gfxinitted) return;
+  if ((y < 0) || (y >= MAX_ROWS)) return;
+
   unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
 
-  if (!gfxinitted) return;
-  if (y < 0) return;
-  if (y >= MAX_ROWS) return;
   while (length--)
   {
     setcolor(dptr, 15 | (color << 4));
@@ -357,12 +346,11 @@ void printbg(int x, int y, int color, int length)
 
 void fliptoscreen(void)
 {
+  if (!gfxinitted) return;
+
   unsigned *sptr = scrbuffer;
   unsigned *cmpptr = prevscrbuffer;
-  int x,y;
-  int regionschanged = 0;
-
-  if (!gfxinitted) return;
+  bool regionschanged = false;
 
   // Mark previous mousecursor area changed if mouse moved
   if ((mousepixelx != oldmousepixelx) || (mousepixely != oldmousepixely))
@@ -375,9 +363,9 @@ void fliptoscreen(void)
     if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
     if (ex >= MAX_COLUMNS) ex = MAX_COLUMNS - 1;
 
-    for (y = sy; y <= ey; y++)
+    for (int y = sy; y <= ey; y++)
     {
-      for (x = sx; x <= ex; x++)
+      for (int x = sx; x <= ex; x++)
         prevscrbuffer[y*MAX_COLUMNS+x] = 0xffffffff;
     }
   }
@@ -386,22 +374,22 @@ void fliptoscreen(void)
   if (gfx_redraw)
   {
     gfx_redraw = 0;
-    memset(prevscrbuffer, 0xff, MAX_COLUMNS*MAX_ROWS*sizeof(unsigned));
+    std::memset(prevscrbuffer, 0xff, MAX_COLUMNS*MAX_ROWS*sizeof(unsigned));
   }
 
   if (!gfx_lock()) return;
 
   // Now redraw text on changed areas
-  for (y = 0; y < MAX_ROWS; y++)
+  for (int y = 0; y < MAX_ROWS; y++)
   {
-    for (x = 0; x < MAX_COLUMNS; x++)
+    for (int x = 0; x < MAX_COLUMNS; x++)
     {
       // Check if char changed
       if (*sptr != *cmpptr)
       {
         *cmpptr = *sptr;
         region[y] = 1;
-        regionschanged = 1;
+        regionschanged = true;
 
         {
           unsigned char *chptr = &chardata[(*sptr & 0xffff)*16];
@@ -441,7 +429,6 @@ void fliptoscreen(void)
     }
   }
 
-
   // Redraw mouse if text was redrawn
   if (regionschanged)
   {
@@ -450,7 +437,7 @@ void fliptoscreen(void)
     if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
 
     gfx_drawsprite(mousepixelx, mousepixely, 0x1);
-    for (y = sy; y <= ey; y++)
+    for (int y = sy; y <= ey; y++)
       region[y] = 1;
   }
 
@@ -465,7 +452,6 @@ void fliptoscreen(void)
 
 void getkey(void)
 {
-  int c;
   win_asciikey = 0;
   cursorflashdelay += win_getspeed(50);
 
@@ -481,7 +467,7 @@ void getkey(void)
 
   key = win_asciikey;
   rawkey = 0;
-  for (c = 0; c < SDL_SCANCODE_COUNT; c++)
+  for (int c = 0; c < SDL_SCANCODE_COUNT; c++)
   {
     if (win_keytable[c])
     {
@@ -527,7 +513,7 @@ void getkey(void)
   if (rawkey == SDL_SCANCODE_KP_9) key = '9';
 }
 
-void initDisplayPositions(void)
+void initDisplayPositions()
 {
     if (numsids == 1)
     {

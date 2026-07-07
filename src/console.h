@@ -51,10 +51,10 @@ typedef struct
 } POSITIONS;
 
 
-int initscreen(void);
-void closescreen(void);
-void clearscreen(void);
-void fliptoscreen(void);
+int initscreen();
+void closescreen();
+void clearscreen();
+void fliptoscreen();
 void printtext(int x, int y, int color, const char *text);
 void printtextc(int y, int color, const char *text);
 void printtextcp(int cp, int y, int color, const char *text);
@@ -62,8 +62,8 @@ void printblank(int x, int y, int length);
 void printblankc(int x, int y, int color, int length);
 void drawbox(int x, int y, int color, int sx, int sy);
 void printbg(int x, int y, int color, int length);
-void getkey(void);
-void initDisplayPositions(void);
+void getkey();
+void initDisplayPositions();
 
 #ifndef CONSOLE_C
 extern int key, rawkey, shiftpressed, altpressed, cursorflashdelay;
