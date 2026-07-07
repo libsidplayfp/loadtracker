@@ -60,7 +60,7 @@ int initscreen(void)
     mousesizey *= 2;
   }
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     return 0;
   win_openwindow(xsize, ysize, "LoadTracker", NULL);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
