@@ -26,10 +26,6 @@
 #define PLAY_STOP       0x04
 #define PLAY_STOPPED    0x80
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct
 {
   unsigned char trans;
@@ -80,9 +76,5 @@ void mutechannel(int chnnum);
 int isplaying();
 void playroutine();
 void playroutine_stereo();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -13,8 +13,6 @@
 #include <cstdlib>
 #include <cstring>
 
-extern "C" {
-
 SDL_Window *win_window = nullptr;
 
 // Prototypes
@@ -263,6 +261,4 @@ void mou_getpos(unsigned *x, unsigned *y)
 unsigned mou_getbuttons(void)
 {
     return win_mousebuttons;
-}
-
 }

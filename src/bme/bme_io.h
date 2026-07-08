@@ -3,10 +3,6 @@
 #ifndef BME_IO_H
 #define BME_IO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int io_open(const char *name);
 int io_lseek(int handle, int bytes, int whence);
 int io_read(int handle, void *buffer, int size);
@@ -18,9 +14,5 @@ unsigned io_readle16(int handle);
 unsigned io_readle32(int handle);
 unsigned io_readhe16(int handle);
 unsigned io_readhe32(int handle);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

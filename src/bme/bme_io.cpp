@@ -14,8 +14,6 @@
 
 #define MAX_HANDLES 16          // Up to 16 simultaneous files open from the datafile
 
-extern "C" {
-
 typedef struct
 {
     Uint32 offset;
@@ -345,6 +343,3 @@ static unsigned linkedreadle32(void)
     linkedread(&bytes, 4);
     return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
 }
-
-}
-

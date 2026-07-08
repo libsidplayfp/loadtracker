@@ -3,9 +3,9 @@
 #ifndef BME_SND_H
 #define BME_SND_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "bme_main.h"
+
+#include <SDL3/SDL.h>
 
 bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit();
@@ -20,9 +20,5 @@ extern int snd_channels;
 extern int snd_buffers;
 extern unsigned snd_mixmode;
 extern unsigned snd_mixrate;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

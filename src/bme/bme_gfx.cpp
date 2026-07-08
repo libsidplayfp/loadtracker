@@ -15,8 +15,6 @@
 
 #define MAX_COLORS 256          // 8bit oldskool mode
 
-extern "C" {
-
 // Prototypes
 
 bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
@@ -555,6 +553,4 @@ SKIP:
             }
         }
     }
-}
-
 }

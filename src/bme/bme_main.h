@@ -1,5 +1,8 @@
 // BME main definitions header file
 
+#ifndef BME_MAIN_H
+#define BME_MAIN_H
+
 #include <SDL3/SDL.h>
 
 #define GFX_SCANLINES 1
@@ -211,3 +214,5 @@ typedef struct
 } LAYERHEADER;
 
 extern int bme_error;
+
+#endif

@@ -61,8 +61,6 @@ void expandpattern();
 void splitpattern();
 void joinpattern();
 
-extern "C" { // used in bme_snd for midi input
-
 void insertnote(int newnote) {
     if ((recordmode) && (eppos < pattlen[epnum[epchn]]))
     {
@@ -94,7 +92,6 @@ void insertnote(int newnote) {
         }
     }
     playtestnote(newnote, einum, epchn);
-}
 }
 
 void patterncommands(void)

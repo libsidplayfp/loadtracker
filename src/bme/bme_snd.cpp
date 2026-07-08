@@ -2,6 +2,11 @@
 // BME (Blasphemous Multimedia Engine) sound main module
 //
 
+#include "bme_main.h"
+#include "bme_win.h"
+#include "bme_io.h"
+#include "bme_err.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -16,16 +21,10 @@
 #endif
 
 #include <SDL3/SDL.h>
-#include "bme_main.h"
-#include "bme_win.h"
-#include "bme_io.h"
-#include "bme_err.h"
 
 #ifdef USE_JACK
 typedef jack_default_audio_sample_t sample_t;
 #endif
-
-extern "C" {
 
 // Prototypes
 bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
@@ -783,6 +782,4 @@ static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples)
                 }
           }
     }
-}
-
 }
