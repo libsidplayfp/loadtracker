@@ -1,5 +1,10 @@
 // BME main definitions header file
 
+#ifndef BME_MAIN_H
+#define BME_MAIN_H
+
+#include <SDL3/SDL.h>
+
 #define GFX_SCANLINES 1
 #define GFX_DOUBLESIZE 2
 #define GFX_USE1PAGE 0
@@ -8,8 +13,6 @@
 #define GFX_WAITVBLANK 16
 #define GFX_FULLSCREEN 32
 #define GFX_WINDOW 64
-#define GFX_NOSWITCHING 128
-#define GFX_USEDIBSECTION 256
 
 #define MOUSE_ALWAYS_VISIBLE 0
 #define MOUSE_FULLSCREEN_HIDDEN 1
@@ -18,15 +21,6 @@
 #define MOUSEB_LEFT 1
 #define MOUSEB_RIGHT 2
 #define MOUSEB_MIDDLE 4
-
-#define JOY_LEFT 1
-#define JOY_RIGHT 2
-#define JOY_UP 4
-#define JOY_DOWN 8
-#define JOY_FIRE1 16
-#define JOY_FIRE2 32
-#define JOY_FIRE3 64
-#define JOY_FIRE4 128
 
 #define LEFT 0
 #define MIDDLE 128
@@ -128,6 +122,7 @@
 #define KEY_END          SDL_SCANCODE_END
 #define KEY_HOME         SDL_SCANCODE_HOME
 #define KEY_INS          SDL_SCANCODE_INSERT
+#define KEY_CANC         SDL_SCANCODE_CANCEL
 #define KEY_LEFT         SDL_SCANCODE_LEFT
 #define KEY_PGDN         SDL_SCANCODE_PAGEDOWN
 #define KEY_PGUP         SDL_SCANCODE_PAGEUP
@@ -158,6 +153,24 @@
 #define KEY_KPENTER      SDL_SCANCODE_KP_ENTER
 #define KEY_KPEQUALS     SDL_SCANCODE_KP_EQUALS
 #define KEY_KPPERIOD     SDL_SCANCODE_KP_PERIOD
+
+// BME function return codes
+
+#define BME_OK 1
+#define BME_ERROR 0
+
+// BME detailed error types (in bme_error)
+
+#define BME_OPEN_ERROR -1
+#define BME_READ_ERROR -2
+#define BME_WRONG_FORMAT -3
+#define BME_OUT_OF_MEMORY -4
+#define BME_THREAD_ERROR -5
+#define BME_ILLEGAL_CONFIG -6
+#define BME_OUT_OF_CHANNELS -7
+#define BME_GRAPHICS_ERROR -8
+#define BME_SOUND_ERROR -9
+
 
 
 typedef struct
@@ -220,3 +233,5 @@ typedef struct
 } LAYERHEADER;
 
 extern int bme_error;
+
+#endif

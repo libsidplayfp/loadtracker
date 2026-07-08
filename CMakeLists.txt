@@ -17,21 +17,21 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
 endif()
 
 set(LOADTRK_SOURCES
-    ${CMAKE_BINARY_DIR}/src/goatdata.c
-    src/loadtrk.c
-    src/gsong.c
-    src/gorder.c
-    src/gpattern.c
-    src/ginstr.c
-    src/gtable.c
-    src/gplay.c
-    src/gdisplay.c
-    src/gfile.c
-    src/greloc.c
-    src/ghelp.c
-    src/gsound.c
-    src/gconsole.c
-    src/gsid.cpp
+    ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
+    src/loadtrk.cpp
+    src/song.cpp
+    src/order.cpp
+    src/pattern.cpp
+    src/instr.cpp
+    src/table.cpp
+    src/play.cpp
+    src/display.cpp
+    src/file.cpp
+    src/reloc.cpp
+    src/help.cpp
+    src/sound.cpp
+    src/console.cpp
+    src/sid.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
@@ -43,13 +43,11 @@ set(LOADTRK_SOURCES
     src/asm/parse.c
     src/asm/pc.c
     src/asm/vec.c
-    src/bme/bme_gfx.c
-    src/bme/bme_snd.c
-    src/bme/bme_win.c
-    src/bme/bme_mou.c
-    src/bme/bme_io.c
-    src/bme/bme_end.c
-    src/bme/bme.c
+    src/bme/bme_gfx.cpp
+    src/bme/bme_snd.cpp
+    src/bme/bme_win.cpp
+    src/bme/bme_io.cpp
+    src/bme/bme_end.cpp
     src/rtmidi/rtmidi_c.h
     src/rtmidi/rtmidi_c.cpp
     src/rtmidi/RtMidi.h
@@ -62,29 +60,39 @@ if(MINGW)
 endif(MINGW)
 
 set(MOD2SNG_SOURCES
-    src/mod2sng.c
-    src/bme/bme_end.c)
+    src/tools/mod2sng.cpp
+    src/bme/bme_end.cpp)
 
 set(INS2SND2_SOURCES
-    src/ins2snd2.c
-    src/bme/bme_end.c)
+    src/tools/ins2snd2.cpp
+    src/bme/bme_end.cpp)
 
 set(SNGSPLI2_SOURCES
-    src/sngspli2.c
-    src/bme/bme_end.c)
+    src/tools/sngspli2.cpp
+    src/bme/bme_end.cpp)
+
+set(DATAFILE_SOURCES
+    src/tools/datafile.cpp
+    src/bme/bme_end.cpp)
+
+set(DAT2INC_SOURCES
+    src/tools/dat2inc.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
 include_directories(${CMAKE_SOURCE_DIR}/src/asm)
-include_directories(${CMAKE_BINARY_DIR}/src/residfp)
 
 find_package(SDL3 REQUIRED)
 
-add_executable(datafile src/bme/datafile.c src/bme/bme_end.c)
-add_executable(dat2inc src/bme/dat2inc.c)
+add_executable(dat2inc ${DAT2INC_SOURCES})
+add_executable(datafile ${DATAFILE_SOURCES})
+add_executable(loadtrk ${LOADTRK_SOURCES})
+add_executable(mod2sng ${MOD2SNG_SOURCES})
+add_executable(ins2snd2 ${INS2SND2_SOURCES})
+add_executable(sngspli2 ${SNGSPLI2_SOURCES})
+
 
 target_include_directories(datafile PUBLIC SDL3::Headers)
-
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -96,19 +104,14 @@ add_custom_command(
   )
 
 add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/src/goatdata.c
-  COMMAND dat2inc loadtrk.dat goatdata.c
+  OUTPUT ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
+  COMMAND dat2inc loadtrk.dat ltrkdata.cpp
   DEPENDS dat2inc ${CMAKE_BINARY_DIR}/src/loadtrk.dat
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src
   )
 
-add_executable(loadtrk ${LOADTRK_SOURCES})
-add_executable(mod2sng ${MOD2SNG_SOURCES})
-add_executable(ins2snd2 ${INS2SND2_SOURCES})
-add_executable(sngspli2 ${SNGSPLI2_SOURCES})
-
-add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.c)
-add_dependencies(loadtrk goatdata)
+add_custom_target(ltrkdata DEPENDS ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp)
+add_dependencies(loadtrk ltrkdata)
 
 target_include_directories(mod2sng PUBLIC SDL3::Headers)
 target_include_directories(ins2snd2 PUBLIC SDL3::Headers)
