@@ -116,7 +116,8 @@ void printstatus()
 
   if (!menu)
   {
-    printtext(dpos.statusTopX+1,  dpos.statusTopY,  CDBLUE|(colors.CHDRBG<<4), " \"\"\"");
+    short cblue = (colors.CHDRBG == CDBLUE) ? CLBLUE : CDBLUE;
+    printtext(dpos.statusTopX+1,  dpos.statusTopY,  cblue|(colors.CHDRBG<<4), " \"\"\"");
     printtext(dpos.statusTopX+5,  dpos.statusTopY, CDGREEN|(colors.CHDRBG<<4), "\"\"\"");
     printtext(dpos.statusTopX+8,  dpos.statusTopY, CYELLOW|(colors.CHDRBG<<4), "\"\"\"");
     printtext(dpos.statusTopX+11, dpos.statusTopY, CLBROWN|(colors.CHDRBG<<4), "\"\"\"");
