@@ -125,7 +125,7 @@ bool initscreen()
   loadexternalpalette();
   gfx_setpalette();
 
-  gfx_loadsprites(0, "cursor.bin");
+  gfx_loadcursor("cursor.bin");
 
   gfxinitted = true;
   clearscreen();
@@ -209,7 +209,7 @@ void closescreen()
     chardata = nullptr;
   }
 
-  gfx_freesprites(0);
+  gfx_freecursor();
 
   gfxinitted = false;
 }
@@ -437,7 +437,7 @@ void fliptoscreen()
     int ey = (mousepixely + mousesizey - 1) / fontheight;
     if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
 
-    gfx_drawsprite(mousepixelx, mousepixely, 1);
+    gfx_drawcursor(mousepixelx, mousepixely);
     for (int y = sy; y <= ey; y++)
       region[y] = 1;
   }

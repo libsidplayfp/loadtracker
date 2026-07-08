@@ -16,9 +16,9 @@ bool gfx_loadpalette(const char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
 void gfx_setpalette();
 
-bool gfx_loadsprites(unsigned num, const char *name);
-void gfx_drawsprite(int x, int y, unsigned num);
-void gfx_freesprites(unsigned num);
+bool gfx_loadcursor( const char *name);
+void gfx_drawcursor(int x, int y);
+void gfx_freecursor();
 
 extern bool gfx_initted;
 extern bool gfx_redraw;

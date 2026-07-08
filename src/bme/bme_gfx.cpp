@@ -10,6 +10,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <new>
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -25,13 +27,10 @@ unsigned gfx_virtualxsize;
 unsigned gfx_virtualysize;
 unsigned gfx_windowxsize;
 unsigned gfx_windowysize;
-int gfx_blockxsize = 16;
-int gfx_blockysize = 16;
 int spr_xsize = 0;
 int spr_ysize = 0;
 int spr_xhotspot = 0;
 int spr_yhotspot = 0;
-unsigned gfx_nblocks = 0;
 Uint8 gfx_palette[MAX_COLORS * 3] = {0};
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
@@ -48,10 +47,11 @@ static int gfx_clipbottom;
 static int gfx_clipleft;
 static int gfx_clipright;
 static int gfx_maxcolors = MAX_COLORS;
-static unsigned gfx_maxspritefiles = 0;
-static SPRITEHEADER **gfx_spriteheaders = nullptr;
-static Uint8 **gfx_spritedata = nullptr;
-static unsigned *gfx_spriteamount = nullptr;
+
+static SPRITEHEADER *gfx_cursorheaders = nullptr;
+static Uint8 *gfx_cursordata = nullptr;
+static unsigned gfx_cursoramount = 0;
+
 static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
 static SDL_Texture *sdlTexture = nullptr;
@@ -201,15 +201,14 @@ bool gfx_loadpalette(const char *name)
 
 void gfx_calcpalette(int fade, int radd, int gadd, int badd)
 {
-    Uint8  *sptr = &gfx_palette[3];
-    int cl;
     if (radd < 0) radd = 0;
     if (gadd < 0) gadd = 0;
     if (badd < 0) badd = 0;
 
+    Uint8 *sptr = &gfx_palette[3];
     for (int c = 1; c < 255; c++)
     {
-        cl = *sptr;
+        int cl = *sptr;
         cl *= fade;
         cl >>= 6;
         cl += radd;
@@ -263,39 +262,11 @@ void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bot
     gfx_clipbottom = bottom;
 }
 
-void gfx_setmaxspritefiles(unsigned num)
+bool gfx_loadcursor(const char *name)
 {
-    if (gfx_spriteheaders) return;
-
-    gfx_spriteheaders = (SPRITEHEADER**)std::malloc(num * sizeof(Uint8 *));
-    gfx_spritedata = (Uint8**)std::malloc(num * sizeof(Uint8 *));
-    gfx_spriteamount = (unsigned int*)std::malloc(num * sizeof(unsigned));
-    if ((gfx_spriteheaders) && (gfx_spritedata) && (gfx_spriteamount))
-    {
-        unsigned c;
-
-        gfx_maxspritefiles = num;
-        for (c = 0; c < num; c++)
-        {
-            gfx_spriteamount[c] = 0;
-            gfx_spritedata[c] = nullptr;
-            gfx_spriteheaders[c] = nullptr;
-        }
-    }
-    else gfx_maxspritefiles = 0;
-}
-
-bool gfx_loadsprites(unsigned num, const char *name)
-{
-    if (!gfx_spriteheaders)
-    {
-        gfx_setmaxspritefiles(1);
-    }
-
     bme_error = BME_OPEN_ERROR;
-    if (num >= gfx_maxspritefiles) return false;
 
-    gfx_freesprites(num);
+    gfx_freecursor();
 
     int handle = io_open(name);
     if (handle == -1) return false;
@@ -303,20 +274,20 @@ bool gfx_loadsprites(unsigned num, const char *name)
     int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
 
-    gfx_spriteamount[num] = io_readle32(handle);
+    gfx_cursoramount = io_readle32(handle);
 
-    gfx_spriteheaders[num] = (SPRITEHEADER*)std::malloc(gfx_spriteamount[num] * sizeof(SPRITEHEADER));
+    gfx_cursorheaders = new (std::nothrow) SPRITEHEADER[gfx_cursoramount * sizeof(SPRITEHEADER)];
 
-    if (!gfx_spriteheaders[num])
+    if (!gfx_cursorheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
         io_close(handle);
         return false;
     }
 
-    for (unsigned c = 0; c < gfx_spriteamount[num]; c++)
+    for (unsigned c = 0; c < gfx_cursoramount; c++)
     {
-        SPRITEHEADER *hptr = gfx_spriteheaders[num] + c;
+        SPRITEHEADER *hptr = &gfx_cursorheaders[c];
 
         hptr->xsize = io_readle16(handle);
         hptr->ysize = io_readle16(handle);
@@ -326,32 +297,30 @@ bool gfx_loadsprites(unsigned num, const char *name)
     }
 
     int datastart = io_lseek(handle, 0, SEEK_CUR);
-    gfx_spritedata[num] = (Uint8*)std::malloc(size - datastart);
-    if (!gfx_spritedata[num])
+    gfx_cursordata = new (std::nothrow) Uint8[size - datastart];
+    if (!gfx_cursordata)
     {
         bme_error = BME_OUT_OF_MEMORY;
         io_close(handle);
         return false;
     }
-    io_read(handle, gfx_spritedata[num], size - datastart);
+    io_read(handle, gfx_cursordata, size - datastart);
     io_close(handle);
     bme_error = BME_OK;
     return true;
 }
 
-void gfx_freesprites(unsigned num)
+void gfx_freecursor()
 {
-    if (num >= gfx_maxspritefiles) return;
-
-    if (gfx_spritedata[num])
+    if (gfx_cursordata)
     {
-        std::free(gfx_spritedata[num]);
-        gfx_spritedata[num] = nullptr;
+        delete [] gfx_cursordata;
+        gfx_cursordata = nullptr;
     }
-    if (gfx_spriteheaders[num])
+    if (gfx_cursorheaders)
     {
-        std::free(gfx_spriteheaders[num]);
-        gfx_spriteheaders[num] = nullptr;
+        delete [] gfx_cursorheaders;
+        gfx_cursorheaders = nullptr;
     }
 }
 
@@ -413,43 +382,12 @@ void gfx_copyscreen8(Uint8  *destaddress, Uint8  *srcaddress, unsigned pitch)
     }
 }
 
-
-void gfx_getspriteinfo(unsigned num)
+void gfx_drawcursor(int x, int y)
 {
-    unsigned sprf = num >> 16;
-    unsigned spr = (num & 0xffff) - 1;
-    SPRITEHEADER *hptr;
-
-    if ((sprf >= gfx_maxspritefiles) || (!gfx_spriteheaders[sprf]) ||
-        (spr >= gfx_spriteamount[sprf])) hptr = nullptr;
-    else hptr = gfx_spriteheaders[sprf] + spr;
-
-    if (!hptr)
-    {
-        spr_xsize = 0;
-        spr_ysize = 0;
-        spr_xhotspot = 0;
-        spr_yhotspot = 0;
-        return;
-    }
-
-    spr_xsize = hptr->xsize;
-    spr_ysize = hptr->ysize;
-    spr_xhotspot = hptr->xhot;
-    spr_yhotspot = hptr->yhot;
-}
-
-void gfx_drawsprite(int x, int y, unsigned num)
-{
-    unsigned sprf = num >> 16;
-    unsigned spr = (num & 0xffff) - 1;
-    SPRITEHEADER *hptr;
-
     if (!gfx_initted) return;
     if (!gfx_locked) return;
 
-    if ((sprf >= gfx_maxspritefiles) || (!gfx_spriteheaders[sprf]) ||
-        (spr >= gfx_spriteamount[sprf]))
+    if (!gfx_cursorheaders)
     {
         spr_xsize = 0;
         spr_ysize = 0;
@@ -457,9 +395,10 @@ void gfx_drawsprite(int x, int y, unsigned num)
         spr_yhotspot = 0;
         return;
     }
-    else hptr = gfx_spriteheaders[sprf] + spr;
 
-    Uint8 *sptr = gfx_spritedata[sprf] + hptr->offset;
+    SPRITEHEADER *hptr = &gfx_cursorheaders[0];
+
+    Uint8 *sptr = &gfx_cursordata[hptr->offset];
     spr_xsize = hptr->xsize;
     spr_ysize = hptr->ysize;
     spr_xhotspot = hptr->xhot;
