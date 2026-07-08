@@ -45,7 +45,7 @@ typedef struct
 } POSITIONS;
 
 
-int initscreen();
+bool initscreen();
 void closescreen();
 void clearscreen();
 void fliptoscreen();
@@ -61,7 +61,8 @@ void getkey();
 void initDisplayPositions();
 
 #ifndef CONSOLE_C
-extern int key, rawkey, shiftpressed, altpressed, cursorflashdelay;
+extern bool shiftpressed, altpressed;
+extern int key, rawkey, cursorflashdelay;
 extern int mouseb, prevmouseb;
 extern int mouseheld;
 extern int mousex, mousey;

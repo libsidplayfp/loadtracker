@@ -45,8 +45,8 @@ int gettablepartlen(int num, int pos);
 void gototable(int num, int pos);
 void settableview(int num, int pos);
 void settableviewfirst(int num, int pos);
-void validatetableview(void);
+void validatetableview();
 void exectable(int num, int ptr);
-int findfreespeedtable(void);
+int findfreespeedtable();
 
 #endif

@@ -76,8 +76,8 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 {
 #ifdef __WIN32__
   char drivestr[] = "A:\\";
-char driveexists[26];
-  #endif
+  char driveexists[26];
+#endif
   char cmpbuf[MAX_PATHNAME];
   char tempname[MAX_PATHNAME];
 

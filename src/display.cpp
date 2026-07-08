@@ -79,14 +79,14 @@ void initcolorscheme(bool dark)
   colors.CHEADER  = colors.CHDRFG|(colors.CHDRBG<<4);
 }
 
-void printmainscreen(void)
+void printmainscreen()
 {
   clearscreen();
   printstatus();
   fliptoscreen();
 }
 
-void displayupdate(void)
+void displayupdate()
 {
   if (cursorflashdelay >= 6)
   {
@@ -98,9 +98,8 @@ void displayupdate(void)
   fliptoscreen();
 }
 
-void printstatus(void)
+void printstatus()
 {
-  int c, d, color, color2;
   int cc = cursorcolortable[cursorflash];
   int visibleOrderlist = 14;
   int maxChns = MAX_CHN;
@@ -180,7 +179,7 @@ void printstatus(void)
 
   if ((followplay) && (isplaying()))
   {
-    for (c = 0; c < maxChns; c++)
+    for (int c = 0; c < maxChns; c++)
     {
       int currentSonglen = 0;
       if (numsids == 1)
@@ -222,7 +221,7 @@ void printstatus(void)
     }
   }
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     std::sprintf(textbuffer, "CH.");
     printtext(dpos.patternsX+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
@@ -233,10 +232,11 @@ void printstatus(void)
     std::sprintf(textbuffer, "%02X", epnum[c]);
     printtext(dpos.patternsX+10+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
 
-    for (d = 0; d < VISIBLEPATTROWS; d++)
+    for (int d = 0; d < VISIBLEPATTROWS; d++)
     {
       int p = epview+d;
-      color = colors.CNORMAL;
+      int color = colors.CNORMAL;
+      int color2;
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
@@ -340,11 +340,11 @@ void printstatus(void)
   std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE, textbuffer);
 
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     std::sprintf(textbuffer, " %d ", c+1);
     printtext(dpos.orderlistX, dpos.orderlistY+1+c, colors.CTITLE, textbuffer);
-    for (d = 0; d < visibleOrderlist; d++)
+    for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
       unsigned char currentSongorder = 0;
@@ -359,7 +359,7 @@ void printstatus(void)
         currentSongorder = songorder_stereo[esnum][c][p];
         currentSonglen = songlen_stereo[esnum][c];
       }
-      color = colors.CNORMAL;
+      int color = colors.CNORMAL;
       if (isplaying())
       {
         int chnpos = chn[c].songptr;
@@ -446,6 +446,7 @@ void printstatus(void)
   std::sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s", einum, instr[einum].name);
   printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE, textbuffer);
 
+  int color;
   std::sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
   if (eipos == 0) color = colors.CEDIT; else color = colors.CNORMAL;
   printtext(dpos.instrumentsX, dpos.instrumentsY+1, color, textbuffer);
@@ -497,9 +498,9 @@ void printstatus(void)
   std::sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
   printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE, textbuffer);
 
-  for (c = 0; c < MAX_TABLES; c++)
+  for (int c = 0; c < MAX_TABLES; c++)
   {
-    for (d = 0; d < VISIBLETABLEROWS; d++)
+    for (int d = 0; d < VISIBLETABLEROWS; d++)
     {
       int p = etview[c]+d;
 
@@ -636,7 +637,7 @@ void printstatus(void)
         " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 "
     );
   }
-  for (c = 0; c < maxChns; c++)
+  for (int c = 0; c < maxChns; c++)
   {
     int chnpos = chn[c].songptr;
     int chnrow = chn[c].pattptr/4;
@@ -655,14 +656,14 @@ void printstatus(void)
 }
 
 
-void resettime(void)
+void resettime()
 {
   timemin = 0;
   timesec = 0;
   timeframe = 0;
 }
 
-void incrementtime(void)
+void incrementtime()
 {
   {
     timeframe++;

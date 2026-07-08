@@ -62,7 +62,8 @@ void expandpattern();
 void splitpattern();
 void joinpattern();
 
-void insertnote(int newnote) {
+void insertnote(int newnote)
+{
     if ((recordmode) && (eppos < pattlen[epnum[epchn]]))
     {
         pattern[epnum[epchn]][eppos*4] = newnote;
@@ -95,10 +96,10 @@ void insertnote(int newnote) {
     playtestnote(newnote, einum, epchn);
 }
 
-void patterncommands(void)
+void patterncommands()
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
   switch(key)
   {
@@ -839,7 +840,7 @@ void patterncommands(void)
     if (epmarkchn == epchn) epmarkchn = -1;
     if ((pattlen[epnum[epchn]]-eppos)*4-4 >= 0)
     {
-      memmove(&pattern[epnum[epchn]][eppos*4],
+      std::memmove(&pattern[epnum[epchn]][eppos*4],
         &pattern[epnum[epchn]][eppos*4+4],
         (pattlen[epnum[epchn]]-eppos)*4-4);
       pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-4] = REST;
@@ -868,7 +869,7 @@ void patterncommands(void)
     if (epmarkchn == epchn) epmarkchn = -1;
     if ((pattlen[epnum[epchn]]-eppos)*4-4 >= 0)
     {
-      memmove(&pattern[epnum[epchn]][eppos*4+4],
+      std::memmove(&pattern[epnum[epchn]][eppos*4+4],
         &pattern[epnum[epchn]][eppos*4],
         (pattlen[epnum[epchn]]-eppos)*4-4);
       pattern[epnum[epchn]][eppos*4] = REST;
@@ -1101,7 +1102,7 @@ void patterncommands(void)
 }
 
 
-void patterndown(void)
+void patterndown()
 {
   if (shiftpressed)
   {
@@ -1119,7 +1120,7 @@ void patterndown(void)
   if (shiftpressed) epmarkend = eppos;
 }
 
-void patternup(void)
+void patternup()
 {
   if (shiftpressed)
   {
@@ -1137,7 +1138,7 @@ void patternup(void)
   if (shiftpressed) epmarkend = eppos;
 }
 
-void prevpattern(void)
+void prevpattern()
 {
   if (epnum[epchn] > 0)
   {
@@ -1147,7 +1148,7 @@ void prevpattern(void)
   if (epchn == epmarkchn) epmarkchn = -1;
 }
 
-void nextpattern(void)
+void nextpattern()
 {
   if (epnum[epchn] < MAX_PATT-1)
   {
@@ -1157,18 +1158,18 @@ void nextpattern(void)
   if (epchn == epmarkchn) epmarkchn = -1;
 }
 
-void shrinkpattern(void)
+void shrinkpattern()
 {
   int c = epnum[epchn];
-  int l = pattlen[c];
-  int nl = l/2;
-  int d;
 
   if (pattlen[c] < 2) return;
 
   stopsong();
 
-  for (d = 0; d < nl; d++)
+  int l = pattlen[c];
+  int nl = l/2;
+
+  for (int d = 0; d < nl; d++)
   {
     pattern[c][d*4] = pattern[c][d*2*4];
     pattern[c][d*4+1] = pattern[c][d*2*4+1];
@@ -1186,17 +1187,17 @@ void shrinkpattern(void)
   countthispattern();
 }
 
-void expandpattern(void)
+void expandpattern()
 {
   int c = epnum[epchn];
   int l = pattlen[c];
   int nl = l*2;
-  unsigned char temp[MAX_PATTROWS*4+4];
-
   if (nl > MAX_PATTROWS) return;
-  memset(temp, 0, sizeof temp);
 
   stopsong();
+
+  unsigned char temp[MAX_PATTROWS*4+4];
+  std::memset(temp, 0, sizeof temp);
 
   for (int d = 0; d <= nl; d++)
   {
@@ -1223,15 +1224,14 @@ void expandpattern(void)
   countthispattern();
 }
 
-void splitpattern(void)
+void splitpattern()
 {
   int c = epnum[epchn];
   int l = pattlen[c];
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
-  if (eppos == 0) return;
-  if (eppos == l) return;
+  if ((eppos == 0) || (eppos == l)) return;
 
   stopsong();
 
@@ -1275,16 +1275,16 @@ void splitpattern(void)
   }
 }
 
-void joinpattern(void)
+void joinpattern()
 {
   int c = epnum[epchn];
-  int d;
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
   if (eschn != epchn) return;
   if (songorder[esnum][epchn][eseditpos] != c) return;
-  d = songorder[esnum][epchn][eseditpos + 1];
+
+  int d = songorder[esnum][epchn][eseditpos + 1];
   if (d >= MAX_PATT) return;
   if (pattlen[c] + pattlen[d] > MAX_PATTROWS) return;
 
@@ -1295,9 +1295,9 @@ void joinpattern(void)
     int oldesnum = esnum;
     int oldeschn = eschn;
     int oldeseditpos = eseditpos;
-    int e, f;
     d++;
 
+    int e;
     for (e = 0; e < pattlen[c]; e++)
     {
       pattern[c+1][e*4] = pattern[c][e*4];
@@ -1305,7 +1305,7 @@ void joinpattern(void)
       pattern[c+1][e*4+2] = pattern[c][e*4+2];
       pattern[c+1][e*4+3] = pattern[c][e*4+3];
     }
-    for (f = 0; f < pattlen[d]; f++)
+    for (int f = 0; f < pattlen[d]; f++)
     {
       pattern[c+1][e*4] = pattern[d][f*4];
       pattern[c+1][e*4+1] = pattern[d][f*4+1];

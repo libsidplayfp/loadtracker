@@ -34,11 +34,11 @@ int einum;
 int eipos;
 int eicolumn;
 
-void instrumentcommands(void)
+void instrumentcommands()
 {
   switch(rawkey)
   {
-    case 0x8:
+    case KEY_CANC:
     case KEY_DEL:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {

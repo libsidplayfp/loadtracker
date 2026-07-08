@@ -38,8 +38,8 @@ unsigned *prevscrbuffer = nullptr;
 unsigned char *chardata = nullptr;
 int key = 0;
 int rawkey = 0;
-int shiftpressed = 0;
-int altpressed = 0;
+bool shiftpressed = false;
+bool altpressed = false;
 int cursorflashdelay = 0;
 int mouseb = 0;
 int prevmouseb = 0;
@@ -91,14 +91,14 @@ static inline void setcolor(unsigned *dptr, short color)
   *dptr = (*dptr & 0xffff) | (color << 16) | (colors.CBKGND << 20);
 }
 
-int initscreen()
+bool initscreen()
 {
-  int handle;
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
+    return false;
+
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
-    return 0;
   win_openwindow(xsize, ysize, "LoadTracker", nullptr);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
@@ -107,7 +107,7 @@ int initscreen()
   {
     win_fullscreen = 0;
     if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight, 60, 0))
-      return 0;
+      return false;
   }
 
   scrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS * sizeof(unsigned)];
@@ -116,8 +116,8 @@ int initscreen()
   std::memset(region, 0, sizeof region);
 
   chardata = new unsigned char[4096];
-  handle = io_open("chargen.bin");
-  if (handle == -1) return 0;
+  int handle = io_open("chargen.bin");
+  if (handle == -1) return false;
   io_read(handle, &chardata[0], 4096);
   io_close(handle);
 
@@ -130,7 +130,7 @@ int initscreen()
   gfxinitted = true;
   clearscreen();
   std::atexit(closescreen);
-  return 1;
+  return true;
 }
 
 void loadexternalpalette()
@@ -145,11 +145,11 @@ void loadexternalpalette()
     if (std::strncmp("JASC-PAL", ln, 8) == 0)
     {
       int colors;
-      int p = 0;
       std::fgets(ln, sizeof(ln), ext_f);
       std::fgets(ln, sizeof(ln), ext_f);
       if (std::sscanf(ln, "%d", &colors) == 1 && colors == 256)
       {
+        int p = 0;
         while (!feof(ext_f))
         {
           int r, g, b;
@@ -346,10 +346,6 @@ void fliptoscreen()
 {
   if (!gfxinitted) return;
 
-  unsigned *sptr = scrbuffer;
-  unsigned *cmpptr = prevscrbuffer;
-  bool regionschanged = false;
-
   // Mark previous mousecursor area changed if mouse moved
   if ((mousepixelx != oldmousepixelx) || (mousepixely != oldmousepixely))
   {
@@ -376,6 +372,11 @@ void fliptoscreen()
   }
 
   if (!gfx_lock()) return;
+
+  unsigned *sptr = scrbuffer;
+  unsigned *cmpptr = prevscrbuffer;
+
+  bool regionschanged = false;
 
   // Now redraw text on changed areas
   for (int y = 0; y < MAX_ROWS; y++)
@@ -498,19 +499,11 @@ void getkey()
     }
   }
 
-  shiftpressed = 0;
-  if ((win_keystate[SDL_SCANCODE_LSHIFT])||(win_keystate[SDL_SCANCODE_RSHIFT])||
-      (win_keystate[SDL_SCANCODE_LCTRL])||(win_keystate[SDL_SCANCODE_RCTRL]))
-  {
-    shiftpressed = 1;
-  }
+  shiftpressed = (win_keystate[SDL_SCANCODE_LSHIFT])||(win_keystate[SDL_SCANCODE_RSHIFT])
+                  || (win_keystate[SDL_SCANCODE_LCTRL])||(win_keystate[SDL_SCANCODE_RCTRL]);
 
-  altpressed = 0;
-  if ((win_keystate[SDL_SCANCODE_LALT])||
-      (win_keystate[SDL_SCANCODE_RALT]))
-  {
-    altpressed = 1;
-  }
+  altpressed = (win_keystate[SDL_SCANCODE_LALT])
+                || (win_keystate[SDL_SCANCODE_RALT]);
 
   if (rawkey == SDL_SCANCODE_KP_ENTER)
   {

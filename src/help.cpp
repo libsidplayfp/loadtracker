@@ -431,7 +431,7 @@ void onlinehelp(int standalone,int context)
     if (hview < -(lastrow-MAX_ROWS+1)) hview = -(lastrow-MAX_ROWS+1);
     if ((mouseb) && (!prevmouseb) && (!mousey)) break;
   }
-EXITHELP: ;
+EXITHELP:
   if(!standalone) {
     printmainscreen();
     key = 0;

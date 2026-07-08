@@ -46,7 +46,7 @@ void tabledown();
 void inserttable(int num, int pos, int mode);
 void deletetable(int num, int pos);
 
-void tablecommands(void)
+void tablecommands()
 {
   switch(rawkey)
   {
@@ -568,16 +568,14 @@ void tablecommands(void)
 
 void deletetable(int num, int pos)
 {
-  int c, d;
-
   // Shift tablepointers in instruments
-  for (c = 1; c < MAX_INSTR; c++)
+  for (int c = 1; c < MAX_INSTR; c++)
   {
     if ((instr[c].ptr[num]-1) > pos) instr[c].ptr[num]--;
   }
 
   // Shift tablepointers in wavetable commands
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
     {
@@ -601,9 +599,9 @@ void deletetable(int num, int pos)
   }
 
   // Shift tablepointers in patterns
-  for (c = 0; c < MAX_PATT; c++)
+  for (int c = 0; c < MAX_PATT; c++)
   {
-    for (d = 0; d <= MAX_PATTROWS; d++)
+    for (int d = 0; d <= MAX_PATTROWS; d++)
     {
       if (num < STBL)
       {
@@ -624,7 +622,7 @@ void deletetable(int num, int pos)
   }
 
   // Shift jumppointers in the table itself
-  for (c = 0; c < MAX_TABLELEN; c++)
+  for (int c = 0; c < MAX_TABLELEN; c++)
   {
     if (num != STBL)
     {
@@ -633,7 +631,7 @@ void deletetable(int num, int pos)
     }
   }
 
-  for (c = pos; c < MAX_TABLELEN; c++)
+  for (int c = pos; c < MAX_TABLELEN; c++)
   {
     if (c+1 < MAX_TABLELEN)
     {
@@ -934,7 +932,7 @@ int makespeedtable(unsigned data, int mode, int makenew)
 
 void deleteinstrtable(int i)
 {
-  int eraseok = 1;
+  bool eraseok = true;
 
   for (int c = 0; c < MAX_TABLES; c++)
   {
@@ -949,7 +947,7 @@ void deleteinstrtable(int i)
         if ((d != i) && (instr[d].ptr[c]))
         {
           int cmppos = instr[d].ptr[c]-1;
-          if ((cmppos >= pos) && (cmppos < pos+len)) eraseok = 0;
+          if ((cmppos >= pos) && (cmppos < pos+len)) eraseok = false;
         }
       }
       if (eraseok)
@@ -978,6 +976,7 @@ void settableviewfirst(int num, int pos)
   etview[num] = pos;
   settableview(num, pos);
 }
+
 void validatetableview(void)
 {
   if (etpos - etview[etnum] < 0)
@@ -992,7 +991,7 @@ void validatetableview(void)
   }
 }
 
-void tableup(void)
+void tableup()
 {
   if (shiftpressed)
   {
@@ -1007,7 +1006,7 @@ void tableup(void)
   if (shiftpressed) etmarkend = etpos;
 }
 
-void tabledown(void)
+void tabledown()
 {
   if (shiftpressed)
   {
@@ -1061,7 +1060,7 @@ void exectable(int num, int ptr)
   }
 }
 
-int findfreespeedtable(void)
+int findfreespeedtable()
 {
   for (int c = 0; c < MAX_TABLELEN; c++)
   {

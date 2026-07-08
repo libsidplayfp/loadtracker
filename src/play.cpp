@@ -75,10 +75,10 @@ int startpattpos = 0;
 void sequencer(int c, CHN *cptr);
 void sequencer_stereo(int c, CHN *cptr);
 
-void initchannels(void)
+void initchannels()
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
   CHN *cptr = &chn[0];
 
   std::memset(chn, 0, sizeof chn);
@@ -122,7 +122,7 @@ void initsongpos(int num, int mode, int pattpos)
   startpattpos = pattpos;
 }
 
-void stopsong(void)
+void stopsong()
 {
   if (songinit != PLAY_STOPPED)
   {
@@ -130,7 +130,7 @@ void stopsong(void)
   }
 }
 
-void rewindsong(void)
+void rewindsong()
 {
   if (lastsonginit == PLAY_BEGINNING) lastsonginit = PLAY_POS;
   initsong(psnum, lastsonginit);
@@ -182,16 +182,16 @@ void mutechannel(int chnnum)
   chn[chnnum].mute ^= 1;
 }
 
-int isplaying(void)
+int isplaying()
 {
   return (songinit != PLAY_STOPPED);
 }
 
-void playroutine(void)
+void playroutine()
 {
   INSTR *iptr;
   CHN *cptr = &chn[0];
-  int maxChns = 3;
+  int maxChns = MAX_CHN_MONO;
 
   if (songinit == PLAY_STOP)
     followplay = 0;
@@ -1040,7 +1040,7 @@ void sequencer(int c, CHN *cptr)
 
 /* ========================================================================== */
 
-void playroutine_stereo(void)
+void playroutine_stereo()
 {
     INSTR *iptr;
     CHN *cptr = &chn[0];
@@ -1061,7 +1061,7 @@ void playroutine_stereo(void)
 
         if ((songinit == 0x02) || (songinit == 0x03))
         {
-            for (int c = 0; c< MAX_CHN; c++)
+            for (int c = 0; c < MAX_CHN; c++)
             {
                 if (espos[c] >= songlen_stereo[psnum][c])
                     songinit = 0x01;

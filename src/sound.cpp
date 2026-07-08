@@ -131,10 +131,9 @@ int sound_init(unsigned mr, unsigned writer, unsigned m, unsigned ntsc,
   }
 #endif
 
-  if (!buffer) buffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
-  if (!lbuffer) lbuffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
-  if (!rbuffer) rbuffer = (Sint16*)malloc(MIXBUFFERSIZE * sizeof(Sint16));
-  if ((!buffer) || (!lbuffer) || (!rbuffer)) return 0;
+  if (!buffer) buffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
+  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
+  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
 
   if (writer)
     writehandle = std::fopen("sidaudio.raw", "wb");
@@ -191,20 +190,20 @@ void sound_uninit(void)
 
   if (buffer)
   {
-    std::free(buffer);
+    delete [] buffer;
     buffer = nullptr;
   }
 
   if (lbuffer)
   {
-      std::free(lbuffer);
-      lbuffer = nullptr;
+    delete [] lbuffer;
+    lbuffer = nullptr;
   }
 
   if (rbuffer)
   {
-      std::free(rbuffer);
-      rbuffer = nullptr;
+    delete [] rbuffer;
+    rbuffer = nullptr;
   }
 
 #ifdef USE_EXSID
@@ -234,7 +233,7 @@ Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval)
   return interval;
 }
 
-void sound_playrout(void)
+void sound_playrout()
 {
   if (numsids == 1)
   {

@@ -44,13 +44,13 @@ int esmarkstart;
 int esmarkend;
 int enpos;
 
-void orderlistcommands(void);
-void orderlistcommands_stereo(void);
-void namecommands(void);
+void orderlistcommands();
+void orderlistcommands_stereo();
+void namecommands();
 
-void orderlistcommands(void)
+void orderlistcommands()
 {
-  int maxChns = 3;
+  int maxChns = MAX_CHN_MONO;
 
   if (hexnybble >= 0)
   {
@@ -811,7 +811,7 @@ void orderlistcommands_stereo(void)
     }
 }
 
-void namecommands(void)
+void namecommands()
 {
   switch(rawkey)
   {
@@ -920,7 +920,7 @@ void insertorder_stereo(unsigned char byte)
     }
 }
 
-void deleteorder(void)
+void deleteorder()
 {
   if ((songlen[esnum][eschn] - eseditpos)-1 >= 0)
   {
@@ -959,7 +959,7 @@ void deleteorder(void)
   }
 }
 
-void deleteorder_stereo(void)
+void deleteorder_stereo()
 {
     if ((songlen_stereo[esnum][eschn] - eseditpos)-1 >= 0)
     {
@@ -999,7 +999,7 @@ void deleteorder_stereo(void)
     }
 }
 
-void orderleft(void)
+void orderleft()
 {
   if ((shiftpressed) && (eseditpos < songlen[esnum][eschn]))
   {
@@ -1028,7 +1028,7 @@ void orderleft(void)
   if ((shiftpressed) && (eseditpos < songlen[esnum][eschn])) esmarkend = eseditpos;
 }
 
-void orderleft_stereo(void)
+void orderleft_stereo()
 {
     if ((shiftpressed) && (eseditpos < songlen_stereo[esnum][eschn]))
     {
@@ -1056,7 +1056,8 @@ void orderleft_stereo(void)
     }
     if ((shiftpressed) && (eseditpos < songlen_stereo[esnum][eschn])) esmarkend = eseditpos;
 }
-void orderright(void)
+
+void orderright()
 {
   if ((shiftpressed) && (eseditpos < songlen[esnum][eschn]))
   {
@@ -1080,7 +1081,7 @@ void orderright(void)
   if ((shiftpressed) && (eseditpos < songlen[esnum][eschn])) esmarkend = eseditpos;
 }
 
-void orderright_stereo(void)
+void orderright_stereo()
 {
     if ((shiftpressed) && (eseditpos < songlen_stereo[esnum][eschn]))
     {
@@ -1104,14 +1105,14 @@ void orderright_stereo(void)
     if ((shiftpressed) && (eseditpos < songlen_stereo[esnum][eschn])) esmarkend = eseditpos;
 }
 
-void nextsong(void)
+void nextsong()
 {
   esnum++;
   if (esnum >= MAX_SONGS) esnum = MAX_SONGS - 1;
   songchange();
 }
 
-void prevsong(void)
+void prevsong()
 {
   esnum--;
   if (esnum < 0) esnum = 0;
@@ -1121,7 +1122,7 @@ void prevsong(void)
 void songchange(void)
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
   int currentSonglen = 0;
   if (numsids == 1)
   {
@@ -1150,15 +1151,14 @@ void songchange(void)
   stopsong();
 }
 
-void updateviewtopos(void)
+void updateviewtopos()
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
-  int currentSonglen = 0;
-  int currentSongorder = 0;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
   for (int c = 0; c < maxChns; c++)
   {
+    int currentSonglen = 0;
     if (numsids == 1)
     {
       currentSonglen = songlen[esnum][c];
@@ -1169,6 +1169,7 @@ void updateviewtopos(void)
     }
     for (int d = espos[c]; d < currentSonglen; d++)
     {
+      int currentSongorder = 0;
       if (numsids == 1)
       {
           currentSongorder = songorder[esnum][c][d];
