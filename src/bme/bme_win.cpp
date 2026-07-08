@@ -44,8 +44,8 @@ unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
 
 // Static variables
 
-static int win_lasttime = 0;
-static int win_currenttime = 0;
+static Uint64 win_lasttime = 0;
+static Uint64 win_currenttime = 0;
 static int win_framecounter = 0;
 static int win_activateclick = 0;
 

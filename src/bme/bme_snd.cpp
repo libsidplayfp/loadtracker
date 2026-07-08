@@ -2,9 +2,9 @@
 // BME (Blasphemous Multimedia Engine) sound main module
 //
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
 #ifdef USE_JACK
 #  include <jack/jack.h>
