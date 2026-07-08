@@ -266,7 +266,7 @@ int main(int argc, char **argv)
             dark = true;
             break;
         }
-        if (strcmp(argv[c], "--help"))
+        if (std::strcmp(argv[c], "--help"))
             break;
         /* fall through */
         case '?':

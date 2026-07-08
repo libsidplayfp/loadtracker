@@ -276,7 +276,7 @@ bool gfx_loadcursor(const char *name)
 
     gfx_cursoramount = io_readle32(handle);
 
-    gfx_cursorheaders = new (std::nothrow) SPRITEHEADER[gfx_cursoramount * sizeof(SPRITEHEADER)];
+    gfx_cursorheaders = new (std::nothrow) SPRITEHEADER[gfx_cursoramount];
 
     if (!gfx_cursorheaders)
     {

@@ -110,8 +110,8 @@ bool initscreen()
       return false;
   }
 
-  scrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS * sizeof(unsigned)];
-  prevscrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS * sizeof(unsigned)];
+  scrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS];
+  prevscrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS];
 
   std::memset(region, 0, sizeof region);
 
@@ -135,8 +135,8 @@ bool initscreen()
 
 void loadexternalpalette()
 {
-  FILE *ext_f;
-  if ((ext_f = std::fopen("custom.pal", "rt")))
+  FILE *ext_f = std::fopen("custom.pal", "rt");
+  if (ext_f)
   {
     char ln[100];
     std::strcpy(ln, "");

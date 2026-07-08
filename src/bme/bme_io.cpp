@@ -15,7 +15,8 @@
 #include <cstring>
 #include <cctype>
 
-#define MAX_HANDLES 16          // Up to 16 simultaneous files open from the datafile
+// Up to 16 simultaneous files open from the datafile
+constexpr int MAX_HANDLES = 16;
 
 typedef struct
 {
@@ -31,11 +32,11 @@ typedef struct
     bool open;
 } HANDLE;
 
+static const char *idstring = "DAT!";
+
 static bool io_datafileopen = false;
 static HEADER *fileheaders;
 static unsigned files;
-static char ident[4];
-static const char *idstring = "DAT!";
 static HANDLE handle[MAX_HANDLES];
 static FILE *datafilehandle = nullptr;
 static unsigned char *datafileptr;
@@ -53,6 +54,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     datafilestart = ptr;
     linkedseek(0);
 
+    char ident[4];
     linkedread(ident, 4);
     if (std::memcmp(ident, idstring, 4))
     {
@@ -61,7 +63,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     }
 
     files = linkedreadle32();
-    fileheaders = new (std::nothrow) HEADER[files * sizeof(HEADER)];
+    fileheaders = new (std::nothrow) HEADER[files];
     if (!fileheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
