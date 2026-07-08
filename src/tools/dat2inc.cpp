@@ -3,26 +3,27 @@
 //
 
 #include <cstdio>
+#include <cstdlib>
 
 int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
         printf("Usage: dat2inc <datafile> <includefile>\n\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     FILE *in = std::fopen(argv[1], "rb");
     if (!in)
     {
         printf("Datafile open error!\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     FILE *out = std::fopen(argv[2], "wt");
     if (!out)
     {
         printf("Includefile open error!\n");
         std::fclose(in);
-        return 1;
+        return EXIT_FAILURE;
     }
     std::fseek(in, 0, SEEK_END);
     int length = ftell(in);
@@ -41,5 +42,5 @@ int main(int argc, char *argv[])
     fprintf(out, "};\n");
     std::fclose(in);
     std::fclose(out);
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -16,7 +16,6 @@ void outputbyte(unsigned char c);
 int covert = 0;
 int binary = 0;
 int bytecount = 0;
-FILE *handle;
 FILE *out;
 
 int main(int argc, char **argv)
@@ -74,7 +73,7 @@ int main(int argc, char **argv)
   }
 
 
-  handle = std::fopen(argv[1], "rb");
+  FILE *handle = std::fopen(argv[1], "rb");
   if (!handle)
   {
     printf("ERROR: Can't open instrumentfile\n");

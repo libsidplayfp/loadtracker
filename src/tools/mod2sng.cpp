@@ -65,10 +65,6 @@ int goatpatt = 0;
 
 int main(int argc, char **argv)
 {
-  FILE *in, *out;
-  unsigned char *srcptr;
-  NOTE *destptr;
-
   if (argc < 3)
   {
     printf("Usage: mod2sng <mod> <sng> [channel] [transpose]\n"
@@ -78,13 +74,13 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  in = std::fopen(argv[1], "rb");
+  FILE *in = std::fopen(argv[1], "rb");
   if (!in)
   {
     printf("Source open error.\n");
     return EXIT_FAILURE;
   }
-  out = std::fopen(argv[2], "wb");
+  FILE *out = std::fopen(argv[2], "wb");
   if (!out)
   {
     printf("Destination open error.\n");
@@ -127,8 +123,8 @@ int main(int argc, char **argv)
 
   // Convert patterns into easier-to-read format
 
-  destptr = modnotes;
-  srcptr = modpatterns;
+  NOTE *destptr = modnotes;
+  unsigned char *srcptr = modpatterns;
   for (int c = 0; c < maxpatt * 256; c++)
   {
     // Note: FT2 saves the 13th bit of period into 5th bit of
@@ -298,7 +294,7 @@ int main(int argc, char **argv)
     fwrite8(out, 0);
     fwrite8(out, 0);
     fwrite8(out, 2);
-    fwrite(&modheader[20+30*(c-1)], 15, 1, out);
+    std::fwrite(&modheader[20+30*(c-1)], 15, 1, out);
     fwrite8(out, 0);
     fwrite8(out, 0);
     fwrite8(out, 0);
