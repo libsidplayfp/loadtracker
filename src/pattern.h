@@ -19,10 +19,6 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef PATTERN_C
 extern int epnum[MAX_CHN];
 extern int eppos;
@@ -40,9 +36,5 @@ void nextpattern();
 void prevpattern();
 void patternup();
 void patterndown();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -74,8 +74,8 @@ POSITIONS dpos =
     0                           // statusTopY
 };
 
-void loadexternalpalette(void);
-void initicon(void);
+void loadexternalpalette();
+void initicon();
 
 static inline void setcharcolor(unsigned *dptr, short ch, short color)
 {
@@ -87,7 +87,7 @@ static inline void setcolor(unsigned *dptr, short color)
   *dptr = (*dptr & 0xffff) | (color << 16) | (colors.CBKGND << 20);
 }
 
-int initscreen(void)
+int initscreen()
 {
   int handle;
   unsigned xsize = MAX_COLUMNS * 8;
@@ -131,7 +131,7 @@ int initscreen(void)
   return 1;
 }
 
-void loadexternalpalette(void)
+void loadexternalpalette()
 {
   FILE *ext_f;
   if ((ext_f = fopen("custom.pal", "rt")))
@@ -170,7 +170,7 @@ void loadexternalpalette(void)
   }
 }
 
-void initicon(void)
+void initicon()
 {
   int handle = io_open("loadtrk.bmp");
   if (handle != -1)
@@ -189,7 +189,7 @@ void initicon(void)
     }
   }
 }
-void closescreen(void)
+void closescreen()
 {
   if (scrbuffer)
   {
@@ -210,7 +210,7 @@ void closescreen(void)
   gfxinitted = false;
 }
 
-void clearscreen(void)
+void clearscreen()
 {
   if (!gfxinitted) return;
 
@@ -340,7 +340,7 @@ void printbg(int x, int y, int color, int length)
   }
 }
 
-void fliptoscreen(void)
+void fliptoscreen()
 {
   if (!gfxinitted) return;
 
@@ -446,7 +446,26 @@ void fliptoscreen(void)
   gfx_flip();
 }
 
-void getkey(void)
+void editstring(char *buffer, int maxlength)
+{
+  int len = std::strlen(buffer);
+
+  if ((key >= 32) && (key < 256))
+  {
+    if (len < maxlength-1)
+    {
+      buffer[len] = key;
+      buffer[len+1] = 0;
+    }
+  }
+
+  if ((rawkey == KEY_BACKSPACE) && (len > 0))
+  {
+    buffer[len-1] = 0;
+  }
+}
+
+void getkey()
 {
   win_asciikey = 0;
   cursorflashdelay += win_getspeed(50);

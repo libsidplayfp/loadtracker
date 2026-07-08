@@ -51,10 +51,6 @@
 
 #define PGUPDNREPEAT 8
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef LOADTRK_C
 extern int menu;
 extern int editmode;
@@ -117,9 +113,5 @@ void waitkeymouse();
 void waitkeynoupdate();
 void waitkeymousenoupdate();
 void onlinehelp(int standalone, int context);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

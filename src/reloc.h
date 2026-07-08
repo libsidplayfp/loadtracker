@@ -29,10 +29,6 @@
 #define TYPE_OVERFLOW 1
 #define TYPE_JUMP 2
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef RELOC_C
 extern unsigned char pattused[MAX_PATT];
 extern unsigned char instrused[MAX_INSTR];
@@ -46,9 +42,5 @@ extern int tableerror;
 void relocator();
 void relocator_stereo();
 unsigned char swapnybbles(unsigned char n);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

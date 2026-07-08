@@ -59,7 +59,7 @@ int timemin = 0;
 int timesec = 0;
 unsigned timeframe = 0;
 
-void initcolorscheme(int dark)
+void initcolorscheme(bool dark)
 {
   colors.CBKGND   = dark ? CBLACK : CDBLUE;
 

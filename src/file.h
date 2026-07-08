@@ -22,17 +22,8 @@
 #define MAX_FILENAME 60
 #define MAX_PATHNAME 256
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void initpaths();
 int fileselector(char *name, char *path, char *filter, const char *title, int filemode);
-void editstring(char *buffer, int maxlength);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

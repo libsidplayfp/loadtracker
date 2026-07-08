@@ -522,25 +522,6 @@ char driveexists[26];
   return exitfilesel;
 }
 
-void editstring(char *buffer, int maxlength)
-{
-  int len = std::strlen(buffer);
-
-  if ((key >= 32) && (key < 256))
-  {
-    if (len < maxlength-1)
-    {
-      buffer[len] = key;
-      buffer[len+1] = 0;
-    }
-  }
-
-  if ((rawkey == KEY_BACKSPACE) && (len > 0))
-  {
-    buffer[len-1] = 0;
-  }
-}
-
 int cmpname(char *string1, char *string2)
 {
   for (;;)

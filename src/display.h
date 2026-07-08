@@ -19,19 +19,11 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void initcolorscheme(int dark);
+void initcolorscheme(bool dark);
 void printmainscreen();
 void displayupdate();
 void printstatus();
 void resettime();
 void incrementtime();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

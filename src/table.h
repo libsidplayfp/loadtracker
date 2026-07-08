@@ -25,10 +25,6 @@
 #define MST_PORTAMENTO 3
 #define MST_RAW 4
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef TABLE_C
 extern int etview[MAX_TABLES];
 extern int etnum;
@@ -52,9 +48,5 @@ void settableviewfirst(int num, int pos);
 void validatetableview(void);
 void exectable(int num, int ptr);
 int findfreespeedtable(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

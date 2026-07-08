@@ -173,7 +173,7 @@ int main(int argc, char **argv)
   char filename[MAX_PATHNAME];
   FILE *configfile;
 
-  int dark = 0;
+  bool dark = false;
 
   programname += sizeof "$VER:";
   // Open datafile
@@ -261,7 +261,7 @@ int main(int argc, char **argv)
         case '-':
         if (std::strcmp(argv[c], "--dark") == 0)
         {
-            dark = 1;
+            dark = true;
             break;
         }
         if (strcmp(argv[c], "--help"))
@@ -399,7 +399,7 @@ int main(int argc, char **argv)
           startpath[d+1] = 0;
           chdir(startpath);
           initpaths();
-          strcpy(songfilename, &argv[c][d+1]);
+          std::strcpy(songfilename, &argv[c][d+1]);
           break;
         }
       }
@@ -469,7 +469,7 @@ int main(int argc, char **argv)
   }
 
   // Load song if applicable
-  if (strlen(songfilename)) loadsong();
+  if (std::strlen(songfilename)) loadsong();
 
   // Start editor mainloop
   printmainscreen();

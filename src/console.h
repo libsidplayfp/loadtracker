@@ -22,10 +22,6 @@
 #define MAX_COLUMNS 128
 #define MAX_ROWS 40
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct
 {
     int channelsX;
@@ -60,6 +56,7 @@ void printblank(int x, int y, int length);
 void printblankc(int x, int y, int color, int length);
 void drawbox(int x, int y, int color, int sx, int sy);
 void printbg(int x, int y, int color, int length);
+void editstring(char *buffer, int maxlength);
 void getkey();
 void initDisplayPositions();
 
@@ -69,10 +66,6 @@ extern int mouseb, prevmouseb;
 extern int mouseheld;
 extern int mousex, mousey;
 extern POSITIONS dpos;
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

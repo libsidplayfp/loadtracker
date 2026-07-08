@@ -19,10 +19,6 @@
 #ifndef INSTR_H
 #define INSTR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef INSTR_C
 extern int einum;
 extern int eipos;
@@ -36,9 +32,5 @@ void previnstr();
 void clearinstr(int num);
 void gotoinstr(int i);
 void showinstrtable();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

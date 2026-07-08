@@ -19,10 +19,6 @@
 #ifndef SONG_H
 #define SONG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef SONG_C
 extern INSTR instr[MAX_INSTR];
 extern unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
@@ -53,9 +49,5 @@ int insertpattern(int p);
 void deletepattern(int p);
 void findusedpatterns(void);
 void optimizeeverything(int oi, int ot);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
