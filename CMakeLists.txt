@@ -46,7 +46,6 @@ set(LOADTRK_SOURCES
     src/bme/bme_gfx.cpp
     src/bme/bme_snd.cpp
     src/bme/bme_win.cpp
-    src/bme/bme_mou.cpp
     src/bme/bme_io.cpp
     src/bme/bme_end.cpp
     src/bme/bme.cpp

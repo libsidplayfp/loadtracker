@@ -4,7 +4,6 @@
 
 #include "bme_main.h"
 #include "bme_gfx.h"
-#include "bme_mou.h"
 #include "bme_io.h"
 #include "bme_err.h"
 
@@ -240,6 +239,30 @@ void win_setmousemode(int mode)
         SDL_HideCursor();
         break;
     }
+}
+
+void mou_init()
+{
+    win_mousebuttons = 0;
+}
+
+void mou_getpos(unsigned *x, unsigned *y)
+{
+    if (!gfx_initted)
+    {
+        *x = win_mousexpos;
+        *y = win_mouseypos;
+    }
+    else
+    {
+        *x = win_mousexpos * gfx_virtualxsize / gfx_windowxsize;
+        *y = win_mouseypos * gfx_virtualysize / gfx_windowysize;
+    }
+}
+
+unsigned mou_getbuttons(void)
+{
+    return win_mousebuttons;
 }
 
 }

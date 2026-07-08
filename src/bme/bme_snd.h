@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
+bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit();
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 

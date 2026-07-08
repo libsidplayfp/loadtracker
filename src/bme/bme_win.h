@@ -11,6 +11,9 @@ int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *ic
 void win_closewindow(void);
 int win_getspeed(int framerate);
 void win_setmousemode(int mode);
+void mou_init();
+void mou_getpos(unsigned *x, unsigned *y);
+unsigned mou_getbuttons();
 
 extern int win_quitted;
 extern int win_fullscreen;

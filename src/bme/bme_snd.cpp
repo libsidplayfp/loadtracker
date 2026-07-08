@@ -28,13 +28,13 @@ typedef jack_default_audio_sample_t sample_t;
 extern "C" {
 
 // Prototypes
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
-void snd_uninit(void);
+bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
+void snd_uninit();
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 
-static int snd_initchannels(unsigned channels);
-static int snd_initmixer(void);
-static void snd_uninitmixer(void);
+static bool snd_initchannels(unsigned channels);
+static bool snd_initmixer();
+static void snd_uninitmixer();
 static void snd_mixdata(Uint8 *dest, unsigned bytes);
 static void snd_mixchannels(Sint32 *dest, unsigned samples);
 static void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount);
@@ -101,13 +101,13 @@ int snd_jack_process(jack_nframes_t nframes, void *arg) {
     return 0;
 }
 
-int snd_init_jack() {
+bool snd_init_jack() {
     jack_status_t status;
 
     client = jack_client_open("goattracker2", JackNoStartServer, &status);
     if (client == 0) {
         fprintf(stderr, "failed to create jack client\n");
-        return BME_ERROR;
+        return false;
     }
 
     if (use_jack_audio) {
@@ -126,7 +126,7 @@ int snd_init_jack() {
         {
             bme_error = BME_OUT_OF_MEMORY;
             snd_uninit();
-            return BME_ERROR;
+            return false;
         }
     }
 
@@ -139,17 +139,17 @@ int snd_init_jack() {
 
         if (!output_port) {
             fprintf(stderr, "failed to register port\n");
-            return BME_ERROR;
+            return false;
         }
     }
 
     if (jack_activate(client)) {
         fprintf(stderr, "failed to activate\n");
-        return BME_ERROR;
+        return false;
     }
 
     bme_error = BME_OK;
-    return BME_OK;
+    return true;
 }
 #endif
 
@@ -192,37 +192,37 @@ void snd_midi_process(double timeStamp, const unsigned char *message, size_t mes
     }
 }
 
-int snd_init_midi() {
+bool snd_init_midi() {
     RtMidiInPtr midi_device = rtmidi_in_create(RTMIDI_API_UNSPECIFIED, "goattracker2", 100);
     if (!midi_device->ok) {
         fprintf(stderr, "failed to activate midi: %s\n", midi_device->msg);
-        return BME_ERROR;
+        return false;
     }
 
     unsigned int ports = rtmidi_get_port_count(midi_device);
     if (!ports) {
         fprintf(stderr, "no available ports\n");
-        return BME_ERROR;
+        return false;
     }
 
     rtmidi_open_port(midi_device, 0, "midi_in");
     if (!midi_device->ok) {
         fprintf(stderr, "failed to open port: %s\n", midi_device->msg);
-        return BME_ERROR;
+        return false;
     }
 
     rtmidi_in_set_callback(midi_device, snd_midi_process, nullptr);
     if (!midi_device->ok) {
         fprintf(stderr, "failed to set midi callback: %s\n", midi_device->msg);
-        return BME_ERROR;
+        return false;
     }
 
     bme_error = BME_OK;
-    return BME_OK;
+    return true;
 }
 #endif
 
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound)
+bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound)
 {
     // If user wants to re-initialize, shutdown first
 
@@ -235,7 +235,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
 #ifdef USE_JACK
     if (use_jack) {
         snd_init_jack();
-        if (use_jack_audio) return BME_OK;
+        if (use_jack_audio) return true;
     }
 #endif
     // Register snd_uninit as an atexit function
@@ -252,7 +252,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
     {
         bme_error = BME_ILLEGAL_CONFIG;
         snd_uninit();
-        return BME_ERROR;
+        return false;
     }
 
     spec.freq = mixrate;
@@ -274,7 +274,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
     {
         bme_error = BME_OPEN_ERROR;
         snd_uninit();
-        return BME_ERROR;
+        return false;
     }
     snd_sndinitted = true;
 
@@ -288,8 +288,8 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
     }
 
     // (Re)allocate channels if necessary
-    if (snd_initchannels(spec.channels) != BME_OK) {
-        return BME_ERROR;
+    if (!snd_initchannels(spec.channels)) {
+        return false;
     }
 
     if ((SDL_AUDIO_BITSIZE(spec.format) == 16) &&
@@ -310,7 +310,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
     {
         bme_error = BME_SOUND_ERROR;
         snd_uninit();
-        return BME_ERROR;
+        return false;
     }
 
     int sample_frames;
@@ -325,15 +325,15 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirec
     {
         bme_error = BME_OUT_OF_MEMORY;
         snd_uninit();
-        return BME_ERROR;
+        return false;
     }
 
     SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
     bme_error = BME_OK;
-    return BME_OK;
+    return true;
 }
 
-int snd_initchannels(unsigned channels) {
+bool snd_initchannels(unsigned channels) {
 
     if (snd_previouschannels != channels)
     {
@@ -350,7 +350,7 @@ int snd_initchannels(unsigned channels) {
         {
             bme_error = BME_OUT_OF_MEMORY;
             snd_uninit();
-            return BME_ERROR;
+            return false;
         }
         chptr = &snd_channel[0];
         snd_channels = channels;
@@ -366,7 +366,7 @@ int snd_initchannels(unsigned channels) {
         }
     }
 
-    return BME_OK;
+    return true;
 }
 
 
@@ -393,7 +393,7 @@ void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples))
     snd_custommixer = custommixer;
 }
 
-static int snd_initmixer(void)
+static bool snd_initmixer()
 {
     snd_uninitmixer();
 
@@ -404,12 +404,12 @@ static int snd_initmixer(void)
     }
 
     snd_clipbuffer = (Sint32*)std::malloc(bufSize);
-    if (!snd_clipbuffer) return 0;
+    if (!snd_clipbuffer) return false;
 
-    return 1;
+    return true;
 }
 
-static void snd_uninitmixer(void)
+static void snd_uninitmixer()
 {
     if (snd_clipbuffer)
     {
@@ -513,9 +513,8 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
 static void snd_mixchannels(Sint32 *dest, unsigned samples)
 {
     CHANNEL *chptr = &snd_channel[0];
-    int c;
 
-    for (c = snd_channels; c; c--)
+    for (int c = snd_channels; c; c--)
     {
         snd_mixchannel(chptr, dest, samples);
         chptr++;
