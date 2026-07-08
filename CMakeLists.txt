@@ -17,7 +17,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
 endif()
 
 set(LOADTRK_SOURCES
-    ${CMAKE_BINARY_DIR}/src/goatdata.c
+    ${CMAKE_BINARY_DIR}/src/goatdata.cpp
     src/loadtrk.cpp
     src/song.cpp
     src/order.cpp
@@ -94,8 +94,8 @@ add_custom_command(
   )
 
 add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/src/goatdata.c
-  COMMAND dat2inc loadtrk.dat goatdata.c
+  OUTPUT ${CMAKE_BINARY_DIR}/src/goatdata.cpp
+  COMMAND dat2inc loadtrk.dat goatdata.cpp
   DEPENDS dat2inc ${CMAKE_BINARY_DIR}/src/loadtrk.dat
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src
   )
@@ -105,7 +105,7 @@ add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
-add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.c)
+add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.cpp)
 add_dependencies(loadtrk goatdata)
 
 target_include_directories(mod2sng PUBLIC SDL3::Headers)

@@ -285,9 +285,9 @@ void gfx_setmaxspritefiles(unsigned num)
 {
     if (gfx_spriteheaders) return;
 
-    gfx_spriteheaders = (SPRITEHEADER**)malloc(num * sizeof(Uint8 *));
-    gfx_spritedata = (Uint8**)malloc(num * sizeof(Uint8 *));
-    gfx_spriteamount = (unsigned int*)malloc(num * sizeof(unsigned));
+    gfx_spriteheaders = (SPRITEHEADER**)std::malloc(num * sizeof(Uint8 *));
+    gfx_spritedata = (Uint8**)std::malloc(num * sizeof(Uint8 *));
+    gfx_spriteamount = (unsigned int*)std::malloc(num * sizeof(unsigned));
     if ((gfx_spriteheaders) && (gfx_spritedata) && (gfx_spriteamount))
     {
         unsigned c;
@@ -323,7 +323,7 @@ bool gfx_loadsprites(unsigned num, const char *name)
 
     gfx_spriteamount[num] = io_readle32(handle);
 
-    gfx_spriteheaders[num] = (SPRITEHEADER*)malloc(gfx_spriteamount[num] * sizeof(SPRITEHEADER));
+    gfx_spriteheaders[num] = (SPRITEHEADER*)std::malloc(gfx_spriteamount[num] * sizeof(SPRITEHEADER));
 
     if (!gfx_spriteheaders[num])
     {
@@ -344,7 +344,7 @@ bool gfx_loadsprites(unsigned num, const char *name)
     }
 
     int datastart = io_lseek(handle, 0, SEEK_CUR);
-    gfx_spritedata[num] = (Uint8*)malloc(size - datastart);
+    gfx_spritedata[num] = (Uint8*)std::malloc(size - datastart);
     if (!gfx_spritedata[num])
     {
         bme_error = BME_OUT_OF_MEMORY;
@@ -363,12 +363,12 @@ void gfx_freesprites(unsigned num)
 
     if (gfx_spritedata[num])
     {
-        free(gfx_spritedata[num]);
+        std::free(gfx_spritedata[num]);
         gfx_spritedata[num] = NULL;
     }
     if (gfx_spriteheaders[num])
     {
-        free(gfx_spriteheaders[num]);
+        std::free(gfx_spriteheaders[num]);
         gfx_spriteheaders[num] = NULL;
     }
 }

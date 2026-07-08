@@ -106,14 +106,12 @@ int initscreen()
       return 0;
   }
 
-  scrbuffer = (unsigned*)malloc(MAX_COLUMNS * MAX_ROWS * sizeof(unsigned));
-  prevscrbuffer = (unsigned*)malloc(MAX_COLUMNS * MAX_ROWS * sizeof(unsigned));
-  if ((!scrbuffer) || (!prevscrbuffer)) return 0;
+  scrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS * sizeof(unsigned)];
+  prevscrbuffer = new unsigned[MAX_COLUMNS * MAX_ROWS * sizeof(unsigned)];
 
   std::memset(region, 0, sizeof region);
 
-  chardata = (unsigned char*)malloc(4096);
-  if (!chardata) return 0;
+  chardata = new unsigned char[4096];
   handle = io_open("chargen.bin");
   if (handle == -1) return 0;
   io_read(handle, &chardata[0], 4096);
@@ -127,14 +125,14 @@ int initscreen()
 
   gfxinitted = true;
   clearscreen();
-  atexit(closescreen);
+  std::atexit(closescreen);
   return 1;
 }
 
 void loadexternalpalette()
 {
   FILE *ext_f;
-  if ((ext_f = fopen("custom.pal", "rt")))
+  if ((ext_f = std::fopen("custom.pal", "rt")))
   {
     char ln[100];
     std::strcpy(ln, "");
@@ -166,7 +164,7 @@ void loadexternalpalette()
       }
     }
 
-    fclose(ext_f);
+    std::fclose(ext_f);
   }
 }
 
@@ -177,7 +175,7 @@ void initicon()
   {
     int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
-    char *iconbuffer = (char*)malloc(size);
+    char *iconbuffer = new char[size];
     if (iconbuffer)
     {
       io_read(handle, iconbuffer, size);
@@ -185,7 +183,7 @@ void initicon()
       SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
       SDL_Surface *icon = SDL_LoadBMP_IO(rw, 0);
       SDL_SetWindowIcon(win_window, icon);
-      free(iconbuffer);
+      delete [] iconbuffer;
     }
   }
 }
@@ -193,17 +191,17 @@ void closescreen()
 {
   if (scrbuffer)
   {
-    free(scrbuffer);
+    delete [] scrbuffer;
     scrbuffer = nullptr;
   }
   if (prevscrbuffer)
   {
-    free(prevscrbuffer);
+    delete [] prevscrbuffer;
     prevscrbuffer = nullptr;
   }
   if (chardata)
   {
-    free(chardata);
+    delete [] chardata;
     chardata = nullptr;
   }
 
