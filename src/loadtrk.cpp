@@ -540,7 +540,7 @@ int main(int argc, char **argv)
                         ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
                         ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
-                        ";Filter curve (0.0 (dark) to 1.0 (light))\n%f\n\n"
+                        ";Filter curve (0.0 (dark) to 1.0 (bright))\n%f\n\n"
                         ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
                         ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
                         ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
