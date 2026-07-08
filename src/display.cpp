@@ -223,14 +223,8 @@ void printstatus()
 
   for (int c = 0; c < maxChns; c++)
   {
-    std::sprintf(textbuffer, "CH.");
-    printtext(dpos.patternsX+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    std::sprintf(textbuffer, "%d", c+1);
-    printtext(dpos.patternsX+3+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    std::sprintf(textbuffer, "PATT.");
-    printtext(dpos.patternsX+5+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
-    std::sprintf(textbuffer, "%02X", epnum[c]);
-    printtext(dpos.patternsX+10+c*13, dpos.patternsY, colors.CTITLE, textbuffer);
+    std::sprintf(textbuffer, "CH.%d PATT.%02X ", c+1, epnum[c]);
+    printtext(dpos.patternsX+c*13, dpos.patternsY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
     for (int d = 0; d < VISIBLEPATTROWS; d++)
     {
@@ -330,15 +324,15 @@ void printstatus()
   }
 
   std::sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ");
-  printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE, textbuffer);
+  printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, "%02X", esnum);
-  printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT, textbuffer);
+  printtext(dpos.orderlistX+23, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, ", POS ");
-  printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE, textbuffer);
+  printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, "%02X", eseditpos);
-  printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT, textbuffer);
-  std::sprintf(textbuffer, ")");
-  printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE, textbuffer);
+  printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
+  std::sprintf(textbuffer, ")   ");
+  printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < maxChns; c++)
   {
@@ -443,8 +437,8 @@ void printstatus()
     }
   }
 
-  std::sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s", einum, instr[einum].name);
-  printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE, textbuffer);
+  std::sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s  ", einum, instr[einum].name);
+  printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   int color;
   std::sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
@@ -496,7 +490,7 @@ void printstatus()
   }
 
   std::sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
-  printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE, textbuffer);
+  printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < MAX_TABLES; c++)
   {
