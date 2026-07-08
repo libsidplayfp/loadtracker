@@ -8,6 +8,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <new>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -26,16 +28,15 @@ typedef struct
 {
     HEADER *currentheader;
     int filepos;
-    int open;
+    bool open;
 } HANDLE;
 
-static bool io_usedatafile = false;
+static bool io_datafileopen = false;
 static HEADER *fileheaders;
 static unsigned files;
 static char ident[4];
 static const char *idstring = "DAT!";
 static HANDLE handle[MAX_HANDLES];
-static FILE *fileptr[MAX_HANDLES] = {nullptr};
 static FILE *datafilehandle = nullptr;
 static unsigned char *datafileptr;
 static unsigned char *datafilestart;
@@ -60,7 +61,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     }
 
     files = linkedreadle32();
-    fileheaders = (HEADER*)std::malloc(files * sizeof(HEADER));
+    fileheaders = new (std::nothrow) HEADER[files * sizeof(HEADER)];
     if (!fileheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
@@ -73,160 +74,124 @@ int io_openlinkeddatafile(unsigned char *ptr)
         linkedread(&fileheaders[index].name, 13);
     }
 
-    for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
-    io_usedatafile = true;
+    for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = false;
+    io_datafileopen = true;
     bme_error = BME_OK;
     return BME_OK;
+}
+
+void io_closelinkeddatafile()
+{
+    delete [] fileheaders;
 }
 
 // Returns nonnegative file handle if successful, -1 on error
 
 int io_open(const char *name)
 {
-    if (!name) return -1;
+    if (!name || !io_datafileopen) return -1;
 
-    if (!io_usedatafile)
+    size_t namelength = std::strlen(name);
+    if (namelength > 12) namelength = 12;
+    char namecopy[13];
+    std::memcpy(namecopy, name, namelength + 1);
+    for (size_t index = 0; index < std::strlen(namecopy); index++)
     {
-        int index;
-        for (index = 0; index < MAX_HANDLES; index++)
-        {
-            if (!fileptr[index]) break;
-        }
-        if (index == MAX_HANDLES) return -1;
-        else
-        {
-            FILE *file = std::fopen(name, "rb");
-            if (!file)
-            {
-                return -1;
-            }
-            else
-            {
-                fileptr[index] = file;
-                return index;
-            }
-        }
+        namecopy[index] = toupper(namecopy[index]);
     }
-    else
+
+    for (size_t index = 0; index < MAX_HANDLES; index++)
     {
-        size_t namelength = std::strlen(name);
-        if (namelength > 12) namelength = 12;
-        char namecopy[13];
-        std::memcpy(namecopy, name, namelength + 1);
-        for (size_t index = 0; index < std::strlen(namecopy); index++)
+        if (!handle[index].open)
         {
-            namecopy[index] = toupper(namecopy[index]);
-        }
+            int count = files;
+            handle[index].currentheader = fileheaders;
 
-        for (size_t index = 0; index < MAX_HANDLES; index++)
-        {
-            if (!handle[index].open)
+            while (count)
             {
-                int count = files;
-                handle[index].currentheader = fileheaders;
-
-                while (count)
+                if (!std::strcmp(namecopy, handle[index].currentheader->name))
                 {
-                    if (!std::strcmp(namecopy, handle[index].currentheader->name))
-                    {
-                         handle[index].open = 1;
-                         handle[index].filepos = 0;
-                         return index;
-                    }
-                    count--;
-                    handle[index].currentheader++;
+                        handle[index].open = true;
+                        handle[index].filepos = 0;
+                        return index;
                 }
-                return -1;
+                count--;
+                handle[index].currentheader++;
             }
+            return -1;
         }
-        return -1;
     }
+    return -1;
 }
 
 // Returns file position after seek or -1 on error
 
 int io_lseek(int index, int offset, int whence)
 {
-    if (!io_usedatafile)
+    if (!io_datafileopen)  return -1;
+
+    if ((index < 0) || (index >= MAX_HANDLES)) return -1;
+
+    if (!handle[index].open) return -1;
+    int newpos;
+    switch(whence)
     {
-         std::fseek(fileptr[index], offset, whence);
-         return ftell(fileptr[index]);
+        default:
+        case SEEK_SET:
+        newpos = offset;
+        break;
+
+        case SEEK_CUR:
+        newpos = offset + handle[index].filepos;
+        break;
+
+        case SEEK_END:
+        newpos = offset + handle[index].currentheader->length;
+        break;
     }
-    else
-    {
-        if ((index < 0) || (index >= MAX_HANDLES)) return -1;
-
-        if (!handle[index].open) return -1;
-        int newpos;
-        switch(whence)
-        {
-            default:
-            case SEEK_SET:
-            newpos = offset;
-            break;
-
-            case SEEK_CUR:
-            newpos = offset + handle[index].filepos;
-            break;
-
-            case SEEK_END:
-            newpos = offset + handle[index].currentheader->length;
-            break;
-        }
-        if (newpos < 0) newpos = 0;
-        if (newpos > handle[index].currentheader->length) newpos = handle[index].currentheader->length;
-        handle[index].filepos = newpos;
-        return newpos;
-    }
+    if (newpos < 0) newpos = 0;
+    if (newpos > handle[index].currentheader->length) newpos = handle[index].currentheader->length;
+    handle[index].filepos = newpos;
+    return newpos;
 }
 
 // Returns number of bytes actually read, -1 on error
 
 int io_read(int index, void *buffer, int length)
 {
-    if (!io_usedatafile)
+    if (!io_datafileopen) return -1;
+
+    if ((index < 0) || (index >= MAX_HANDLES)) return -1;
+
+    if (!handle[index].open) return -1;
+    if (length + handle[index].filepos > handle[index].currentheader->length)
+    length = handle[index].currentheader->length - handle[index].filepos;
+
+    int readbytes;
+    if (datafilehandle)
     {
-        return std::fread(buffer, 1, length, fileptr[index]);
+        std::fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
+        readbytes = std::fread(buffer, 1, length, datafilehandle);
     }
     else
     {
-        if ((index < 0) || (index >= MAX_HANDLES)) return -1;
-
-        if (!handle[index].open) return -1;
-        if (length + handle[index].filepos > handle[index].currentheader->length)
-        length = handle[index].currentheader->length - handle[index].filepos;
-
-        int readbytes;
-        if (datafilehandle)
-        {
-            std::fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
-            readbytes = std::fread(buffer, 1, length, datafilehandle);
-        }
-        else
-        {
-            linkedseek(handle[index].currentheader->offset + handle[index].filepos);
-            linkedread(buffer, length);
-            readbytes = length;
-        }
-        handle[index].filepos += readbytes;
-        return readbytes;
+        linkedseek(handle[index].currentheader->offset + handle[index].filepos);
+        linkedread(buffer, length);
+        readbytes = length;
     }
+    handle[index].filepos += readbytes;
+    return readbytes;
 }
 
 // Returns nothing
 
 void io_close(int index)
 {
-    if (!io_usedatafile)
-    {
-        std::fclose(fileptr[index]);
-        fileptr[index] = nullptr;
-    }
-    else
+    if (io_datafileopen)
     {
         if ((index < 0) || (index >= MAX_HANDLES)) return;
 
-        handle[index].open = 0;
+        handle[index].open = false;
     }
 }
 
@@ -284,7 +249,7 @@ static void linkedread(void *buffer, int length)
     }
 }
 
-static unsigned linkedreadle32(void)
+static unsigned linkedreadle32()
 {
     unsigned char bytes[4];
 

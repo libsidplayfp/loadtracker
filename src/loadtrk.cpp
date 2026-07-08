@@ -484,10 +484,12 @@ int main(int argc, char **argv)
   // Shutdown sound output now
   sound_uninit();
 
+  io_closelinkeddatafile();
+
   // Save configuration
 #ifndef __WIN32__
 #  ifdef __amigaos__
-  strcpy(filename, "PROGDIR:loadtrk.cfg");
+  std::strcpy(filename, "PROGDIR:loadtrk.cfg");
 #  else
   xdg_home = getenv("XDG_CONFIG_HOME");
   if (xdg_home)
