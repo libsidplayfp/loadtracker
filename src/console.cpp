@@ -55,8 +55,8 @@ int mouseheld = 0;
 int region[MAX_ROWS];
 int fontwidth = 8;
 int fontheight = 14;
-int mousesizex = 11;
-int mousesizey = 20;
+int mousesizex = 19;
+int mousesizey = 24;
 
 POSITIONS dpos =
 {
@@ -123,11 +123,13 @@ bool initscreen()
   io_read(handle, &chardata[0], 4096);
   io_close(handle);
 
-  gfx_loadpalette("palette.bin");
+  if (!gfx_loadpalette("palette.bin"))
+      return false;
   loadexternalpalette();
   gfx_setpalette();
 
-  gfx_loadcursor("cursor.bin");
+  if (!gfx_loadcursor("cursor.png"))
+      return false;
 
   gfxinitted = true;
   clearscreen();
@@ -189,6 +191,7 @@ void initicon()
       SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
       SDL_Surface *icon = SDL_LoadBMP_IO(rw, true);
       SDL_SetWindowIcon(win_window, icon);
+      SDL_DestroySurface(icon);
       delete [] iconbuffer;
     }
   }
@@ -432,6 +435,8 @@ void fliptoscreen()
     }
   }
 
+  gfx_unlock();
+
   // Redraw mouse if text was redrawn
   if (regionschanged)
   {
@@ -449,7 +454,6 @@ void fliptoscreen()
   oldmousepixely = mousepixely;
 
   // Redraw changed screen regions
-  gfx_unlock();
   gfx_flip();
 }
 

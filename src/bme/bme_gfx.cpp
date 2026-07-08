@@ -29,8 +29,6 @@ unsigned gfx_windowxsize;
 unsigned gfx_windowysize;
 int spr_xsize = 0;
 int spr_ysize = 0;
-int spr_xhotspot = 0;
-int spr_yhotspot = 0;
 Uint8 gfx_palette[MAX_COLORS * 3] = {0};
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
@@ -48,9 +46,7 @@ static int gfx_clipleft;
 static int gfx_clipright;
 static int gfx_maxcolors = MAX_COLORS;
 
-static SPRITEHEADER *gfx_cursorheaders = nullptr;
-static Uint8 *gfx_cursordata = nullptr;
-static unsigned gfx_cursoramount = 0;
+static SDL_Surface *gfx_cursor = nullptr;
 
 static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
@@ -273,54 +269,25 @@ bool gfx_loadcursor(const char *name)
 
     int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
-
-    gfx_cursoramount = io_readle32(handle);
-
-    gfx_cursorheaders = new (std::nothrow) SPRITEHEADER[gfx_cursoramount];
-
-    if (!gfx_cursorheaders)
-    {
-        bme_error = BME_OUT_OF_MEMORY;
-        io_close(handle);
-        return false;
-    }
-
-    for (unsigned c = 0; c < gfx_cursoramount; c++)
-    {
-        SPRITEHEADER *hptr = &gfx_cursorheaders[c];
-
-        hptr->xsize = io_readle16(handle);
-        hptr->ysize = io_readle16(handle);
-        hptr->xhot = io_readle16(handle);
-        hptr->yhot = io_readle16(handle);
-        hptr->offset = io_readle32(handle);
-    }
-
-    int datastart = io_lseek(handle, 0, SEEK_CUR);
-    gfx_cursordata = new (std::nothrow) Uint8[size - datastart];
-    if (!gfx_cursordata)
-    {
-        bme_error = BME_OUT_OF_MEMORY;
-        io_close(handle);
-        return false;
-    }
-    io_read(handle, gfx_cursordata, size - datastart);
+    char *iconbuffer = new (std::nothrow) char[size];
+    io_read(handle, iconbuffer, size);
     io_close(handle);
+
+    SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
+    gfx_cursor = SDL_LoadPNG_IO(rw, true);
+    if (!gfx_cursor)
+        return false;
+
     bme_error = BME_OK;
     return true;
 }
 
 void gfx_freecursor()
 {
-    if (gfx_cursordata)
+    if (gfx_cursor)
     {
-        delete [] gfx_cursordata;
-        gfx_cursordata = nullptr;
-    }
-    if (gfx_cursorheaders)
-    {
-        delete [] gfx_cursorheaders;
-        gfx_cursorheaders = nullptr;
+        SDL_DestroySurface(gfx_cursor);
+        gfx_cursor = nullptr;
     }
 }
 
@@ -385,95 +352,26 @@ void gfx_copyscreen8(Uint8  *destaddress, Uint8  *srcaddress, unsigned pitch)
 void gfx_drawcursor(int x, int y)
 {
     if (!gfx_initted) return;
-    if (!gfx_locked) return;
+    //if (!gfx_locked) return;
 
-    if (!gfx_cursorheaders)
+    if (!gfx_cursor)
     {
         spr_xsize = 0;
         spr_ysize = 0;
-        spr_xhotspot = 0;
-        spr_yhotspot = 0;
         return;
     }
 
-    SPRITEHEADER *hptr = &gfx_cursorheaders[0];
-
-    Uint8 *sptr = &gfx_cursordata[hptr->offset];
-    spr_xsize = hptr->xsize;
-    spr_ysize = hptr->ysize;
-    spr_xhotspot = hptr->xhot;
-    spr_yhotspot = hptr->yhot;
-
-    x -= spr_xhotspot;
-    y -= spr_yhotspot;
+    spr_xsize = gfx_cursor->w;
+    spr_ysize = gfx_cursor->h;
 
     if (x >= gfx_clipright) return;
     if (y >= gfx_clipbottom) return;
     if (x + spr_xsize <= gfx_clipleft) return;
     if (y + spr_ysize <= gfx_cliptop) return;
 
-    while (y < gfx_cliptop)
-    {
-        int dec = *sptr++;
-        if (dec == 255)
-        {
-            if (!(*sptr)) return;
-            y++;
-        }
-        else
-        {
-            if (dec < 128)
-            {
-                sptr += dec;
-            }
-        }
-    }
-    while (y < gfx_clipbottom)
-    {
-        int cx = x;
-        Uint8 *dptr = (Uint8*)gfx_screen->pixels + y * gfx_screen->pitch + x;
-
-        for (;;)
-        {
-            int dec = *sptr++;
-
-            if (dec == 255)
-            {
-                if (!(*sptr)) return;
-                y++;
-                break;
-            }
-            if (dec < 128)
-            {
-                if ((cx + dec <= gfx_clipleft) || (cx >= gfx_clipright))
-                {
-                    goto SKIP;
-                }
-                if (cx < gfx_clipleft)
-                {
-                    dec -= (gfx_clipleft - cx);
-                    sptr += (gfx_clipleft - cx);
-                    dptr += (gfx_clipleft - cx);
-                    cx = gfx_clipleft;
-                }
-                while ((cx < gfx_clipright) && (dec))
-                {
-                    *dptr = *sptr;
-                    cx++;
-                    sptr++;
-                    dptr++;
-                    dec--;
-                }
-SKIP:
-                cx += dec;
-                sptr += dec;
-                dptr += dec;
-            }
-            else
-            {
-                cx += (dec & 0x7f);
-                dptr += (dec & 0x7f);
-            }
-        }
-    }
+    SDL_Rect dstrect;
+    dstrect.x = x;
+    dstrect.y = y;
+    if (!SDL_BlitSurface(gfx_cursor, NULL, gfx_screen, &dstrect))
+        printf("Error: %s\n", SDL_GetError());
 }
