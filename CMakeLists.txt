@@ -60,16 +60,23 @@ if(MINGW)
 endif(MINGW)
 
 set(MOD2SNG_SOURCES
-    src/mod2sng.cpp
+    src/tools/mod2sng.cpp
     src/bme/bme_end.cpp)
 
 set(INS2SND2_SOURCES
-    src/ins2snd2.cpp
+    src/tools/ins2snd2.cpp
     src/bme/bme_end.cpp)
 
 set(SNGSPLI2_SOURCES
-    src/sngspli2.cpp
+    src/tools/sngspli2.cpp
     src/bme/bme_end.cpp)
+
+set(DATAFILE_SOURCES
+    src/tools/datafile.cpp
+    src/bme/bme_end.cpp)
+
+set(DAT2INC_SOURCES
+    src/tools/dat2inc.cpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
@@ -77,11 +84,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src/asm)
 
 find_package(SDL3 REQUIRED)
 
-add_executable(datafile src/bme/datafile.cpp src/bme/bme_end.cpp)
-add_executable(dat2inc src/bme/dat2inc.cpp)
+add_executable(dat2inc ${DAT2INC_SOURCES})
+add_executable(datafile ${DATAFILE_SOURCES})
+add_executable(loadtrk ${LOADTRK_SOURCES})
+add_executable(mod2sng ${MOD2SNG_SOURCES})
+add_executable(ins2snd2 ${INS2SND2_SOURCES})
+add_executable(sngspli2 ${SNGSPLI2_SOURCES})
+
 
 target_include_directories(datafile PUBLIC SDL3::Headers)
-
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -98,11 +109,6 @@ add_custom_command(
   DEPENDS dat2inc ${CMAKE_BINARY_DIR}/src/loadtrk.dat
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src
   )
-
-add_executable(loadtrk ${LOADTRK_SOURCES})
-add_executable(mod2sng ${MOD2SNG_SOURCES})
-add_executable(ins2snd2 ${INS2SND2_SOURCES})
-add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
 add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.cpp)
 add_dependencies(loadtrk goatdata)
