@@ -102,7 +102,7 @@ char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 
 extern char *notename[];
-const char *programname = "$VER: LoadTracker v1.99";
+const char *programname = "LoadTracker v1.99";
 char specialnotenames[186];
 char scalatuningfilepath[MAX_PATHNAME];
 char tuningname[64];
@@ -177,7 +177,6 @@ int main(int argc, char **argv)
 
   bool dark = false;
 
-  programname += sizeof "$VER:";
   // Open datafile
   io_openlinkeddatafile(datafile);
 
@@ -243,7 +242,7 @@ int main(int argc, char **argv)
         getstringparam(configfile, scalatuningfilepath);
         getparam(configfile, &exsid);
     }
-    fclose(configfile);
+    std::fclose(configfile);
   }
 
   // Init pathnames
@@ -1348,8 +1347,8 @@ void save()
 
         if (useinstrname)
         {
-          if (!strcmp(tempfilename, instrfilename))
-            memset(instrfilename, 0, sizeof instrfilename);
+          if (!std::strcmp(tempfilename, instrfilename))
+            std::memset(instrfilename, 0, sizeof instrfilename);
         }
       }
     }
