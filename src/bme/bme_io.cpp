@@ -2,6 +2,8 @@
 // BME (Blasphemous Multimedia Engine) datafile IO main module
 //
 
+#include "bme_io.h"
+
 #include "bme_main.h"
 
 #include <SDL3/SDL.h>
@@ -33,26 +35,25 @@ static unsigned files;
 static char ident[4];
 static const char *idstring = "DAT!";
 static HANDLE handle[MAX_HANDLES];
-static FILE *fileptr[MAX_HANDLES] = {NULL};
-static FILE *datafilehandle = NULL;
+static FILE *fileptr[MAX_HANDLES] = {nullptr};
+static FILE *datafilehandle = nullptr;
 static unsigned char *datafileptr;
 static unsigned char *datafilestart;
 
-static unsigned freadle32(FILE *index);
 static void linkedseek(unsigned pos);
 static void linkedread(void *buffer, int length);
 static unsigned linkedreadle32(void);
 
 int io_openlinkeddatafile(unsigned char *ptr)
 {
-    if (datafilehandle) fclose(datafilehandle);
-    datafilehandle = NULL;
+    if (datafilehandle) std::fclose(datafilehandle);
+    datafilehandle = nullptr;
 
     datafilestart = ptr;
     linkedseek(0);
 
     linkedread(ident, 4);
-    if (memcmp(ident, idstring, 4))
+    if (std::memcmp(ident, idstring, 4))
     {
         bme_error = BME_WRONG_FORMAT;
         return BME_ERROR;
@@ -78,45 +79,6 @@ int io_openlinkeddatafile(unsigned char *ptr)
     return BME_OK;
 }
 
-int io_opendatafile(const char *name)
-{
-    if (name)
-    {
-        datafilehandle = fopen(name, "rb");
-        if (!datafilehandle)
-        {
-            bme_error = BME_OPEN_ERROR;
-            return BME_ERROR;
-        }
-    }
-
-    fread(ident, 4, 1, datafilehandle);
-    if (memcmp(ident, idstring, 4))
-    {
-        bme_error = BME_WRONG_FORMAT;
-        return BME_ERROR;
-    }
-
-    files = freadle32(datafilehandle);
-    fileheaders = (HEADER*)std::malloc(files * sizeof(HEADER));
-    if (!fileheaders)
-    {
-        bme_error = BME_OUT_OF_MEMORY;
-        return BME_ERROR;
-    }
-    for (unsigned index = 0; index < files; index++)
-    {
-        fileheaders[index].offset = freadle32(datafilehandle);
-        fileheaders[index].length = freadle32(datafilehandle);
-        fread(&fileheaders[index].name, 13, 1, datafilehandle);
-    }
-
-    for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = 0;
-    io_usedatafile = true;
-    bme_error = BME_OK;
-    return BME_OK;
-}
-
 // Returns nonnegative file handle if successful, -1 on error
 
 int io_open(const char *name)
@@ -133,7 +95,7 @@ int io_open(const char *name)
         if (index == MAX_HANDLES) return -1;
         else
         {
-            FILE *file = fopen(name, "rb");
+            FILE *file = std::fopen(name, "rb");
             if (!file)
             {
                 return -1;
@@ -147,19 +109,16 @@ int io_open(const char *name)
     }
     else
     {
-        size_t  index;
-        size_t  namelength;
-        char namecopy[13];
-
-        namelength = strlen(name);
+        size_t namelength = std::strlen(name);
         if (namelength > 12) namelength = 12;
+        char namecopy[13];
         std::memcpy(namecopy, name, namelength + 1);
-        for (index = 0; index < strlen(namecopy); index++)
+        for (size_t index = 0; index < std::strlen(namecopy); index++)
         {
             namecopy[index] = toupper(namecopy[index]);
         }
 
-        for (index = 0; index < MAX_HANDLES; index++)
+        for (size_t index = 0; index < MAX_HANDLES; index++)
         {
             if (!handle[index].open)
             {
@@ -190,16 +149,15 @@ int io_lseek(int index, int offset, int whence)
 {
     if (!io_usedatafile)
     {
-         fseek(fileptr[index], offset, whence);
+         std::fseek(fileptr[index], offset, whence);
          return ftell(fileptr[index]);
     }
     else
     {
-        int newpos;
-
         if ((index < 0) || (index >= MAX_HANDLES)) return -1;
 
         if (!handle[index].open) return -1;
+        int newpos;
         switch(whence)
         {
             default:
@@ -228,22 +186,21 @@ int io_read(int index, void *buffer, int length)
 {
     if (!io_usedatafile)
     {
-        return fread(buffer, 1, length, fileptr[index]);
+        return std::fread(buffer, 1, length, fileptr[index]);
     }
     else
     {
-        int readbytes;
-
         if ((index < 0) || (index >= MAX_HANDLES)) return -1;
 
         if (!handle[index].open) return -1;
         if (length + handle[index].filepos > handle[index].currentheader->length)
         length = handle[index].currentheader->length - handle[index].filepos;
 
+        int readbytes;
         if (datafilehandle)
         {
-            fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
-            readbytes = fread(buffer, 1, length, datafilehandle);
+            std::fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
+            readbytes = std::fread(buffer, 1, length, datafilehandle);
         }
         else
         {
@@ -262,8 +219,8 @@ void io_close(int index)
 {
     if (!io_usedatafile)
     {
-        fclose(fileptr[index]);
-        fileptr[index] = NULL;
+        std::fclose(fileptr[index]);
+        fileptr[index] = nullptr;
     }
     else
     {
@@ -311,14 +268,6 @@ unsigned io_readhe32(int index)
 
     io_read(index, bytes, 4);
     return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
-}
-
-static unsigned freadle32(FILE *file)
-{
-    unsigned char bytes[4];
-
-    fread(&bytes, 4, 1, file);
-    return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
 }
 
 static void linkedseek(unsigned pos)

@@ -11,14 +11,8 @@ bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedire
 void snd_uninit();
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 
-extern void (*snd_player)(void);
-extern CHANNEL *snd_channel;
-extern bool snd_sndinitted;
+extern void (*snd_player)();
 extern int snd_bpmtempo;
-extern int snd_bpmcount;
-extern int snd_channels;
-extern int snd_buffers;
-extern unsigned snd_mixmode;
 extern unsigned snd_mixrate;
 
 #endif

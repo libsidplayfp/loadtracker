@@ -2,6 +2,8 @@
 // BME (Blasphemous Multimedia Engine) windows & timing module
 //
 
+#include "bme_win.h"
+
 #include "bme_main.h"
 #include "bme_gfx.h"
 #include "bme_io.h"
@@ -14,13 +16,7 @@
 
 SDL_Window *win_window = nullptr;
 
-// Prototypes
-
-int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *icon);
-void win_closewindow(void);
-void win_checkmessages(void);
-int win_getspeed(int framerate);
-void win_setmousemode(int mode);
+void win_checkmessages();
 
 // Global variables
 
@@ -58,7 +54,7 @@ int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *ic
         {
             return BME_ERROR;
         }
-        atexit(SDL_Quit);
+        std::atexit(SDL_Quit);
         win_windowinitted = true;
     }
 
@@ -89,7 +85,7 @@ int win_getspeed(int framerate)
     int frametime = 10000 / framerate;
     int frames = 0;
 
-    while (!frames)
+    while (frames == 0)
     {
         win_checkmessages();
 
@@ -113,7 +109,7 @@ int win_getspeed(int framerate)
 // It is recommended to be called in any long loop where those two functions
 // are not called.
 
-void win_checkmessages(void)
+void win_checkmessages()
 {
     SDL_Event event;
     unsigned keynum;

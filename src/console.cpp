@@ -209,6 +209,8 @@ void closescreen()
     chardata = nullptr;
   }
 
+  gfx_freesprites(0);
+
   gfxinitted = false;
 }
 
@@ -435,7 +437,7 @@ void fliptoscreen()
     int ey = (mousepixely + mousesizey - 1) / fontheight;
     if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
 
-    gfx_drawsprite(mousepixelx, mousepixely, 0x1);
+    gfx_drawsprite(mousepixelx, mousepixely, 1);
     for (int y = sy; y <= ey; y++)
       region[y] = 1;
   }

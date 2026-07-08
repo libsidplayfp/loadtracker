@@ -2,6 +2,8 @@
 // BME (Blasphemous Multimedia Engine) graphics main module
 //
 
+#include "bme_gfx.h"
+
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_io.h"
@@ -14,24 +16,7 @@
 
 #define MAX_COLORS 256          // 8bit oldskool mode
 
-// Prototypes
-
-bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
-int gfx_reinit();
-void gfx_uninit();
-bool gfx_lock();
-void gfx_unlock();
-void gfx_flip();
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
-void gfx_setmaxspritefiles(unsigned num);
-bool gfx_loadpalette(const char *name);
-void gfx_calcpalette(int fade, int radd, int gadd, int badd);
-void gfx_setpalette();
-bool gfx_loadsprites(unsigned num, const char *name);
-void gfx_freesprites(unsigned num);
-
-void gfx_drawsprite(int x, int y, unsigned num);
-void gfx_getspriteinfo(unsigned num);
 
 bool gfx_initted = false;
 bool gfx_redraw = false;
@@ -48,8 +33,8 @@ int spr_xhotspot = 0;
 int spr_yhotspot = 0;
 unsigned gfx_nblocks = 0;
 Uint8 gfx_palette[MAX_COLORS * 3] = {0};
-SDL_Surface *gfx_screen = NULL;
-SDL_Renderer *gfx_renderer = NULL;
+SDL_Surface *gfx_screen = nullptr;
+SDL_Renderer *gfx_renderer = nullptr;
 
 // Static variables
 
@@ -64,12 +49,12 @@ static int gfx_clipleft;
 static int gfx_clipright;
 static int gfx_maxcolors = MAX_COLORS;
 static unsigned gfx_maxspritefiles = 0;
-static SPRITEHEADER **gfx_spriteheaders = NULL;
-static Uint8 **gfx_spritedata = NULL;
-static unsigned *gfx_spriteamount = NULL;
+static SPRITEHEADER **gfx_spriteheaders = nullptr;
+static Uint8 **gfx_spritedata = nullptr;
+static unsigned *gfx_spriteamount = nullptr;
 static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
-static SDL_Texture *sdlTexture = NULL;
+static SDL_Texture *sdlTexture = nullptr;
 
 bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
 {
@@ -126,7 +111,7 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags
     gfx_sdlpalette[255].b = 255;
     gfx_sdlpalette[255].a = 255;
 
-    gfx_renderer = SDL_CreateRenderer(win_window, NULL);
+    gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     sdlTexture = SDL_CreateTexture(gfx_renderer,
                                              SDL_PIXELFORMAT_RGBA32,
@@ -185,10 +170,10 @@ void gfx_unlock()
 void gfx_flip()
 {
     SDL_Surface* surf = SDL_ConvertSurface(gfx_screen, SDL_PIXELFORMAT_RGBA32);
-    SDL_UpdateTexture(sdlTexture, NULL, surf->pixels, surf->pitch);
+    SDL_UpdateTexture(sdlTexture, nullptr, surf->pixels, surf->pitch);
     SDL_DestroySurface(surf);
     SDL_RenderClear(gfx_renderer);
-    SDL_RenderTexture(gfx_renderer, sdlTexture, NULL, NULL);
+    SDL_RenderTexture(gfx_renderer, sdlTexture, nullptr, nullptr);
     SDL_RenderPresent(gfx_renderer);
     gfx_redraw = false;
 }
@@ -293,8 +278,8 @@ void gfx_setmaxspritefiles(unsigned num)
         for (c = 0; c < num; c++)
         {
             gfx_spriteamount[c] = 0;
-            gfx_spritedata[c] = NULL;
-            gfx_spriteheaders[c] = NULL;
+            gfx_spritedata[c] = nullptr;
+            gfx_spriteheaders[c] = nullptr;
         }
     }
     else gfx_maxspritefiles = 0;
@@ -361,12 +346,12 @@ void gfx_freesprites(unsigned num)
     if (gfx_spritedata[num])
     {
         std::free(gfx_spritedata[num]);
-        gfx_spritedata[num] = NULL;
+        gfx_spritedata[num] = nullptr;
     }
     if (gfx_spriteheaders[num])
     {
         std::free(gfx_spriteheaders[num]);
-        gfx_spriteheaders[num] = NULL;
+        gfx_spriteheaders[num] = nullptr;
     }
 }
 
