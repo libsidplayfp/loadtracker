@@ -5,7 +5,6 @@
 #include "bme_main.h"
 #include "bme_gfx.h"
 #include "bme_io.h"
-#include "bme_err.h"
 
 #include <SDL3/SDL.h>
 
@@ -38,6 +37,8 @@ unsigned win_mousebuttons = 0;
 int win_mousemode = MOUSE_FULLSCREEN_HIDDEN;
 float win_mouseywheel = 0.f;
 unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
+
+int bme_error = BME_OK;
 
 // Static variables
 

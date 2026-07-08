@@ -23,6 +23,9 @@
 #define SOUND_C
 
 #include "loadtrk.h"
+#include "bme_snd.h"
+
+#include <SDL3/SDL.h>
 
 #ifdef __WIN32__
 #include <windows.h>

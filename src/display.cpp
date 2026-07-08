@@ -23,8 +23,11 @@
 #define DISPLAY_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
+#include "bme_snd.h"
 
 #include <cstdio>
+#include <cstring>
 
 #define CBLACK  0x0
 #define CDBLUE  0x1
@@ -120,7 +123,7 @@ void printstatus(void)
     printtext(dpos.statusTopX+11, dpos.statusTopY, CLBROWN|(colors.CHDRBG<<4), "\"\"\"");
     printtext(dpos.statusTopX+14, dpos.statusTopY,   CDRED|(colors.CHDRBG<<4), "\"\"\" ");
 
-    if (!strlen(loadedsongfilename))
+    if (!std::strlen(loadedsongfilename))
       std::sprintf(textbuffer, "%s", programname);
     else
       std::sprintf(textbuffer, "%s - %s", programname, loadedsongfilename);
@@ -274,9 +277,9 @@ void printstatus(void)
           if (patterndispmode & 2)
           {
             if (!pattern[epnum[c]][p*4+1])
-              memset(&textbuffer[8], '.', 2);
+              std::memset(&textbuffer[8], '.', 2);
             if (!pattern[epnum[c]][p*4+2])
-              memset(&textbuffer[10], '.', 3);
+              std::memset(&textbuffer[10], '.', 3);
           }
         }
       }
@@ -487,7 +490,7 @@ void printstatus(void)
     }
     else
     {
-      if (!eamode) printbg(dpos.instrumentsX+20+strlen(instr[einum].name), dpos.instrumentsY, cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+20+std::strlen(instr[einum].name), dpos.instrumentsY, cc, 1);
     }
   }
 
@@ -521,8 +524,8 @@ void printstatus(void)
       {
         if (!ltable[c][p] && !rtable[c][p] && !ltable[c][p+1] && !rtable[c][p+1])
         {
-          memset(&textbuffer[3], '.', 2);
-          memset(&textbuffer[6], '.', 2);
+          std::memset(&textbuffer[3], '.', 2);
+          std::memset(&textbuffer[6], '.', 2);
         }
       }
       printtext(dpos.instrumentsX+10*c, dpos.instrumentsY+8+d, color, textbuffer);
@@ -565,13 +568,13 @@ void printstatus(void)
     switch(enpos)
     {
       case 0:
-      printbg(dpos.instrumentsX+9+strlen(songname), dpos.instrumentsY+8+VISIBLETABLEROWS+1, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(songname), dpos.instrumentsY+8+VISIBLETABLEROWS+1, cc, 1);
       break;
       case 1:
-      printbg(dpos.instrumentsX+9+strlen(authorname), dpos.instrumentsY+8+VISIBLETABLEROWS+2, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(authorname), dpos.instrumentsY+8+VISIBLETABLEROWS+2, cc, 1);
       break;
       case 2:
-      printbg(dpos.instrumentsX+9+strlen(copyrightname), dpos.instrumentsY+8+VISIBLETABLEROWS+3, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(copyrightname), dpos.instrumentsY+8+VISIBLETABLEROWS+3, cc, 1);
       break;
     }
   }

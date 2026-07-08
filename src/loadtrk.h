@@ -19,7 +19,6 @@
 #ifndef LOADTRK_H
 #define LOADTRK_H
 
-#include "bme.h"
 #include "common.h"
 #include "console.h"
 #include "sound.h"

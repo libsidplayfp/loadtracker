@@ -1,8 +1,6 @@
 #include <cstdint>
 #include <cstdio>
 
-extern "C" {
-
 void fwrite8(FILE *file, unsigned data)
 {
     uint8_t bytes[1];
@@ -69,6 +67,4 @@ unsigned freadhe32(FILE *file)
 
     std::fread(bytes, 4, 1, file);
     return (bytes[3]) | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
-}
-
 }

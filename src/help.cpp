@@ -23,6 +23,8 @@
 #define HELP_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
+#include "bme_win.h"
 
 #include <cstdio>
 

@@ -23,8 +23,10 @@
 #endif
 
 #include "loadtrk.h"
-
-#include "bme.h"
+#include "bme_main.h"
+#include "bme_win.h"
+#include "bme_snd.h"
+#include "bme_io.h"
 
 #include <SDL3/SDL_main.h>
 

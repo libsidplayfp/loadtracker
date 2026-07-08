@@ -23,6 +23,7 @@
 #define TABLE_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
 
 #include <cmath>
 #include <cstring>

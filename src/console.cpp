@@ -23,6 +23,10 @@
 #define CONSOLE_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
+#include "bme_win.h"
+#include "bme_gfx.h"
+#include "bme_io.h"
 
 #include <cstdio>
 #include <cstdlib>

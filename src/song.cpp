@@ -23,6 +23,7 @@
 #define SONG_C
 
 #include "loadtrk.h"
+#include "bme_end.h"
 
 #include <cstring>
 #include <cstdio>

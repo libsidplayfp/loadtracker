@@ -23,6 +23,7 @@
 #define ORDER_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
 
 #include <cstring>
 

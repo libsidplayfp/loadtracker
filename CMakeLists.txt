@@ -48,7 +48,6 @@ set(LOADTRK_SOURCES
     src/bme/bme_win.cpp
     src/bme/bme_io.cpp
     src/bme/bme_end.cpp
-    src/bme/bme.cpp
     src/rtmidi/rtmidi_c.h
     src/rtmidi/rtmidi_c.cpp
     src/rtmidi/RtMidi.h

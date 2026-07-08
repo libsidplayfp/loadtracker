@@ -5,7 +5,6 @@
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_io.h"
-#include "bme_err.h"
 
 #include <SDL3/SDL.h>
 

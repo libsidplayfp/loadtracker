@@ -23,6 +23,8 @@
 #define FILE_C
 
 #include "loadtrk.h"
+#include "bme_main.h"
+#include "bme_win.h"
 
 #include <cstring>
 #include <cctype>

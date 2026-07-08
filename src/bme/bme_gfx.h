@@ -12,11 +12,11 @@ bool gfx_lock();
 void gfx_unlock();
 void gfx_flip();
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
-void gfx_setmaxspritefiles(unsigned num);
 bool gfx_loadpalette(const char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
 void gfx_setpalette();
 
+void gfx_setmaxspritefiles(unsigned num);
 bool gfx_loadsprites(unsigned num, const char *name);
 void gfx_drawsprite(int x, int y, unsigned num);
 void gfx_freesprites(unsigned num);
