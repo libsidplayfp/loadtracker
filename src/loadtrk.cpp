@@ -44,7 +44,7 @@
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
 
-int menu = 0;
+bool menu = false;
 int editmode = EDIT_PATTERN;
 int recordmode = 1;
 int followplay = 0;

@@ -19,8 +19,6 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#define MINMIXRATE 11025
-#define MAXMIXRATE 48000
 #define DEFAULTMIXRATE 48000
 
 #define PALFRAMERATE 50

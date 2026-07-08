@@ -38,6 +38,9 @@
 #include <cstdlib>
 #include <cstdio>
 
+#define MINMIXRATE 11025
+#define MAXMIXRATE 48000
+
 #define MIXBUFFERSIZE 65536
 
 // General / reSID output

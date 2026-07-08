@@ -51,7 +51,7 @@
 #define PGUPDNREPEAT 8
 
 #ifndef LOADTRK_C
-extern int menu;
+extern bool menu;
 extern int editmode;
 extern int recordmode;
 extern int followplay;
@@ -90,7 +90,6 @@ extern unsigned interpolate;
 extern unsigned numsids;
 extern unsigned monomode;
 extern float basepitch;
-extern char configbuf[MAX_PATHNAME];
 extern char loadedsongfilename[MAX_FILENAME];
 extern char songfilename[MAX_FILENAME];
 extern char songfilter[MAX_FILENAME];
@@ -102,8 +101,6 @@ extern char packedpath[MAX_PATHNAME];
 extern const char *programname;
 extern const char *notename[];
 extern char textbuffer[MAX_PATHNAME];
-extern unsigned char hexkeytbl[16];
-extern unsigned char datafile[];
 extern COLORS colors;
 #endif
 

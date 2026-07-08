@@ -32,8 +32,6 @@ extern char copyrightname[MAX_STR];
 extern int pattlen[MAX_PATT];
 extern int songlen[MAX_SONGS][MAX_CHN_MONO];
 extern int songlen_stereo[MAX_SONGS][MAX_CHN];
-extern int highestusedpattern;
-extern int highestusedinstr;
 #endif
 
 void loadsong(void);

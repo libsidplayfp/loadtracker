@@ -108,9 +108,9 @@ void printstatus()
     maxChns = 3;
     visibleOrderlist = VISIBLEORDERLIST;
   }
-  menu = 0;
+  menu = false;
 
-  if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = 1;
+  if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = true;
 
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
 
