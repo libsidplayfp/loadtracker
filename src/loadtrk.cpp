@@ -148,6 +148,26 @@ const char* usage[] = {
 
 int usagelen = (sizeof usage / sizeof usage[0]);
 
+void converthex();
+void docommand();
+void mousecommands();
+void generalcommands();
+void load();
+void save();
+void quit();
+void clear();
+void getparam(FILE *handle, unsigned *value);
+void getfloatparam(FILE *handle, float *value);
+void getstringparam(FILE *handle, char *value);
+void prevmultiplier();
+void nextmultiplier();
+void editadsr();
+void editbpm();
+void readscalatuningfile();
+void setspecialnotenames();
+void calculatefreqtable();
+void switchMode();
+
 int main(int argc, char **argv)
 {
   char filename[MAX_PATHNAME];
@@ -561,7 +581,7 @@ int main(int argc, char **argv)
   return EXIT_SUCCESS;
 }
 
-void waitkey(void)
+void waitkey()
 {
   for (;;)
   {
@@ -574,7 +594,7 @@ void waitkey(void)
   converthex();
 }
 
-void waitkeymouse(void)
+void waitkeymouse()
 {
   for (;;)
   {
@@ -588,7 +608,7 @@ void waitkeymouse(void)
   converthex();
 }
 
-void waitkeymousenoupdate(void)
+void waitkeymousenoupdate()
 {
   for (;;)
   {
@@ -602,7 +622,7 @@ void waitkeymousenoupdate(void)
   converthex();
 }
 
-void waitkeynoupdate(void)
+void waitkeynoupdate()
 {
   for (;;)
   {
@@ -635,8 +655,7 @@ void converthex()
   }
 }
 
-
-void docommand(void)
+void docommand()
 {
   // "GUI" operation :)
   mousecommands();
@@ -676,7 +695,7 @@ void docommand(void)
   generalcommands();
 }
 
-void mousecommands(void)
+void mousecommands()
 {
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
@@ -1020,7 +1039,7 @@ void mousecommands(void)
   }
 }
 
-void generalcommands(void)
+void generalcommands()
 {
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = 3;
@@ -1258,7 +1277,7 @@ void generalcommands(void)
   }
 }
 
-void load(void)
+void load()
 {
   if ((editmode != EDIT_INSTRUMENT) && (editmode != EDIT_TABLES))
   {
@@ -1285,7 +1304,7 @@ void load(void)
   rawkey = 0;
 }
 
-void save(void)
+void save()
 {
   if ((editmode != EDIT_INSTRUMENT) && (editmode != EDIT_TABLES))
   {
@@ -1335,7 +1354,7 @@ void save(void)
   rawkey = 0;
 }
 
-void quit(void)
+void quit()
 {
   if ((!shiftpressed) || (mouseb))
   {
@@ -1348,7 +1367,7 @@ void quit(void)
   rawkey = 0;
 }
 
-void clear(void)
+void clear()
 {
   int cs = 0;
   int cp = 0;
@@ -1449,7 +1468,7 @@ void clear(void)
   rawkey = 0;
 }
 
-void editadsr(void)
+void editadsr()
 {
   eamode = 1;
   eacolumn = 0;
@@ -1526,7 +1545,7 @@ void editadsr(void)
   }
 }
 
-void editbpm(void)
+void editbpm()
 {
     eamode = 1;
     ebmode = 1;
@@ -1679,7 +1698,7 @@ void getstringparam(FILE *handle, char *value)
   std::sscanf(configptr, "%s", value);
 }
 
-void prevmultiplier(void)
+void prevmultiplier()
 {
   if (multiplier > 0)
   {
@@ -1688,7 +1707,7 @@ void prevmultiplier(void)
   }
 }
 
-void nextmultiplier(void)
+void nextmultiplier()
 {
   if (multiplier < 16)
   {
@@ -1767,7 +1786,6 @@ void setspecialnotenames()
 
 void readscalatuningfile()
 {
-  FILE *scalatuningfile;
   char *configptr;
   char strbuf[64];
   char name[3];
@@ -1775,14 +1793,14 @@ void readscalatuningfile()
   double denominator;
   double centvalue;
 
-  scalatuningfile = fopen(scalatuningfilepath, "rt");
+  FILE *scalatuningfile = fopen(scalatuningfilepath, "rt");
   if (scalatuningfile)
   {
     // Tuning name
     for (;;)
     {
       if (feof(scalatuningfile)) return;
-      fgets(configbuf, MAX_PATHNAME, scalatuningfile);
+      std::fgets(configbuf, MAX_PATHNAME, scalatuningfile);
       if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
     }
     configptr = configbuf;
@@ -1792,7 +1810,7 @@ void readscalatuningfile()
     for (;;)
     {
       if (feof(scalatuningfile)) return;
-      fgets(configbuf, MAX_PATHNAME, scalatuningfile);
+      std::fgets(configbuf, MAX_PATHNAME, scalatuningfile);
       if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
     }
     configptr = configbuf;
@@ -1804,7 +1822,7 @@ void readscalatuningfile()
       for (;;)
       {
         if (feof(scalatuningfile)) return;
-        fgets(configbuf, MAX_PATHNAME, scalatuningfile);
+        std::fgets(configbuf, MAX_PATHNAME, scalatuningfile);
         if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
       }
       configptr = configbuf;
@@ -1812,16 +1830,16 @@ void readscalatuningfile()
       std::sscanf(configptr, "%63s %2s", strbuf, name);
       if (!i)
       {
-        strcpy(specialnotenames, name);
+        std::strcpy(specialnotenames, name);
       }
       else
       {
         if (i == tuningcount - 1)
         {
           char *tmp = strdup(specialnotenames);
-          strcpy(specialnotenames, name);
-          strcat(specialnotenames, tmp);
-          free(tmp);
+          std::strcpy(specialnotenames, name);
+          std::strcat(specialnotenames, tmp);
+          std::free(tmp);
         }
         else
         {
@@ -1843,22 +1861,22 @@ void readscalatuningfile()
         tuning[i] = std::pow(2.0, centvalue / 1200.0);
       }
     }
-    fclose(scalatuningfile);
+    std::fclose(scalatuningfile);
   }
 }
 
-void switchMode(void)
+void switchMode()
 {
     char nextMode[7];
     char textbuffer[80];
 
     if (numsids == 1)
     {
-        strcpy(nextMode, "STEREO");
+        std::strcpy(nextMode, "STEREO");
     }
     else
     {
-        strcpy(nextMode, "MONO");
+        std::strcpy(nextMode, "MONO");
     }
 
     sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
@@ -1883,7 +1901,7 @@ void switchMode(void)
 
     if ((key == 'y') || (key == 'Y'))
     {
-        memset(songfilename, 0, sizeof songfilename);
+        std::memset(songfilename, 0, sizeof songfilename);
 
         numsids ^= 3;
         clearsong(1, 1, 1, 1, 1);

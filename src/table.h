@@ -40,11 +40,7 @@ extern int etmarkstart;
 extern int etmarkend;
 #endif
 
-void tablecommands(void);
-void tableup(void);
-void tabledown(void);
-void inserttable(int num, int pos, int mode);
-void deletetable(int num, int pos);
+void tablecommands();
 int makespeedtable(unsigned data, int mode, int makenew);
 void optimizetable(int num);
 void deleteinstrtable(int i);

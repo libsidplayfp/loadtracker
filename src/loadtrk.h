@@ -112,30 +112,11 @@ extern unsigned char datafile[];
 extern COLORS colors;
 #endif
 
-void getparam(FILE *handle, unsigned *value);
-void getfloatparam(FILE *handle, float *value);
-void getstringparam(FILE *handle, char *value);
-void waitkey(void);
-void waitkeymouse(void);
-void waitkeynoupdate(void);
-void waitkeymousenoupdate(void);
-void converthex(void);
-void docommand(void);
+void waitkey();
+void waitkeymouse();
+void waitkeynoupdate();
+void waitkeymousenoupdate();
 void onlinehelp(int standalone, int context);
-void mousecommands(void);
-void generalcommands(void);
-void load(void);
-void save(void);
-void quit(void);
-void clear(void);
-void prevmultiplier(void);
-void nextmultiplier(void);
-void editadsr(void);
-void editbpm(void);
-void calculatefreqtable(void);
-void setspecialnotenames(void);
-void readscalatuningfile(void);
-void switchMode(void);
 
 #ifdef __cplusplus
 }

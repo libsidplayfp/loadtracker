@@ -56,6 +56,11 @@ int epmarkchn = -1;
 int epmarkstart;
 int epmarkend;
 
+void shrinkpattern();
+void expandpattern();
+void splitpattern();
+void joinpattern();
+
 extern "C" { // used in bme_snd for midi input
 
 void insertnote(int newnote) {

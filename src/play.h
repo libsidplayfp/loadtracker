@@ -69,17 +69,17 @@ extern unsigned char freqtblhi[];
 extern int lastsonginit;
 #endif
 
-void initchannels(void);
+void initchannels();
 void initsong(int num, int playmode);
 void initsongpos(int num, int playmode, int pattpos);
-void stopsong(void);
-void rewindsong(void);
+void stopsong();
+void rewindsong();
 void playtestnote(int note, int ins, int chnnum);
 void releasenote(int chnnum);
 void mutechannel(int chnnum);
-int isplaying(void);
-void playroutine(void);
-void playroutine_stereo(void);
+int isplaying();
+void playroutine();
+void playroutine_stereo();
 
 #ifdef __cplusplus
 }

@@ -42,6 +42,7 @@ int songlen_stereo[MAX_SONGS][MAX_CHN];
 int highestusedpattern;
 int highestusedinstr;
 
+void findduplicatepatterns();
 int determinechannels(FILE* handle);
 
 int savesong(void)

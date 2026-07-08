@@ -40,6 +40,11 @@ int etmarknum = -1;
 int etmarkstart;
 int etmarkend;
 
+void tableup();
+void tabledown();
+void inserttable(int num, int pos, int mode);
+void deletetable(int num, int pos);
+
 void tablecommands(void)
 {
   switch(rawkey)

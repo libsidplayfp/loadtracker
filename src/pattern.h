@@ -35,15 +35,11 @@ extern int epmarkstart;
 extern int epmarkend;
 #endif
 
-void patterncommands(void);
-void nextpattern(void);
-void prevpattern(void);
-void patternup(void);
-void patterndown(void);
-void shrinkpattern(void);
-void expandpattern(void);
-void splitpattern(void);
-void joinpattern(void);
+void patterncommands();
+void nextpattern();
+void prevpattern();
+void patternup();
+void patterndown();
 
 #ifdef __cplusplus
 }

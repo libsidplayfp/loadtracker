@@ -49,7 +49,9 @@ typedef struct
 
 DIRENTRY direntry[MAX_DIRFILES];
 
-void initpaths(void)
+int cmpname(char *string1, char *string2);
+
+void initpaths()
 {
   for (int c = 0; c < MAX_DIRFILES; c++)
      direntry[c].name = nullptr;

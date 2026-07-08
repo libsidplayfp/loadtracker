@@ -30,12 +30,12 @@ extern int eicolumn;
 extern INSTR instrcopybuffer;
 #endif
 
-void instrumentcommands(void);
-void nextinstr(void);
-void previnstr(void);
+void instrumentcommands();
+void nextinstr();
+void previnstr();
 void clearinstr(int num);
 void gotoinstr(int i);
-void showinstrtable(void);
+void showinstrtable();
 
 #ifdef __cplusplus
 }

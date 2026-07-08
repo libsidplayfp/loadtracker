@@ -45,21 +45,7 @@ extern int tableerror;
 
 void relocator();
 void relocator_stereo();
-int testoverlap(int area1start, int area1size, int area2start, int area2size);
-int packpattern(unsigned char *dest, unsigned char *src, int rows);
 unsigned char swapnybbles(unsigned char n);
-void findtableduplicates(int num);
-int isusedandselfcontained(int num, int start);
-void calcspeedtest(unsigned char pos);
-
-int insertfile(const char *name);
-void inserttext(const char *text);
-void insertdefine(const char *name, int value);
-void insertlabel(const char *name);
-void insertbyte(unsigned char byte);
-void insertbytes(const unsigned char *bytes, int size);
-void insertaddrlo(const char *name);
-void insertaddrhi(const char *name);
 
 #ifdef __cplusplus
 }

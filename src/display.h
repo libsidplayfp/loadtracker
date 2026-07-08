@@ -24,11 +24,11 @@ extern "C" {
 #endif
 
 void initcolorscheme(int dark);
-void printmainscreen(void);
-void displayupdate(void);
-void printstatus(void);
-void resettime(void);
-void incrementtime(void);
+void printmainscreen();
+void displayupdate();
+void printstatus();
+void resettime();
+void incrementtime();
 
 #ifdef __cplusplus
 }

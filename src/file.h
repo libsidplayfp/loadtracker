@@ -26,10 +26,9 @@
 extern "C" {
 #endif
 
-void initpaths(void);
+void initpaths();
 int fileselector(char *name, char *path, char *filter, const char *title, int filemode);
 void editstring(char *buffer, int maxlength);
-int cmpname(char *string1, char *string2);
 
 #ifdef __cplusplus
 }
