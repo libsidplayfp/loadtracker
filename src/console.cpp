@@ -28,6 +28,8 @@
 #include "bme_gfx.h"
 #include "bme_io.h"
 
+#include <new>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -179,13 +181,13 @@ void initicon()
   {
     int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
-    char *iconbuffer = new char[size];
+    char *iconbuffer = new (std::nothrow) char[size];
     if (iconbuffer)
     {
       io_read(handle, iconbuffer, size);
       io_close(handle);
       SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
-      SDL_Surface *icon = SDL_LoadBMP_IO(rw, 0);
+      SDL_Surface *icon = SDL_LoadBMP_IO(rw, true);
       SDL_SetWindowIcon(win_window, icon);
       delete [] iconbuffer;
     }
