@@ -31,15 +31,13 @@
 INSTR instr[MAX_INSTR];
 unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
 unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
-unsigned char songorder[MAX_SONGS][MAX_CHN_MONO][MAX_SONGLEN+2];
-unsigned char songorder_stereo[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
+unsigned char songorder[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
 unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
 char songname[MAX_STR];
 char authorname[MAX_STR];
 char copyrightname[MAX_STR];
 int pattlen[MAX_PATT];
-int songlen[MAX_SONGS][MAX_CHN_MONO];
-int songlen_stereo[MAX_SONGS][MAX_CHN];
+int songlen[MAX_SONGS][MAX_CHN];
 int highestusedpattern;
 int highestusedinstr;
 
@@ -85,27 +83,13 @@ bool savesong()
 
     // Determine amount of songs to be saved
     int c = MAX_SONGS - 1;
-    if (numsids == 1)
+    for (;;)
     {
-      for (;;)
-      {
-       if ((songlen[c][0])&&
-           (songlen[c][1])&&
-           (songlen[c][2])) break;
-       if (c == 0) break;
-       c--;
-      }
-    }
-    else if (numsids == 2)
-    {
-      for (;;)
-      {
-        if ((songlen_stereo[c][0])&&
-            (songlen_stereo[c][1])&&
-            (songlen_stereo[c][2])) break;
-        if (c == 0) break;
-        c--;
-      }
+     if ((songlen[c][0])&&
+         (songlen[c][1])&&
+         (songlen[c][2])) break;
+     if (c == 0) break;
+     c--;
     }
     int amount = c + 1;
 
@@ -115,22 +99,11 @@ bool savesong()
     {
       for (int c = 0; c < maxChns; c++)
       {
-        if (numsids == 1)
-        {
          int length = songlen[d][c]+1;
          fwrite8(handle, length);
          int writebytes = length;
          writebytes++;
          std::fwrite(songorder[d][c], writebytes, 1, handle);
-        }
-        else if (numsids == 2)
-        {
-          int length = songlen_stereo[d][c]+1;
-          fwrite8(handle, length);
-          int writebytes = length;
-          writebytes++;
-          std::fwrite(songorder_stereo[d][c], writebytes, 1, handle);
-        }
       }
     }
     // Write amount of instruments
@@ -234,7 +207,7 @@ void loadsong()
 
   if (handle)
   {
-    fread(ident, 4, 1, handle);
+    std::fread(ident, 4, 1, handle);
     if ((!std::memcmp(ident, "GTS3", 4)) || (!std::memcmp(ident, "GTS4", 4)) || (!std::memcmp(ident, "GTS5", 4)))
     {
       int length;
@@ -258,14 +231,7 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          if (numsids == 1)
-          {
-            std::fread(songorder[d][c], loadsize, 1, handle);
-          }
-          else if (numsids == 2)
-          {
-            std::fread(songorder_stereo[d][c], loadsize, 1, handle);
-          }
+          std::fread(songorder[d][c], loadsize, 1, handle);
         }
       }
       // Read instruments
@@ -311,9 +277,9 @@ void loadsong()
       ok = 1;
 
       // Read infotexts
-      fread(songname, sizeof songname, 1, handle);
-      fread(authorname, sizeof authorname, 1, handle);
-      fread(copyrightname, sizeof copyrightname, 1, handle);
+      std::fread(songname, sizeof songname, 1, handle);
+      std::fread(authorname, sizeof authorname, 1, handle);
+      std::fread(copyrightname, sizeof copyrightname, 1, handle);
 
       // Read songorderlists
       channelstoload = determinechannels(handle);
@@ -325,14 +291,7 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          if (numsids == 1)
-          {
-            std::fread(songorder[d][c], loadsize, 1, handle);
-          }
-          else if (numsids == 2)
-          {
-            std::fread(songorder_stereo[d][c], loadsize, 1, handle);
-          }
+          std::fread(songorder[d][c], loadsize, 1, handle);
         }
       }
       // Read instruments
@@ -423,14 +382,7 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          if (numsids == 1)
-          {
-            std::fread(songorder[d][c], loadsize, 1, handle);
-          }
-          else if (numsids == 2)
-          {
-            std::fread(songorder_stereo[d][c], loadsize, 1, handle);
-          }
+          std::fread(songorder[d][c], loadsize, 1, handle);
         }
       }
 
@@ -941,14 +893,14 @@ void loadsong()
 
       for (int c = 0; c < MAX_SONGS; c++)
       {
-        if (songlen_stereo[c][0])
+        if (songlen[c][0])
         {
            for (int d = channelstoload; d < MAX_CHN; d++)
            {
-             songorder_stereo[c][d][0] = emptypatt;
-             songorder_stereo[c][d][1] = 0xff;
-             songorder_stereo[c][d][2] = 0x00;
-             songlen_stereo[c][d] = 1;
+             songorder[c][d][0] = emptypatt;
+             songorder[c][d][1] = 0xff;
+             songorder[c][d][2] = 0x00;
+             songlen[c][d] = 1;
            }
         }
       }
@@ -1367,41 +1319,18 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
       std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
       for (int d = 0; d < MAX_SONGS; d++)
       {
-        if (numsids == 1)
+        std::memset(&songorder[d][c][0], 0, MAX_SONGLEN+2);
+        if (!d)
         {
-          std::memset(&songorder[d][c][0], 0, MAX_SONGLEN+2);
-          if (!d)
-          {
-            songorder[d][c][0] = c;
-            songorder[d][c][1] = LOOPSONG;
-          }
-          else
-          {
-            songorder[d][c][0] = LOOPSONG;
-          }
+          songorder[d][c][0] = c;
+          songorder[d][c][1] = LOOPSONG;
         }
-        else if (numsids == 2)
+        else
         {
-          std::memset(&songorder_stereo[d][c][0], 0, MAX_SONGLEN+2);
-          if (!d)
-          {
-            songorder_stereo[d][c][0] = c;
-            songorder_stereo[d][c][1] = LOOPSONG;
-          }
-          else
-          {
-            songorder_stereo[d][c][0] = LOOPSONG;
-          }
+          songorder[d][c][0] = LOOPSONG;
         }
       }
-      if (numsids == 1)
-      {
-        epnum[c] = songorder[0][c][0];
-      }
-      else if (numsids == 2)
-      {
-        epnum[c] = songorder_stereo[0][c][0];
-      }
+      epnum[c] = songorder[0][c][0];
       espos[c] = 0;
       esend[c] = 0;
     }
@@ -1455,7 +1384,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 void countpatternlengths()
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
   highestusedpattern = 0;
   highestusedinstr = 0;
@@ -1479,33 +1408,14 @@ void countpatternlengths()
       int d;
       for (d = 0; d < MAX_SONGLEN; d++)
       {
-        if (numsids == 1)
+        if (songorder[e][c][d] >= LOOPSONG) break;
+        if ((songorder[e][c][d] < REPEAT) &&
+            (songorder[e][c][d] > highestusedpattern))
         {
-          if (songorder[e][c][d] >= LOOPSONG) break;
-          if ((songorder[e][c][d] < REPEAT) &&
-              (songorder[e][c][d] > highestusedpattern))
-          {
-            highestusedpattern = songorder[e][c][d];
-          }
-        }
-        else if (numsids == 2)
-        {
-          if (songorder_stereo[e][c][d] >= LOOPSONG) break;
-          if ((songorder_stereo[e][c][d] < REPEAT) &&
-              (songorder_stereo[e][c][d] > highestusedpattern))
-          {
-            highestusedpattern = songorder_stereo[e][c][d];
-          }
+          highestusedpattern = songorder[e][c][d];
         }
       }
-      if (numsids == 1)
-      {
-        songlen[e][c] = d;
-      }
-      else if (numsids == 2)
-      {
-        songlen_stereo[e][c] = d;
-      }
+      songlen[e][c] = d;
     }
   }
 }
@@ -1524,31 +1434,13 @@ void countthispattern()
   c = eschn;
   for (int d = 0; d < MAX_SONGLEN; d++)
   {
-    if (numsids == 1)
+    if (songorder[e][c][d] >= LOOPSONG) break;
+    if (songorder[e][c][d] > highestusedpattern)
     {
-      if (songorder[e][c][d] >= LOOPSONG) break;
-      if (songorder[e][c][d] > highestusedpattern)
-      {
-        highestusedpattern = songorder[e][c][d];
-      }
-    }
-    else if (numsids == 2)
-    {
-      if (songorder_stereo[e][c][d] >= LOOPSONG) break;
-      if (songorder_stereo[e][c][d] > highestusedpattern)
-      {
-        highestusedpattern = songorder_stereo[e][c][d];
-      }
+      highestusedpattern = songorder[e][c][d];
     }
   }
-  if (numsids == 1)
-  {
-      songlen[e][c] = d;
-  }
-  else if (numsids == 2)
-  {
-      songlen_stereo[e][c] = d;
-  }
+  songlen[e][c] = d;
 }
 
 int insertpattern(int p)
@@ -1564,40 +1456,18 @@ int insertpattern(int p)
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
-            ((numsids==2)&&(songlen_stereo[c][0])&&
-                (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
+    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = 0;
-        if (numsids == 1)
-        {
-          tmp = songlen[c][d];
-        }
-        else if (numsids == 2)
-        {
-          tmp = songlen_stereo[c][d];
-        }
+        int tmp = songlen[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if (numsids == 1)
+          if ((songorder[c][d][e] < REPEAT) &&
+              (songorder[c][d][e] > p) &&
+              (songorder[c][d][e] != MAX_PATT-1))
           {
-            if ((songorder[c][d][e] < REPEAT) &&
-                (songorder[c][d][e] > p) &&
-                (songorder[c][d][e] != MAX_PATT-1))
-            {
-              songorder[c][d][e]++;
-            }
-          }
-          else if (numsids == 2)
-          {
-            if ((songorder_stereo[c][d][e] < REPEAT) &&
-                (songorder_stereo[c][d][e] > p) &&
-                (songorder_stereo[c][d][e] != MAX_PATT-1))
-            {
-              songorder_stereo[c][d][e]++;
-            }
+            songorder[c][d][e]++;
           }
         }
       }
@@ -1625,38 +1495,17 @@ void deletepattern(int p)
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
-            ((numsids==2)&&(songlen_stereo[c][0])&&
-                (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
+    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = 0;
-        if (numsids == 1)
-        {
-          tmp = songlen[c][d];
-        }
-        else if (numsids == 2)
-        {
-          tmp = songlen_stereo[c][d];
-        }
+        int tmp = songlen[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if (numsids == 1)
+          if ((songorder[c][d][e] < REPEAT) &&
+              (songorder[c][d][e] > p))
           {
-            if ((songorder[c][d][e] < REPEAT) &&
-                (songorder[c][d][e] > p))
-            {
-              songorder[c][d][e]--;
-            }
-          }
-          else if (numsids == 2)
-          {
-            if ((songorder_stereo[c][d][e] < REPEAT) &&
-                (songorder_stereo[c][d][e] > p))
-            {
-              songorder_stereo[c][d][e]--;
-            }
+            songorder[c][d][e]--;
           }
         }
       }
@@ -1685,36 +1534,16 @@ void findusedpatterns()
   std::memset(pattused, 0, sizeof pattused);
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if (((numsids==1)&&(songlen[c][0])&&(songlen[c][1])&&(songlen[c][2]))||
-            ((numsids==2)&&(songlen_stereo[c][0])&&
-                (songlen_stereo[c][1])&&(songlen_stereo[c][2])))
+    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = 0;
-        if (numsids == 1)
-        {
-          tmp = songlen[c][d];
-        }
-        else if (numsids == 2)
-        {
-          tmp = songlen_stereo[c][d];
-        }
+        int tmp = songlen[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if (numsids == 1)
+          if (songorder[c][d][e] < REPEAT)
           {
-            if (songorder[c][d][e] < REPEAT)
-            {
-              pattused[songorder[c][d][e]] = 1;
-            }
-          }
-          else if (numsids == 2)
-          {
-            if (songorder_stereo[c][d][e] < REPEAT)
-            {
-              pattused[songorder_stereo[c][d][e]] = 1;
-            }
+            pattused[songorder[c][d][e]] = 1;
           }
         }
       }
@@ -1729,75 +1558,34 @@ void findduplicatepatterns()
 
   findusedpatterns();
 
-  if (numsids == 1)
+  for (int c = 0; c < MAX_PATT; c++)
   {
-    for (int c = 0; c < MAX_PATT; c++)
+    if (pattused[c])
     {
-      if (pattused[c])
+      for (int d = c+1; d < MAX_PATT; d++)
       {
-        for (int d = c+1; d < MAX_PATT; d++)
+        if (pattlen[d] == pattlen[c])
         {
-          if (pattlen[d] == pattlen[c])
+          if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
           {
-            if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
+            for (int f = 0; f < MAX_SONGS; f++)
             {
-              for (int f = 0; f < MAX_SONGS; f++)
+              if ((songlen[f][0]) &&
+                  (songlen[f][1]) &&
+                  (songlen[f][2]))
               {
-                if ((songlen[f][0]) &&
-                    (songlen[f][1]) &&
-                    (songlen[f][2]))
+                for (int g = 0; g < maxChns; g++)
                 {
-                  for (int g = 0; g < maxChns; g++)
+                  for (int h = 0; h < songlen[f][g]; h++)
                   {
-                    for (int h = 0; h < songlen[f][g]; h++)
-                    {
-                      if (songorder[f][g][h] == d)
-                        songorder[f][g][h] = c;
-                    }
+                    if (songorder[f][g][h] == d)
+                      songorder[f][g][h] = c;
                   }
                 }
               }
-              for (int f = 0; f < maxChns; f++)
-                if (epnum[f] == d) epnum[f] = c;
             }
-          }
-        }
-      }
-    }
-  }
-  else if (numsids == 2)
-  {
-    for (int c = 0; c < MAX_PATT; c++)
-    {
-      if (pattused[c])
-      {
-        for (int d = c+1; d < MAX_PATT; d++)
-        {
-          if (pattlen[d] == pattlen[c])
-          {
-            if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
-            {
-              for (int f = 0; f < MAX_SONGS; f++)
-              {
-                if ((songlen_stereo[f][0]) &&
-                    (songlen_stereo[f][1]) &&
-                    (songlen_stereo[f][2]))
-                {
-                  for (int g = 0; g < maxChns; g++)
-                  {
-                    for (int h = 0; h < songlen_stereo[f][g]; h++)
-                    {
-                      if (songorder_stereo[f][g][h] == d)
-                      {
-                        songorder_stereo[f][g][h] = c;
-                      }
-                    }
-                  }
-                }
-              }
-              for (int f = 0; f < maxChns; f++)
-                if (epnum[f] == d) epnum[f] = c;
-            }
+            for (int f = 0; f < maxChns; f++)
+              if (epnum[f] == d) epnum[f] = c;
           }
         }
       }
@@ -1878,27 +1666,13 @@ void mergesong()
 
   // Determine amount of songs
   int c = MAX_SONGS - 1;
-  if (numsids == 1)
+  for (;;)
   {
-    for (;;)
-    {
-      if ((songlen[c][0])&&
-         (songlen[c][1])&&
-         (songlen[c][2])) break;
-      if (c == 0) break;
-      c--;
-    }
-  }
-  else if (numsids == 2)
-  {
-    for (;;)
-    {
-      if ((songlen_stereo[c][0])&&
-          (songlen_stereo[c][1])&&
-          (songlen_stereo[c][2])) break;
-      if (c == 0) break;
-      c--;
-    }
+    if ((songlen[c][0]) &&
+        (songlen[c][1]) &&
+        (songlen[c][2])) break;
+    if (c == 0) break;
+    c--;
   }
 
   int pattbase = highestusedpattern + 1;
@@ -1939,32 +1713,12 @@ void mergesong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          if (numsids == 1)
-          {
-            std::fread(songorder[songbase + d][c], loadsize, 1, handle);
-          }
-          else if (numsids == 2)
-          {
-            std::fread(
-                songorder_stereo[songbase + d][c],
-                loadsize,
-                1,
-                handle
-            );
-          }
+          std::fread(songorder[songbase + d][c], loadsize, 1, handle);
           // Remap patterns
           for (int e = 0; e < loadsize - 1; e++)
           {
-            if (numsids == 1)
-            {
-              if (songorder[songbase + d][c][e] < REPEAT)
-                  songorder[songbase + d][c][e] += pattbase;
-            }
-            else if (numsids == 2)
-            {
-              if (songorder_stereo[songbase + d][c][e] < REPEAT)
-                  songorder_stereo[songbase + d][c][e] += pattbase;
-            }
+            if (songorder[songbase + d][c][e] < REPEAT)
+                songorder[songbase + d][c][e] += pattbase;
           }
         }
       }

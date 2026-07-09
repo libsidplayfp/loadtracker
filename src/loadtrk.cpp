@@ -702,17 +702,9 @@ void docommand()
 void mousecommands()
 {
   int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  if (numsids == 1) maxChns = MAX_CHN_MONO;
 
-  int currentSonglen = 0;
-  if (numsids == 1)
-  {
-    currentSonglen = songlen[esnum][eschn];
-  }
-  else if (numsids == 2)
-  {
-    currentSonglen = songlen_stereo[esnum][eschn];
-  }
+  int currentSonglen = songlen[esnum][eschn];
 
   if (win_mouseywheel != 0.f)
   {
@@ -1121,14 +1113,7 @@ void generalcommands()
     }
     for (int c = 0; c < maxChns; c++)
     {
-      if (numsids == 1)
-      {
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      currentSonglen = songlen[esnum][c];
       if (espos[c] < currentSonglen-1)
         espos[c]++;
       if (espos[c] - esview >= visibleOrderlist)

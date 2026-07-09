@@ -105,7 +105,7 @@ void printstatus()
   int maxChns = MAX_CHN;
   if (numsids == 1)
   {
-    maxChns = 3;
+    maxChns = MAX_CHN_MONO;
     visibleOrderlist = VISIBLEORDERLIST;
   }
   menu = false;
@@ -182,15 +182,7 @@ void printstatus()
   {
     for (int c = 0; c < maxChns; c++)
     {
-      int currentSonglen = 0;
-      if (numsids == 1)
-      {
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      int currentSonglen = songlen[esnum][c];
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
@@ -342,18 +334,8 @@ void printstatus()
     for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
-      unsigned char currentSongorder = 0;
-      int currentSonglen = 0;
-      if (numsids == 1)
-      {
-        currentSongorder = songorder[esnum][c][p];
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSongorder = songorder_stereo[esnum][c][p];
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      unsigned char currentSongorder = songorder[esnum][c][p];
+      int currentSonglen = songlen[esnum][c];
       int color = colors.CNORMAL;
       if (isplaying())
       {
