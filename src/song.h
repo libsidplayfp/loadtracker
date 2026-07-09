@@ -34,18 +34,18 @@ extern int songlen[MAX_SONGS][MAX_CHN_MONO];
 extern int songlen_stereo[MAX_SONGS][MAX_CHN];
 #endif
 
-void loadsong(void);
-void mergesong(void);
-void loadinstrument(void);
-int savesong(void);
-int saveinstrument(void);
-void clearsong(int cs, int cp, int ci, int cf, int cn);
-void countpatternlengths(void);
-void countthispattern(void);
+void loadsong();
+void mergesong();
+void loadinstrument();
+bool savesong();
+bool saveinstrument();
+void clearsong(bool cs, bool cp, bool ci, bool cf, bool cn);
+void countpatternlengths();
+void countthispattern();
 void clearpattern(int p);
 int insertpattern(int p);
 void deletepattern(int p);
-void findusedpatterns(void);
+void findusedpatterns();
 void optimizeeverything(int oi, int ot);
 
 #endif

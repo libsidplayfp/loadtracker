@@ -46,9 +46,9 @@ int highestusedinstr;
 void findduplicatepatterns();
 int determinechannels(FILE* handle);
 
-int savesong()
+bool savesong()
 {
-  char ident[] = {'G', 'T', 'S', '5'};
+  const char ident[] = {'G', 'T', 'S', '5'};
 
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = MAX_CHN_MONO;
@@ -147,7 +147,7 @@ int savesong()
       fwrite8(handle, instr[c].vibdelay);
       fwrite8(handle, instr[c].gatetimer);
       fwrite8(handle, instr[c].firstwave);
-      fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+      std::fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
     }
     // Write tables
     for (int c = 0; c < MAX_TABLES; c++)
@@ -168,14 +168,14 @@ int savesong()
     }
     std::fclose(handle);
     std::strcpy(loadedsongfilename, songfilename);
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
-int saveinstrument()
+bool saveinstrument()
 {
-  char ident[] = {'G', 'T', 'I', '5'};
+  const char ident[] = {'G', 'T', 'I', '5'};
 
   if (std::strlen(instrfilename) < MAX_FILENAME-4)
   {
@@ -216,9 +216,9 @@ int saveinstrument()
       else fwrite8(handle, 0);
     }
     std::fclose(handle);
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 void loadsong()
@@ -240,7 +240,7 @@ void loadsong()
       int length;
       int amount;
       int loadsize;
-      clearsong(1,1,1,1,1);
+      clearsong(true, true, true, true, true);
       ok = 1;
 
       // Read infotexts
@@ -307,7 +307,7 @@ void loadsong()
       int length;
       int amount;
       int loadsize;
-      clearsong(1,1,1,1,1);
+      clearsong(true, true, true, true, true);
       ok = 1;
 
       // Read infotexts
@@ -405,7 +405,7 @@ void loadsong()
       unsigned char pulse[32], pulseadd[32], pulselimitlow[32], pulselimithigh[32];
       int filterjumppos[64];
 
-      clearsong(1,1,1,1,1);
+      clearsong(true, true, true, true, true);
       ok = 1;
 
       // Read infotexts
@@ -1121,7 +1121,7 @@ void loadinstrument()
       instr[einum].ptr[FTBL] = fread8(handle) ? ff+1 : 0;
       if (pulse & 1) instr[einum].gatetimer |= 0x80; // "No hardrestart" flag
         wavelen = fread8(handle)/2;
-      fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
+      std::fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
       instr[einum].ptr[WTBL] = fw+1;
 
       // Convert wavetable
@@ -1272,7 +1272,7 @@ void loadinstrument()
       // Convert filter (if any)
       if ((instr[einum].ptr[FTBL]) && (ff < MAX_TABLELEN-2))
       {
-        fread(filtertemp, sizeof filtertemp, 1, handle);
+        std::fread(filtertemp, sizeof filtertemp, 1, handle);
         // Filter set
         if (filtertemp[0])
         {
@@ -1339,7 +1339,7 @@ void loadinstrument()
   }
 }
 
-void clearsong(int cs, int cp, int ci, int ct, int cn)
+void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 {
   int maxChns = MAX_CHN;
   if (numsids == 1) maxChns = MAX_CHN_MONO;
@@ -1941,7 +1941,7 @@ void mergesong()
           loadsize++;
           if (numsids == 1)
           {
-            fread(songorder[songbase + d][c], loadsize, 1, handle);
+            std::fread(songorder[songbase + d][c], loadsize, 1, handle);
           }
           else if (numsids == 2)
           {
@@ -2067,13 +2067,13 @@ int determinechannels(FILE* handle)
             int loadsize = fread8(handle);
             loadsize++;
             std::memset(songbuffer, 0, 257);
-            fread(songbuffer, loadsize, 1, handle);
+            std::fread(songbuffer, loadsize, 1, handle);
 
             // Check that each track of each song has a valid endmark.
             // Should fail if it's a mono song (not certain)
             if ((songbuffer[loadsize - 2] != 0xff) || (songbuffer[loadsize - 1] >= loadsize))
             {
-                fseek(handle, returnpos, SEEK_SET);
+                std::fseek(handle, returnpos, SEEK_SET);
                 return 3;
             }
         }

@@ -251,11 +251,11 @@ int main(int argc, char **argv)
   // Scan command line
   for (int c = 1; c < argc; c++)
   {
-    #ifdef __WIN32__
+#ifdef __WIN32__
     if ((argv[c][0] == '-') || (argv[c][0] == '/'))
-    #else
+#else
     if (argv[c][0] == '-')
-    #endif
+#endif
     {
       switch (argv[c][1]) //switch (toupper(argv[c][1]))
       {
@@ -505,79 +505,80 @@ int main(int argc, char **argv)
   std::strcat(filename, "/loadtrk.cfg");
 #  endif
 #endif
-  configfile = fopen(filename, "wt");
+  configfile = std::fopen(filename, "wt");
   if (configfile)
   {
-    fprintf(configfile, ";------------------------------------------------------------------------------\n"
-                        ";LoadTracker config file. Rows starting with ; are comments.                   \n"
-                        ";Hex parameters are to be preceded with $ and decimal parameters with nothing. \n"
-                        ";------------------------------------------------------------------------------\n"
-                        "\n"
-                        ";config version\n%d\n\n"
-                        ";reSIDfp mixing rate (in Hz)\n%d\n\n"
-                        ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
-                        ";Number of SIDs (1, 2, default 1)\n%d\n\n"
-                        ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
-                        ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
-                        ";Packer/relocator player address\n$%04x\n\n"
-                        ";Packer/relocator zeropage baseaddress\n$%02x\n\n"
-                        ";Packer/relocator player type (0 = standard ... 3 = minimal)\n%d\n\n"
-                        ";Key entry mode (0 = Protracker, 1 = DMC, 2 = Janko)\n%d\n\n"
-                        ";Pattern default size (default = 32 / $20)\n%d\n\n"
-                        ";Pattern highlight step size\n%d\n\n"
-                        ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
-                        ";Hardrestart ADSR parameter\n$%04x\n\n"
-                        ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
-                        ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
-                        ";SID baseaddress\n$%04x\n\n"
-                        ";2nd SID baseaddress\n$%04x\n\n"
-                        ";Panning in stereo mode (0.00 - 1.00; 0 = channels reversed, 0.5 = mono, 1 = seperated)\n%.2f\n\n"
-                        ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
-                        ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
-                        ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
-                        ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
-                        ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
-                        ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
-                        ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
-                        ";Filter curve (0.0 (dark) to 1.0 (bright))\n%f\n\n"
-                        ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
-                        ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
-                        ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
-                        ";Path to a Scala tuning file .scl\n%s\n\n"
-                        ";Use exSID (0 = off, 1 = on)\n%d\n\n",
-    CFG_VERSION,
-    mr,
-    sidmodel,
-    numsids,
-    ntsc,
-    fileformat,
-    playeradr,
-    zeropageadr,
-    playerversion,
-    keypreset,
-    defaultpatternlength,
-    stepsize,
-    multiplier,
-    adparam,
-    interpolate,
-    patterndispmode,
-    sidaddress,
-    sid2address,
-    panning,
-    finevibrato,
-    optimizepulse,
-    optimizerealtime,
-    residdelay,
-    customclockrate,
-    win_fullscreen,
-    basepitch,
-    filterbias,
-    combwaves,
-    equaldivisionsperoctave,
-    specialnotenames,
-    scalatuningfilepath,
-    exsid);
-    fclose(configfile);
+    std::fprintf(configfile,
+                 ";------------------------------------------------------------------------------\n"
+                 ";LoadTracker config file. Rows starting with ; are comments.                   \n"
+                 ";Hex parameters are to be preceded with $ and decimal parameters with nothing. \n"
+                 ";------------------------------------------------------------------------------\n"
+                 "\n"
+                 ";config version\n%d\n\n"
+                 ";reSIDfp mixing rate (in Hz)\n%d\n\n"
+                 ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
+                 ";Number of SIDs (1, 2, default 1)\n%d\n\n"
+                 ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
+                 ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
+                 ";Packer/relocator player address\n$%04x\n\n"
+                 ";Packer/relocator zeropage baseaddress\n$%02x\n\n"
+                 ";Packer/relocator player type (0 = standard ... 3 = minimal)\n%d\n\n"
+                 ";Key entry mode (0 = Protracker, 1 = DMC, 2 = Janko)\n%d\n\n"
+                 ";Pattern default size (default = 32 / $20)\n%d\n\n"
+                 ";Pattern highlight step size\n%d\n\n"
+                 ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
+                 ";Hardrestart ADSR parameter\n$%04x\n\n"
+                 ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
+                 ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
+                 ";SID baseaddress\n$%04x\n\n"
+                 ";2nd SID baseaddress\n$%04x\n\n"
+                 ";Panning in stereo mode (0.00 - 1.00; 0 = channels reversed, 0.5 = mono, 1 = seperated)\n%.2f\n\n"
+                 ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
+                 ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
+                 ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
+                 ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
+                 ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
+                 ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
+                 ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
+                 ";Filter curve (0.0 (dark) to 1.0 (bright))\n%f\n\n"
+                 ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
+                 ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
+                 ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
+                 ";Path to a Scala tuning file .scl\n%s\n\n"
+                 ";Use exSID (0 = off, 1 = on)\n%d\n\n",
+        CFG_VERSION,
+        mr,
+        sidmodel,
+        numsids,
+        ntsc,
+        fileformat,
+        playeradr,
+        zeropageadr,
+        playerversion,
+        keypreset,
+        defaultpatternlength,
+        stepsize,
+        multiplier,
+        adparam,
+        interpolate,
+        patterndispmode,
+        sidaddress,
+        sid2address,
+        panning,
+        finevibrato,
+        optimizepulse,
+        optimizerealtime,
+        residdelay,
+        customclockrate,
+        win_fullscreen,
+        basepitch,
+        filterbias,
+        combwaves,
+        equaldivisionsperoctave,
+        specialnotenames,
+        scalatuningfilepath,
+        exsid);
+    std::fclose(configfile);
   }
 
   // Exit
@@ -615,7 +616,7 @@ void waitkeymousenoupdate()
 {
   for (;;)
   {
-      fliptoscreen();
+    fliptoscreen();
     getkey();
     if ((rawkey) || (key)) break;
     if (win_quitted) break;
@@ -1311,7 +1312,7 @@ void save()
 {
   if ((editmode != EDIT_INSTRUMENT) && (editmode != EDIT_TABLES))
   {
-    int done = 0;
+    bool done = false;
 
     // Repeat until quit or save successful
     while (!done)
@@ -1319,14 +1320,14 @@ void save()
       if (strlen(loadedsongfilename)) strcpy(songfilename, loadedsongfilename);
       if (fileselector(songfilename, songpath, songfilter, "SAVE SONG", 3))
         done = savesong();
-      else done = 1;
+      else done = true;
     }
   }
   else
   {
     if (einum)
     {
-      int done = 0;
+      bool done = false;
       int useinstrname = 0;
       char tempfilename[MAX_FILENAME];
 
@@ -1336,14 +1337,14 @@ void save()
         if ((!strlen(instrfilename)) && (strlen(instr[einum].name)))
         {
           useinstrname = 1;
-          strcpy(instrfilename, instr[einum].name);
-          strcat(instrfilename, ".ins");
-          strcpy(tempfilename, instrfilename);
+          std::strcpy(instrfilename, instr[einum].name);
+          std::strcat(instrfilename, ".ins");
+          std::strcpy(tempfilename, instrfilename);
         }
 
         if (fileselector(instrfilename, instrpath, instrfilter, "SAVE INSTRUMENT", 3))
           done = saveinstrument();
-        else done = 1;
+        else done = true;
 
         if (useinstrname)
         {
@@ -1372,12 +1373,6 @@ void quit()
 
 void clear()
 {
-  int cs = 0;
-  int cp = 0;
-  int ci = 0;
-  int ct = 0;
-  int cn = 0;
-
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Optimize everything (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
@@ -1389,32 +1384,38 @@ void clear()
     return;
   }
 
+  bool cs = false;
+  bool cp = false;
+  bool ci = false;
+  bool ct = false;
+  bool cn = false;
+
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear orderlists (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
-  if ((key == 'y') || (key == 'Y')) cs = 1;
+  if ((key == 'y') || (key == 'Y')) cs = true;
 
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear patterns (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
-  if ((key == 'y') || (key == 'Y')) cp = 1;
+  if ((key == 'y') || (key == 'Y')) cp = true;
 
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear instruments (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
-  if ((key == 'y') || (key == 'Y')) ci = 1;
+  if ((key == 'y') || (key == 'Y')) ci = true;
 
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear tables (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
-  if ((key == 'y') || (key == 'Y')) ct = 1;
+  if ((key == 'y') || (key == 'Y')) ct = true;
 
   printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Clear songname (y/n)?");
   waitkey();
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
-  if ((key == 'y') || (key == 'Y')) cn = 1;
+  if ((key == 'y') || (key == 'Y')) cn = true;
 
-  if (cp == 1)
+  if (cp)
   {
     int selectdone = 0;
     unsigned olddpl = defaultpatternlength;
@@ -1424,11 +1425,11 @@ void clear()
     {
         if (patterndispmode)
         {
-            sprintf(textbuffer, "%02X ", defaultpatternlength);
+            std::sprintf(textbuffer, "%02X ", defaultpatternlength);
         }
         else
         {
-            sprintf(textbuffer, "%02d ", defaultpatternlength);
+            std::sprintf(textbuffer, "%02d ", defaultpatternlength);
         }
         printtext(dpos.statusBottomX+35, dpos.statusBottomY, colors.CTITLE, textbuffer);
       waitkey();
@@ -1464,7 +1465,7 @@ void clear()
   }
 
   if (cs | cp | ci | ct | cn)
-    memset(songfilename, 0, sizeof songfilename);
+    std::memset(songfilename, 0, sizeof songfilename);
   clearsong(cs, cp, ci, ct, cn);
 
   key = 0;
@@ -1627,7 +1628,7 @@ void getparam(FILE *handle, unsigned *value)
 {
   for (;;)
   {
-    if (feof(handle)) return;
+    if (std::feof(handle)) return;
     std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
@@ -1677,7 +1678,7 @@ void getfloatparam(FILE *handle, float *value)
 {
   for (;;)
   {
-    if (feof(handle)) return;
+    if (std::feof(handle)) return;
     std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
@@ -1691,7 +1692,7 @@ void getstringparam(FILE *handle, char *value)
 {
   for (;;)
   {
-    if (feof(handle)) return;
+    if (std::feof(handle)) return;
     std::fgets(configbuf, MAX_PATHNAME, handle);
     if ((configbuf[0]) && (configbuf[0] != ';') && (configbuf[0] != ' ') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
   }
@@ -1738,7 +1739,7 @@ void calculatefreqtable()
           if (intfreq > 0xffff)
               intfreq = 0xffff;
           freqtbllo[c] = intfreq & 0xff;
-          freqtblhi[c] = intfreq >> 8;          
+          freqtblhi[c] = intfreq >> 8;
           freq = cyclebasefreq * tuning[i];
           c++;
         }
@@ -1777,7 +1778,7 @@ void setspecialnotenames()
       {
         char *name = (char*)std::malloc(4);
         std::strncpy(name, specialnotenames + j, 2);
-        sprintf(octave, "%d", oct);
+        std::sprintf(octave, "%d", oct);
         std::strcpy(name + 2, octave);
         notename[i] = name;
         i++;
@@ -1882,7 +1883,7 @@ void switchMode()
         std::strcpy(nextMode, "MONO");
     }
 
-    sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
+    std::sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
 
     printtextcp(
         dpos.statusBottomX+29,
