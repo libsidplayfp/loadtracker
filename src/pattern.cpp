@@ -56,6 +56,7 @@ int epoctave = 2;
 int epmarkchn = -1;
 int epmarkstart;
 int epmarkend;
+int autoadvance = 0;
 
 void shrinkpattern();
 void expandpattern();

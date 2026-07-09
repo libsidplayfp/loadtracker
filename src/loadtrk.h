@@ -33,15 +33,21 @@
 #include "instr.h"
 #include "table.h"
 
-#define EDIT_PATTERN 0
-#define EDIT_ORDERLIST 1
-#define EDIT_INSTRUMENT 2
-#define EDIT_TABLES 3
-#define EDIT_NAMES 4
+enum
+{
+  EDIT_PATTERN      = 0,
+  EDIT_ORDERLIST    = 1,
+  EDIT_INSTRUMENT   = 2,
+  EDIT_TABLES       = 3,
+  EDIT_NAMES        = 4
+};
 
-#define KEY_TRACKER 0
-#define KEY_DMC 1
-#define KEY_JANKO 2
+enum
+{
+  KEY_TRACKER   = 0,
+  KEY_DMC       = 1,
+  KEY_JANKO     = 2
+};
 
 #define VISIBLEPATTROWS 34
 #define VISIBLEORDERLIST 23
@@ -56,24 +62,29 @@ extern int editmode;
 extern bool recordmode;
 extern bool followplay;
 extern int hexnybble;
-extern int stepsize;
-extern int autoadvance;
-extern int defaultpatternlength;
 extern int cursorflash;
 extern int cursorcolortable[];
 extern bool exitprogram;
 extern int eacolumn;
 extern int eamode;
 extern int ebmode;
-extern unsigned keypreset;
-extern unsigned playerversion;
-extern int fileformat;
-extern int zeropageadr;
-extern int playeradr;
+extern bool usefinevib;
+
+// config
+extern unsigned mr;
 extern unsigned sidmodel;
+extern unsigned numsids;
+extern unsigned ntsc;
+extern int fileformat;
+extern int playeradr;
+extern int zeropageadr;
+extern unsigned playerversion;
+extern unsigned keypreset;
+extern int defaultpatternlength;
+extern int stepsize;
 extern unsigned multiplier;
 extern unsigned adparam;
-extern unsigned ntsc;
+extern unsigned interpolate;
 extern unsigned patterndispmode;
 extern unsigned sidaddress;
 extern unsigned sid2address;
@@ -81,15 +92,10 @@ extern float panning;
 extern unsigned finevibrato;
 extern unsigned optimizepulse;
 extern unsigned optimizerealtime;
-extern unsigned usefinevib;
-extern unsigned b;
-extern unsigned mr;
-extern unsigned writer;
-extern unsigned exsid;
-extern unsigned interpolate;
-extern unsigned numsids;
-extern unsigned monomode;
 extern float basepitch;
+extern unsigned exsid;
+
+extern bool monomode;
 extern char loadedsongfilename[MAX_FILENAME];
 extern char songfilename[MAX_FILENAME];
 extern char songfilter[MAX_FILENAME];

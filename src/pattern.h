@@ -29,6 +29,7 @@ extern int epoctave;
 extern int epmarkchn;
 extern int epmarkstart;
 extern int epmarkend;
+extern int autoadvance;
 #endif
 
 void patterncommands();

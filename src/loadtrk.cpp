@@ -49,9 +49,6 @@ int editmode = EDIT_PATTERN;
 bool recordmode = true;
 bool followplay = false;
 int hexnybble = -1;
-int stepsize = 4;
-int autoadvance = 0;
-unsigned defaultpatternlength = 64;
 int cursorflash = 0;
 int cursorcolortable[] = {1,2,7,2};
 bool exitprogram = false;
@@ -59,37 +56,41 @@ int eacolumn = 0;
 int eamode = 0;
 int ebmode = 0;
 
-unsigned keypreset = KEY_TRACKER;
-unsigned playerversion = 0;
-int fileformat = FORMAT_PRG;
-int zeropageadr = 0xfc;
-int playeradr = 0x1000;
+bool usefinevib = false;
+bool monomode = false;
+bool writer = false;
+
+// config
+unsigned mr = DEFAULTMIXRATE;
 unsigned sidmodel = 1;
+unsigned numsids = 1;
+unsigned ntsc = 0;
+int fileformat = FORMAT_PRG;
+int playeradr = 0x1000;
+int zeropageadr = 0xfc;
+unsigned playerversion = 0;
+unsigned keypreset = KEY_TRACKER;
+unsigned defaultpatternlength = 64;
+int stepsize = 4;
 unsigned multiplier = 1;
 unsigned adparam = 0x0f00;
-unsigned ntsc = 0;
+unsigned interpolate = 1;
 unsigned patterndispmode = 2;
 unsigned sidaddress = 0xd400;
 unsigned sid2address = 0xd500;
+float panning = 1.0f;
 unsigned finevibrato = 1;
 unsigned optimizepulse = 1;
 unsigned optimizerealtime = 1;
-unsigned customclockrate = 0;
-unsigned usefinevib = 0;
-unsigned mr = DEFAULTMIXRATE;
-unsigned writer = 0;
-unsigned exsid = 0;
-unsigned interpolate = 1;
 unsigned residdelay = 0;
-unsigned monomode = 0;
-unsigned numsids = 1;
-unsigned combwaves = 1;
+unsigned customclockrate = 0;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
+unsigned combwaves = 1;
 float equaldivisionsperoctave = 12.0f;
-float panning = 1.0f;
-int tuningcount = 0;
-double tuning[96];
+char specialnotenames[186];
+char scalatuningfilepath[MAX_PATHNAME];
+unsigned exsid = 0;
 
 char configbuf[MAX_PATHNAME];
 char loadedsongfilename[MAX_FILENAME];
@@ -101,11 +102,12 @@ char instrfilter[MAX_FILENAME];
 char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 
+int tuningcount = 0;
+double tuning[96];
+char tuningname[64];
+
 extern char *notename[];
 const char *programname = "LoadTracker v1.99";
-char specialnotenames[186];
-char scalatuningfilepath[MAX_PATHNAME];
-char tuningname[64];
 
 char textbuffer[MAX_PATHNAME];
 
@@ -351,7 +353,7 @@ int main(int argc, char **argv)
         break;
 
         case 'W':
-        writer = 1;
+        writer = true;
         break;
 
         case 'X':
@@ -420,8 +422,8 @@ int main(int argc, char **argv)
   if (!stepsize) stepsize = 4;
   if (multiplier > 16) multiplier = 16;
   if (keypreset > 2) keypreset = 0;
-  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = 1;
-  if (finevibrato > 1) usefinevib = 1;
+  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = true;
+  if (finevibrato > 1) usefinevib = true;
   if (optimizepulse > 1) optimizepulse = 1;
   if (optimizerealtime > 1) optimizerealtime = 1;
   if (residdelay > 63) residdelay = 63;
@@ -957,7 +959,7 @@ void mousecommands()
     {
       if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
       {
-        usefinevib ^= 1;
+        usefinevib = !usefinevib;
       }
       if ((mousex >= dpos.statusTopFvX+3) && (mousex <= dpos.statusTopFvX+4))
       {
@@ -1245,7 +1247,7 @@ void generalcommands()
     }
     else if (shiftpressed && (numsids == 2))
     {
-        monomode ^= 1;
+        monomode = !monomode;
     }
     break;
 
@@ -1686,6 +1688,8 @@ void getstringparam(FILE *handle, char *value)
 
   std::sscanf(configptr, "%s", value);
 }
+
+// TODO getboolparam
 
 void prevmultiplier()
 {
