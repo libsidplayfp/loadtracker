@@ -609,7 +609,7 @@ void relocator()
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       goto PRCLEANUP;
     }
 
@@ -1018,7 +1018,7 @@ void relocator()
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       goto PRCLEANUP;
     }
 
@@ -1096,7 +1096,7 @@ void relocator()
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       goto PRCLEANUP;
     }
 
@@ -1547,7 +1547,7 @@ void relocator()
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       goto PRCLEANUP;
     }
 
@@ -2663,7 +2663,7 @@ TABLETYPE_S:
 
         if (win_quitted)
         {
-            exitprogram = 1;
+            exitprogram = true;
             goto PRCLEANUP_S;
         }
 
@@ -3070,7 +3070,7 @@ TABLETYPE_S:
 
         if (win_quitted)
         {
-            exitprogram = 1;
+            exitprogram = true;
             goto PRCLEANUP_S;
         }
 
@@ -3148,7 +3148,7 @@ TABLETYPE_S:
 
         if (win_quitted)
         {
-            exitprogram = 1;
+            exitprogram = true;
             goto PRCLEANUP_S;
         }
 
@@ -3585,7 +3585,7 @@ SKIPTABLE_S:
 
         if (win_quitted)
         {
-            exitprogram = 1;
+            exitprogram = true;
             goto PRCLEANUP_S;
         }
 

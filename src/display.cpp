@@ -178,7 +178,7 @@ void printstatus()
     printtext(0, dpos.statusTopY, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
   }
 
-  if ((followplay) && (isplaying()))
+  if (followplay && (isplaying()))
   {
     for (int c = 0; c < maxChns; c++)
     {

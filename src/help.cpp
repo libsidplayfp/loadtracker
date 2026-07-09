@@ -375,7 +375,7 @@ void onlinehelp(int standalone,int context)
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       break;
     }
 

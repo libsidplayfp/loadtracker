@@ -194,7 +194,7 @@ void playroutine()
   int maxChns = MAX_CHN_MONO;
 
   if (songinit == PLAY_STOP)
-    followplay = 0;
+    followplay = false;
 
   if ((songinit > 0) && (songinit < PLAY_STOPPED))
   {
@@ -1046,7 +1046,7 @@ void playroutine_stereo()
     CHN *cptr = &chn[0];
 
     if (songinit == PLAY_STOP)
-        followplay = 0;
+        followplay = false;
 
     if ((songinit > 0) && (songinit < PLAY_STOPPED))
     {

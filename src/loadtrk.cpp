@@ -46,15 +46,15 @@
 
 bool menu = false;
 int editmode = EDIT_PATTERN;
-int recordmode = 1;
-int followplay = 0;
+bool recordmode = true;
+bool followplay = false;
 int hexnybble = -1;
 int stepsize = 4;
 int autoadvance = 0;
 unsigned defaultpatternlength = 64;
 int cursorflash = 0;
 int cursorcolortable[] = {1,2,7,2};
-int exitprogram = 0;
+bool exitprogram = false;
 int eacolumn = 0;
 int eamode = 0;
 int ebmode = 0;
@@ -947,7 +947,7 @@ void mousecommands()
   }
   if ((!prevmouseb) && (mousex <= dpos.octaveX+7) && (mousey == dpos.octaveY+1))
   {
-    recordmode ^= 1;
+    recordmode = !recordmode;
   }
   for (int c = 0; c < maxChns; c++)
   {
@@ -1141,7 +1141,7 @@ void generalcommands()
     rewindsong();
     break;
   }
-  if (win_quitted) exitprogram = 1;
+  if (win_quitted) exitprogram = true;
   switch(rawkey)
   {
     case KEY_ESC:
@@ -1365,7 +1365,7 @@ void quit()
     printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Really Quit (y/n)?");
     waitkey();
     printblank(20, 39, 58);
-    if ((key == 'y') || (key == 'Y')) exitprogram = 1;
+    if ((key == 'y') || (key == 'Y')) exitprogram = true;
   }
   key = 0;
   rawkey = 0;
@@ -1483,7 +1483,7 @@ void editadsr()
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       key = 0;
       rawkey = 0;
       return;
@@ -1561,7 +1561,7 @@ void editbpm()
 
         if (win_quitted)
         {
-            exitprogram = 1;
+            exitprogram = true;
             key = 0;
             rawkey = 0;
             return;

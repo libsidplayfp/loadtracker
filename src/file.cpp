@@ -232,7 +232,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 
     if (win_quitted)
     {
-      exitprogram = 1;
+      exitprogram = true;
       for (int c = 0; c < MAX_DIRFILES; c++)
       {
         if (direntry[c].name)

@@ -64,7 +64,7 @@ void joinpattern();
 
 void insertnote(int newnote)
 {
-    if ((recordmode) && (eppos < pattlen[epnum[epchn]]))
+    if (recordmode && (eppos < pattlen[epnum[epchn]]))
     {
         pattern[epnum[epchn]][eppos*4] = newnote;
         if (newnote < REST)
@@ -900,7 +900,7 @@ void patterncommands()
 
     case KEY_SPACE:
     if (!shiftpressed)
-      recordmode ^= 1;
+      recordmode = !recordmode;
     else
     {
       if (lastsonginit != PLAY_PATTERN)
@@ -916,7 +916,7 @@ void patterncommands()
         initsongpos(esnum, PLAY_POS, eppos);
       }
       else initsongpos(esnum, PLAY_PATTERN, eppos);
-      followplay = 0;
+      followplay = false;
     }
     break;
 
@@ -1039,7 +1039,7 @@ void patterncommands()
           pattern[epnum[epchn]][eppos*4] = newbyte;
         }
       }
-      if ((recordmode) && (autoadvance < 1))
+      if (recordmode && (autoadvance < 1))
       {
         eppos++;
         if (eppos > pattlen[epnum[epchn]])
@@ -1050,7 +1050,7 @@ void patterncommands()
     }
   }
 
-  if ((hexnybble >= 0) && (epcolumn) && (recordmode))
+  if ((hexnybble >= 0) && (epcolumn) && recordmode)
   {
     if (eppos < pattlen[epnum[epchn]])
     {

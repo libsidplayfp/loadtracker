@@ -53,15 +53,15 @@
 #ifndef LOADTRK_C
 extern bool menu;
 extern int editmode;
-extern int recordmode;
-extern int followplay;
+extern bool recordmode;
+extern bool followplay;
 extern int hexnybble;
 extern int stepsize;
 extern int autoadvance;
 extern int defaultpatternlength;
 extern int cursorflash;
 extern int cursorcolortable[];
-extern int exitprogram;
+extern bool exitprogram;
 extern int eacolumn;
 extern int eamode;
 extern int ebmode;

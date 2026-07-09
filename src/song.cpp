@@ -1352,7 +1352,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   epmarkchn = -1;
   etmarknum = -1;
   esmarkchn = -1;
-  followplay = 0;
+  followplay = false;
 
   for (int c = 0; c < maxChns; c++)
   {
