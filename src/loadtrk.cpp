@@ -53,8 +53,6 @@
 
 #define HOLDDELAY 24
 
-#define VISIBLEORDERLIST 23
-
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
 
@@ -770,7 +768,7 @@ void mousecommands()
         int x = mousex-(dpos.patternsX + 3)-c*13;
         int newpos = mousey-(dpos.patternsY+1)+epview;
         if (newpos < 0) newpos = 0;
-        if (newpos > pattlen[epnum[epchn]]) newpos = pattlen[epnum[epchn]];
+        if (newpos > getPattlen(epnum[epchn])) newpos = getPattlen(epnum[epchn]);
 
         editmode = EDIT_PATTERN;
 
@@ -804,7 +802,7 @@ void mousecommands()
           }
         }
         if (eppos < 0) eppos = 0;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
 
         if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) epmarkend = newpos;
       }
@@ -1961,7 +1959,7 @@ void optimizeeverything()
         clearinstr(MAX_INSTR-2);
         for (int d = 0; d < MAX_PATT; d++)
         {
-          for (int e = 0; e < pattlen[d]; e++)
+          for (int e = 0; e < getPattlen(d); e++)
           {
             if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
               pattern[d][e*4+1]--;
@@ -1986,9 +1984,9 @@ void findduplicatepatterns()
     {
       for (int d = c+1; d < MAX_PATT; d++)
       {
-        if (pattlen[d] == pattlen[c])
+        if (getPattlen(d) == getPattlen(c))
         {
-          if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
+          if (!std::memcmp(pattern[c], pattern[d], getPattlen(c)*4))
           {
             for (int f = 0; f < MAX_SONGS; f++)
             {
@@ -2024,5 +2022,5 @@ int getMaxChannels()
 
 int getVisibleOrderlist()
 {
-    return (numsids == 1) ? VISIBLEORDERLIST : 14;
+    return (numsids == 1) ? 23 : 14;
 }

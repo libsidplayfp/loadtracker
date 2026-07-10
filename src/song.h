@@ -28,7 +28,6 @@ extern unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
 extern char songname[MAX_STR];
 extern char authorname[MAX_STR];
 extern char copyrightname[MAX_STR];
-extern int pattlen[MAX_PATT];
 extern int songlen[MAX_SONGS][MAX_CHN];
 #endif
 
@@ -44,5 +43,6 @@ void clearpattern(int p);
 int insertpattern(int p);
 void deletepattern(int p);
 void findusedpatterns();
+int getPattlen(int patt);
 
 #endif

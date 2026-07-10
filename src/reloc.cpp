@@ -284,7 +284,7 @@ void relocator()
             int num = songorder[c][d][e];
 
             pattused[num] = 1;
-            for (int f = 0; f < pattlen[num]; f++)
+            for (int f = 0; f < getPattlen(num); f++)
             {
               if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                 chnused[d] = 1;
@@ -349,7 +349,7 @@ void relocator()
       patterns++;
 
       // See which instruments/tablecommands are used
-      for (d = 0; d < pattlen[c]; d++)
+      for (d = 0; d < getPattlen(c); d++)
       {
         tableerror = 0;
 
@@ -791,7 +791,7 @@ void relocator()
   {
     if (pattused[c])
     {
-      int result = packpattern(patttemp, pattern[c], pattlen[c]);
+      int result = packpattern(patttemp, pattern[c], getPattlen(c));
 
       if (result < 0)
       {
@@ -825,7 +825,7 @@ void relocator()
     if (pattused[c])
     {
       pattoffset[d] = pattdatasize;
-      pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], pattlen[c]);
+      pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
       pattdatasize += pattsize[d];
       d++;
     }
@@ -2352,7 +2352,7 @@ void relocator_stereo()
                         int num = songorder[c][d][e];
 
                         pattused[num] = 1;
-                        for (int f = 0; f < pattlen[num]; f++)
+                        for (int f = 0; f < getPattlen(num); f++)
                         {
                             if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                                 chnused_stereo[d] = 1;
@@ -2411,7 +2411,7 @@ void relocator_stereo()
             patterns++;
 
             // See which instruments/tablecommands are used
-            for (int d = 0; d < pattlen[c]; d++)
+            for (int d = 0; d < getPattlen(c); d++)
             {
                 tableerror = 0;
 
@@ -2843,7 +2843,7 @@ TABLETYPE_S:
     {
         if (pattused[c])
         {
-            int result = packpattern(patttemp, pattern[c], pattlen[c]);
+            int result = packpattern(patttemp, pattern[c], getPattlen(c));
 
             if (result < 0)
             {
@@ -2877,7 +2877,7 @@ TABLETYPE_S:
         if (pattused[c])
         {
             pattoffset[d] = pattdatasize;
-            pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], pattlen[c]);
+            pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
             pattdatasize += pattsize[d];
             d++;
         }

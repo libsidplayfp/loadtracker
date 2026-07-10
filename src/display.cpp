@@ -193,7 +193,7 @@ void printstatus()
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
-      if (newpos > pattlen[epnum[c]]) newpos = pattlen[epnum[c]];
+      if (newpos > getPattlen(epnum[c])) newpos = getPattlen(epnum[c]);
 
       if (c == epchn)
       {
@@ -234,13 +234,13 @@ void printstatus()
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
-        if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
+        if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
         if (chnrow == p) color = colors.CPLAYING;
       }
 
       if (chn[c].mute) color = colors.CMUTE;
       if (p == eppos) color = colors.CEDIT;
-      if ((p < 0) || (p > pattlen[epnum[c]]))
+      if ((p < 0) || (p > getPattlen(epnum[c])))
       {
         std::sprintf(textbuffer, "             ");
       }
@@ -331,8 +331,13 @@ void printstatus()
   printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, "%02X", eseditpos);
   printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
-  std::sprintf(textbuffer, ")   ");
+  std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
+  if (numsids == 2)
+    std::sprintf(textbuffer, "           ");
+  else
+    std::sprintf(textbuffer, "                                      ");
+  printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < maxChns; c++)
   {
@@ -627,7 +632,7 @@ void printstatus()
     int chnrow = chn[c].pattptr/4;
     chnpos--;
     if (chnpos < 0) chnpos = 0;
-    if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
+    if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
     if (chnrow >= 100) chnrow -= 100;
 
     std::sprintf(textbuffer, "%03X/%02X",

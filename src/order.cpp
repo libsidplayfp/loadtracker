@@ -552,9 +552,12 @@ void orderlistcommands_stereo()
             int tchn = 0;
 
             esmarkchn = -1;
-            if (rawkey == KEY_1) tchn = 0;
-            if (rawkey == KEY_2) tchn = 1;
-            if (rawkey == KEY_3) tchn = 2;
+            switch (rawkey)
+            {
+            case KEY_1: tchn = 0; break;
+            case KEY_2: tchn = 1; break;
+            case KEY_3: tchn = 2; break;
+            }
             if (schn != tchn)
             {
                 int lentemp = songlen[esnum][schn];

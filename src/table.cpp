@@ -820,7 +820,7 @@ void optimizetable(int num)
 
   for (int c = 0; c < MAX_PATT; c++)
   {
-    for (int d = 0; d < pattlen[c]; d++)
+    for (int d = 0; d < getPattlen(c); d++)
     {
       if ((pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (pattern[c][d*4+2] <= CMD_SETFILTERPTR))
         exectable(pattern[c][d*4+2] - CMD_SETWAVEPTR, pattern[c][d*4+3]);

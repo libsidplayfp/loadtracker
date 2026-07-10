@@ -263,7 +263,7 @@ void playroutine()
         cptr->advance = 0;
         cptr->pattptr = startpattpos * 4;
         cptr->pattnum = epnum[c];
-        if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+        if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
           cptr->pattptr = 0;
         break;
 
@@ -1034,7 +1034,7 @@ void sequencer(int c, CHN *cptr)
       stopsong();
       cptr->pattnum = 0;
     }
-    if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+    if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
       cptr->pattptr = 0;
 
     // Check for playback endpos
@@ -1120,7 +1120,7 @@ void playroutine_stereo()
                 cptr->advance = 0;
                 cptr->pattptr = startpattpos * 4;
                 cptr->pattnum = epnum[c];
-                if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+                if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
                     cptr->pattptr = 0;
                 break;
 
@@ -2048,7 +2048,7 @@ void sequencer_stereo(int c, CHN *cptr)
             stopsong();
             cptr->pattnum = 0;
         }
-        if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+        if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
             cptr->pattptr = 0;
 
         // Check for playback endpos

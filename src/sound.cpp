@@ -49,23 +49,23 @@
 #define MIXBUFFERSIZE 65536
 
 // General / reSID output
-bool useexsid = false;
 bool initted = false;
 unsigned framerate = PALFRAMERATE;
 Sint16 *buffer = nullptr;
 Sint16 *lbuffer = nullptr;
 Sint16 *rbuffer = nullptr;
 FILE *writehandle = nullptr;
-SDL_TimerID timer = 0;
-
-void sound_playrout(void);
-void sound_mixer(Sint32 *dest, unsigned samples);
-Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
 #ifdef USE_EXSID
+bool useexsid = false;
+SDL_TimerID timer = 0;
 void* exsidfd = nullptr;
 unsigned exsidDelay = 0;
 #endif
+
+void sound_playrout();
+void sound_mixer(Sint32 *dest, unsigned samples);
+Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
 int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
                unsigned multiplier, unsigned interpolate, unsigned customclockrate,
@@ -179,11 +179,13 @@ void sound_uninit(void)
   // not mixing stuff anymore, and we can safely delete related structures
   SDL_Delay(50);
 
+#ifdef USE_EXSID
   if (useexsid)
   {
     SDL_RemoveTimer(timer);
   }
   else
+#endif
   {
     snd_setcustommixer(nullptr);
     snd_player = nullptr;

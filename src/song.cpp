@@ -93,8 +93,8 @@ bool savesong()
     int c = MAX_SONGS - 1;
     for (;;)
     {
-     if ((songlen[c][0])&&
-         (songlen[c][1])&&
+     if ((songlen[c][0]) &&
+         (songlen[c][1]) &&
          (songlen[c][2])) break;
      if (c == 0) break;
      c--;
@@ -1738,4 +1738,9 @@ int determinechannels(FILE* handle)
 
     std::fseek(handle, returnpos, SEEK_SET);
     return MAX_CHN;
+}
+
+int getPattlen(int patt)
+{
+    return pattlen[patt];
 }
