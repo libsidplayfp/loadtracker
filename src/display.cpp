@@ -22,7 +22,18 @@
 
 #define DISPLAY_C
 
+#include "display.h"
+
+#include "console.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "song.h"
+#include "sound.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_snd.h"
 

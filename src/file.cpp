@@ -22,7 +22,13 @@
 
 #define FILE_C
 
+#include "file.h"
+
+#include "console.h"
+#include "display.h"
 #include "loadtrk.h"
+#include "play.h"
+
 #include "bme_main.h"
 #include "bme_win.h"
 
@@ -72,7 +78,7 @@ void initpaths()
   std::strcpy(packedpath, songpath);
 }
 
-int fileselector(char *name, char *path, char *filter, const char *title, int filemode)
+bool fileselector(char *name, char *path, char *filter, const char *title, int filemode)
 {
 #ifdef __WIN32__
   char drivestr[] = "A:\\";
@@ -521,7 +527,7 @@ int fileselector(char *name, char *path, char *filter, const char *title, int fi
 
   // Restore screen & exit
   printmainscreen();
-  return exitfilesel;
+  return (exitfilesel > 0);
 }
 
 int cmpname(char *string1, char *string2)

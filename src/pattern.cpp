@@ -22,7 +22,16 @@
 
 #define PATTERN_C
 
+#include "console.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 
 #include <cstring>
@@ -260,7 +269,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -291,7 +300,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -320,7 +329,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], finevibrato, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], finevibrato, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -725,7 +734,7 @@ void patterncommands()
             {
               if (delta > 0xff) delta = 0xff;
             }
-            int pos = makespeedtable(delta, MST_RAW, 1);
+            int pos = makespeedtable(delta, MST_RAW, true);
             pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             break;
           }

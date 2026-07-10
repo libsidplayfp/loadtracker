@@ -22,7 +22,17 @@
 
 #define SONG_C
 
+#include "song.h"
+
+#include "common.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "table.h"
+
 #include "bme_end.h"
 
 #include <cstring>
@@ -41,7 +51,6 @@ int songlen[MAX_SONGS][MAX_CHN];
 int highestusedpattern;
 int highestusedinstr;
 
-void findduplicatepatterns();
 int determinechannels(FILE* handle);
 
 bool savesong()
@@ -302,7 +311,7 @@ void loadsong()
         instr[c].ptr[PTBL] = fread8(handle);
         instr[c].ptr[FTBL] = fread8(handle);
         instr[c].vibdelay = fread8(handle);
-        instr[c].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, 0) + 1;
+        instr[c].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
         instr[c].gatetimer = fread8(handle);
         instr[c].firstwave = fread8(handle);
         std::fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
@@ -327,17 +336,17 @@ void loadsong()
           switch (pattern[c][d*4+2])
           {
             case CMD_FUNKTEMPO:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_FUNKTEMPO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_FUNKTEMPO, false) + 1;
             break;
 
             case CMD_PORTAUP:
             case CMD_PORTADOWN:
             case CMD_TONEPORTA:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
             break;
 
             case CMD_VIBRATO:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], finevibrato, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], finevibrato, false) + 1;
             break;
           }
         }
@@ -698,13 +707,13 @@ void loadsong()
 
           // Convert portamento & vibrato
           if (pattern[c][d*4+2] == CMD_PORTAUP)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
           if (pattern[c][d*4+2] == CMD_PORTADOWN)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
           if (pattern[c][d*4+2] == CMD_TONEPORTA)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
           if (pattern[c][d*4+2] == CMD_VIBRATO)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_NOFINEVIB, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_NOFINEVIB, false) + 1;
 
           // Convert filterjump
           if (pattern[c][d*4+2] == CMD_SETFILTERPTR)
@@ -714,7 +723,7 @@ void loadsong()
           if ((pattern[c][d*4+2] == CMD_SETTEMPO) && (!pattern[c][d*4+3]))
           {
             pattern[c][d*4+2] = CMD_FUNKTEMPO;
-            pattern[c][d*4+3] = makespeedtable((filtertable[2] << 4) | (filtertable[3] & 0x0f), MST_FUNKTEMPO, 0) + 1;
+            pattern[c][d*4+3] = makespeedtable((filtertable[2] << 4) | (filtertable[3] & 0x0f), MST_FUNKTEMPO, false) + 1;
           }
           // Convert arpeggio
           if ((pattern[c][d*4+2] == CMD_DONOTHING) && (pattern[c][d*4+3]))
@@ -993,7 +1002,7 @@ void loadinstrument()
       optr[1] = fread8(handle);
       optr[2] = fread8(handle);
       instr[einum].vibdelay = fread8(handle);
-      instr[einum].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, 0) + 1;
+      instr[einum].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
       instr[einum].gatetimer = fread8(handle);
       instr[einum].firstwave = fread8(handle);
       std::fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
@@ -1541,104 +1550,6 @@ void findusedpatterns()
         }
       }
     }
-  }
-}
-
-void findduplicatepatterns()
-{
-  int maxChns = getMaxChannels();
-
-  findusedpatterns();
-
-  for (int c = 0; c < MAX_PATT; c++)
-  {
-    if (pattused[c])
-    {
-      for (int d = c+1; d < MAX_PATT; d++)
-      {
-        if (pattlen[d] == pattlen[c])
-        {
-          if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
-          {
-            for (int f = 0; f < MAX_SONGS; f++)
-            {
-              if ((songlen[f][0]) &&
-                  (songlen[f][1]) &&
-                  (songlen[f][2]))
-              {
-                for (int g = 0; g < maxChns; g++)
-                {
-                  for (int h = 0; h < songlen[f][g]; h++)
-                  {
-                    if (songorder[f][g][h] == d)
-                      songorder[f][g][h] = c;
-                  }
-                }
-              }
-            }
-            for (int f = 0; f < maxChns; f++)
-              if (epnum[f] == d) epnum[f] = c;
-          }
-        }
-      }
-    }
-  }
-
-  findusedpatterns();
-}
-
-void optimizeeverything(int oi, int ot)
-{
-  stopsong();
-
-  findduplicatepatterns();
-
-  std::memset(instrused, 0, sizeof instrused);
-
-  for (int c = MAX_PATT-1; c >= 0; c--)
-  {
-    if (pattused[c])
-    {
-      for (int d = 0; d < MAX_PATTROWS; d++)
-      {
-        if (pattern[c][d*4] == ENDPATT) break;
-        if (pattern[c][d*4+1])
-          instrused[pattern[c][d*4+1]] = 1;
-      }
-    }
-    else deletepattern(c);
-  }
-
-  countpatternlengths();
-
-  if (oi)
-  {
-    for (int c = MAX_INSTR-2; c >= 1; c--)
-    {
-      if (!instrused[c])
-      {
-        clearinstr(c);
-
-        if (c < MAX_INSTR-2)
-        {
-          std::memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
-          clearinstr(MAX_INSTR-2);
-          for (int d = 0; d < MAX_PATT; d++)
-          {
-            for (int e = 0; e < pattlen[d]; e++)
-            {
-              if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
-                pattern[d][e*4+1]--;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  if (ot)
-  {
-    for (int c = 0; c < MAX_TABLES; c++) optimizetable(c);
   }
 }
 

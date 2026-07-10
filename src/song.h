@@ -44,6 +44,5 @@ void clearpattern(int p);
 int insertpattern(int p);
 void deletepattern(int p);
 void findusedpatterns();
-void optimizeeverything(int oi, int ot);
 
 #endif

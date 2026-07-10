@@ -18,15 +18,27 @@
 
 #define LOADTRK_C
 
-#ifdef __WIN32__
-#include <windows.h>
-#endif
-
 #include "loadtrk.h"
+
+#include "console.h"
+#include "display.h"
+#include "instr.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "song.h"
+#include "sound.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_snd.h"
 #include "bme_io.h"
+
+#ifdef __WIN32__
+#include <windows.h>
+#endif
 
 #include <SDL3/SDL_main.h>
 
@@ -173,6 +185,8 @@ void readscalatuningfile();
 void setspecialnotenames();
 void calculatefreqtable();
 void switchMode();
+void optimizeeverything();
+void findduplicatepatterns();
 
 int main(int argc, char **argv)
 {
@@ -1361,7 +1375,7 @@ void clear()
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y'))
   {
-    optimizeeverything(1, 1);
+    optimizeeverything();
     key = 0;
     rawkey = 0;
     return;
@@ -1909,6 +1923,98 @@ void switchMode()
     }
     key = 0;
     rawkey = 0;
+}
+
+void optimizeeverything()
+{
+  stopsong();
+
+  findduplicatepatterns();
+
+  std::memset(instrused, 0, sizeof instrused);
+
+  for (int c = MAX_PATT-1; c >= 0; c--)
+  {
+    if (pattused[c])
+    {
+      for (int d = 0; d < MAX_PATTROWS; d++)
+      {
+        if (pattern[c][d*4] == ENDPATT) break;
+        if (pattern[c][d*4+1])
+          instrused[pattern[c][d*4+1]] = 1;
+      }
+    }
+    else deletepattern(c);
+  }
+
+  countpatternlengths();
+
+  for (int c = MAX_INSTR-2; c >= 1; c--)
+  {
+    if (!instrused[c])
+    {
+      clearinstr(c);
+
+      if (c < MAX_INSTR-2)
+      {
+        std::memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
+        clearinstr(MAX_INSTR-2);
+        for (int d = 0; d < MAX_PATT; d++)
+        {
+          for (int e = 0; e < pattlen[d]; e++)
+          {
+            if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
+              pattern[d][e*4+1]--;
+          }
+        }
+      }
+    }
+  }
+
+  for (int c = 0; c < MAX_TABLES; c++) optimizetable(c);
+}
+
+void findduplicatepatterns()
+{
+  int maxChns = getMaxChannels();
+
+  findusedpatterns();
+
+  for (int c = 0; c < MAX_PATT; c++)
+  {
+    if (pattused[c])
+    {
+      for (int d = c+1; d < MAX_PATT; d++)
+      {
+        if (pattlen[d] == pattlen[c])
+        {
+          if (!std::memcmp(pattern[c], pattern[d], pattlen[c]*4))
+          {
+            for (int f = 0; f < MAX_SONGS; f++)
+            {
+              if ((songlen[f][0]) &&
+                  (songlen[f][1]) &&
+                  (songlen[f][2]))
+              {
+                for (int g = 0; g < maxChns; g++)
+                {
+                  for (int h = 0; h < songlen[f][g]; h++)
+                  {
+                    if (songorder[f][g][h] == d)
+                      songorder[f][g][h] = c;
+                  }
+                }
+              }
+            }
+            for (int f = 0; f < maxChns; f++)
+              if (epnum[f] == d) epnum[f] = c;
+          }
+        }
+      }
+    }
+  }
+
+  findusedpatterns();
 }
 
 int getMaxChannels()

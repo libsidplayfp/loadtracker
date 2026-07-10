@@ -20,6 +20,8 @@
 #define LOADTRK_H
 
 #include "common.h"
+#include "file.h"
+/*
 #include "console.h"
 #include "sound.h"
 #include "sid.h"
@@ -27,12 +29,11 @@
 #include "play.h"
 #include "display.h"
 #include "reloc.h"
-#include "file.h"
 #include "pattern.h"
 #include "order.h"
 #include "instr.h"
 #include "table.h"
-
+*/
 enum
 {
   EDIT_PATTERN      = 0,

@@ -19,12 +19,17 @@
 #ifndef PLAY_H
 #define PLAY_H
 
-#define PLAY_PLAYING    0x00
-#define PLAY_BEGINNING  0x01
-#define PLAY_POS        0x02
-#define PLAY_PATTERN    0x03
-#define PLAY_STOP       0x04
-#define PLAY_STOPPED    0x80
+#include "common.h"
+
+enum
+{
+  PLAY_PLAYING    = 0x00,
+  PLAY_BEGINNING  = 0x01,
+  PLAY_POS        = 0x02,
+  PLAY_PATTERN    = 0x03,
+  PLAY_STOP       = 0x04,
+  PLAY_STOPPED    = 0x80
+};
 
 typedef struct
 {
@@ -73,7 +78,7 @@ void rewindsong();
 void playtestnote(int note, int ins, int chnnum);
 void releasenote(int chnnum);
 void mutechannel(int chnnum);
-int isplaying();
+bool isplaying();
 void playroutine();
 void playroutine_stereo();
 

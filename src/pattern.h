@@ -19,6 +19,8 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
+#include "common.h"
+
 #ifndef PATTERN_C
 extern int epnum[MAX_CHN];
 extern int eppos;

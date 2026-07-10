@@ -22,7 +22,14 @@
 
 #define PLAY_C
 
+#include "play.h"
+
+#include "display.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "sid.h"
+#include "song.h"
 
 #include <cstring>
 
@@ -181,7 +188,7 @@ void mutechannel(int chnnum)
   chn[chnnum].mute ^= 1;
 }
 
-int isplaying()
+bool isplaying()
 {
   return (songinit != PLAY_STOPPED);
 }
@@ -204,10 +211,10 @@ void playroutine()
 
     resettime();
 
-    if ((songinit == 0x02) || (songinit == 0x03))
+    if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
     {
       if ((espos[0] >= songlen[psnum][0]) || (espos[1] >= songlen[psnum][1]) || (espos[2] >= songlen[psnum][2]))
-         songinit = 0x01;
+         songinit = PLAY_BEGINNING;
     }
 
     for (int c = 0; c < maxChns; c++)
@@ -268,7 +275,7 @@ void playroutine()
       cptr++;
     }
     if (songinit != PLAY_STOP)
-      songinit = 0;
+      songinit = PLAY_PLAYING;
     else
       songinit = PLAY_STOPPED;
     if ((!songlen[psnum][0]) || (!songlen[psnum][1]) || (!songlen[psnum][2]))
@@ -1047,7 +1054,7 @@ void playroutine_stereo()
     if (songinit == PLAY_STOP)
         followplay = false;
 
-    if ((songinit > 0) && (songinit < PLAY_STOPPED))
+    if ((songinit > PLAY_PLAYING) && (songinit < PLAY_STOPPED))
     {
         lastsonginit = songinit;
 
@@ -1058,12 +1065,12 @@ void playroutine_stereo()
 
         resettime();
 
-        if ((songinit == 0x02) || (songinit == 0x03))
+        if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
         {
             for (int c = 0; c < MAX_CHN; c++)
             {
                 if (espos[c] >= songlen[psnum][c])
-                    songinit = 0x01;
+                    songinit = PLAY_BEGINNING;
             }
         }
 
@@ -1125,7 +1132,7 @@ void playroutine_stereo()
             cptr++;
         }
         if (songinit != PLAY_STOP)
-            songinit = 0;
+            songinit = PLAY_PLAYING;
         else
             songinit = PLAY_STOPPED;
         if ((!songlen[psnum][0]) || (!songlen[psnum][1]) || (!songlen[psnum][2]) ||

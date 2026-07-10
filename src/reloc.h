@@ -19,7 +19,7 @@
 #ifndef RELOC_H
 #define RELOC_H
 
-#define MAX_OPTIONS 7
+#include "common.h"
 
 enum
 {

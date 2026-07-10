@@ -19,6 +19,8 @@
 #ifndef INSTR_H
 #define INSTR_H
 
+#include "common.h"
+
 #ifndef INSTR_C
 extern int einum;
 extern int eipos;

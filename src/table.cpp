@@ -22,7 +22,15 @@
 
 #define TABLE_C
 
+#include "console.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 
 #include <cmath>
@@ -468,7 +476,7 @@ void tablecommands()
           {
             int oldeditpos = etpos;
             int oldeditcolumn = etcolumn;
-            int pos = makespeedtable(rtable[etnum][etpos], mstmode, 1);
+            int pos = makespeedtable(rtable[etnum][etpos], mstmode, true);
             gototable(WTBL, oldeditpos);
             etcolumn = oldeditcolumn;
 
@@ -873,7 +881,7 @@ void optimizetable(int num)
   }
 }
 
-int makespeedtable(unsigned data, int mode, int makenew)
+int makespeedtable(unsigned data, int mode, bool makenew)
 {
   unsigned char l = 0, r = 0;
 
@@ -907,7 +915,7 @@ int makespeedtable(unsigned data, int mode, int makenew)
     break;
   }
 
-  if (makenew == 0)
+  if (!makenew)
   {
     for (int c = 0; c < MAX_TABLELEN; c++)
     {

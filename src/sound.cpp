@@ -22,7 +22,12 @@
 
 #define SOUND_C
 
+#include "sound.h"
+
 #include "loadtrk.h"
+#include "play.h"
+#include "sid.h"
+
 #include "bme_snd.h"
 
 #include <SDL3/SDL.h>

@@ -22,7 +22,14 @@
 
 #define ORDER_C
 
+#include "order.h"
+
+#include "console.h"
 #include "loadtrk.h"
+#include "pattern.h"
+#include "play.h"
+#include "song.h"
+
 #include "bme_main.h"
 
 #include <cstring>
@@ -429,7 +436,7 @@ void orderlistcommands()
   }
 }
 
-void orderlistcommands_stereo(void)
+void orderlistcommands_stereo()
 {
     int maxChns = MAX_CHN;
     int visibleOrderlist = 14;
@@ -1120,7 +1127,7 @@ void prevsong()
   songchange();
 }
 
-void songchange(void)
+void songchange()
 {
   int maxChns = getMaxChannels();
 

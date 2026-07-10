@@ -22,7 +22,15 @@
 
 #define RELOC_C
 
+#include "reloc.h"
+
+#include "console.h"
+#include "display.h"
 #include "loadtrk.h"
+#include "play.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_end.h"
 #include "bme_win.h"
@@ -46,10 +54,15 @@ extern "C" {
 #define PLAYER_NOOPTIMIZATION 256
 #define PLAYER_FULLBUFFERED 512
 
-#define CAUSE_NONE 0
-#define CAUSE_PATTERN 1
-#define CAUSE_INSTRUMENT 2
-#define CAUSE_WAVECMD 3
+#define MAX_OPTIONS 7
+
+enum
+{
+  CAUSE_NONE        = 0,
+  CAUSE_PATTERN     = 1,
+  CAUSE_INSTRUMENT  = 2,
+  CAUSE_WAVECMD     = 3
+};
 
 #define MAX_BYTES_PER_ROW 16
 

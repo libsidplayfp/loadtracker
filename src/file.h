@@ -23,7 +23,7 @@
 #define MAX_PATHNAME 256
 
 void initpaths();
-int fileselector(char *name, char *path, char *filter, const char *title, int filemode);
+bool fileselector(char *name, char *path, char *filter, const char *title, int filemode);
 
 #endif
 

@@ -19,11 +19,16 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#define MST_NOFINEVIB 0
-#define MST_FINEVIB 1
-#define MST_FUNKTEMPO 2
-#define MST_PORTAMENTO 3
-#define MST_RAW 4
+#include "common.h"
+
+enum
+{
+  MST_NOFINEVIB     = 0,
+  MST_FINEVIB       = 1,
+  MST_FUNKTEMPO     = 2,
+  MST_PORTAMENTO    = 3,
+  MST_RAW           = 4
+};
 
 #ifndef TABLE_C
 extern int etview[MAX_TABLES];
@@ -37,7 +42,7 @@ extern int etmarkend;
 #endif
 
 void tablecommands();
-int makespeedtable(unsigned data, int mode, int makenew);
+int makespeedtable(unsigned data, int mode, bool makenew);
 void optimizetable(int num);
 void deleteinstrtable(int i);
 int gettablelen(int num);
