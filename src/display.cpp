@@ -443,7 +443,7 @@ void printstatus()
   {
     int insnum = eirow + i;
     int color = insnum == einum ? colors.CEDIT : colors.CNORMAL;
-    std::sprintf(textbuffer, "%2X %16s %02X %02X %02X %02X %02X %02X %02X %02X %02X",
+    std::sprintf(textbuffer, "%2d %-16s %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                 insnum,
                 instr[insnum].name,
                 instr[insnum].ad,
@@ -459,15 +459,18 @@ void printstatus()
     printtext(dpos.instrumentsX, dpos.instrumentsY+1+i, color, textbuffer);
   }
 
-  if (editmode == EDIT_INSTRUMENT)
+  int selpos = einum - eirow;
+  if ((editmode == EDIT_INSTRUMENT) && (selpos >= 0) && (selpos < 5))
   {
     if (eipos < 9)
     {
-      if (!eamode) printbg(dpos.instrumentsX+20+3*eipos+eicolumn, dpos.instrumentsY+1, cc, 1);
+      // Instr param
+      if (!eamode) printbg(dpos.instrumentsX+20+3*eipos+eicolumn, dpos.instrumentsY+1+selpos, cc, 1);
     }
     else
     {
-      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(instr[einum].name), dpos.instrumentsY+1, cc, 1);
+      // Instr name
+      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(instr[einum].name), dpos.instrumentsY+1+selpos, cc, 1);
     }
   }
 

@@ -727,6 +727,17 @@ void mousecommands()
         else if (win_mouseywheel < 0.f)
           patterndown();
     }
+    // Scroll instruments
+    if ((mousey >= dpos.instrumentsY+1) &&
+        (mousey <= dpos.instrumentsY+5) &&
+        (mousex >= dpos.instrumentsX) &&
+        (mousex <= dpos.instrumentsX+46))
+    {
+        if (win_mouseywheel > 0.f)
+          previnstr();
+        else if (win_mouseywheel < 0.f)
+          nextinstr();
+    }
     // Scroll orderlist
     if ((mousey >= dpos.orderlistY+1) &&
         (mousey <= dpos.orderlistY+1+maxChns) &&
@@ -892,7 +903,6 @@ void mousecommands()
   }
 
   // Instrument editpos & instrument number selection
-  // FIXME
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
         (mousex >= (dpos.instrumentsX+20)) &&
@@ -916,14 +926,6 @@ void mousecommands()
     editmode = EDIT_INSTRUMENT;
     eipos = 9;
     einum = eirow+mousey-(dpos.instrumentsY+1);
-  }
-  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
-        (mousey == dpos.instrumentsY) &&
-        (mousex >= dpos.instrumentsX+16) &&
-        (mousex <= dpos.instrumentsX+17))
-  {
-    if (mouseb & MOUSEB_LEFT) nextinstr();
-    if (mouseb & MOUSEB_RIGHT) previnstr();
   }
 
   // Table editpos

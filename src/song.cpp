@@ -1372,8 +1372,8 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
       clearinstr(c);
     std::memset(&instrcopybuffer, 0, sizeof(INSTR));
     eipos = 0;
-    eirow = 0;
     eicolumn = 0;
+    eirow = 1;
     einum = 1;
   }
   if (ct == 1)

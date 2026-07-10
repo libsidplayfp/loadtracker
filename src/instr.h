@@ -22,9 +22,11 @@
 #include "common.h"
 
 #ifndef INSTR_C
+// Curent instrument number
 extern int einum;
-extern int eipos;
+// Instrument on the first row
 extern int eirow;
+extern int eipos;
 extern int eicolumn;
 extern INSTR instrcopybuffer;
 #endif

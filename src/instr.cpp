@@ -114,14 +114,22 @@ void instrumentcommands()
     break;
 
     case KEY_DOWN:
-    if (eirow < 255)
+    if ((einum - eirow) < 5)
+    {
+        einum++;
+    }
+    if (eirow < MAX_INSTR)
     {
       eirow++;
     }
     break;
 
     case KEY_UP:
-    if (eirow > 0)
+    if ((einum - eirow) > 0)
+    {
+        einum--;
+    }
+    if (eirow > 1)
     {
       eirow--;
     }
@@ -195,7 +203,6 @@ void instrumentcommands()
     unsigned char *ptr = &instr[einum].ad;
     ptr += eipos;
 
-    // FIXME
     switch(eicolumn)
     {
       case 0:
@@ -253,6 +260,7 @@ void nextinstr(void)
 {
   einum++;
   if (einum >= MAX_INSTR) einum = MAX_INSTR - 1;
+  if ((einum - eirow) >= 5) eirow++;
   showinstrtable();
 }
 
@@ -260,6 +268,7 @@ void previnstr(void)
 {
   einum--;
   if (einum < 0) einum = 0;
+  if ((einum - eirow) < 0) eirow--;
   showinstrtable();
 }
 
