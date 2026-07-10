@@ -716,6 +716,7 @@ void mousecommands()
 
   if (win_mouseywheel != 0.f)
   {
+    // Scroll patterns
     if ((mousey >= dpos.patternsY) &&
         (mousey <= dpos.statusBottomY - 1) &&
         (mousex >= dpos.patternsX) &&
@@ -725,6 +726,29 @@ void mousecommands()
           patternup();
         else if (win_mouseywheel < 0.f)
           patterndown();
+    }
+    // Scroll orderlist
+    if ((mousey >= dpos.orderlistY+1) &&
+        (mousey <= dpos.orderlistY+1+maxChns) &&
+        (mousex >= dpos.orderlistX) &&
+        (mousex <= dpos.orderlistX+34+((numsids == 2)?13:34)))
+    {
+      if (win_mouseywheel > 0.f)
+      {
+        if (esview > 0)
+        {
+          esview--;
+          eseditpos--;
+        }
+      }
+      else if (win_mouseywheel < 0.f)
+      {
+        if ((songlen[esnum][eschn]-esview) > getVisibleOrderlist()-1)
+        {
+          esview++;
+          eseditpos++;
+        }
+      }
     }
   }
 
@@ -1117,9 +1141,9 @@ void generalcommands()
     for (int c = 0; c < maxChns; c++)
     {
       currentSonglen = songlen[esnum][c];
-      if (espos[c] < currentSonglen-1)
+      if (espos[c] < (currentSonglen-1))
         espos[c]++;
-      if (espos[c] - esview >= visibleOrderlist)
+      if ((espos[c] - esview) >= visibleOrderlist)
       {
         esview = espos[c] - visibleOrderlist + 1;
         eseditpos = espos[c];
