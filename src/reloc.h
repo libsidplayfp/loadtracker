@@ -19,15 +19,21 @@
 #ifndef RELOC_H
 #define RELOC_H
 
-#define FORMAT_SID 0
-#define FORMAT_PRG 1
-#define FORMAT_BIN 2
+#include "common.h"
 
-#define MAX_OPTIONS 7
+enum
+{
+  FORMAT_SID = 0,
+  FORMAT_PRG = 1,
+  FORMAT_BIN = 2
+};
 
-#define TYPE_NONE 0
-#define TYPE_OVERFLOW 1
-#define TYPE_JUMP 2
+enum
+{
+  TYPE_NONE     = 0,
+  TYPE_OVERFLOW = 1,
+  TYPE_JUMP     = 2
+};
 
 #ifndef RELOC_C
 extern unsigned char pattused[MAX_PATT];

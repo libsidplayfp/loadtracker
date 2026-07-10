@@ -22,7 +22,15 @@
 
 #define INSTR_C
 
+#include "instr.h"
+
+#include "console.h"
 #include "loadtrk.h"
+#include "pattern.h"
+#include "play.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 
 #include <cstring>
@@ -72,7 +80,7 @@ void instrumentcommands()
       {
         for (int c = 0; c < MAX_PATT; c++)
         {
-          for (int d = 0; d < pattlen[c]; d++)
+          for (int d = 0; d < getPattlen(c); d++)
             if (pattern[c][d*4+1] == cutinstr) pattern[c][d*4+1] = einum;
         }
       }
@@ -171,7 +179,7 @@ void instrumentcommands()
         {
           if ((eipos == 5) && (shiftpressed))
           {
-            instr[einum].ptr[STBL] = makespeedtable(instr[einum].ptr[STBL], finevibrato, 1) + 1;
+            instr[einum].ptr[STBL] = makespeedtable(instr[einum].ptr[STBL], finevibrato, true) + 1;
             break;
           }
           pos = instr[einum].ptr[eipos-2] - 1;

@@ -22,7 +22,14 @@
 
 #define PLAY_C
 
+#include "play.h"
+
+#include "display.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "sid.h"
+#include "song.h"
 
 #include <cstring>
 
@@ -77,8 +84,7 @@ void sequencer_stereo(int c, CHN *cptr);
 
 void initchannels()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
   CHN *cptr = &chn[0];
 
   std::memset(chn, 0, sizeof chn);
@@ -182,7 +188,7 @@ void mutechannel(int chnnum)
   chn[chnnum].mute ^= 1;
 }
 
-int isplaying()
+bool isplaying()
 {
   return (songinit != PLAY_STOPPED);
 }
@@ -205,10 +211,10 @@ void playroutine()
 
     resettime();
 
-    if ((songinit == 0x02) || (songinit == 0x03))
+    if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
     {
       if ((espos[0] >= songlen[psnum][0]) || (espos[1] >= songlen[psnum][1]) || (espos[2] >= songlen[psnum][2]))
-         songinit = 0x01;
+         songinit = PLAY_BEGINNING;
     }
 
     for (int c = 0; c < maxChns; c++)
@@ -257,7 +263,7 @@ void playroutine()
         cptr->advance = 0;
         cptr->pattptr = startpattpos * 4;
         cptr->pattnum = epnum[c];
-        if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+        if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
           cptr->pattptr = 0;
         break;
 
@@ -269,7 +275,7 @@ void playroutine()
       cptr++;
     }
     if (songinit != PLAY_STOP)
-      songinit = 0;
+      songinit = PLAY_PLAYING;
     else
       songinit = PLAY_STOPPED;
     if ((!songlen[psnum][0]) || (!songlen[psnum][1]) || (!songlen[psnum][2]))
@@ -1028,7 +1034,7 @@ void sequencer(int c, CHN *cptr)
       stopsong();
       cptr->pattnum = 0;
     }
-    if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+    if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
       cptr->pattptr = 0;
 
     // Check for playback endpos
@@ -1048,7 +1054,7 @@ void playroutine_stereo()
     if (songinit == PLAY_STOP)
         followplay = false;
 
-    if ((songinit > 0) && (songinit < PLAY_STOPPED))
+    if ((songinit > PLAY_PLAYING) && (songinit < PLAY_STOPPED))
     {
         lastsonginit = songinit;
 
@@ -1059,12 +1065,12 @@ void playroutine_stereo()
 
         resettime();
 
-        if ((songinit == 0x02) || (songinit == 0x03))
+        if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
         {
             for (int c = 0; c < MAX_CHN; c++)
             {
-                if (espos[c] >= songlen_stereo[psnum][c])
-                    songinit = 0x01;
+                if (espos[c] >= songlen[psnum][c])
+                    songinit = PLAY_BEGINNING;
             }
         }
 
@@ -1114,7 +1120,7 @@ void playroutine_stereo()
                 cptr->advance = 0;
                 cptr->pattptr = startpattpos * 4;
                 cptr->pattnum = epnum[c];
-                if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+                if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
                     cptr->pattptr = 0;
                 break;
 
@@ -1126,11 +1132,11 @@ void playroutine_stereo()
             cptr++;
         }
         if (songinit != PLAY_STOP)
-            songinit = 0;
+            songinit = PLAY_PLAYING;
         else
             songinit = PLAY_STOPPED;
-        if ((!songlen_stereo[psnum][0]) || (!songlen_stereo[psnum][1]) || (!songlen_stereo[psnum][2]) ||
-                (!songlen_stereo[psnum][3]) || (!songlen_stereo[psnum][4]) || (!songlen_stereo[psnum][5]))
+        if ((!songlen[psnum][0]) || (!songlen[psnum][1]) || (!songlen[psnum][2]) ||
+                (!songlen[psnum][3]) || (!songlen[psnum][4]) || (!songlen[psnum][5]))
             songinit = PLAY_STOPPED; // Zero length song
 
         startpattpos = 0;
@@ -2007,10 +2013,10 @@ void sequencer_stereo(int c, CHN *cptr)
         cptr->pattptr = startpattpos * 4;
         if (!cptr->advance) goto SEQDONE_S;
         // Song loop
-        if (songorder_stereo[psnum][c][cptr->songptr] == LOOPSONG)
+        if (songorder[psnum][c][cptr->songptr] == LOOPSONG)
         {
-            cptr->songptr = songorder_stereo[psnum][c][cptr->songptr+1];
-            if (cptr->songptr >= songlen_stereo[psnum][c])
+            cptr->songptr = songorder[psnum][c][cptr->songptr+1];
+            if (cptr->songptr >= songlen[psnum][c])
             {
                 stopsong();
                 cptr->songptr = 0;
@@ -2018,19 +2024,19 @@ void sequencer_stereo(int c, CHN *cptr)
             }
         }
         // Transpose
-        if ((songorder_stereo[psnum][c][cptr->songptr] >= TRANSDOWN) && (songorder_stereo[psnum][c][cptr->songptr] < LOOPSONG))
+        if ((songorder[psnum][c][cptr->songptr] >= TRANSDOWN) && (songorder[psnum][c][cptr->songptr] < LOOPSONG))
         {
-            cptr->trans = songorder_stereo[psnum][c][cptr->songptr]-TRANSUP;
+            cptr->trans = songorder[psnum][c][cptr->songptr]-TRANSUP;
             cptr->songptr++;
         }
         // Repeat
-        if ((songorder_stereo[psnum][c][cptr->songptr] >= REPEAT) && (songorder_stereo[psnum][c][cptr->songptr] < TRANSDOWN))
+        if ((songorder[psnum][c][cptr->songptr] >= REPEAT) && (songorder[psnum][c][cptr->songptr] < TRANSDOWN))
         {
-            cptr->repeat = songorder_stereo[psnum][c][cptr->songptr]-REPEAT;
+            cptr->repeat = songorder[psnum][c][cptr->songptr]-REPEAT;
             cptr->songptr++;
         }
         // Pattern number
-        cptr->pattnum = songorder_stereo[psnum][c][cptr->songptr];
+        cptr->pattnum = songorder[psnum][c][cptr->songptr];
         if (cptr->repeat)
             cptr->repeat--;
         else
@@ -2042,11 +2048,11 @@ void sequencer_stereo(int c, CHN *cptr)
             stopsong();
             cptr->pattnum = 0;
         }
-        if (cptr->pattptr >= (pattlen[cptr->pattnum] * 4))
+        if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
             cptr->pattptr = 0;
 
         // Check for playback endpos
-        if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < songlen_stereo[psnum][c]))
+        if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < songlen[psnum][c]))
             cptr->songptr = espos[c];
     }
 SEQDONE_S:

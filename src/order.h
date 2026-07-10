@@ -33,20 +33,13 @@ extern int esmarkend;
 extern int enpos;
 #endif
 
-void updateviewtopos(void);
-void orderlistcommands(void);
-void orderlistcommands_stereo(void);
-void namecommands(void);
-void nextsong(void);
-void prevsong(void);
-void songchange(void);
-void orderleft(void);
-void orderright(void);
-void deleteorder(void);
+void updateviewtopos();
+void orderlistcommands();
+void namecommands();
+void nextsong();
+void prevsong();
+void songchange();
+void deleteorder();
 void insertorder(unsigned char byte);
-void orderleft_stereo(void);
-void orderright_stereo(void);
-void deleteorder_stereo(void);
-void insertorder_stereo(unsigned char byte);
 
 #endif

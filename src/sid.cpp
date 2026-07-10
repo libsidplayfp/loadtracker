@@ -30,6 +30,8 @@
 
 #include <cstdlib>
 
+#define SIDWAVEDELAY 4 // and $xxxx,x 4 cycles extra
+
 int clockrate;
 int samplerate;
 unsigned char sidreg[NUMSIDREGS];

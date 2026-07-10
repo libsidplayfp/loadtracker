@@ -20,9 +20,10 @@
 // online help
 // =============================================================================
 
-#define HELP_C
-
+#include "console.h"
+#include "display.h"
 #include "loadtrk.h"
+
 #include "bme_main.h"
 #include "bme_win.h"
 

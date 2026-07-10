@@ -22,7 +22,15 @@
 
 #define RELOC_C
 
+#include "reloc.h"
+
+#include "console.h"
+#include "display.h"
 #include "loadtrk.h"
+#include "play.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_end.h"
 #include "bme_win.h"
@@ -46,10 +54,15 @@ extern "C" {
 #define PLAYER_NOOPTIMIZATION 256
 #define PLAYER_FULLBUFFERED 512
 
-#define CAUSE_NONE 0
-#define CAUSE_PATTERN 1
-#define CAUSE_INSTRUMENT 2
-#define CAUSE_WAVECMD 3
+#define MAX_OPTIONS 7
+
+enum
+{
+  CAUSE_NONE        = 0,
+  CAUSE_PATTERN     = 1,
+  CAUSE_INSTRUMENT  = 2,
+  CAUSE_WAVECMD     = 3
+};
 
 #define MAX_BYTES_PER_ROW 16
 
@@ -86,12 +99,9 @@ unsigned char tableused[MAX_TABLES][MAX_TABLELEN+1];
 unsigned char tablemap[MAX_TABLES][MAX_TABLELEN+1];
 int pattoffset[MAX_PATT];
 int pattsize[MAX_PATT];
-/* songoffset and songsize work also in mono mode with same size as stereo */
+
 int songoffset[MAX_SONGS][MAX_CHN];
 int songsize[MAX_SONGS][MAX_CHN];
-/* so those two aren't needed when combining the relocator code */
-int songoffset_stereo[MAX_SONGS][MAX_CHN];
-int songsize_stereo[MAX_SONGS][MAX_CHN];
 
 int tableerror;
 int channels;
@@ -202,8 +212,7 @@ void relocator()
   unsigned char *pattwork = NULL;
   unsigned char *instrwork = NULL;
 
-  channels = 3;
-  if (numsids == 2) channels = 6;
+  channels = getMaxChannels();
   fixedparams = 1;
   simplepulse = 1;
   firstnote = MAX_NOTES-1;
@@ -275,7 +284,7 @@ void relocator()
             int num = songorder[c][d][e];
 
             pattused[num] = 1;
-            for (int f = 0; f < pattlen[num]; f++)
+            for (int f = 0; f < getPattlen(num); f++)
             {
               if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                 chnused[d] = 1;
@@ -340,7 +349,7 @@ void relocator()
       patterns++;
 
       // See which instruments/tablecommands are used
-      for (d = 0; d < pattlen[c]; d++)
+      for (d = 0; d < getPattlen(c); d++)
       {
         tableerror = 0;
 
@@ -782,7 +791,7 @@ void relocator()
   {
     if (pattused[c])
     {
-      int result = packpattern(patttemp, pattern[c], pattlen[c]);
+      int result = packpattern(patttemp, pattern[c], getPattlen(c));
 
       if (result < 0)
       {
@@ -816,7 +825,7 @@ void relocator()
     if (pattused[c])
     {
       pattoffset[d] = pattdatasize;
-      pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], pattlen[c]);
+      pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
       pattdatasize += pattsize[d];
       d++;
     }
@@ -2328,22 +2337,22 @@ void relocator_stereo()
     // Calculate amount of songs with nonzero length
     for (int c = 0; c < MAX_SONGS; c++)
     {
-        if ((songlen_stereo[c][0]) &&
-                (songlen_stereo[c][1]) &&
-                (songlen_stereo[c][2]))
+        if ((songlen[c][0]) &&
+                (songlen[c][1]) &&
+                (songlen[c][2]))
         {
             // See which patterns are used in this song
             for (int d = 0; d < MAX_CHN; d++)
             {
-                songdatasize += songlen_stereo[c][d]+2;
-                for (int e = 0; e < songlen_stereo[c][d]; e++)
+                songdatasize += songlen[c][d]+2;
+                for (int e = 0; e < songlen[c][d]; e++)
                 {
-                    if (songorder_stereo[c][d][e] < REPEAT)
+                    if (songorder[c][d][e] < REPEAT)
                     {
-                        int num = songorder_stereo[c][d][e];
+                        int num = songorder[c][d][e];
 
                         pattused[num] = 1;
-                        for (int f = 0; f < pattlen[num]; f++)
+                        for (int f = 0; f < getPattlen(num); f++)
                         {
                             if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
                                 chnused_stereo[d] = 1;
@@ -2351,24 +2360,24 @@ void relocator_stereo()
                     }
                     else
                     {
-                        if (songorder_stereo[c][d][e] >= TRANSDOWN)
+                        if (songorder[c][d][e] >= TRANSDOWN)
                         {
                             notrans = 0;
-                            if (songorder_stereo[c][d][e] < TRANSUP)
+                            if (songorder[c][d][e] < TRANSUP)
                             {
-                                int newtransdownrange = -(songorder_stereo[c][d][e] - TRANSUP);
+                                int newtransdownrange = -(songorder[c][d][e] - TRANSUP);
                                 if (newtransdownrange > transdownrange) transdownrange = newtransdownrange;
                             }
                             else
                             {
-                                int newtransuprange = songorder_stereo[c][d][e] - TRANSUP;
+                                int newtransuprange = songorder[c][d][e] - TRANSUP;
                                 if (newtransuprange > transuprange) transuprange = newtransuprange;
                             }
                         }
                         else norepeat = 0;
                     }
                 }
-                if (songorder_stereo[c][d][songlen_stereo[c][d]+1] >= songlen_stereo[c][d])
+                if (songorder[c][d][songlen[c][d]+1] >= songlen[c][d])
                 {
                     sprintf(textbuffer, "ILLEGAL SONG RESTART POSITION! (SUBTUNE %02X, CHANNEL %d)", c, d+1);
                     clearscreen();
@@ -2402,7 +2411,7 @@ void relocator_stereo()
             patterns++;
 
             // See which instruments/tablecommands are used
-            for (int d = 0; d < pattlen[c]; d++)
+            for (int d = 0; d < getPattlen(c); d++)
             {
                 tableerror = 0;
 
@@ -2773,58 +2782,58 @@ TABLETYPE_S:
     songdatasize = 0;
     for (int c = 0; c < songs; c++)
     {
-        if ((songlen_stereo[c][0]) &&
-                (songlen_stereo[c][1]) &&
-                (songlen_stereo[c][2]))
+        if ((songlen[c][0]) &&
+                (songlen[c][1]) &&
+                (songlen[c][2]))
         {
             for (d = 0; d < MAX_CHN; d++)
             {
-                songoffset_stereo[c][d] = songdatasize;
-                songsize_stereo[c][d] = songlen_stereo[c][d] + 2;
+                songoffset[c][d] = songdatasize;
+                songsize[c][d] = songlen[c][d] + 2;
 
                 int e;
-                for (e = 0; e < songlen_stereo[c][d]; e++)
+                for (e = 0; e < songlen[c][d]; e++)
                 {
                     // Pattern
-                    if (songorder_stereo[c][d][e] < REPEAT)
-                        songwork[songdatasize++] = pattmap[songorder_stereo[c][d][e]];
+                    if (songorder[c][d][e] < REPEAT)
+                        songwork[songdatasize++] = pattmap[songorder[c][d][e]];
                     else
                     {
                         // Transpose
-                        if (songorder_stereo[c][d][e] >= TRANSDOWN)
+                        if (songorder[c][d][e] >= TRANSDOWN)
                         {
-                            songwork[songdatasize++] = songorder_stereo[c][d][e];
+                            songwork[songdatasize++] = songorder[c][d][e];
                         }
                         // Repeat sequence: must be swapped
                         else
                         {
                             // See that repeat amount is more than 1
-                            if (songorder_stereo[c][d][e] > REPEAT)
+                            if (songorder[c][d][e] > REPEAT)
                             {
                                 // Insanity check that a pattern indeed follows
-                                if (songorder_stereo[c][d][e+1] < REPEAT)
+                                if (songorder[c][d][e+1] < REPEAT)
                                 {
-                                    songwork[songdatasize++] = pattmap[songorder_stereo[c][d][e+1]];
-                                    songwork[songdatasize++] = songorder_stereo[c][d][e];
+                                    songwork[songdatasize++] = pattmap[songorder[c][d][e+1]];
+                                    songwork[songdatasize++] = songorder[c][d][e];
                                     e++;
                                 }
                                 else
-                                    songwork[songdatasize++] = songorder_stereo[c][d][e];
+                                    songwork[songdatasize++] = songorder[c][d][e];
                             }
                         }
                     }
                 }
                 // Endmark & repeat position
-                songwork[songdatasize++] = songorder_stereo[c][d][e++];
-                songwork[songdatasize++] = songorder_stereo[c][d][e++];
+                songwork[songdatasize++] = songorder[c][d][e++];
+                songwork[songdatasize++] = songorder[c][d][e++];
             }
         }
         else
         {
             for (int d = 0; d < MAX_CHN; d++)
             {
-                songoffset_stereo[c][d] = songdatasize;
-                songsize_stereo[c][d] = 0;
+                songoffset[c][d] = songdatasize;
+                songsize[c][d] = 0;
             }
         }
     }
@@ -2834,7 +2843,7 @@ TABLETYPE_S:
     {
         if (pattused[c])
         {
-            int result = packpattern(patttemp, pattern[c], pattlen[c]);
+            int result = packpattern(patttemp, pattern[c], getPattlen(c));
 
             if (result < 0)
             {
@@ -2868,7 +2877,7 @@ TABLETYPE_S:
         if (pattused[c])
         {
             pattoffset[d] = pattdatasize;
-            pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], pattlen[c]);
+            pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
             pattdatasize += pattsize[d];
             d++;
         }
@@ -3487,7 +3496,7 @@ SKIPTABLE_S:
         {
             sprintf(textbuffer, "mt_song%d", c*6+d);
             insertlabel(textbuffer);
-            insertbytes(&songwork[songoffset_stereo[c][d]], songsize_stereo[c][d]);
+            insertbytes(&songwork[songoffset[c][d]], songsize[c][d]);
         }
     }
 

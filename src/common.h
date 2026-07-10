@@ -1,27 +1,51 @@
+/*
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #ifndef COMMON_H
 #define COMMON_H
 
-#define CMD_DONOTHING 0
-#define CMD_PORTAUP 1
-#define CMD_PORTADOWN 2
-#define CMD_TONEPORTA 3
-#define CMD_VIBRATO 4
-#define CMD_SETAD 5
-#define CMD_SETSR 6
-#define CMD_SETWAVE 7
-#define CMD_SETWAVEPTR 8
-#define CMD_SETPULSEPTR 9
-#define CMD_SETFILTERPTR 10
-#define CMD_SETFILTERCTRL 11
-#define CMD_SETFILTERCUTOFF 12
-#define CMD_SETMASTERVOL 13
-#define CMD_FUNKTEMPO 14
-#define CMD_SETTEMPO 15
+enum
+{
+  CMD_DONOTHING         = 0,
+  CMD_PORTAUP           = 1,
+  CMD_PORTADOWN         = 2,
+  CMD_TONEPORTA         = 3,
+  CMD_VIBRATO           = 4,
+  CMD_SETAD             = 5,
+  CMD_SETSR             = 6,
+  CMD_SETWAVE           = 7,
+  CMD_SETWAVEPTR        = 8,
+  CMD_SETPULSEPTR       = 9,
+  CMD_SETFILTERPTR      = 10,
+  CMD_SETFILTERCTRL     = 11,
+  CMD_SETFILTERCUTOFF   = 12,
+  CMD_SETMASTERVOL      = 13,
+  CMD_FUNKTEMPO         = 14,
+  CMD_SETTEMPO          = 15
+};
 
-#define WTBL 0
-#define PTBL 1
-#define FTBL 2
-#define STBL 3
+enum
+{
+  WTBL  = 0,
+  PTBL  = 1,
+  FTBL  = 2,
+  STBL  = 3
+};
 
 #define MAX_FILT 64
 #define MAX_STR 32
@@ -87,4 +111,3 @@ typedef struct
 } INSTR;
 
 #endif
-

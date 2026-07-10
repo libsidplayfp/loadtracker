@@ -22,7 +22,18 @@
 
 #define DISPLAY_C
 
+#include "display.h"
+
+#include "console.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "song.h"
+#include "sound.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_snd.h"
 
@@ -101,13 +112,9 @@ void displayupdate()
 void printstatus()
 {
   int cc = cursorcolortable[cursorflash];
-  int visibleOrderlist = 14;
-  int maxChns = MAX_CHN;
-  if (numsids == 1)
-  {
-    maxChns = 3;
-    visibleOrderlist = VISIBLEORDERLIST;
-  }
+  int visibleOrderlist = getVisibleOrderlist();
+  int maxChns = getMaxChannels();
+
   menu = false;
 
   if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = true;
@@ -182,19 +189,11 @@ void printstatus()
   {
     for (int c = 0; c < maxChns; c++)
     {
-      int currentSonglen = 0;
-      if (numsids == 1)
-      {
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      int currentSonglen = songlen[esnum][c];
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
-      if (newpos > pattlen[epnum[c]]) newpos = pattlen[epnum[c]];
+      if (newpos > getPattlen(epnum[c])) newpos = getPattlen(epnum[c]);
 
       if (c == epchn)
       {
@@ -235,13 +234,13 @@ void printstatus()
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
-        if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
+        if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
         if (chnrow == p) color = colors.CPLAYING;
       }
 
       if (chn[c].mute) color = colors.CMUTE;
       if (p == eppos) color = colors.CEDIT;
-      if ((p < 0) || (p > pattlen[epnum[c]]))
+      if ((p < 0) || (p > getPattlen(epnum[c])))
       {
         std::sprintf(textbuffer, "             ");
       }
@@ -332,8 +331,13 @@ void printstatus()
   printtext(dpos.orderlistX+25, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, "%02X", eseditpos);
   printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
-  std::sprintf(textbuffer, ")   ");
+  std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
+  if (numsids == 2)
+    std::sprintf(textbuffer, "           ");
+  else
+    std::sprintf(textbuffer, "                                      ");
+  printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < maxChns; c++)
   {
@@ -342,18 +346,8 @@ void printstatus()
     for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
-      unsigned char currentSongorder = 0;
-      int currentSonglen = 0;
-      if (numsids == 1)
-      {
-        currentSongorder = songorder[esnum][c][p];
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSongorder = songorder_stereo[esnum][c][p];
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      unsigned char currentSongorder = songorder[esnum][c][p];
+      int currentSonglen = songlen[esnum][c];
       int color = colors.CNORMAL;
       if (isplaying())
       {
@@ -638,7 +632,7 @@ void printstatus()
     int chnrow = chn[c].pattptr/4;
     chnpos--;
     if (chnpos < 0) chnpos = 0;
-    if (chnrow > pattlen[chn[c].pattnum]) chnrow = pattlen[chn[c].pattnum];
+    if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
     if (chnrow >= 100) chnrow -= 100;
 
     std::sprintf(textbuffer, "%03X/%02X",

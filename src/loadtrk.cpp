@@ -18,15 +18,27 @@
 
 #define LOADTRK_C
 
-#ifdef __WIN32__
-#include <windows.h>
-#endif
-
 #include "loadtrk.h"
+
+#include "console.h"
+#include "display.h"
+#include "instr.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "song.h"
+#include "sound.h"
+#include "table.h"
+
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_snd.h"
 #include "bme_io.h"
+
+#ifdef __WIN32__
+#include <windows.h>
+#endif
 
 #include <SDL3/SDL_main.h>
 
@@ -49,9 +61,6 @@ int editmode = EDIT_PATTERN;
 bool recordmode = true;
 bool followplay = false;
 int hexnybble = -1;
-int stepsize = 4;
-int autoadvance = 0;
-unsigned defaultpatternlength = 64;
 int cursorflash = 0;
 int cursorcolortable[] = {1,2,7,2};
 bool exitprogram = false;
@@ -59,37 +68,41 @@ int eacolumn = 0;
 int eamode = 0;
 int ebmode = 0;
 
-unsigned keypreset = KEY_TRACKER;
-unsigned playerversion = 0;
-int fileformat = FORMAT_PRG;
-int zeropageadr = 0xfc;
-int playeradr = 0x1000;
+bool usefinevib = false;
+bool monomode = false;
+bool writer = false;
+
+// config
+unsigned mr = DEFAULTMIXRATE;
 unsigned sidmodel = 1;
+unsigned numsids = 1;
+unsigned ntsc = 0;
+int fileformat = FORMAT_PRG;
+int playeradr = 0x1000;
+int zeropageadr = 0xfc;
+unsigned playerversion = 0;
+unsigned keypreset = KEY_TRACKER;
+unsigned defaultpatternlength = 64;
+int stepsize = 4;
 unsigned multiplier = 1;
 unsigned adparam = 0x0f00;
-unsigned ntsc = 0;
+unsigned interpolate = 1;
 unsigned patterndispmode = 2;
 unsigned sidaddress = 0xd400;
 unsigned sid2address = 0xd500;
+float panning = 1.0f;
 unsigned finevibrato = 1;
 unsigned optimizepulse = 1;
 unsigned optimizerealtime = 1;
-unsigned customclockrate = 0;
-unsigned usefinevib = 0;
-unsigned mr = DEFAULTMIXRATE;
-unsigned writer = 0;
-unsigned exsid = 0;
-unsigned interpolate = 1;
 unsigned residdelay = 0;
-unsigned monomode = 0;
-unsigned numsids = 1;
-unsigned combwaves = 1;
+unsigned customclockrate = 0;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
+unsigned combwaves = 1;
 float equaldivisionsperoctave = 12.0f;
-float panning = 1.0f;
-int tuningcount = 0;
-double tuning[96];
+char specialnotenames[186];
+char scalatuningfilepath[MAX_PATHNAME];
+unsigned exsid = 0;
 
 char configbuf[MAX_PATHNAME];
 char loadedsongfilename[MAX_FILENAME];
@@ -101,11 +114,12 @@ char instrfilter[MAX_FILENAME];
 char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 
+int tuningcount = 0;
+double tuning[96];
+char tuningname[64];
+
 extern char *notename[];
 const char *programname = "LoadTracker v1.99";
-char specialnotenames[186];
-char scalatuningfilepath[MAX_PATHNAME];
-char tuningname[64];
 
 char textbuffer[MAX_PATHNAME];
 
@@ -169,6 +183,8 @@ void readscalatuningfile();
 void setspecialnotenames();
 void calculatefreqtable();
 void switchMode();
+void optimizeeverything();
+void findduplicatepatterns();
 
 int main(int argc, char **argv)
 {
@@ -351,7 +367,7 @@ int main(int argc, char **argv)
         break;
 
         case 'W':
-        writer = 1;
+        writer = true;
         break;
 
         case 'X':
@@ -420,8 +436,8 @@ int main(int argc, char **argv)
   if (!stepsize) stepsize = 4;
   if (multiplier > 16) multiplier = 16;
   if (keypreset > 2) keypreset = 0;
-  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = 1;
-  if (finevibrato > 1) usefinevib = 1;
+  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = true;
+  if (finevibrato > 1) usefinevib = true;
   if (optimizepulse > 1) optimizepulse = 1;
   if (optimizerealtime > 1) optimizerealtime = 1;
   if (residdelay > 63) residdelay = 63;
@@ -668,14 +684,7 @@ void docommand()
   switch(editmode)
   {
     case EDIT_ORDERLIST:
-    if (numsids == 1)
-    {
-      orderlistcommands();
-    }
-    else if (numsids == 2)
-    {
-      orderlistcommands_stereo();
-    }
+    orderlistcommands();
     break;
 
     case EDIT_INSTRUMENT:
@@ -701,18 +710,9 @@ void docommand()
 
 void mousecommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
+  int maxChns = getMaxChannels();
 
-  int currentSonglen = 0;
-  if (numsids == 1)
-  {
-    currentSonglen = songlen[esnum][eschn];
-  }
-  else if (numsids == 2)
-  {
-    currentSonglen = songlen_stereo[esnum][eschn];
-  }
+  int currentSonglen = songlen[esnum][eschn];
 
   if (win_mouseywheel != 0.f)
   {
@@ -761,7 +761,7 @@ void mousecommands()
         int x = mousex-(dpos.patternsX + 3)-c*13;
         int newpos = mousey-(dpos.patternsY+1)+epview;
         if (newpos < 0) newpos = 0;
-        if (newpos > pattlen[epnum[epchn]]) newpos = pattlen[epnum[epchn]];
+        if (newpos > getPattlen(epnum[epchn])) newpos = getPattlen(epnum[epchn]);
 
         editmode = EDIT_PATTERN;
 
@@ -795,7 +795,7 @@ void mousecommands()
           }
         }
         if (eppos < 0) eppos = 0;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
 
         if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) epmarkend = newpos;
       }
@@ -965,7 +965,7 @@ void mousecommands()
     {
       if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
       {
-        usefinevib ^= 1;
+        usefinevib = !usefinevib;
       }
       if ((mousex >= dpos.statusTopFvX+3) && (mousex <= dpos.statusTopFvX+4))
       {
@@ -1045,9 +1045,8 @@ void mousecommands()
 
 void generalcommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
-  int visibleOrderlist = 14;
+  int maxChns = getMaxChannels();
+  int visibleOrderlist = getVisibleOrderlist();
   int currentSonglen = 0;
 
   switch(key)
@@ -1115,20 +1114,9 @@ void generalcommands()
     break;
 
     case ':':
-    if (numsids == 1)
-    {
-        visibleOrderlist = VISIBLEORDERLIST;
-    }
     for (int c = 0; c < maxChns; c++)
     {
-      if (numsids == 1)
-      {
-        currentSonglen = songlen[esnum][c];
-      }
-      else if (numsids == 2)
-      {
-        currentSonglen = songlen_stereo[esnum][c];
-      }
+      currentSonglen = songlen[esnum][c];
       if (espos[c] < currentSonglen-1)
         espos[c]++;
       if (espos[c] - esview >= visibleOrderlist)
@@ -1260,7 +1248,7 @@ void generalcommands()
     }
     else if (shiftpressed && (numsids == 2))
     {
-        monomode ^= 1;
+        monomode = !monomode;
     }
     break;
 
@@ -1378,7 +1366,7 @@ void clear()
   printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
   if ((key == 'y') || (key == 'Y'))
   {
-    optimizeeverything(1, 1);
+    optimizeeverything();
     key = 0;
     rawkey = 0;
     return;
@@ -1702,6 +1690,8 @@ void getstringparam(FILE *handle, char *value)
   std::sscanf(configptr, "%s", value);
 }
 
+// TODO getboolparam
+
 void prevmultiplier()
 {
   if (multiplier > 0)
@@ -1924,4 +1914,106 @@ void switchMode()
     }
     key = 0;
     rawkey = 0;
+}
+
+void optimizeeverything()
+{
+  stopsong();
+
+  findduplicatepatterns();
+
+  std::memset(instrused, 0, sizeof instrused);
+
+  for (int c = MAX_PATT-1; c >= 0; c--)
+  {
+    if (pattused[c])
+    {
+      for (int d = 0; d < MAX_PATTROWS; d++)
+      {
+        if (pattern[c][d*4] == ENDPATT) break;
+        if (pattern[c][d*4+1])
+          instrused[pattern[c][d*4+1]] = 1;
+      }
+    }
+    else deletepattern(c);
+  }
+
+  countpatternlengths();
+
+  for (int c = MAX_INSTR-2; c >= 1; c--)
+  {
+    if (!instrused[c])
+    {
+      clearinstr(c);
+
+      if (c < MAX_INSTR-2)
+      {
+        std::memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
+        clearinstr(MAX_INSTR-2);
+        for (int d = 0; d < MAX_PATT; d++)
+        {
+          for (int e = 0; e < getPattlen(d); e++)
+          {
+            if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
+              pattern[d][e*4+1]--;
+          }
+        }
+      }
+    }
+  }
+
+  for (int c = 0; c < MAX_TABLES; c++) optimizetable(c);
+}
+
+void findduplicatepatterns()
+{
+  int maxChns = getMaxChannels();
+
+  findusedpatterns();
+
+  for (int c = 0; c < MAX_PATT; c++)
+  {
+    if (pattused[c])
+    {
+      for (int d = c+1; d < MAX_PATT; d++)
+      {
+        if (getPattlen(d) == getPattlen(c))
+        {
+          if (!std::memcmp(pattern[c], pattern[d], getPattlen(c)*4))
+          {
+            for (int f = 0; f < MAX_SONGS; f++)
+            {
+              if ((songlen[f][0]) &&
+                  (songlen[f][1]) &&
+                  (songlen[f][2]))
+              {
+                for (int g = 0; g < maxChns; g++)
+                {
+                  for (int h = 0; h < songlen[f][g]; h++)
+                  {
+                    if (songorder[f][g][h] == d)
+                      songorder[f][g][h] = c;
+                  }
+                }
+              }
+            }
+            for (int f = 0; f < maxChns; f++)
+              if (epnum[f] == d) epnum[f] = c;
+          }
+        }
+      }
+    }
+  }
+
+  findusedpatterns();
+}
+
+int getMaxChannels()
+{
+    return (numsids == 1) ? MAX_CHN_MONO : MAX_CHN;
+}
+
+int getVisibleOrderlist()
+{
+    return (numsids == 1) ? 23 : 14;
 }

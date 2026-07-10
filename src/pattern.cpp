@@ -22,7 +22,16 @@
 
 #define PATTERN_C
 
+#include "console.h"
+#include "instr.h"
 #include "loadtrk.h"
+#include "order.h"
+#include "pattern.h"
+#include "play.h"
+#include "reloc.h"
+#include "song.h"
+#include "table.h"
+
 #include "bme_main.h"
 
 #include <cstring>
@@ -56,6 +65,7 @@ int epoctave = 2;
 int epmarkchn = -1;
 int epmarkstart;
 int epmarkend;
+int autoadvance = 0;
 
 void shrinkpattern();
 void expandpattern();
@@ -64,7 +74,7 @@ void joinpattern();
 
 void insertnote(int newnote)
 {
-    if (recordmode && (eppos < pattlen[epnum[epchn]]))
+    if (recordmode && (eppos < getPattlen(epnum[epchn])))
     {
         pattern[epnum[epchn]][eppos*4] = newnote;
         if (newnote < REST)
@@ -87,7 +97,7 @@ void insertnote(int newnote)
         if (autoadvance < 2)
         {
             eppos++;
-            if (eppos > pattlen[epnum[epchn]])
+            if (eppos > getPattlen(epnum[epchn]))
             {
                 eppos = 0;
             }
@@ -98,8 +108,7 @@ void insertnote(int newnote)
 
 void patterncommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   switch(key)
   {
@@ -260,7 +269,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -291,7 +300,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -320,7 +329,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], finevibrato, 1);
+              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], finevibrato, true);
               pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -344,7 +353,7 @@ void patterncommands()
       if ((autoadvance < 2) && (epcolumn))
       {
         eppos++;
-        if (eppos > pattlen[epnum[epchn]])
+        if (eppos > getPattlen(epnum[epchn]))
         {
           eppos = 0;
         }
@@ -395,7 +404,7 @@ void patterncommands()
           int d = 0;
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
             cmdcopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
             d++;
@@ -407,7 +416,7 @@ void patterncommands()
           int d = 0;
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
             cmdcopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
             d++;
@@ -418,7 +427,7 @@ void patterncommands()
       }
       else
       {
-        if (eppos < pattlen[epnum[epchn]])
+        if (eppos < getPattlen(epnum[epchn]))
         {
           cmdcopybuffer[2] = pattern[epnum[epchn]][eppos*4+2];
           cmdcopybuffer[3] = pattern[epnum[epchn]][eppos*4+3];
@@ -433,7 +442,7 @@ void patterncommands()
     {
       for (int c = 0; c < cmdcopyrows; c++)
       {
-        if (eppos >= pattlen[epnum[epchn]]) break;
+        if (eppos >= getPattlen(epnum[epchn])) break;
         pattern[epnum[epchn]][eppos*4+2] = cmdcopybuffer[c*4+2];
         pattern[epnum[epchn]][eppos*4+3] = cmdcopybuffer[c*4+3];
         eppos++;
@@ -452,7 +461,7 @@ void patterncommands()
           int e = epmarkend;
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             for (int d = 0; d < 4; d++)
             {
               temp = pattern[epnum[epmarkchn]][c*4+d];
@@ -468,7 +477,7 @@ void patterncommands()
           int e = epmarkstart;
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             for (int d = 0; d < 4; d++)
             {
               temp = pattern[epnum[epmarkchn]][c*4+d];
@@ -482,8 +491,8 @@ void patterncommands()
       }
       else
       {
-        int e = pattlen[epnum[epchn]] - 1;
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        int e = getPattlen(epnum[epchn]) - 1;
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           for (int d = 0; d < 4; d++)
           {
@@ -507,7 +516,7 @@ void patterncommands()
         {
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
               pattern[epnum[epmarkchn]][c*4]++;
@@ -517,7 +526,7 @@ void patterncommands()
         {
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
               pattern[epnum[epmarkchn]][c*4]++;
@@ -526,7 +535,7 @@ void patterncommands()
       }
       else
       {
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           if ((pattern[epnum[epchn]][c*4] < LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -545,7 +554,7 @@ void patterncommands()
         {
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
               pattern[epnum[epmarkchn]][c*4]--;
@@ -555,7 +564,7 @@ void patterncommands()
         {
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
               pattern[epnum[epmarkchn]][c*4]--;
@@ -564,7 +573,7 @@ void patterncommands()
       }
       else
       {
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] > FIRSTNOTE))
@@ -583,7 +592,7 @@ void patterncommands()
         {
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
@@ -597,7 +606,7 @@ void patterncommands()
         {
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
@@ -610,7 +619,7 @@ void patterncommands()
       }
       else
       {
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -633,7 +642,7 @@ void patterncommands()
         {
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
@@ -647,7 +656,7 @@ void patterncommands()
         {
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
                 (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
@@ -660,7 +669,7 @@ void patterncommands()
       }
       else
       {
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
               (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
@@ -725,7 +734,7 @@ void patterncommands()
             {
               if (delta > 0xff) delta = 0xff;
             }
-            int pos = makespeedtable(delta, MST_RAW, 1);
+            int pos = makespeedtable(delta, MST_RAW, true);
             pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             break;
           }
@@ -742,7 +751,7 @@ void patterncommands()
       {
         epmarkchn = epchn;
         epmarkstart = 0;
-        epmarkend = pattlen[epnum[epchn]]-1;
+        epmarkend = getPattlen(epnum[epchn])-1;
       }
       else epmarkchn = -1;
     }
@@ -759,7 +768,7 @@ void patterncommands()
           int d = 0;
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
             patterncopybuffer[d*4+1] = pattern[epnum[epmarkchn]][c*4+1];
             patterncopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
@@ -780,7 +789,7 @@ void patterncommands()
           int d = 0;
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
-            if (c >= pattlen[epnum[epmarkchn]]) break;
+            if (c >= getPattlen(epnum[epmarkchn])) break;
             patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
             patterncopybuffer[d*4+1] = pattern[epnum[epmarkchn]][c*4+1];
             patterncopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
@@ -801,7 +810,7 @@ void patterncommands()
       else
       {
         int d = 0;
-        for (int c = 0; c < pattlen[epnum[epchn]]; c++)
+        for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
           patterncopybuffer[d*4] = pattern[epnum[epchn]][c*4];
           patterncopybuffer[d*4+1] = pattern[epnum[epchn]][c*4+1];
@@ -826,7 +835,7 @@ void patterncommands()
     {
       for (int c = 0; c < patterncopyrows; c++)
       {
-        if (eppos >= pattlen[epnum[epchn]]) break;
+        if (eppos >= getPattlen(epnum[epchn])) break;
         pattern[epnum[epchn]][eppos*4] = patterncopybuffer[c*4];
         pattern[epnum[epchn]][eppos*4+1] = patterncopybuffer[c*4+1];
         pattern[epnum[epchn]][eppos*4+2] = patterncopybuffer[c*4+2];
@@ -838,28 +847,28 @@ void patterncommands()
 
     case KEY_DEL:
     if (epmarkchn == epchn) epmarkchn = -1;
-    if ((pattlen[epnum[epchn]]-eppos)*4-4 >= 0)
+    if ((getPattlen(epnum[epchn])-eppos)*4-4 >= 0)
     {
       std::memmove(&pattern[epnum[epchn]][eppos*4],
         &pattern[epnum[epchn]][eppos*4+4],
-        (pattlen[epnum[epchn]]-eppos)*4-4);
-      pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-4] = REST;
-      pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-3] = 0x00;
-      pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-2] = 0x00;
-      pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-1] = 0x00;
+        (getPattlen(epnum[epchn])-eppos)*4-4);
+      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = REST;
+      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
+      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
+      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
     }
     else
     {
-      if (eppos == pattlen[epnum[epchn]])
+      if (eppos == getPattlen(epnum[epchn]))
       {
-        if (pattlen[epnum[epchn]] > 1)
+        if (getPattlen(epnum[epchn]) > 1)
         {
-          pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-4] = ENDPATT;
-          pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-3] = 0x00;
-          pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-2] = 0x00;
-          pattern[epnum[epchn]][pattlen[epnum[epchn]]*4-1] = 0x00;
+          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = ENDPATT;
+          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
+          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
+          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
           countthispattern();
-          eppos = pattlen[epnum[epchn]];
+          eppos = getPattlen(epnum[epchn]);
         }
       }
     }
@@ -867,11 +876,11 @@ void patterncommands()
 
     case KEY_INS:
     if (epmarkchn == epchn) epmarkchn = -1;
-    if ((pattlen[epnum[epchn]]-eppos)*4-4 >= 0)
+    if ((getPattlen(epnum[epchn])-eppos)*4-4 >= 0)
     {
       std::memmove(&pattern[epnum[epchn]][eppos*4+4],
         &pattern[epnum[epchn]][eppos*4],
-        (pattlen[epnum[epchn]]-eppos)*4-4);
+        (getPattlen(epnum[epchn])-eppos)*4-4);
       pattern[epnum[epchn]][eppos*4] = REST;
       pattern[epnum[epchn]][eppos*4+1] = 0x00;
       pattern[epnum[epchn]][eppos*4+2] = 0x00;
@@ -879,9 +888,9 @@ void patterncommands()
     }
     else
     {
-      if (eppos == pattlen[epnum[epchn]])
+      if (eppos == getPattlen(epnum[epchn]))
       {
-        if (pattlen[epnum[epchn]] < MAX_PATTROWS)
+        if (getPattlen(epnum[epchn]) < MAX_PATTROWS)
         {
           pattern[epnum[epchn]][eppos*4] = REST;
           pattern[epnum[epchn]][eppos*4+1] = 0x00;
@@ -892,7 +901,7 @@ void patterncommands()
           pattern[epnum[epchn]][eppos*4+6] = 0x00;
           pattern[epnum[epchn]][eppos*4+7] = 0x00;
           countthispattern();
-          eppos = pattlen[epnum[epchn]];
+          eppos = getPattlen(epnum[epchn]);
         }
       }
     }
@@ -929,7 +938,7 @@ void patterncommands()
         epcolumn = 0;
         epchn++;
         if (epchn >= maxChns) epchn = 0;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
       }
     }
     else
@@ -937,7 +946,7 @@ void patterncommands()
       if (epnum[epchn] < MAX_PATT-1)
       {
         epnum[epchn]++;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
       }
       if (epchn == epmarkchn) epmarkchn = -1;
     }
@@ -952,7 +961,7 @@ void patterncommands()
         epcolumn = 5;
         epchn--;
         if (epchn < 0) epchn = maxChns-1;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
       }
     }
     else
@@ -960,7 +969,7 @@ void patterncommands()
       if (epnum[epchn] > 0)
       {
         epnum[epchn]--;
-        if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+        if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
       }
       if (epchn == epmarkchn) epmarkchn = -1;
     }
@@ -971,7 +980,7 @@ void patterncommands()
     break;
 
     case KEY_END:
-    while (eppos != pattlen[epnum[epchn]]) patterndown();
+    while (eppos != getPattlen(epnum[epchn])) patterndown();
     break;
 
     case KEY_PGUP:
@@ -997,13 +1006,13 @@ void patterncommands()
     {
       epchn++;
       if (epchn >= maxChns) epchn = 0;
-      if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+      if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
     }
     else
     {
       epchn--;
       if (epchn < 0) epchn = maxChns-1;
-      if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+      if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
     }
     break;
 
@@ -1042,7 +1051,7 @@ void patterncommands()
       if (recordmode && (autoadvance < 1))
       {
         eppos++;
-        if (eppos > pattlen[epnum[epchn]])
+        if (eppos > getPattlen(epnum[epchn]))
         {
           eppos = 0;
         }
@@ -1052,7 +1061,7 @@ void patterncommands()
 
   if ((hexnybble >= 0) && (epcolumn) && recordmode)
   {
-    if (eppos < pattlen[epnum[epchn]])
+    if (eppos < getPattlen(epnum[epchn]))
     {
       switch(epcolumn)
       {
@@ -1092,7 +1101,7 @@ void patterncommands()
     if (autoadvance < 2)
     {
       eppos++;
-      if (eppos > pattlen[epnum[epchn]])
+      if (eppos > getPattlen(epnum[epchn]))
       {
         eppos = 0;
       }
@@ -1113,7 +1122,7 @@ void patterndown()
     }
   }
   eppos++;
-  if (eppos > pattlen[epnum[epchn]])
+  if (eppos > getPattlen(epnum[epchn]))
   {
     eppos = 0;
   }
@@ -1133,7 +1142,7 @@ void patternup()
   eppos--;
   if (eppos < 0)
   {
-    eppos = pattlen[epnum[epchn]];
+    eppos = getPattlen(epnum[epchn]);
   }
   if (shiftpressed) epmarkend = eppos;
 }
@@ -1143,7 +1152,7 @@ void prevpattern()
   if (epnum[epchn] > 0)
   {
     epnum[epchn]--;
-    if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+    if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
   }
   if (epchn == epmarkchn) epmarkchn = -1;
 }
@@ -1153,7 +1162,7 @@ void nextpattern()
   if (epnum[epchn] < MAX_PATT-1)
   {
     epnum[epchn]++;
-    if (eppos > pattlen[epnum[epchn]]) eppos = pattlen[epnum[epchn]];
+    if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
   }
   if (epchn == epmarkchn) epmarkchn = -1;
 }
@@ -1162,11 +1171,11 @@ void shrinkpattern()
 {
   int c = epnum[epchn];
 
-  if (pattlen[c] < 2) return;
+  if (getPattlen(c) < 2) return;
 
   stopsong();
 
-  int l = pattlen[c];
+  int l = getPattlen(c);
   int nl = l/2;
 
   for (int d = 0; d < nl; d++)
@@ -1190,7 +1199,7 @@ void shrinkpattern()
 void expandpattern()
 {
   int c = epnum[epchn];
-  int l = pattlen[c];
+  int l = getPattlen(c);
   int nl = l*2;
   if (nl > MAX_PATTROWS) return;
 
@@ -1227,9 +1236,8 @@ void expandpattern()
 void splitpattern()
 {
   int c = epnum[epchn];
-  int l = pattlen[c];
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int l = getPattlen(c);
+  int maxChns = getMaxChannels();
 
   if ((eppos == 0) || (eppos == l)) return;
 
@@ -1278,15 +1286,14 @@ void splitpattern()
 void joinpattern()
 {
   int c = epnum[epchn];
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if (eschn != epchn) return;
   if (songorder[esnum][epchn][eseditpos] != c) return;
 
   int d = songorder[esnum][epchn][eseditpos + 1];
   if (d >= MAX_PATT) return;
-  if (pattlen[c] + pattlen[d] > MAX_PATTROWS) return;
+  if (getPattlen(c) + getPattlen(d) > MAX_PATTROWS) return;
 
   stopsong();
 
@@ -1298,14 +1305,14 @@ void joinpattern()
     d++;
 
     int e;
-    for (e = 0; e < pattlen[c]; e++)
+    for (e = 0; e < getPattlen(c); e++)
     {
       pattern[c+1][e*4] = pattern[c][e*4];
       pattern[c+1][e*4+1] = pattern[c][e*4+1];
       pattern[c+1][e*4+2] = pattern[c][e*4+2];
       pattern[c+1][e*4+3] = pattern[c][e*4+3];
     }
-    for (int f = 0; f < pattlen[d]; f++)
+    for (int f = 0; f < getPattlen(d); f++)
     {
       pattern[c+1][e*4] = pattern[d][f*4];
       pattern[c+1][e*4+1] = pattern[d][f*4+1];
