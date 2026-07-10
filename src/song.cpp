@@ -1437,7 +1437,7 @@ void countthispattern()
 
   int e = esnum;
   c = eschn;
-  for (int d = 0; d < MAX_SONGLEN; d++)
+  for (d = 0; d < MAX_SONGLEN; d++)
   {
     if (songorder[e][c][d] >= LOOPSONG) break;
     if (songorder[e][c][d] > highestusedpattern)
