@@ -895,27 +895,27 @@ void mousecommands()
   // FIXME
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
-        (mousex >= (dpos.instrumentsX+16)) &&
-        (mousex <= (dpos.instrumentsX+17)))
+        (mousex >= (dpos.instrumentsX+20)) &&
+        (mousex <= (dpos.instrumentsX+46)))
   {
-    editmode = EDIT_INSTRUMENT;
-    eipos = mousey-(dpos.instrumentsY+1);
-    eicolumn = mousex-(dpos.instrumentsX+16);
+    // Instr param
+    eicolumn = (mousex-(dpos.instrumentsX+20))%3;
+    if (eicolumn < 2)
+    {
+        editmode = EDIT_INSTRUMENT;
+        eipos = (mousex-(dpos.instrumentsX+20))/3;
+        einum = eirow+mousey-(dpos.instrumentsY+1);
+    }
   }
   if ((mousey >= dpos.instrumentsY+1) &&
-        (mousey <= dpos.instrumentsY+4) &&
-        (mousex >= dpos.instrumentsX+36) &&
-        (mousex <= dpos.instrumentsX+37))
+        (mousey <= dpos.instrumentsY+5) &&
+        (mousex >= dpos.instrumentsX+3) &&
+        (mousex <= dpos.instrumentsX+19))
   {
-    editmode = EDIT_INSTRUMENT;
-    eipos = mousey-(dpos.instrumentsY+1)+5;
-    eicolumn = mousex-(dpos.instrumentsX+36);
-  }
-  if ((mousey == dpos.instrumentsY) &&
-        (mousex >= dpos.instrumentsX+20))
-  {
+    // Instr name
     editmode = EDIT_INSTRUMENT;
     eipos = 9;
+    einum = eirow+mousey-(dpos.instrumentsY+1);
   }
   if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
         (mousey == dpos.instrumentsY) &&

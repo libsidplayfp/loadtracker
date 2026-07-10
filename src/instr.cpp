@@ -40,6 +40,7 @@ int cutinstr = -1;
 
 int einum;
 int eipos;
+int eirow;
 int eicolumn;
 
 void instrumentcommands()
@@ -97,44 +98,32 @@ void instrumentcommands()
     case KEY_RIGHT:
     if (eipos < 9)
     {
-      eicolumn++;
-      if (eicolumn > 1)
-      {
-        eicolumn = 0;
-        eipos += 5;
-        if (eipos >= 9) eipos -= 10;
-        if (eipos < 0) eipos = 8;
-      }
+      eipos++;
+      if (eipos >= 9) eipos -= 10;
+      if (eipos < 0) eipos = 0;
     }
     break;
 
     case KEY_LEFT:
     if (eipos < 9)
     {
-      eicolumn--;
-      if (eicolumn < 0)
-      {
-        eicolumn = 1;
-        eipos -= 5;
-        if (eipos < 0) eipos += 10;
-        if (eipos >= 9) eipos = 8;
-      }
+      eipos--;
+      if (eipos < 0) eipos += 10;
+      if (eipos > 8) eipos = 8;
     }
     break;
 
     case KEY_DOWN:
-    if (eipos < 9)
+    if (eirow < 255)
     {
-      eipos++;
-      if (eipos > 8) eipos = 0;
+      eirow++;
     }
     break;
 
     case KEY_UP:
-    if (eipos < 9)
+    if (eirow > 0)
     {
-      eipos--;
-      if (eipos < 0) eipos = 8;
+      eirow--;
     }
     break;
 
@@ -206,6 +195,7 @@ void instrumentcommands()
     unsigned char *ptr = &instr[einum].ad;
     ptr += eipos;
 
+    // FIXME
     switch(eicolumn)
     {
       case 0:

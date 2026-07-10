@@ -24,6 +24,7 @@
 #ifndef INSTR_C
 extern int einum;
 extern int eipos;
+extern int eirow;
 extern int eicolumn;
 extern INSTR instrcopybuffer;
 #endif
