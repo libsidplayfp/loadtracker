@@ -121,6 +121,7 @@ void printstatus()
 
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
 
+  // Header
   if (!menu)
   {
     short cblue = (colors.CHDRBG == CDBLUE) ? CLBLUE : CDBLUE;
@@ -185,7 +186,7 @@ void printstatus()
     printtext(0, dpos.statusTopY, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
   }
 
-  if (followplay && (isplaying()))
+  if (followplay && isplaying())
   {
     for (int c = 0; c < maxChns; c++)
     {
@@ -221,6 +222,7 @@ void printstatus()
     }
   }
 
+  // Pattern view
   for (int c = 0; c < maxChns; c++)
   {
     std::sprintf(textbuffer, "CH.%d PATT.%02X ", c+1, epnum[c]);
@@ -323,6 +325,7 @@ void printstatus()
     }
   }
 
+  // Orderlist view
   std::sprintf(textbuffer, "CHN ORDERLIST (SUBTUNE ");
   printtext(dpos.orderlistX, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, "%02X", esnum);
@@ -334,7 +337,7 @@ void printstatus()
   std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   if (numsids == 2)
-    std::sprintf(textbuffer, "           ");
+    std::sprintf(textbuffer, "            ");
   else
     std::sprintf(textbuffer, "                                      ");
   printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
@@ -432,58 +435,44 @@ void printstatus()
     }
   }
 
-  std::sprintf(textbuffer, "INSTRUMENT NUM. %02X  %-16s  ", einum, instr[einum].name);
+  // Instruments view
+  std::sprintf(textbuffer, "INSTRUMENTS         AD SR WT PT FT VT VD GT FW");
   printtext(dpos.instrumentsX, dpos.instrumentsY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
-  int color;
-  std::sprintf(textbuffer, "Attack/Decay    %02X", instr[einum].ad);
-  if (eipos == 0) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX, dpos.instrumentsY+1, color, textbuffer);
+  for (int i=0; i<5; i++)
+  {
+    int insnum = einum + i;
+    int color = i == 0 ? colors.CEDIT : colors.CNORMAL;
+    std::sprintf(textbuffer, "%2d %16s %02X %02X %02X %02X %02X %02X %02X %02X %02X",
+                insnum,
+                instr[insnum].name,
+                instr[insnum].ad,
+                instr[insnum].sr,
+                instr[insnum].ptr[WTBL],
+                instr[insnum].ptr[PTBL],
+                instr[insnum].ptr[FTBL],
+                instr[insnum].ptr[STBL],
+                instr[insnum].vibdelay,
+                instr[insnum].gatetimer,
+                instr[insnum].firstwave
+                );
+    printtext(dpos.instrumentsX, dpos.instrumentsY+1+i, color, textbuffer);
+  }
 
-  std::sprintf(textbuffer, "Sustain/Release %02X", instr[einum].sr);
-  if (eipos == 1) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX, dpos.instrumentsY+2, color, textbuffer);
-
-  std::sprintf(textbuffer, "Wavetable Pos   %02X", instr[einum].ptr[WTBL]);
-  if (eipos == 2) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX, dpos.instrumentsY+3, color, textbuffer);
-
-  std::sprintf(textbuffer, "Pulsetable Pos  %02X", instr[einum].ptr[PTBL]);
-  if (eipos == 3) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX, dpos.instrumentsY+4, color, textbuffer);
-
-  std::sprintf(textbuffer, "Filtertable Pos %02X", instr[einum].ptr[FTBL]);
-  if (eipos == 4) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX, dpos.instrumentsY+5, color, textbuffer);
-
-  std::sprintf(textbuffer, "Vibrato Param   %02X", instr[einum].ptr[STBL]);
-  if (eipos == 5) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX+20, dpos.instrumentsY+1, color, textbuffer);
-
-  std::sprintf(textbuffer, "Vibrato Delay   %02X", instr[einum].vibdelay);
-  if (eipos == 6) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX+20, dpos.instrumentsY+2, color, textbuffer);
-
-  std::sprintf(textbuffer, "HR/Gate Timer   %02X", instr[einum].gatetimer);
-  if (eipos == 7) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX+20, dpos.instrumentsY+3, color, textbuffer);
-
-  std::sprintf(textbuffer, "1stFrame Wave   %02X", instr[einum].firstwave);
-  if (eipos == 8) color = colors.CEDIT; else color = colors.CNORMAL;
-  printtext(dpos.instrumentsX+20, dpos.instrumentsY+4, color, textbuffer);
-
+  // FIXME
   if (editmode == EDIT_INSTRUMENT)
   {
     if (eipos < 9)
     {
-      if (!eamode) printbg(dpos.instrumentsX+16+eicolumn+20*(eipos/5), dpos.instrumentsY+1+(eipos%5), cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+20+eicolumn+3*eipos, dpos.instrumentsY+1+eipos, cc, 1);
     }
     else
     {
-      if (!eamode) printbg(dpos.instrumentsX+20+std::strlen(instr[einum].name), dpos.instrumentsY, cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(instr[einum].name), dpos.instrumentsY+1+eipos, cc, 1);
     }
   }
 
+  // Tables view
   std::sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
   printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
@@ -493,7 +482,7 @@ void printstatus()
     {
       int p = etview[c]+d;
 
-      color = colors.CNORMAL;
+      int color = colors.CNORMAL;
       switch (c)
       {
         case WTBL:
@@ -536,6 +525,7 @@ void printstatus()
     }
   }
 
+  // Info view
   if (editmode == EDIT_TABLES)
   {
     if (!eamode) printbg(dpos.instrumentsX+3+etnum*10+(etcolumn & 1)+(etcolumn/2)*3, dpos.instrumentsY+8+etpos-etview[etnum], cc, 1);
@@ -568,9 +558,12 @@ void printstatus()
       break;
     }
   }
+
+  // Footer
   std::sprintf(textbuffer, "OCTAVE %d", epoctave);
   printtext(dpos.octaveX, dpos.octaveY, colors.CTITLE, textbuffer);
 
+  int color;
   switch(autoadvance)
   {
     case 0:

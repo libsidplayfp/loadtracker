@@ -892,6 +892,7 @@ void mousecommands()
   }
 
   // Instrument editpos & instrument number selection
+  // FIXME
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
         (mousex >= (dpos.instrumentsX+16)) &&
