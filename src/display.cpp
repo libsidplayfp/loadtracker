@@ -101,13 +101,9 @@ void displayupdate()
 void printstatus()
 {
   int cc = cursorcolortable[cursorflash];
-  int visibleOrderlist = 14;
-  int maxChns = MAX_CHN;
-  if (numsids == 1)
-  {
-    maxChns = MAX_CHN_MONO;
-    visibleOrderlist = VISIBLEORDERLIST;
-  }
+  int visibleOrderlist = getVisibleOrderlist();
+  int maxChns = getMaxChannels();
+
   menu = false;
 
   if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = true;

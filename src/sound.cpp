@@ -44,7 +44,6 @@
 #define MIXBUFFERSIZE 65536
 
 // General / reSID output
-int playspeed;
 bool useexsid = false;
 bool initted = false;
 unsigned framerate = PALFRAMERATE;
@@ -141,7 +140,7 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   if (writer)
     writehandle = std::fopen("sidaudio.raw", "wb");
 
-  playspeed = mr;
+  int playspeed = mr;
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
 

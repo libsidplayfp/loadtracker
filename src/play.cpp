@@ -77,8 +77,7 @@ void sequencer_stereo(int c, CHN *cptr);
 
 void initchannels()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
   CHN *cptr = &chn[0];
 
   std::memset(chn, 0, sizeof chn);

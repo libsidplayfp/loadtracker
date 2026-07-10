@@ -199,8 +199,7 @@ void relocator()
   unsigned char *pattwork = NULL;
   unsigned char *instrwork = NULL;
 
-  channels = MAX_CHN_MONO;
-  if (numsids == 2) channels = MAX_CHN;
+  channels = getMaxChannels();
   fixedparams = 1;
   simplepulse = 1;
   firstnote = MAX_NOTES-1;

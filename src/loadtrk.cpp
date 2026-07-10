@@ -41,6 +41,8 @@
 
 #define HOLDDELAY 24
 
+#define VISIBLEORDERLIST 23
+
 // Increase if configuration has incompatible changes
 #define CFG_VERSION 2
 
@@ -703,8 +705,7 @@ void docommand()
 
 void mousecommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   int currentSonglen = songlen[esnum][eschn];
 
@@ -1039,9 +1040,8 @@ void mousecommands()
 
 void generalcommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = 3;
-  int visibleOrderlist = 14;
+  int maxChns = getMaxChannels();
+  int visibleOrderlist = getVisibleOrderlist();
   int currentSonglen = 0;
 
   switch(key)
@@ -1109,10 +1109,6 @@ void generalcommands()
     break;
 
     case ':':
-    if (numsids == 1)
-    {
-        visibleOrderlist = VISIBLEORDERLIST;
-    }
     for (int c = 0; c < maxChns; c++)
     {
       currentSonglen = songlen[esnum][c];
@@ -1913,4 +1909,14 @@ void switchMode()
     }
     key = 0;
     rawkey = 0;
+}
+
+int getMaxChannels()
+{
+    return (numsids == 1) ? MAX_CHN_MONO : MAX_CHN;
+}
+
+int getVisibleOrderlist()
+{
+    return (numsids == 1) ? VISIBLEORDERLIST : 14;
 }

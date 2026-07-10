@@ -99,8 +99,7 @@ void insertnote(int newnote)
 
 void patterncommands()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   switch(key)
   {
@@ -1229,8 +1228,7 @@ void splitpattern()
 {
   int c = epnum[epchn];
   int l = pattlen[c];
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if ((eppos == 0) || (eppos == l)) return;
 
@@ -1279,8 +1277,7 @@ void splitpattern()
 void joinpattern()
 {
   int c = epnum[epchn];
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if (eschn != epchn) return;
   if (songorder[esnum][epchn][eseditpos] != c) return;

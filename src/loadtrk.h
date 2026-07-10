@@ -50,7 +50,6 @@ enum
 };
 
 #define VISIBLEPATTROWS 34
-#define VISIBLEORDERLIST 23
 #define VISIBLETABLEROWS 15
 #define VISIBLEFILES 28
 
@@ -115,5 +114,8 @@ void waitkeymouse();
 void waitkeynoupdate();
 void waitkeymousenoupdate();
 void onlinehelp(int standalone, int context);
+
+int getMaxChannels();
+int getVisibleOrderlist();
 
 #endif

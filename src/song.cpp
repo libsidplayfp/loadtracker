@@ -48,8 +48,7 @@ bool savesong()
 {
   const char ident[] = {'G', 'T', 'S', '5'};
 
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if (std::strlen(songfilename) < MAX_FILENAME-4)
   {
@@ -196,8 +195,7 @@ bool saveinstrument()
 
 void loadsong()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
   int channelstoload = maxChns;
 
   FILE *handle = std::fopen(songfilename, "rb");
@@ -1293,8 +1291,7 @@ void loadinstrument()
 
 void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if (!(cs | cp | ci | ct | cn)) return;
 
@@ -1383,8 +1380,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 
 void countpatternlengths()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   highestusedpattern = 0;
   highestusedinstr = 0;
@@ -1445,8 +1441,7 @@ void countthispattern()
 
 int insertpattern(int p)
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   findusedpatterns();
   if (p >= MAX_PATT-2) return 0;
@@ -1484,8 +1479,7 @@ int insertpattern(int p)
 
 void deletepattern(int p)
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   if (p == MAX_PATT-1) return;
 
@@ -1527,8 +1521,7 @@ void clearpattern(int p)
 
 void findusedpatterns()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   countpatternlengths();
   std::memset(pattused, 0, sizeof pattused);
@@ -1553,8 +1546,7 @@ void findusedpatterns()
 
 void findduplicatepatterns()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   findusedpatterns();
 

@@ -422,9 +422,10 @@ void orderlistcommands()
   {
     esview = eseditpos;
   }
-  if (eseditpos - esview >= VISIBLEORDERLIST)
+  int visibleOrderlist = getVisibleOrderlist();
+  if (eseditpos - esview >= visibleOrderlist)
   {
-    esview = eseditpos - VISIBLEORDERLIST + 1;
+    esview = eseditpos - visibleOrderlist + 1;
   }
 }
 
@@ -1121,8 +1122,7 @@ void prevsong()
 
 void songchange(void)
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   int currentSonglen = songlen[esnum][eschn];
 
@@ -1146,8 +1146,7 @@ void songchange(void)
 
 void updateviewtopos()
 {
-  int maxChns = MAX_CHN;
-  if (numsids == 1) maxChns = MAX_CHN_MONO;
+  int maxChns = getMaxChannels();
 
   for (int c = 0; c < maxChns; c++)
   {
