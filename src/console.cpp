@@ -104,7 +104,7 @@ bool initscreen()
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  win_openwindow(xsize, ysize, "LoadTracker", nullptr);
+  win_openwindow(xsize, ysize, "LoadTracker");
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
 

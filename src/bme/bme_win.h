@@ -5,7 +5,7 @@
 
 #include <SDL3/SDL.h>
 
-int win_openwindow(unsigned xsize, unsigned ysize, const char *appname, char *icon);
+int win_openwindow(unsigned xsize, unsigned ysize, const char *appname);
 void win_closewindow(void);
 int win_getspeed(int framerate);
 void win_setmousemode(int mode);
