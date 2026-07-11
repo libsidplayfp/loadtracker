@@ -73,6 +73,9 @@ int timemin = 0;
 int timesec = 0;
 unsigned timeframe = 0;
 
+int cursorflash = 0;
+int cursorcolortable[] = { 0x1, 0xf, 0xc, 0xf };
+
 void initcolorscheme(bool dark)
 {
   colors.CBKGND   = dark ? CBLACK : CDBLUE;
@@ -97,21 +100,31 @@ void printmainscreen()
   fliptoscreen();
 }
 
+void flashCursor()
+{
+    if (cursorflashdelay >= 6)
+    {
+      cursorflashdelay %= 6;
+      cursorflash++;
+      cursorflash &= 3;
+    }
+}
+
+int getCursorColor()
+{
+    return cursorcolortable[cursorflash];
+}
+
 void displayupdate()
 {
-  if (cursorflashdelay >= 6)
-  {
-    cursorflashdelay %= 6;
-    cursorflash++;
-    cursorflash &= 3;
-  }
+  flashCursor();
   printstatus();
   fliptoscreen();
 }
 
 void printstatus()
 {
-  int cc = cursorcolortable[cursorflash];
+  int cc = getCursorColor();
   int visibleOrderlist = getVisibleOrderlist();
   int maxChns = getMaxChannels();
 

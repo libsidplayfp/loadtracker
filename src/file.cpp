@@ -225,13 +225,8 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
   int exitfilesel = -1;
   while (exitfilesel < 0)
   {
-    int cc = cursorcolortable[cursorflash];
-    if (cursorflashdelay >= 6)
-    {
-      cursorflashdelay %= 6;
-      cursorflash++;
-      cursorflash &= 3;
-    }
+    int cc = getCursorColor();
+    flashCursor();
     fliptoscreen();
     getkey();
     if (lastclick) lastclick--;

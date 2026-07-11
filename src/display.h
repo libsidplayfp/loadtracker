@@ -25,5 +25,7 @@ void displayupdate();
 void printstatus();
 void resettime();
 void incrementtime();
+void flashCursor();
+int getCursorColor();
 
 #endif
