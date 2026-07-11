@@ -100,7 +100,7 @@ add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/src/loadtrk.dat
   COMMAND datafile ${CMAKE_BINARY_DIR}/src/loadtrk.dat loadtrk.seq
   DEPENDS datafile
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/data
   )
 
 add_custom_command(
