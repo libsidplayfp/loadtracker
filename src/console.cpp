@@ -171,7 +171,7 @@ void loadexternalpalette()
 
           if (p >= 768) break;
         }
-        gfx_calcpalette(64, 0, 0, 0);
+        gfx_calcpalette();
       }
     }
 

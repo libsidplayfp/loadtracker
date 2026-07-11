@@ -190,42 +190,29 @@ bool gfx_loadpalette(const char *name)
     }
 
     io_close(handle);
-    gfx_calcpalette(64, 0, 0, 0);
+    gfx_calcpalette();
     bme_error = BME_OK;
     return true;
 }
 
-void gfx_calcpalette(int fade, int radd, int gadd, int badd)
+void gfx_calcpalette()
 {
-    if (radd < 0) radd = 0;
-    if (gadd < 0) gadd = 0;
-    if (badd < 0) badd = 0;
-
     Uint8 *sptr = &gfx_palette[3];
     for (int c = 1; c < 255; c++)
     {
         int cl = *sptr;
-        cl *= fade;
-        cl >>= 6;
-        cl += radd;
         if (cl > 63) cl = 63;
         if (cl < 0) cl = 0;
         gfx_sdlpalette[c].r = (cl << 2) | (cl & 3);
         sptr++;
 
         cl = *sptr;
-        cl *= fade;
-        cl >>= 6;
-        cl += gadd;
         if (cl > 63) cl = 63;
         if (cl < 0) cl = 0;
         gfx_sdlpalette[c].g = (cl << 2) | (cl & 3);
         sptr++;
 
         cl = *sptr;
-        cl *= fade;
-        cl >>= 6;
-        cl += badd;
         if (cl > 63) cl = 63;
         if (cl < 0) cl = 0;
         gfx_sdlpalette[c].b = (cl << 2) | (cl & 3);

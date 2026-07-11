@@ -13,7 +13,7 @@ void gfx_unlock();
 void gfx_flip();
 
 bool gfx_loadpalette(const char *name);
-void gfx_calcpalette(int fade, int radd, int gadd, int badd);
+void gfx_calcpalette();
 void gfx_setpalette();
 
 bool gfx_loadcursor( const char *name);
