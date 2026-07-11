@@ -5,6 +5,8 @@
 
 #include <SDL3/SDL.h>
 
+#define MAX_COLORS 16          // 8bit oldskool mode
+
 bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
 int gfx_reinit();
 void gfx_uninit();
@@ -12,8 +14,6 @@ bool gfx_lock();
 void gfx_unlock();
 void gfx_flip();
 
-bool gfx_loadpalette(const char *name);
-void gfx_calcpalette();
 void gfx_setpalette();
 
 bool gfx_loadcursor( const char *name);
@@ -26,7 +26,7 @@ extern unsigned gfx_windowxsize;
 extern unsigned gfx_windowysize;
 extern unsigned gfx_virtualxsize;
 extern unsigned gfx_virtualysize;
-extern Uint8 gfx_palette[];
+extern unsigned char gfx_palette[];
 extern SDL_Surface *gfx_screen;
 
 #endif

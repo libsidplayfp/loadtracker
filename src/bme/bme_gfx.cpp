@@ -16,7 +16,42 @@
 #include <cstdio>
 #include <cstring>
 
-#define MAX_COLORS 256          // 8bit oldskool mode
+// Colodore palette
+unsigned char gfx_palette[MAX_COLORS * 3] =
+{
+    // Black
+    0x00, 0x00, 0x00,
+    // White
+    0xFF, 0xFF, 0xFF,
+    // Red
+    0x96, 0x28, 0x2e,
+    // Cyan
+    0x5b, 0xd6, 0xce,
+    // Purple
+    0x9f, 0x2d, 0xad,
+    // Green
+    0x41, 0xb9, 0x36,
+    // Blue
+    0x27, 0x24, 0xc4,
+    // Yellow
+    0xef, 0xf3, 0x47,
+    // Orange
+    0x9f, 0x48, 0x15,
+    // Brown
+    0x5e, 0x35, 0x00,
+    // Light Red
+    0xda, 0x5f, 0x66,
+    // Dark Gray
+    0x47, 0x47, 0x47,
+    // Medium Gray
+    0x78, 0x78, 0x78,
+    // Light Green
+    0x91, 0xff, 0x84,
+    // Light Blue
+    0x68, 0x64, 0xff,
+    // Light Gray
+    0xae, 0xae, 0xae
+};
 
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
 
@@ -29,7 +64,6 @@ unsigned gfx_windowxsize;
 unsigned gfx_windowysize;
 int spr_xsize = 0;
 int spr_ysize = 0;
-Uint8 gfx_palette[MAX_COLORS * 3] = {0};
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
 
@@ -44,7 +78,6 @@ static int gfx_cliptop;
 static int gfx_clipbottom;
 static int gfx_clipleft;
 static int gfx_clipright;
-static int gfx_maxcolors = MAX_COLORS;
 
 static SDL_Surface *gfx_cursor = nullptr;
 
@@ -96,16 +129,6 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags
     }
 
     gfx_setclipregion(0, 0, gfx_virtualxsize, gfx_virtualysize);
-
-    // Colors 0 & 255 are always black & white
-    gfx_sdlpalette[0].r = 0;
-    gfx_sdlpalette[0].g = 0;
-    gfx_sdlpalette[0].b = 0;
-    gfx_sdlpalette[0].a = 255;
-    gfx_sdlpalette[255].r = 255;
-    gfx_sdlpalette[255].g = 255;
-    gfx_sdlpalette[255].b = 255;
-    gfx_sdlpalette[255].a = 255;
 
     gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
@@ -174,48 +197,18 @@ void gfx_flip()
     gfx_redraw = false;
 }
 
-bool gfx_loadpalette(const char *name)
-{
-    int handle = io_open(name);
-    if (handle == -1)
-    {
-        bme_error = BME_OPEN_ERROR;
-        return false;
-    }
-    if (io_read(handle, gfx_palette, sizeof gfx_palette) != sizeof gfx_palette)
-    {
-        bme_error = BME_READ_ERROR;
-        io_close(handle);
-        return false;
-    }
-
-    io_close(handle);
-    gfx_calcpalette();
-    bme_error = BME_OK;
-    return true;
-}
-
 void gfx_calcpalette()
 {
-    Uint8 *sptr = &gfx_palette[3];
-    for (int c = 1; c < 255; c++)
+    unsigned char *sptr = gfx_palette;
+    for (int c = 0; c < MAX_COLORS; c++)
     {
-        int cl = *sptr;
-        if (cl > 63) cl = 63;
-        if (cl < 0) cl = 0;
-        gfx_sdlpalette[c].r = (cl << 2) | (cl & 3);
+        gfx_sdlpalette[c].r = *sptr;
         sptr++;
 
-        cl = *sptr;
-        if (cl > 63) cl = 63;
-        if (cl < 0) cl = 0;
-        gfx_sdlpalette[c].g = (cl << 2) | (cl & 3);
+        gfx_sdlpalette[c].g = *sptr;
         sptr++;
 
-        cl = *sptr;
-        if (cl > 63) cl = 63;
-        if (cl < 0) cl = 0;
-        gfx_sdlpalette[c].b = (cl << 2) | (cl & 3);
+        gfx_sdlpalette[c].b = *sptr;
         sptr++;
 
         gfx_sdlpalette[c].a = 255;
@@ -226,8 +219,9 @@ void gfx_setpalette()
 {
     if (!gfx_initted) return;
 
+    gfx_calcpalette();
     SDL_Palette *palette = SDL_CreateSurfacePalette(gfx_screen);
-    SDL_SetPaletteColors(palette, &gfx_sdlpalette[0], 0, gfx_maxcolors);
+    SDL_SetPaletteColors(palette, &gfx_sdlpalette[0], 0, MAX_COLORS);
 }
 
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom)

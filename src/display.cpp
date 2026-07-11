@@ -41,21 +41,21 @@
 #include <cstring>
 
 #define CBLACK  0x0
-#define CDBLUE  0x1
-#define CDGREEN 0x2
-#define CDGREY  0x3
-#define CDRED   0x4
-#define CDBROWN 0x5
-#define CLBROWN 0x6
-#define CLGREY  0x7
-#define CGREY   0x8
-#define CLBLUE  0x9
-#define CLGREEN 0xA
-#define CCYAN   0xB
-#define CLRED   0xC
-#define CPURPLE 0xD
-#define CYELLOW 0xE
-#define CWHITE  0xF
+#define CWHITE  0x1
+#define CLRED   0x2
+#define CCYAN   0x3
+#define CPURPLE 0x4
+#define CDGREEN 0x5
+#define CDBLUE  0x6
+#define CYELLOW 0x7
+#define CLBROWN 0x8
+#define CDBROWN 0x9
+#define CDRED   0xA
+#define CDGREY  0xB
+#define CGREY   0xC
+#define CLGREEN 0xD
+#define CLBLUE  0xE
+#define CLGREY  0xF
 
 const char *notename[] =
  {"C-0", "C#0", "D-0", "D#0", "E-0", "F-0", "F#0", "G-0", "G#0", "A-0", "A#0", "B-0",

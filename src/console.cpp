@@ -126,8 +126,6 @@ bool initscreen()
   io_read(handle, &chardata[0], 4096);
   io_close(handle);
 
-  if (!gfx_loadpalette("palette.bin"))
-      return false;
   loadexternalpalette();
   gfx_setpalette();
 
@@ -157,21 +155,19 @@ void loadexternalpalette()
       if (std::sscanf(ln, "%d", &colors) == 1 && colors == 256)
       {
         int p = 0;
-        while (!feof(ext_f))
+        while (!std::feof(ext_f))
         {
-          int r, g, b;
           if (!std::fgets(ln, sizeof(ln), ext_f)) break;
+          int r, g, b;
           if (std::sscanf(ln, "%d %d %d", &r, &g, &b) == 3)
           {
-            // JASC palette is 8-bit and goat palette is 6-bit
-            gfx_palette[p++] = r / 4;
-            gfx_palette[p++] = g / 4;
-            gfx_palette[p++] = b / 4;
+            gfx_palette[p++] = r;
+            gfx_palette[p++] = g;
+            gfx_palette[p++] = b;
           }
 
-          if (p >= 768) break;
+          if (p >= MAX_COLORS*3) break;
         }
-        gfx_calcpalette();
       }
     }
 
