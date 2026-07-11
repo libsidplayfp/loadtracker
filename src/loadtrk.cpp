@@ -1387,7 +1387,7 @@ void quit()
   {
     printtextcp(dpos.statusBottomX+29, dpos.statusBottomY, 15, "Really Quit (y/n)?");
     waitkey();
-    printblank(20, 39, 58);
+    printblank(dpos.statusBottomX, dpos.statusBottomY, 58);
     if ((key == 'y') || (key == 'Y')) exitprogram = true;
   }
   key = 0;
