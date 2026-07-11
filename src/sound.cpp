@@ -136,6 +136,8 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
     timer = SDL_AddTimer(1000 / framerate, sound_timer, nullptr);
     goto SOUNDOK;
   }
+#else
+    (void)exsid;
 #endif
 
   if (!buffer) buffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
@@ -149,11 +151,11 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
 
-  if (numsids == 1 && !snd_init(mr, SIXTEENBIT|MONO, 1, 0))
+  if (numsids == 1 && !snd_init(mr, SIXTEENBIT|MONO))
   {
     return 0;
   }
-  else if (numsids == 2 && !snd_init(mr, SIXTEENBIT|STEREO, 1, 0))
+  else if (numsids == 2 && !snd_init(mr, SIXTEENBIT|STEREO))
   {
     return 0;
   }
@@ -235,7 +237,7 @@ void sound_uninit(void)
 #endif
 }
 
-Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval)
+Uint32 sound_timer(void*, SDL_TimerID, Uint32 interval)
 {
   if (!initted) return interval;
   sound_playrout();

@@ -7,7 +7,7 @@
 
 #include <SDL3/SDL.h>
 
-bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
+bool snd_init(unsigned mixrate, unsigned mixmode);
 void snd_uninit();
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 

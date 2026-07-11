@@ -88,7 +88,7 @@ extern int eppos;
 int current_note_on = -1;
 
 #ifdef USE_JACK
-int snd_jack_process(jack_nframes_t nframes, void *arg) {
+int snd_jack_process(jack_nframes_t nframes, void *) {
     if (use_jack_audio) {
         sample_t* buffer = (sample_t*)jack_port_get_buffer(output_port, nframes);
         snd_mixdata((Uint8*)buffer, sizeof(sample_t) * nframes);
@@ -162,7 +162,7 @@ void noteOff(unsigned char note) {
     }
 }
 
-void snd_midi_process(double timeStamp, const unsigned char *message, size_t messageSize, void *userData) {
+void snd_midi_process(double, const unsigned char *message, size_t messageSize, void*) {
     size_t i;
 
     for (i = 0; i < messageSize; i++) {
@@ -217,7 +217,7 @@ bool snd_init_midi() {
 }
 #endif
 
-bool snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound)
+bool snd_init(unsigned mixrate, unsigned mixmode)
 {
     // If user wants to re-initialize, shutdown first
 
@@ -413,7 +413,7 @@ static void snd_uninitmixer()
     }
 }
 
-void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
+void snd_mixer_callback(void*, SDL_AudioStream *stream, int additional_amount, int)
 {
     if (additional_amount > 0)
     {
