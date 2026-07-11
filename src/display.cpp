@@ -42,7 +42,7 @@
 
 #define CBLACK  0x0
 #define CWHITE  0x1
-#define CLRED   0x2
+#define CDRED   0x2
 #define CCYAN   0x3
 #define CPURPLE 0x4
 #define CDGREEN 0x5
@@ -50,7 +50,7 @@
 #define CYELLOW 0x7
 #define CLBROWN 0x8
 #define CDBROWN 0x9
-#define CDRED   0xA
+#define CLRED   0xA
 #define CDGREY  0xB
 #define CGREY   0xC
 #define CLGREEN 0xD
@@ -569,15 +569,15 @@ void printstatus()
   switch(autoadvance)
   {
     case 0:
-    color = 10;
+    color = CLRED;
     break;
 
     case 1:
-    color = 14;
+    color = CLBLUE;
     break;
 
     case 2:
-    color = 12;
+    color = CGREY;
     break;
   }
 
