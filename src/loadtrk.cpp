@@ -727,6 +727,17 @@ void mousecommands()
         else if (win_mouseywheel < 0.f)
           patterndown();
     }
+    // Scroll instruments
+    if ((mousey >= dpos.instrumentsY+1) &&
+        (mousey <= dpos.instrumentsY+5) &&
+        (mousex >= dpos.instrumentsX) &&
+        (mousex <= dpos.instrumentsX+46))
+    {
+        if (win_mouseywheel > 0.f)
+          previnstr();
+        else if (win_mouseywheel < 0.f)
+          nextinstr();
+    }
     // Scroll orderlist
     if ((mousey >= dpos.orderlistY+1) &&
         (mousey <= dpos.orderlistY+1+maxChns) &&
@@ -891,38 +902,27 @@ void mousecommands()
     if (mouseb & MOUSEB_RIGHT) prevsong();
   }
 
-  // Instrument editpos & instrument number selection
+  // Instrument editpos
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
-        (mousex >= (dpos.instrumentsX+16)) &&
-        (mousex <= (dpos.instrumentsX+17)))
+        (mousex >= (dpos.instrumentsX+20)) &&
+        (mousex <= (dpos.instrumentsX+46)))
   {
-    editmode = EDIT_INSTRUMENT;
-    eipos = mousey-(dpos.instrumentsY+1);
-    eicolumn = mousex-(dpos.instrumentsX+16);
+    // Instr param
+    eicolumn = (mousex-(dpos.instrumentsX+20))%3;
+    eipos = (mousex-(dpos.instrumentsX+20))/3;
+    einum = eirow+mousey-(dpos.instrumentsY+1);
+    editmode = (eicolumn < 2) ? EDIT_INSTRUMENT : -1;
   }
   if ((mousey >= dpos.instrumentsY+1) &&
-        (mousey <= dpos.instrumentsY+4) &&
-        (mousex >= dpos.instrumentsX+36) &&
-        (mousex <= dpos.instrumentsX+37))
+        (mousey <= dpos.instrumentsY+5) &&
+        (mousex >= dpos.instrumentsX+3) &&
+        (mousex <= dpos.instrumentsX+19))
   {
-    editmode = EDIT_INSTRUMENT;
-    eipos = mousey-(dpos.instrumentsY+1)+5;
-    eicolumn = mousex-(dpos.instrumentsX+36);
-  }
-  if ((mousey == dpos.instrumentsY) &&
-        (mousex >= dpos.instrumentsX+20))
-  {
+    // Instr name
     editmode = EDIT_INSTRUMENT;
     eipos = 9;
-  }
-  if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
-        (mousey == dpos.instrumentsY) &&
-        (mousex >= dpos.instrumentsX+16) &&
-        (mousex <= dpos.instrumentsX+17))
-  {
-    if (mouseb & MOUSEB_LEFT) nextinstr();
-    if (mouseb & MOUSEB_RIGHT) previnstr();
+    einum = eirow+mousey-(dpos.instrumentsY+1);
   }
 
   // Table editpos

@@ -40,6 +40,7 @@ int cutinstr = -1;
 
 int einum;
 int eipos;
+int eirow;
 int eicolumn;
 
 void instrumentcommands()
@@ -97,45 +98,45 @@ void instrumentcommands()
     case KEY_RIGHT:
     if (eipos < 9)
     {
-      eicolumn++;
-      if (eicolumn > 1)
-      {
-        eicolumn = 0;
-        eipos += 5;
-        if (eipos >= 9) eipos -= 10;
-        if (eipos < 0) eipos = 8;
-      }
+      eipos++;
+      if (eipos >= 9) eipos -= 10;
+      if (eipos < 0) eipos = 0;
     }
     break;
 
     case KEY_LEFT:
     if (eipos < 9)
     {
-      eicolumn--;
-      if (eicolumn < 0)
-      {
-        eicolumn = 1;
-        eipos -= 5;
-        if (eipos < 0) eipos += 10;
-        if (eipos >= 9) eipos = 8;
-      }
+      eipos--;
+      if (eipos < 0) eipos += 10;
+      if (eipos > 8) eipos = 8;
     }
     break;
 
     case KEY_DOWN:
-    if (eipos < 9)
-    {
-      eipos++;
-      if (eipos > 8) eipos = 0;
-    }
+    nextinstr();
     break;
 
     case KEY_UP:
-    if (eipos < 9)
-    {
-      eipos--;
-      if (eipos < 0) eipos = 8;
-    }
+    previnstr();
+    break;
+
+    case KEY_PGUP:
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      previnstr();
+    break;
+
+    case KEY_PGDN:
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      nextinstr();
+    break;
+
+    case KEY_HOME:
+    while (einum != 0) previnstr();
+    break;
+
+    case KEY_END:
+    while (einum != MAX_INSTR-1) nextinstr();
     break;
 
     case KEY_N:
@@ -259,21 +260,23 @@ void gotoinstr(int i)
   editmode = EDIT_INSTRUMENT;
 }
 
-void nextinstr(void)
+void nextinstr()
 {
   einum++;
   if (einum >= MAX_INSTR) einum = MAX_INSTR - 1;
+  if ((einum - eirow) >= 5) eirow++;
   showinstrtable();
 }
 
-void previnstr(void)
+void previnstr()
 {
   einum--;
   if (einum < 0) einum = 0;
+  if ((einum - eirow) < 0) eirow--;
   showinstrtable();
 }
 
-void showinstrtable(void)
+void showinstrtable()
 {
   if (!etlock)
   {
