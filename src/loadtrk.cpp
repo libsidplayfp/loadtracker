@@ -750,6 +750,17 @@ void mousecommands()
         }
       }
     }
+    // Scroll tables
+    if ((mousey >= dpos.instrumentsY+7) &&
+        (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS) &&
+        (mousex >= dpos.instrumentsX) &&
+        (mousex <= dpos.instrumentsX+7+(maxChns-1)*10))
+    {
+        if (win_mouseywheel > 0.f)
+          tableup();
+        else if (win_mouseywheel < 0.f)
+          tabledown();
+    }
   }
 
   if (!mouseb) return;

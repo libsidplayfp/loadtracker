@@ -48,6 +48,8 @@ void deleteinstrtable(int i);
 int gettablelen(int num);
 int gettablepartlen(int num, int pos);
 void gototable(int num, int pos);
+void tableup();
+void tabledown();
 void settableview(int num, int pos);
 void settableviewfirst(int num, int pos);
 void validatetableview();
