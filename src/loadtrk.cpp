@@ -902,7 +902,7 @@ void mousecommands()
     if (mouseb & MOUSEB_RIGHT) prevsong();
   }
 
-  // Instrument editpos & instrument number selection
+  // Instrument editpos
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
         (mousex >= (dpos.instrumentsX+20)) &&
@@ -910,12 +910,9 @@ void mousecommands()
   {
     // Instr param
     eicolumn = (mousex-(dpos.instrumentsX+20))%3;
-    if (eicolumn < 2)
-    {
-        editmode = EDIT_INSTRUMENT;
-        eipos = (mousex-(dpos.instrumentsX+20))/3;
-        einum = eirow+mousey-(dpos.instrumentsY+1);
-    }
+    eipos = (mousex-(dpos.instrumentsX+20))/3;
+    einum = eirow+mousey-(dpos.instrumentsY+1);
+    editmode = (eicolumn < 2) ? EDIT_INSTRUMENT : -1;
   }
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&

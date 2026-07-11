@@ -114,25 +114,29 @@ void instrumentcommands()
     break;
 
     case KEY_DOWN:
-    if ((einum - eirow) < 5)
-    {
-        einum++;
-    }
-    if (eirow < MAX_INSTR)
-    {
-      eirow++;
-    }
+    nextinstr();
     break;
 
     case KEY_UP:
-    if ((einum - eirow) > 0)
-    {
-        einum--;
-    }
-    if (eirow > 1)
-    {
-      eirow--;
-    }
+    previnstr();
+    break;
+
+    case KEY_PGUP:
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      previnstr();
+    break;
+
+    case KEY_PGDN:
+    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
+      nextinstr();
+    break;
+
+    case KEY_HOME:
+    while (einum != 0) previnstr();
+    break;
+
+    case KEY_END:
+    while (einum != MAX_INSTR-1) nextinstr();
     break;
 
     case KEY_N:
@@ -256,7 +260,7 @@ void gotoinstr(int i)
   editmode = EDIT_INSTRUMENT;
 }
 
-void nextinstr(void)
+void nextinstr()
 {
   einum++;
   if (einum >= MAX_INSTR) einum = MAX_INSTR - 1;
@@ -264,7 +268,7 @@ void nextinstr(void)
   showinstrtable();
 }
 
-void previnstr(void)
+void previnstr()
 {
   einum--;
   if (einum < 0) einum = 0;
@@ -272,7 +276,7 @@ void previnstr(void)
   showinstrtable();
 }
 
-void showinstrtable(void)
+void showinstrtable()
 {
   if (!etlock)
   {
