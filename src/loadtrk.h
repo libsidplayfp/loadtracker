@@ -50,8 +50,6 @@ extern int editmode;
 extern bool recordmode;
 extern bool followplay;
 extern int hexnybble;
-extern int cursorflash;
-extern int cursorcolortable[];
 extern bool exitprogram;
 extern int eacolumn;
 extern int eamode;

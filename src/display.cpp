@@ -40,22 +40,25 @@
 #include <cstdio>
 #include <cstring>
 
-#define CBLACK  0x0
-#define CWHITE  0x1
-#define CDRED   0x2
-#define CCYAN   0x3
-#define CPURPLE 0x4
-#define CDGREEN 0x5
-#define CDBLUE  0x6
-#define CYELLOW 0x7
-#define CLBROWN 0x8
-#define CDBROWN 0x9
-#define CLRED   0xA
-#define CDGREY  0xB
-#define CGREY   0xC
-#define CLGREEN 0xD
-#define CLBLUE  0xE
-#define CLGREY  0xF
+enum
+{
+  CBLACK  = 0x0,
+  CWHITE  = 0x1,
+  CDRED   = 0x2,
+  CCYAN   = 0x3,
+  CPURPLE = 0x4,
+  CDGREEN = 0x5,
+  CDBLUE  = 0x6,
+  CYELLOW = 0x7,
+  CLBROWN = 0x8,
+  CDBROWN = 0x9,
+  CLRED   = 0xA,
+  CDGREY  = 0xB,
+  CGREY   = 0xC,
+  CLGREEN = 0xD,
+  CLBLUE  = 0xE,
+  CLGREY  = 0xF
+};
 
 const char *notename[] =
  {"C-0", "C#0", "D-0", "D#0", "E-0", "F-0", "F#0", "G-0", "G#0", "A-0", "A#0", "B-0",
@@ -73,11 +76,14 @@ int timemin = 0;
 int timesec = 0;
 unsigned timeframe = 0;
 
+int cursorflash = 0;
+int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
+
 void initcolorscheme(bool dark)
 {
   colors.CBKGND   = dark ? CBLACK : CDBLUE;
 
-  colors.CNORMAL  = (dark ? CGREY : CLBLUE) |(colors.CBKGND<<4);
+  colors.CNORMAL  = (dark ? CGREY : CLBLUE)|(colors.CBKGND<<4);
   colors.CMUTE    = CDGREY |(colors.CBKGND<<4);
   colors.CEDIT    = CLGREEN|(colors.CBKGND<<4);
   colors.CPLAYING = CLRED  |(colors.CBKGND<<4);
@@ -97,21 +103,31 @@ void printmainscreen()
   fliptoscreen();
 }
 
+void flashCursor()
+{
+    if (cursorflashdelay >= 6)
+    {
+      cursorflashdelay %= 6;
+      cursorflash++;
+      cursorflash &= 3;
+    }
+}
+
+int getCursorColor()
+{
+    return cursorcolortable[cursorflash];
+}
+
 void displayupdate()
 {
-  if (cursorflashdelay >= 6)
-  {
-    cursorflashdelay %= 6;
-    cursorflash++;
-    cursorflash &= 3;
-  }
+  flashCursor();
   printstatus();
   fliptoscreen();
 }
 
 void printstatus()
 {
-  int cc = cursorcolortable[cursorflash];
+  int cc = getCursorColor();
   int visibleOrderlist = getVisibleOrderlist();
   int maxChns = getMaxChannels();
 
@@ -301,12 +317,12 @@ void printstatus()
         if (epmarkstart <= epmarkend)
         {
           if ((p >= epmarkstart) && (p <= epmarkend))
-            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, 8, 9);
+            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, colors.CHDRBG, 9);
         }
         else
         {
           if ((p <= epmarkstart) && (p >= epmarkend))
-            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, 8, 9);
+            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, colors.CHDRBG, 9);
         }
       }
       if ((color == colors.CEDIT) && (editmode == EDIT_PATTERN) && (epchn == c))
@@ -412,9 +428,9 @@ void printstatus()
           if ((p >= esmarkstart) && (p <= esmarkend))
           {
             if (p != esmarkend)
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 3);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 3);
             else
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 2);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 2);
           }
         }
         else
@@ -422,9 +438,9 @@ void printstatus()
           if ((p <= esmarkstart) && (p >= esmarkend))
           {
             if (p != esmarkstart)
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 3);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 3);
             else
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, 1, 2);
+              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 2);
           }
         }
       }
@@ -516,12 +532,12 @@ void printstatus()
         if (etmarkstart <= etmarkend)
         {
           if ((p >= etmarkstart) && (p <= etmarkend))
-            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, 1, 5);
+            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
         else
         {
           if ((p <= etmarkstart) && (p >= etmarkend))
-            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, 1, 5);
+            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
       }
     }
