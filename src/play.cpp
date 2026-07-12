@@ -24,6 +24,7 @@
 
 #include "play.h"
 
+#include "configfile.h"
 #include "display.h"
 #include "loadtrk.h"
 #include "order.h"

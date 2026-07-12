@@ -21,6 +21,13 @@
 
 #include "common.h"
 
+enum
+{
+  KEY_TRACKER   = 0,
+  KEY_DMC       = 1,
+  KEY_JANKO     = 2
+};
+
 #ifndef PATTERN_C
 extern int epnum[MAX_CHN];
 extern int eppos;

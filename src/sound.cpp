@@ -24,6 +24,7 @@
 
 #include "sound.h"
 
+#include "configfile.h"
 #include "loadtrk.h"
 #include "play.h"
 #include "sid.h"

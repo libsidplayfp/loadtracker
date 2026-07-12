@@ -25,6 +25,7 @@
 #include "song.h"
 
 #include "common.h"
+#include "configfile.h"
 #include "instr.h"
 #include "loadtrk.h"
 #include "order.h"

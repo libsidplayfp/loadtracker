@@ -22,6 +22,7 @@
 
 #define TABLE_C
 
+#include "configfile.h"
 #include "console.h"
 #include "instr.h"
 #include "loadtrk.h"

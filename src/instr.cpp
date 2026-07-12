@@ -24,6 +24,7 @@
 
 #include "instr.h"
 
+#include "configfile.h"
 #include "console.h"
 #include "loadtrk.h"
 #include "pattern.h"

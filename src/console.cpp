@@ -24,6 +24,7 @@
 
 #include "console.h"
 
+#include "configfile.h"
 #include "loadtrk.h"
 
 #include "bme_main.h"

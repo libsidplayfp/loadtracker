@@ -19,6 +19,7 @@ endif()
 set(LOADTRK_SOURCES
     ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
     src/loadtrk.cpp
+    src/configfile.cpp
     src/song.cpp
     src/order.cpp
     src/pattern.cpp

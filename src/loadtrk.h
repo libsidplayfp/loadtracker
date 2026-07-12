@@ -31,13 +31,6 @@ enum
   EDIT_NAMES        = 4
 };
 
-enum
-{
-  KEY_TRACKER   = 0,
-  KEY_DMC       = 1,
-  KEY_JANKO     = 2
-};
-
 #define VISIBLEPATTROWS 34
 #define VISIBLETABLEROWS 15
 #define VISIBLEFILES 28
@@ -55,31 +48,6 @@ extern int eacolumn;
 extern int eamode;
 extern int ebmode;
 extern bool usefinevib;
-
-// config
-extern unsigned mr;
-extern unsigned sidmodel;
-extern unsigned numsids;
-extern unsigned ntsc;
-extern int fileformat;
-extern int playeradr;
-extern int zeropageadr;
-extern unsigned playerversion;
-extern unsigned keypreset;
-extern int defaultpatternlength;
-extern int stepsize;
-extern unsigned multiplier;
-extern unsigned adparam;
-extern unsigned interpolate;
-extern unsigned patterndispmode;
-extern unsigned sidaddress;
-extern unsigned sid2address;
-extern float panning;
-extern unsigned finevibrato;
-extern unsigned optimizepulse;
-extern unsigned optimizerealtime;
-extern float basepitch;
-extern unsigned exsid;
 
 extern bool monomode;
 extern char loadedsongfilename[MAX_FILENAME];
