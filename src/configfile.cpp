@@ -202,8 +202,8 @@ void saveconfig()
                  ";Filter curve (0.0 (dark) to 1.0 (bright))\n%f\n\n"
                  ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
                  ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
-                 ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
-                 ";Path to a Scala tuning file .scl\n%s\n\n"
+                 ";Special note names (2 chars for every note in an octave/cycle)\n\"%s\"\n\n"
+                 ";Path to a Scala tuning file .scl\n\"%s\"\n\n"
                  ";Use exSID (0 = off, 1 = on)\n%d\n\n"
                  ";Use dark mode (0 = off, 1 = on)\n%d\n\n"
                  ";Window X position\n%d\n\n"
@@ -330,7 +330,12 @@ void getstringparam(FILE *handle, char *value)
   char *configptr = configbuf;
 
     // FIXME prevent overflows
-  std::sscanf(configptr, "%s", value);
+  char tmpbuf[MAX_PATHNAME];
+  std::sscanf(configptr, "%s", tmpbuf);
+  // Strip quotes
+  size_t len = std::strlen(tmpbuf);
+  std::memcpy(value, tmpbuf+1, len-1);
+  value[len-2] = '\0';
 }
 
 // TODO getboolparam
