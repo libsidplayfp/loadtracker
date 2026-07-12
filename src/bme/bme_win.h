@@ -5,8 +5,8 @@
 
 #include <SDL3/SDL.h>
 
-int win_openwindow(unsigned xsize, unsigned ysize, const char *appname);
-void win_closewindow(void);
+bool win_openwindow(unsigned xsize, unsigned ysize, const char *appname);
+void win_closewindow();
 int win_getspeed(int framerate);
 
 void mou_init();

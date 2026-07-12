@@ -99,7 +99,8 @@ bool initscreen()
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  win_openwindow(xsize, ysize, "LoadTracker");
+  if (!win_openwindow(xsize, ysize, "LoadTracker"))
+      return false;
   initicon();
 
   if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))
@@ -210,6 +211,7 @@ void closescreen()
   gfx_freecursor();
 
   gfxinitted = false;
+  win_closewindow();
 }
 
 void clearscreen()

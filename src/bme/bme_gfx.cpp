@@ -116,18 +116,18 @@ bool gfx_init(unsigned xsize, unsigned ysize)
 
     gfx_setclipregion(0, 0, gfx_virtualxsize, gfx_virtualysize);
 
-    gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     if (!gfx_screen)
         return false;
 
+    gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     sdlTexture = SDL_CreateTexture(gfx_renderer,
                                              SDL_PIXELFORMAT_RGBA32,
                                              SDL_TEXTUREACCESS_STREAMING,
                                              xsize, ysize);
 
-    gfx_setpalette();
     SDL_HideCursor();
+    gfx_setpalette();
 
     gfx_initexec = false;
     gfx_initted = true;
