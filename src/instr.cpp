@@ -133,7 +133,7 @@ void instrumentcommands()
     break;
 
     case KEY_HOME:
-    while (einum != 0) previnstr();
+    while (einum > 1) previnstr();
     break;
 
     case KEY_END:
@@ -272,7 +272,7 @@ void nextinstr()
 void previnstr()
 {
   einum--;
-  if (einum < 0) einum = 0;
+  if (einum < 1) einum = 1;
   if ((einum - eirow) < 0) eirow--;
   showinstrtable();
 }
