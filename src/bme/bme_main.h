@@ -9,25 +9,11 @@
 #define MOUSEB_RIGHT 2
 #define MOUSEB_MIDDLE 4
 
-#define LEFT 0
-#define MIDDLE 128
-#define RIGHT 255
-
-#define B_OFF 0
-#define B_SOLID 1
-#define B_NOTSOLID 2
-
 #define MONO 0
 #define STEREO 1
 #define EIGHTBIT 0
 #define SIXTEENBIT 2
 #define FLOAT32BIT 4
-
-#define VM_OFF 0
-#define VM_ON 1
-#define VM_ONESHOT 0
-#define VM_LOOP 2
-#define VM_16BIT 4
 
 #define KEY_BACKSPACE    SDL_SCANCODE_BACKSPACE
 #define KEY_CAPSLOCK     SDL_SCANCODE_CAPSLOCK
@@ -162,24 +148,24 @@
 
 typedef struct
 {
-	Sint8 *start;
-	Sint8 *repeat;
-	Sint8 *end;
-	unsigned char voicemode;
+  Sint8 *start;
+  Sint8 *repeat;
+  Sint8 *end;
+  unsigned char voicemode;
 } SAMPLE;
 
 typedef struct
 {
-	volatile Sint8 *pos;
-	Sint8 *repeat;
-	Sint8 *end;
-	SAMPLE *smp;
-	unsigned freq;
-	volatile unsigned fractpos;
-	int vol;
-	int mastervol;
-	unsigned panning;
-	volatile unsigned voicemode;
+  volatile Sint8 *pos;
+  Sint8 *repeat;
+  Sint8 *end;
+  SAMPLE *smp;
+  unsigned freq;
+  volatile unsigned fractpos;
+  int vol;
+  int mastervol;
+  unsigned panning;
+  volatile unsigned voicemode;
 } CHANNEL;
 
 typedef struct

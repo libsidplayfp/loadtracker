@@ -186,13 +186,11 @@ void findduplicatepatterns();
 
 int main(int argc, char **argv)
 {
-  char filename[MAX_PATHNAME];
-  FILE *configfile;
-
-  bool dark = false;
-
   // Open datafile
-  io_openlinkeddatafile(datafile);
+  if (!io_openlinkeddatafile(datafile))
+    return EXIT_FAILURE;
+
+  char filename[MAX_PATHNAME];
 
   // Load configuration
 #ifdef __WIN32__
@@ -217,7 +215,7 @@ int main(int argc, char **argv)
 #endif
   specialnotenames[0] = 0;
   scalatuningfilepath[0] = 0;
-  configfile = fopen(filename, "rt");
+  FILE *configfile = fopen(filename, "rt");
   if (configfile)
   {
     unsigned cfg_version;
@@ -261,6 +259,8 @@ int main(int argc, char **argv)
 
   // Init pathnames
   initpaths();
+
+  bool dark = false;
 
   // Scan command line
   for (int c = 1; c < argc; c++)

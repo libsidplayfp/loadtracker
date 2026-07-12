@@ -46,7 +46,7 @@ static void linkedseek(unsigned pos);
 static void linkedread(void *buffer, int length);
 static unsigned linkedreadle32(void);
 
-int io_openlinkeddatafile(unsigned char *ptr)
+bool io_openlinkeddatafile(unsigned char *ptr)
 {
     if (datafilehandle) std::fclose(datafilehandle);
     datafilehandle = nullptr;
@@ -59,7 +59,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     if (std::memcmp(ident, idstring, 4))
     {
         bme_error = BME_WRONG_FORMAT;
-        return BME_ERROR;
+        return false;
     }
 
     files = linkedreadle32();
@@ -67,7 +67,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     if (!fileheaders)
     {
         bme_error = BME_OUT_OF_MEMORY;
-        return BME_ERROR;
+        return false;
     }
     for (unsigned index = 0; index < files; index++)
     {
@@ -79,7 +79,7 @@ int io_openlinkeddatafile(unsigned char *ptr)
     for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = false;
     io_datafileopen = true;
     bme_error = BME_OK;
-    return BME_OK;
+    return true;
 }
 
 void io_closelinkeddatafile()

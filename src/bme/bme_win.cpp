@@ -56,7 +56,7 @@ SDL_Window *win_window = nullptr;
 
 void win_checkmessages();
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
-int gfx_reinit();
+bool gfx_reinit();
 void gfx_uninit();
 
 
@@ -328,7 +328,7 @@ bool gfx_init(unsigned xsize, unsigned ysize)
     return true;
 }
 
-int gfx_reinit()
+bool gfx_reinit()
 {
     gfx_uninit();
     return gfx_init(gfx_last_xsize, gfx_last_ysize);
@@ -352,7 +352,7 @@ bool gfx_lock()
         gfx_locked = true;
         return true;
     }
-    else return false;
+    return false;
 }
 
 void gfx_unlock()
@@ -473,11 +473,6 @@ void gfx_drawcursor(int x, int y)
     dstrect.x = x;
     dstrect.y = y;
     SDL_BlitSurface(gfx_cursor, NULL, gfx_screen, &dstrect);
-}
-
-void mou_init()
-{
-    win_mousebuttons = 0;
 }
 
 void mou_getpos(unsigned *x, unsigned *y)

@@ -23,6 +23,12 @@
 #include <cstring>
 #include <cstdio>
 
+#define VM_OFF 0
+#define VM_ON 1
+#define VM_ONESHOT 0
+#define VM_LOOP 2
+#define VM_16BIT 4
+
 #ifdef USE_JACK
 typedef jack_default_audio_sample_t sample_t;
 #endif
