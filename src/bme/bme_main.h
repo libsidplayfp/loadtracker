@@ -7,10 +7,6 @@
 
 #define GFX_SCANLINES 1
 #define GFX_DOUBLESIZE 2
-#define GFX_USE1PAGE 0
-#define GFX_USE2PAGES 4
-#define GFX_USE3PAGES 8
-#define GFX_WAITVBLANK 16
 #define GFX_FULLSCREEN 32
 #define GFX_WINDOW 64
 

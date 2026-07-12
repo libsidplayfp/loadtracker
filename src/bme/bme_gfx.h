@@ -7,7 +7,7 @@
 
 #define MAX_COLORS 16          // 8bit oldskool mode
 
-bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags);
+bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags);
 int gfx_reinit();
 void gfx_uninit();
 bool gfx_lock();

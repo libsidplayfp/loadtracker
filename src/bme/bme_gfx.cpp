@@ -72,7 +72,6 @@ SDL_Renderer *gfx_renderer = nullptr;
 static bool gfx_initexec = false;
 static unsigned gfx_last_xsize;
 static unsigned gfx_last_ysize;
-static unsigned gfx_last_framerate;
 static unsigned gfx_last_flags;
 static int gfx_cliptop;
 static int gfx_clipbottom;
@@ -85,7 +84,7 @@ static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
 static SDL_Texture *sdlTexture = nullptr;
 
-bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
+bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags)
 {
     // Prevent re-entry (by window procedure)
     if (gfx_initexec) return true;
@@ -93,7 +92,6 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags
 
     gfx_last_xsize = xsize;
     gfx_last_ysize = ysize;
-    gfx_last_framerate = framerate;
     gfx_last_flags = flags & ~(GFX_FULLSCREEN | GFX_WINDOW);
 
     // Store the options contained in the flags
@@ -152,8 +150,7 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags
 int gfx_reinit()
 {
     gfx_uninit();
-    return gfx_init(gfx_last_xsize, gfx_last_ysize, gfx_last_framerate,
-        gfx_last_flags);
+    return gfx_init(gfx_last_xsize, gfx_last_ysize, gfx_last_flags);
 }
 
 void gfx_uninit()
