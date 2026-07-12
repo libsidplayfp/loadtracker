@@ -59,7 +59,6 @@ void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bot
 bool gfx_reinit();
 void gfx_uninit();
 
-
 // Global variables
 
 int win_fullscreen = 0; // By default windowed
@@ -88,6 +87,12 @@ SDL_Renderer *gfx_renderer = nullptr;
 
 int bme_error = BME_OK;
 
+unsigned xpos = SDL_WINDOWPOS_UNDEFINED;
+unsigned ypos = SDL_WINDOWPOS_UNDEFINED;
+unsigned xsize = MAX_COLUMNS * 8;
+unsigned ysize = MAX_ROWS * 16;
+
+
 // Static variables
 
 static Uint64 win_lasttime = 0;
@@ -109,14 +114,11 @@ static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
 static SDL_Texture *sdlTexture = nullptr;
 
-bool win_openwindow(unsigned xsize, unsigned ysize, const char *appname)
+bool win_openwindow(const char *appname)
 {
-    Uint32 flags = SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE;
-    if (win_fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
-
     if (!win_windowinitted)
     {
-        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK))
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
         {
             return false;
         }
@@ -126,7 +128,19 @@ bool win_openwindow(unsigned xsize, unsigned ysize, const char *appname)
 
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     //SDL_EnableUNICODE(1);
-    win_window = SDL_CreateWindow(appname, xsize, ysize, flags);
+
+    SDL_PropertiesID props{SDL_CreateProperties()};
+    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appname);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, xsize);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, ysize);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, xpos);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, ypos);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
+    if (win_fullscreen)
+        SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, true);
+
+    win_window = SDL_CreateWindowWithProperties(props);
+    SDL_DestroyProperties(props);
     if (!win_window)
     {
         return false;
@@ -139,6 +153,21 @@ void win_closewindow()
 {
     SDL_StopTextInput(win_window);
     SDL_DestroyWindow(win_window);
+}
+
+void win_savepos()
+{
+    int x, y;
+    if (SDL_GetWindowPosition(win_window, &x, &y))
+    {
+        xpos = (unsigned)x;
+        ypos = (unsigned)y;
+    }
+    if (SDL_GetWindowSize(win_window, &x, &y))
+    {
+        xsize = (unsigned)x;
+        ysize = (unsigned)y;
+    }
 }
 
 int win_getspeed(int framerate)

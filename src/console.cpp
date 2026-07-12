@@ -82,6 +82,7 @@ POSITIONS dpos =
     0                           // statusTopY
 };
 
+void closescreen();
 void loadexternalpalette();
 void initicon();
 
@@ -95,10 +96,7 @@ bool initscreen()
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     return false;
 
-  unsigned xsize = MAX_COLUMNS * 8;
-  unsigned ysize = MAX_ROWS * 16;
-
-  if (!win_openwindow(xsize, ysize, "LoadTracker"))
+  if (!win_openwindow("LoadTracker"))
       return false;
   initicon();
 

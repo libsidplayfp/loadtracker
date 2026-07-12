@@ -7,8 +7,12 @@
 
 #define MAX_COLORS 16
 
-bool win_openwindow(unsigned xsize, unsigned ysize, const char *appname);
+#define MAX_COLUMNS 128
+#define MAX_ROWS 40
+
+bool win_openwindow(const char *appname);
 void win_closewindow();
+void win_savepos();
 int win_getspeed(int framerate);
 
 bool gfx_init(unsigned xsize, unsigned ysize);
@@ -36,5 +40,10 @@ extern SDL_Window *win_window;
 extern bool gfx_redraw;
 extern unsigned char gfx_palette[];
 extern SDL_Surface *gfx_screen;
+
+extern unsigned xpos;
+extern unsigned ypos;
+extern unsigned xsize;
+extern unsigned ysize;
 
 #endif

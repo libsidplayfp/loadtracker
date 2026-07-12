@@ -19,9 +19,6 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#define MAX_COLUMNS 128
-#define MAX_ROWS 40
-
 typedef struct
 {
     int channelsX;
@@ -46,7 +43,6 @@ typedef struct
 
 
 bool initscreen();
-void closescreen();
 void clearscreen();
 void fliptoscreen();
 void printtext(int x, int y, int color, const char *text);

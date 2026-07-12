@@ -36,6 +36,7 @@
 
 #include "bme_main.h"
 #include "bme_snd.h"
+#include "bme_win.h"
 
 #include <cstdio>
 #include <cstring>

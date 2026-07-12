@@ -40,8 +40,6 @@
 #include <windows.h>
 #endif
 
-#include <SDL3/SDL_main.h>
-
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -253,6 +251,10 @@ int main(int argc, char **argv)
         getstringparam(configfile, specialnotenames);
         getstringparam(configfile, scalatuningfilepath);
         getparam(configfile, &exsid);
+        getparam(configfile, &xpos);
+        getparam(configfile, &ypos);
+        getparam(configfile, &xsize);
+        getparam(configfile, &ysize);
     }
     std::fclose(configfile);
   }
@@ -474,7 +476,7 @@ int main(int argc, char **argv)
 
   // Reset channels/song
   initchannels();
-  clearsong(1,1,1,1,1);
+  clearsong(true, true, true, true, true);
 
   // Init sound
   if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
@@ -498,6 +500,8 @@ int main(int argc, char **argv)
   sound_uninit();
 
   io_closelinkeddatafile();
+
+  win_savepos();
 
   // Save configuration
 #ifndef __WIN32__
@@ -559,7 +563,11 @@ int main(int argc, char **argv)
                  ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
                  ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                  ";Path to a Scala tuning file .scl\n%s\n\n"
-                 ";Use exSID (0 = off, 1 = on)\n%d\n\n",
+                 ";Use exSID (0 = off, 1 = on)\n%d\n\n"
+                 ";Window X position\n%d\n\n"
+                 ";Window Y position\n%d\n\n"
+                 ";Window X size\n%d\n\n"
+                 ";Window Y size\n%d\n\n",
         CFG_VERSION,
         mr,
         sidmodel,
@@ -591,7 +599,11 @@ int main(int argc, char **argv)
         equaldivisionsperoctave,
         specialnotenames,
         scalatuningfilepath,
-        exsid);
+        exsid,
+        xpos,
+        ypos,
+        xsize,
+        ysize);
     std::fclose(configfile);
   }
 
