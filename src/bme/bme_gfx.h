@@ -5,9 +5,9 @@
 
 #include <SDL3/SDL.h>
 
-#define MAX_COLORS 16          // 8bit oldskool mode
+#define MAX_COLORS 16
 
-bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags);
+bool gfx_init(unsigned xsize, unsigned ysize);
 int gfx_reinit();
 void gfx_uninit();
 bool gfx_lock();
@@ -16,7 +16,7 @@ void gfx_flip();
 
 void gfx_setpalette();
 
-bool gfx_loadcursor( const char *name);
+bool gfx_loadcursor(const char *name);
 void gfx_drawcursor(int x, int y);
 void gfx_freecursor();
 

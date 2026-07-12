@@ -57,7 +57,6 @@ void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bot
 
 bool gfx_initted = false;
 bool gfx_redraw = false;
-int gfx_scanlinemode = 0;
 unsigned gfx_virtualxsize;
 unsigned gfx_virtualysize;
 unsigned gfx_windowxsize;
@@ -72,7 +71,6 @@ SDL_Renderer *gfx_renderer = nullptr;
 static bool gfx_initexec = false;
 static unsigned gfx_last_xsize;
 static unsigned gfx_last_ysize;
-static unsigned gfx_last_flags;
 static int gfx_cliptop;
 static int gfx_clipbottom;
 static int gfx_clipleft;
@@ -84,7 +82,7 @@ static SDL_Color gfx_sdlpalette[MAX_COLORS];
 static bool gfx_locked = false;
 static SDL_Texture *sdlTexture = nullptr;
 
-bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags)
+bool gfx_init(unsigned xsize, unsigned ysize)
 {
     // Prevent re-entry (by window procedure)
     if (gfx_initexec) return true;
@@ -92,11 +90,6 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags)
 
     gfx_last_xsize = xsize;
     gfx_last_ysize = ysize;
-    gfx_last_flags = flags & ~(GFX_FULLSCREEN | GFX_WINDOW);
-
-    // Store the options contained in the flags
-
-    gfx_scanlinemode = flags & (GFX_SCANLINES | GFX_DOUBLESIZE);
 
     SDL_SetWindowFullscreen(win_window, win_fullscreen);
 
@@ -120,11 +113,6 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags)
 
     gfx_windowxsize = gfx_virtualxsize;
     gfx_windowysize = gfx_virtualysize;
-    if (gfx_scanlinemode)
-    {
-        gfx_windowxsize <<= 1;
-        gfx_windowysize <<= 1;
-    }
 
     gfx_setclipregion(0, 0, gfx_virtualxsize, gfx_virtualysize);
 
@@ -150,7 +138,7 @@ bool gfx_init(unsigned xsize, unsigned ysize, unsigned flags)
 int gfx_reinit()
 {
     gfx_uninit();
-    return gfx_init(gfx_last_xsize, gfx_last_ysize, gfx_last_flags);
+    return gfx_init(gfx_last_xsize, gfx_last_ysize);
 }
 
 void gfx_uninit()
@@ -269,68 +257,9 @@ void gfx_freecursor()
     }
 }
 
-void gfx_copyscreen8(Uint8  *destaddress, Uint8  *srcaddress, unsigned pitch)
-{
-    switch(gfx_scanlinemode)
-    {
-        default:
-        for (unsigned c = 0; c < gfx_virtualysize; c++)
-        {
-            std::memcpy(destaddress, srcaddress, gfx_virtualxsize);
-            destaddress += pitch;
-            srcaddress += gfx_virtualxsize;
-        }
-        break;
-
-        case GFX_SCANLINES:
-        for (unsigned c = 0; c < gfx_virtualysize; c++)
-        {
-            int d = gfx_virtualxsize;
-            while (d--)
-            {
-                *destaddress = *srcaddress;
-                destaddress++;
-                *destaddress = *srcaddress;
-                destaddress++;
-                srcaddress++;
-            }
-            destaddress += pitch*2 - (gfx_virtualxsize << 1);
-        }
-        break;
-
-        case GFX_DOUBLESIZE:
-        for (unsigned c = 0; c < gfx_virtualysize; c++)
-        {
-            int d = gfx_virtualxsize;
-            while (d--)
-            {
-                *destaddress = *srcaddress;
-                destaddress++;
-                *destaddress = *srcaddress;
-                destaddress++;
-                srcaddress++;
-            }
-            destaddress += pitch - (gfx_virtualxsize << 1);
-            srcaddress -= gfx_virtualxsize;
-            d = gfx_virtualxsize;
-            while (d--)
-            {
-                *destaddress = *srcaddress;
-                destaddress++;
-                *destaddress = *srcaddress;
-                destaddress++;
-                srcaddress++;
-            }
-            destaddress += pitch - (gfx_virtualxsize << 1);
-        }
-        break;
-    }
-}
-
 void gfx_drawcursor(int x, int y)
 {
     if (!gfx_initted) return;
-    //if (!gfx_locked) return;
 
     if (!gfx_cursor)
     {
@@ -350,6 +279,5 @@ void gfx_drawcursor(int x, int y)
     SDL_Rect dstrect;
     dstrect.x = x;
     dstrect.y = y;
-    if (!SDL_BlitSurface(gfx_cursor, NULL, gfx_screen, &dstrect))
-        printf("Error: %s\n", SDL_GetError());
+    SDL_BlitSurface(gfx_cursor, NULL, gfx_screen, &dstrect);
 }

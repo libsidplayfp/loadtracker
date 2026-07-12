@@ -103,10 +103,10 @@ bool initscreen()
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
 
-  if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight, 0))
+  if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))
   {
     win_fullscreen = 0;
-    if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight, 0))
+    if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))
       return false;
   }
 
