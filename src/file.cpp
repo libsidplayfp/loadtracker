@@ -43,7 +43,7 @@
 #include <dirent.h>
 
 #ifdef _WIN32
-#include <windows.h>
+#  include <windows.h>
 #endif
 
 #define MAX_DIRFILES 16384
@@ -84,8 +84,6 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
   char drivestr[] = "A:\\";
   char driveexists[26];
 #endif
-  char cmpbuf[MAX_PATHNAME];
-  char tempname[MAX_PATHNAME];
 
   // Set initial path (if any)
   if (std::strlen(path)) chdir(path);
@@ -101,7 +99,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
 #endif
 
   // Read new directory
-  NEWPATH:
+NEWPATH:
   getcwd(path, MAX_PATHNAME);
   int files = 0;
   // Deallocate old names
@@ -159,7 +157,8 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
         else
         {
           // If a file, must match filter
-          strcpy(cmpbuf, de->d_name);
+          char cmpbuf[MAX_PATHNAME];
+          std::strcpy(cmpbuf, de->d_name);
           if ((!std::strcmp(filtptr, "*")) || (!strcmp(filtptr, ".*")))
             files++;
           else
@@ -302,7 +301,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
              if (std::tolower(direntry[filepos].name[0]) == k) break;
         }
 
-        if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
       }
     }
 
@@ -392,7 +391,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       break;
 
       case KEY_ENTER:
-      ENTERFILE:
+ENTERFILE:
       switch(filemode)
       {
         case 0:
@@ -408,10 +407,11 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
           goto NEWPATH;
 
           case 2:
+          char tempname[MAX_PATHNAME];
           std::strcpy(tempname, direntry[filepos].name);
           if (std::strlen(tempname))
           {
-            if (tempname[strlen(tempname)-1] != '\\')
+            if (tempname[std::strlen(tempname)-1] != '\\')
               std::strcat(tempname, "\\");
           }
           chdir(tempname);
