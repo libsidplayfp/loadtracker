@@ -1011,6 +1011,8 @@ void tableup()
   etpos--;
   if (etpos < 0) etpos = 0;
   if (shiftpressed) etmarkend = etpos;
+
+  validatetableview();
 }
 
 void tabledown()
@@ -1026,6 +1028,8 @@ void tabledown()
   etpos++;
   if (etpos >= MAX_TABLELEN) etpos = MAX_TABLELEN-1;
   if (shiftpressed) etmarkend = etpos;
+
+  validatetableview();
 }
 
 void exectable(int num, int ptr)

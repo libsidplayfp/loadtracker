@@ -72,6 +72,7 @@ void shrinkpattern();
 void expandpattern();
 void splitpattern();
 void joinpattern();
+void updateview();
 
 void insertnote(int newnote)
 {
@@ -1108,9 +1109,8 @@ void patterncommands()
       }
     }
   }
-  epview = eppos-VISIBLEPATTROWS/2;
+  updateview();
 }
-
 
 void patterndown()
 {
@@ -1128,6 +1128,7 @@ void patterndown()
     eppos = 0;
   }
   if (shiftpressed) epmarkend = eppos;
+  updateview();
 }
 
 void patternup()
@@ -1146,6 +1147,7 @@ void patternup()
     eppos = getPattlen(epnum[epchn]);
   }
   if (shiftpressed) epmarkend = eppos;
+  updateview();
 }
 
 void prevpattern()
@@ -1362,4 +1364,8 @@ void joinpattern()
   }
 }
 
+void updateview()
+{
+  epview = eppos-VISIBLEPATTROWS/2;
+}
 
