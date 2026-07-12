@@ -269,9 +269,21 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
         if (filepos > files-1) filepos = files - 1;
 
         if (!direntry[filepos].attribute)
-          strcpy(name, direntry[filepos].name);
+          std::strcpy(name, direntry[filepos].name);
 
         if ((!prevmouseb) && (lastclick) && (lastfile == filepos)) goto ENTERFILE;
+      }
+    }
+
+    if (win_mouseywheel != 0.f)
+    {
+      if (win_mouseywheel > 0.f)
+      {
+        if (filepos > 0) filepos--;
+      }
+      else if (win_mouseywheel < 0.f)
+      {
+        if (filepos < files-1) filepos++;
       }
     }
 
@@ -316,7 +328,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       if (!filemode)
       {
         filepos = 0;
-        if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
       }
       break;
 
@@ -324,7 +336,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       if (!filemode)
       {
         filepos = files-1;
-        if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
       }
       break;
 
@@ -334,7 +346,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
         if ((!filemode) && (filepos > 0))
         {
           filepos--;
-          if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
         }
       }
       break;
@@ -343,7 +355,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       if ((!filemode) && (filepos > 0))
       {
         filepos--;
-        if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
       }
       break;
 
@@ -353,7 +365,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
         if ((!filemode) && (filepos < files-1))
         {
           filepos++;
-          if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
         }
       }
       break;
@@ -362,7 +374,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       if ((!filemode) && (filepos < files-1))
       {
         filepos++;
-        if (!direntry[filepos].attribute) strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
       }
       break;
 
@@ -387,7 +399,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
         switch (direntry[filepos].attribute)
         {
           case 0:
-          strcpy(name, direntry[filepos].name);
+          std::strcpy(name, direntry[filepos].name);
           exitfilesel = 1;
           break;
 
@@ -396,11 +408,11 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
           goto NEWPATH;
 
           case 2:
-          strcpy(tempname, direntry[filepos].name);
-          if (strlen(tempname))
+          std::strcpy(tempname, direntry[filepos].name);
+          if (std::strlen(tempname))
           {
             if (tempname[strlen(tempname)-1] != '\\')
-              strcat(tempname, "\\");
+              std::strcat(tempname, "\\");
           }
           chdir(tempname);
           goto NEWPATH;
