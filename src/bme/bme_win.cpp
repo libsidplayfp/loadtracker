@@ -349,11 +349,13 @@ bool gfx_init(unsigned xsize, unsigned ysize)
                                              xsize, ysize);
 
     SDL_HideCursor();
+
+    gfx_initted = true;
+
     gfx_setpalette();
 
-    gfx_initexec = false;
-    gfx_initted = true;
     gfx_redraw = true;
+    gfx_initexec = false;
     return true;
 }
 
@@ -396,6 +398,8 @@ void gfx_unlock()
 void gfx_flip()
 {
     SDL_Surface* surf = SDL_ConvertSurface(gfx_screen, SDL_PIXELFORMAT_RGBA32);
+    if (!surf)
+        printf("Error: %s\n", SDL_GetError());
     SDL_UpdateTexture(sdlTexture, nullptr, surf->pixels, surf->pitch);
     SDL_DestroySurface(surf);
     SDL_RenderClear(gfx_renderer);
