@@ -5,10 +5,6 @@
 
 #include <SDL3/SDL.h>
 
-#define MOUSE_ALWAYS_VISIBLE 0
-#define MOUSE_FULLSCREEN_HIDDEN 1
-#define MOUSE_ALWAYS_HIDDEN 2
-
 #define MOUSEB_LEFT 1
 #define MOUSEB_RIGHT 2
 #define MOUSEB_MIDDLE 4

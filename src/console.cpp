@@ -100,7 +100,6 @@ bool initscreen()
   unsigned ysize = MAX_ROWS * 16;
 
   win_openwindow(xsize, ysize, "LoadTracker");
-  win_setmousemode(MOUSE_ALWAYS_HIDDEN);
   initicon();
 
   if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))

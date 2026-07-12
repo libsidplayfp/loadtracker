@@ -30,7 +30,6 @@ unsigned win_mouseypos = 0;
 unsigned win_mousexrel = 0;
 unsigned win_mouseyrel = 0;
 unsigned win_mousebuttons = 0;
-int win_mousemode = MOUSE_FULLSCREEN_HIDDEN;
 float win_mouseywheel = 0.f;
 unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
 
@@ -209,33 +208,6 @@ void win_checkmessages()
     }
 }
 
-void win_setmousemode(int mode)
-{
-    win_mousemode = mode;
-
-    switch(mode)
-    {
-        case MOUSE_ALWAYS_VISIBLE:
-        SDL_ShowCursor();
-        break;
-
-        case MOUSE_FULLSCREEN_HIDDEN:
-        if (win_fullscreen)
-        {
-            SDL_HideCursor();
-        }
-        else
-        {
-            SDL_ShowCursor();
-        }
-        break;
-
-        case MOUSE_ALWAYS_HIDDEN:
-        SDL_HideCursor();
-        break;
-    }
-}
-
 void mou_init()
 {
     win_mousebuttons = 0;
@@ -255,7 +227,7 @@ void mou_getpos(unsigned *x, unsigned *y)
     }
 }
 
-unsigned mou_getbuttons(void)
+unsigned mou_getbuttons()
 {
     return win_mousebuttons;
 }

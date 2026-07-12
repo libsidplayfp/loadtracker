@@ -118,21 +118,21 @@ bool gfx_init(unsigned xsize, unsigned ysize)
 
     gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
+    if (!gfx_screen)
+        return false;
+
     sdlTexture = SDL_CreateTexture(gfx_renderer,
                                              SDL_PIXELFORMAT_RGBA32,
                                              SDL_TEXTUREACCESS_STREAMING,
                                              xsize, ysize);
 
+    gfx_setpalette();
+    SDL_HideCursor();
+
     gfx_initexec = false;
-    if (gfx_screen)
-    {
-        gfx_initted = true;
-        gfx_redraw = true;
-        gfx_setpalette();
-        win_setmousemode(win_mousemode);
-        return true;
-    }
-    else return false;
+    gfx_initted = true;
+    gfx_redraw = true;
+    return true;
 }
 
 int gfx_reinit()
