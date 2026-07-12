@@ -68,7 +68,7 @@ POSITIONS dpos =
     80,                         // instrumentsX
     10,                         // instrumentsY
     64,                         // loadboxX
-    2,                          // loadboxY
+    3,                          // loadboxY
     1,                          // octaveX
     MAX_ROWS-2,                 // octaveY
     54,                         // orderlistX
