@@ -28,6 +28,10 @@
 
 #include "bme_win.h"
 
+#ifdef _WIN32
+#  include <windows.h>
+#endif
+
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -77,7 +81,7 @@ void getstringparam(FILE *handle, char *value);
 
 void getFilename(char filename[MAX_PATHNAME], bool createdir)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
   GetModuleFileName(NULL, filename, MAX_PATHNAME);
   filename[strlen(filename)-3] = 'c';
   filename[strlen(filename)-2] = 'f';

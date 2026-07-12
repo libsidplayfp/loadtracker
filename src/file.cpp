@@ -42,7 +42,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -80,7 +80,7 @@ void initpaths()
 
 bool fileselector(char *name, char *path, char *filter, const char *title, int filemode)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
   char drivestr[] = "A:\\";
   char driveexists[26];
 #endif
@@ -91,7 +91,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
   if (std::strlen(path)) chdir(path);
 
   // Scan for all existing drives
-#ifdef __WIN32__
+#ifdef _WIN32
   for (int c = 0; c < 26; c++)
   {
     drivestr[0] = 'A'+c;
@@ -113,7 +113,7 @@ bool fileselector(char *name, char *path, char *filter, const char *title, int f
       direntry[c].name = nullptr;
     }
   }
-#ifdef __WIN32__
+#ifdef _WIN32
   // Create drive letters
   for (int c = 0; c < 26; c++)
   {

@@ -37,10 +37,6 @@
 #include "bme_snd.h"
 #include "bme_io.h"
 
-#ifdef __WIN32__
-#include <windows.h>
-#endif
-
 #include <cctype>
 #include <cmath>
 #include <cstring>
@@ -160,7 +156,7 @@ int main(int argc, char **argv)
   // Scan command line
   for (int c = 1; c < argc; c++)
   {
-#ifdef __WIN32__
+#ifdef _WIN32
     if ((argv[c][0] == '-') || (argv[c][0] == '/'))
 #else
     if (argv[c][0] == '-')
@@ -185,7 +181,7 @@ int main(int argc, char **argv)
           onlinehelp(1, 0);
           return EXIT_SUCCESS;
         }
-#ifdef __WIN32__
+#ifdef _WIN32
         if (!initscreen())
           return EXIT_FAILURE;
         for (int y = 0; y < usagelen; ++y)
