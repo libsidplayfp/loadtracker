@@ -186,13 +186,11 @@ void findduplicatepatterns();
 
 int main(int argc, char **argv)
 {
-  char filename[MAX_PATHNAME];
-  FILE *configfile;
-
-  bool dark = false;
-
   // Open datafile
-  io_openlinkeddatafile(datafile);
+  if (!io_openlinkeddatafile(datafile))
+    return EXIT_FAILURE;
+
+  char filename[MAX_PATHNAME];
 
   // Load configuration
 #ifdef __WIN32__
@@ -217,7 +215,7 @@ int main(int argc, char **argv)
 #endif
   specialnotenames[0] = 0;
   scalatuningfilepath[0] = 0;
-  configfile = fopen(filename, "rt");
+  FILE *configfile = fopen(filename, "rt");
   if (configfile)
   {
     unsigned cfg_version;
@@ -261,6 +259,8 @@ int main(int argc, char **argv)
 
   // Init pathnames
   initpaths();
+
+  bool dark = false;
 
   // Scan command line
   for (int c = 1; c < argc; c++)
@@ -1799,7 +1799,7 @@ void setspecialnotenames()
         break;
       if (i < 93)
       {
-        char *name = (char*)std::malloc(4);
+        char *name = (char*)std::malloc(4); // FIXME
         std::strncpy(name, specialnotenames + j, 2);
         std::sprintf(octave, "%d", oct);
         std::strcpy(name + 2, octave);
@@ -1813,16 +1813,13 @@ void setspecialnotenames()
 
 void readscalatuningfile()
 {
-  char *configptr;
-  char strbuf[64];
-  char name[3];
-  double numerator;
-  double denominator;
-  double centvalue;
-
   FILE *scalatuningfile = fopen(scalatuningfilepath, "rt");
   if (scalatuningfile)
   {
+    char *configptr;
+    char strbuf[64];
+    char name[3];
+
     // Tuning name
     for (;;)
     {
@@ -1870,13 +1867,15 @@ void readscalatuningfile()
         }
         else
         {
-          strcat(specialnotenames, name);
+          std::strcat(specialnotenames, name);
         }
       }
       if (!strchr(strbuf, '.'))
       {
+        double numerator;
+        double denominator;
         std::sscanf(strbuf, "%lf", &numerator);
-        if (strchr(strbuf, '/'))
+        if (std::strchr(strbuf, '/'))
         {
           std::sscanf(strchr(strbuf, '/') + 1, "%lf", &denominator);
           tuning[i] = numerator / denominator;
@@ -1884,6 +1883,7 @@ void readscalatuningfile()
       }
       else
       {
+        double centvalue;
         std::sscanf(configptr, "%lf", &centvalue);
         tuning[i] = std::pow(2.0, centvalue / 1200.0);
       }
@@ -1895,8 +1895,6 @@ void readscalatuningfile()
 void switchMode()
 {
     char nextMode[7];
-    char textbuffer[80];
-
     if (numsids == 1)
     {
         std::strcpy(nextMode, "STEREO");
@@ -1906,6 +1904,7 @@ void switchMode()
         std::strcpy(nextMode, "MONO");
     }
 
+    char textbuffer[80];
     std::sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
 
     printtextcp(
@@ -1931,7 +1930,7 @@ void switchMode()
         std::memset(songfilename, 0, sizeof songfilename);
 
         numsids ^= 3;
-        clearsong(1, 1, 1, 1, 1);
+        clearsong(true, true, true, true, true);
 
         sound_init(
             mr,

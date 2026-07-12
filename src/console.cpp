@@ -28,7 +28,6 @@
 
 #include "bme_main.h"
 #include "bme_win.h"
-#include "bme_gfx.h"
 #include "bme_io.h"
 
 #include <new>
@@ -99,14 +98,14 @@ bool initscreen()
   unsigned xsize = MAX_COLUMNS * 8;
   unsigned ysize = MAX_ROWS * 16;
 
-  win_openwindow(xsize, ysize, "LoadTracker");
-  win_setmousemode(MOUSE_ALWAYS_HIDDEN);
+  if (!win_openwindow(xsize, ysize, "LoadTracker"))
+      return false;
   initicon();
 
-  if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight, 60, 0))
+  if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))
   {
     win_fullscreen = 0;
-    if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight, 60, 0))
+    if (!gfx_init(MAX_COLUMNS * fontwidth, MAX_ROWS * fontheight))
       return false;
   }
 
@@ -211,6 +210,7 @@ void closescreen()
   gfx_freecursor();
 
   gfxinitted = false;
+  win_closewindow();
 }
 
 void clearscreen()

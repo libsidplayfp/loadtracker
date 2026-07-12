@@ -3,7 +3,7 @@
 #ifndef BME_IO_H
 #define BME_IO_H
 
-int io_openlinkeddatafile(unsigned char *ptr);
+bool io_openlinkeddatafile(unsigned char *ptr);
 void io_closelinkeddatafile();
 int io_open(const char *name);
 void io_close(int handle);
