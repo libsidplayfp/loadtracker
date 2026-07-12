@@ -155,7 +155,7 @@ int main(int argc, char **argv)
   // Init pathnames
   initpaths();
 
-  bool dark = false;
+  bool dark = darkmode != 0;
 
   // Scan command line
   for (int c = 1; c < argc; c++)

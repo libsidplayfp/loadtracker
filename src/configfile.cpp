@@ -69,6 +69,7 @@ float equaldivisionsperoctave = 12.0f;
 char specialnotenames[186];
 char scalatuningfilepath[MAX_PATHNAME];
 unsigned exsid = 0;
+unsigned darkmode = 0;
 
 void getparam(FILE *handle, unsigned *value);
 void getfloatparam(FILE *handle, float *value);
@@ -147,6 +148,7 @@ void loadconfig()
         getstringparam(configfile, specialnotenames);
         getstringparam(configfile, scalatuningfilepath);
         getparam(configfile, &exsid);
+        getparam(configfile, &darkmode);
         getparam(configfile, &xpos);
         getparam(configfile, &ypos);
         getparam(configfile, &xsize);
@@ -203,6 +205,7 @@ void saveconfig()
                  ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                  ";Path to a Scala tuning file .scl\n%s\n\n"
                  ";Use exSID (0 = off, 1 = on)\n%d\n\n"
+                 ";Use dark mode (0 = off, 1 = on)\n%d\n\n"
                  ";Window X position\n%d\n\n"
                  ";Window Y position\n%d\n\n"
                  ";Window X size\n%d\n\n"
@@ -239,6 +242,7 @@ void saveconfig()
         specialnotenames,
         scalatuningfilepath,
         exsid,
+        darkmode,
         xpos,
         ypos,
         xsize,

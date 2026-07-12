@@ -51,6 +51,7 @@ extern float equaldivisionsperoctave;
 extern char specialnotenames[];
 extern char scalatuningfilepath[];
 extern unsigned exsid;
+extern unsigned darkmode;
 #endif
 
 void loadconfig();
