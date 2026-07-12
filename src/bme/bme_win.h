@@ -13,7 +13,7 @@ void mou_init();
 void mou_getpos(unsigned *x, unsigned *y);
 unsigned mou_getbuttons();
 
-extern int win_quitted;
+extern bool win_quitted;
 extern int win_fullscreen;
 extern unsigned char win_keytable[SDL_SCANCODE_COUNT];
 extern unsigned char win_keystate[SDL_SCANCODE_COUNT];

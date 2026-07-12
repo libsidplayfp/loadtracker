@@ -22,7 +22,7 @@ void win_checkmessages();
 
 int win_fullscreen = 0; // By default windowed
 bool win_windowinitted = false;
-int win_quitted = 0;
+bool win_quitted = false;
 unsigned char win_keytable[SDL_SCANCODE_COUNT] = {0};
 unsigned char win_asciikey = 0;
 unsigned win_mousexpos = 0;
@@ -168,7 +168,7 @@ void win_checkmessages()
             break;
 
             case SDL_EVENT_QUIT:
-            win_quitted = 1;
+            win_quitted = true;
             break;
 
             case SDL_EVENT_TEXT_INPUT:
