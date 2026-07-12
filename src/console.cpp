@@ -86,14 +86,9 @@ POSITIONS dpos =
 void loadexternalpalette();
 void initicon();
 
-static inline void setcharcolor(unsigned *dptr, short ch, short color)
+static inline void setcharcolor(unsigned *dptr, unsigned char ch, unsigned char color)
 {
   *dptr = (ch & 0xff) | (color << 16) | (colors.CBKGND << 20);
-}
-
-static inline void setcolor(unsigned *dptr, short color)
-{
-  *dptr = (*dptr & 0xffff) | (color << 16) | (colors.CBKGND << 20);
 }
 
 bool initscreen()
@@ -292,8 +287,7 @@ void printblankc(int x, int y, int color, int length)
 void drawbox(int x, int y, int color, int sx, int sy)
 {
   if (!gfxinitted) return;
-  if (y < 0) return;
-  if (y >= MAX_ROWS) return;
+  if ((y < 0) || (y >= MAX_ROWS)) return;
   if (y+sy > MAX_ROWS) return;
   if ((!sx) || (!sy)) return;
 
@@ -343,7 +337,7 @@ void printbg(int x, int y, int color, int length)
 
   while (length--)
   {
-    setcolor(dptr, 15 | (color << 4));
+    *dptr = (*dptr & 0xffff) | (colors.CBKGND << 16) | (color << 20);
     dptr++;
   }
 }
@@ -401,11 +395,10 @@ void fliptoscreen()
           unsigned char *dptr = (unsigned char*)gfx_screen->pixels + y*fontheight * gfx_screen->pitch + x*fontwidth;
           unsigned char bgcolor = (*sptr) >> 20;
           unsigned char fgcolor = ((*sptr) >> 16) & 0xf;
-          int c;
 
           unsigned char e = *chptr++;
 
-          for (c = 0; c < 14; c++)
+          for (int c = 0; c < 14; c++)
           {
             e = *chptr++;
 
