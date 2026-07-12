@@ -175,6 +175,7 @@ void saveconfig()
                  ";------------------------------------------------------------------------------\n"
                  ";LoadTracker config file. Rows starting with ; are comments.                   \n"
                  ";Hex parameters are to be preceded with $ and decimal parameters with nothing. \n"
+                 ";Strings must be enquoted in double quotes.                                    \n"
                  ";------------------------------------------------------------------------------\n"
                  "\n"
                  ";config version\n%d\n\n"
