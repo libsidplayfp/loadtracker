@@ -5,7 +5,8 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 
 * ported to CMake build system
 * ported to SDL3
-* dual SID support, merged from [SpiderJ's fork](https://github.com/jansalleine/gt2fork)
+* scrollwheel support
+* dual SID support, merged from [SpiderJ's fork](https://github.com/jansalleine/gt2fork) (Switch with Alt+m)
 * dots display extended to tables and enabled by default (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * default to a C64 color theme, with an option to run with original colorscheme (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * using external [reSIDfp](https://github.com/libsidplayfp/libresidfp), reSID dropped
