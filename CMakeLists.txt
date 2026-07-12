@@ -43,7 +43,6 @@ set(LOADTRK_SOURCES
     src/asm/parse.c
     src/asm/pc.c
     src/asm/vec.c
-    src/bme/bme_gfx.cpp
     src/bme/bme_snd.cpp
     src/bme/bme_win.cpp
     src/bme/bme_io.cpp
