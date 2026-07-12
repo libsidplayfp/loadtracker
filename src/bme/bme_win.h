@@ -16,6 +16,7 @@ void win_savepos();
 int win_getspeed(int framerate);
 
 bool gfx_init(unsigned xsize, unsigned ysize);
+void gfx_uninit();
 bool gfx_lock();
 void gfx_unlock();
 void gfx_flip();

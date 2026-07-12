@@ -208,6 +208,7 @@ void closescreen()
 
   gfx_freecursor();
 
+  gfx_uninit();
   gfxinitted = false;
   win_closewindow();
 }
