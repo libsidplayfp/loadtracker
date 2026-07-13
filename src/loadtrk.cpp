@@ -558,10 +558,10 @@ void mousecommands()
       }
     }
     // Scroll tables
-    if ((mousey >= dpos.instrumentsY+7) &&
+    if ((mousey >= dpos.instrumentsY+8) &&
         (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS) &&
         (mousex >= dpos.instrumentsX) &&
-        (mousex <= dpos.instrumentsX+7+(maxChns-1)*10))
+        (mousex <= dpos.instrumentsX+7+(MAX_TABLES-1)*12))
     {
         if (win_mouseywheel > 0.f)
           tableup();
@@ -724,12 +724,12 @@ void mousecommands()
   // Table editpos
   for (int c = 0; c < MAX_TABLES; c++)
   {
-    if ((mousey >= dpos.instrumentsY+7) &&
+    if ((mousey >= dpos.instrumentsY+8) &&
             (mousey <= dpos.instrumentsY+8+VISIBLETABLEROWS) &&
-            (mousex >= dpos.instrumentsX+3+c*10) &&
-            (mousex <= dpos.instrumentsX+7+c*10))
+            (mousex >= dpos.instrumentsX+3+c*12) &&
+            (mousex <= dpos.instrumentsX+7+c*12))
     {
-      int newpos = mousey-(dpos.instrumentsY+7)+etview[etnum];
+      int newpos = mousey-(dpos.instrumentsY+8)+etview[etnum];
       if (newpos < 0) newpos = 0;
       if (newpos >= MAX_TABLELEN) newpos = MAX_TABLELEN-1;
 
@@ -747,7 +747,7 @@ void mousecommands()
       {
         etnum = c;
         etpos = mousey-(dpos.instrumentsY+8)+etview[etnum];
-        etcolumn = mousex-(dpos.instrumentsX+3)-c*10;
+        etcolumn = mousex-(dpos.instrumentsX+3+c*12);
       }
       if (etcolumn >= 2) etcolumn--;
       if (etpos < 0) etpos = 0;

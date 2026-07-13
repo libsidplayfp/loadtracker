@@ -493,7 +493,7 @@ void printstatus()
   }
 
   // Tables view
-  std::sprintf(textbuffer, "WAVE TBL  PULSETBL  FILT.TBL  SPEEDTBL");
+  std::sprintf(textbuffer, "WAVE TBL    PULSE TBL   FILTER TBL  SPEED TBL ");
   printtext(dpos.instrumentsX, dpos.instrumentsY+7, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < MAX_TABLES; c++)
@@ -527,30 +527,30 @@ void printstatus()
           std::memset(&textbuffer[6], '.', 2);
         }
       }
-      printtext(dpos.instrumentsX+10*c, dpos.instrumentsY+8+d, color, textbuffer);
+      printtext(dpos.instrumentsX+12*c, dpos.instrumentsY+8+d, color, textbuffer);
 
       if (etmarknum == c)
       {
         if (etmarkstart <= etmarkend)
         {
           if ((p >= etmarkstart) && (p <= etmarkend))
-            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
+            printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
         else
         {
           if ((p <= etmarkstart) && (p >= etmarkend))
-            printbg(dpos.instrumentsX+10*c+3, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
+            printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
       }
     }
   }
 
-  // Info view
   if (editmode == EDIT_TABLES)
   {
-    if (!eamode) printbg(dpos.instrumentsX+3+etnum*10+(etcolumn & 1)+(etcolumn/2)*3, dpos.instrumentsY+8+etpos-etview[etnum], cc, 1);
+    if (!eamode) printbg(dpos.instrumentsX+3+etnum*12+(etcolumn & 1)+(etcolumn/2)*3, dpos.instrumentsY+8+etpos-etview[etnum], cc, 1);
   }
 
+  // Info view
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CTITLE, "NAME     ");
   std::sprintf(textbuffer, "%-32s", songname);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CEDIT, textbuffer);
