@@ -151,8 +151,8 @@ void instrumentcommands()
     case KEY_U:
     if (shiftpressed)
     {
-      etlock ^= 1;
-      validatetableview();
+      tables.fliplock();
+      tables.validatetableview();
     }
     break;
 
@@ -279,12 +279,12 @@ void previnstr()
 
 void showinstrtable()
 {
-  if (!etlock)
+  if (!tables.islocked())
   {
     for (int c = MAX_TABLES-1; c >= 0; c--)
     {
       if (instr[einum].ptr[c])
-        settableviewfirst(c, instr[einum].ptr[c] - 1);
+        tables.settableviewfirst(c, instr[einum].ptr[c] - 1);
     }
   }
 }

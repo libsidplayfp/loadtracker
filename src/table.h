@@ -30,17 +30,6 @@ enum
   MST_RAW           = 4
 };
 
-#ifndef TABLE_C
-extern int etview[MAX_TABLES];
-extern int etnum;
-extern int etpos;
-extern int etcolumn;
-extern int etlock;
-extern int etmarknum;
-extern int etmarkstart;
-extern int etmarkend;
-#endif
-
 void tablecommands();
 int makespeedtable(unsigned data, int mode, bool makenew);
 void optimizetable(int num);
@@ -48,12 +37,47 @@ void deleteinstrtable(int i);
 int gettablelen(int num);
 int gettablepartlen(int num, int pos);
 void gototable(int num, int pos);
-void tableup();
-void tabledown();
-void settableview(int num, int pos);
-void settableviewfirst(int num, int pos);
-void validatetableview();
 void exectable(int num, int ptr);
 int findfreespeedtable();
+
+class Tables
+{
+public:
+    int m_view[MAX_TABLES];
+    int m_num;
+    int m_pos;
+    int m_column;
+    int m_marknum = -1;
+    int m_markstart;
+    int m_markend;
+    bool m_lock = true;
+
+public:
+    inline int view(int num) const { return m_view[num]; }
+    inline int curview() const { return m_view[m_num]; }
+    inline int num() const { return m_num; }
+    inline int pos() const { return m_pos; }
+    inline int column() const { return (m_column & 1)+(m_column/2)*3; }
+    inline int marknum() const { return m_marknum; }
+    inline int markstart() const { return m_markstart; }
+    inline int markend() const { return m_markend; }
+    inline bool islocked() const { return m_lock; }
+    void setnum(int num);
+    void setpos(int pos);
+    void setcolumn(int column);
+    void setmarknum(int marknum);
+    void setmarkstart(int markstart);
+    void setmarkend(int markend);
+    void fliplock();
+    void clear();
+
+    void validatetableview();
+    void tableup(bool shiftpressed);
+    void tabledown(bool shiftpressed);
+    void settableview(int num, int pos);
+    void settableviewfirst(int num, int pos);
+};
+
+extern Tables tables;
 
 #endif

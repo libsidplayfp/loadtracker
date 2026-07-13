@@ -41,14 +41,7 @@ unsigned char ltablecopybuffer[MAX_TABLELEN];
 unsigned char rtablecopybuffer[MAX_TABLELEN];
 int tablecopyrows = 0;
 
-int etview[MAX_TABLES];
-int etnum;
-int etpos;
-int etcolumn;
-int etlock = 1;
-int etmarknum = -1;
-int etmarkstart;
-int etmarkend;
+Tables tables;
 
 void inserttable(int num, int pos, int mode);
 void deletetable(int num, int pos);
@@ -58,66 +51,66 @@ void tablecommands()
   switch(rawkey)
   {
     case KEY_Q:
-    if ((shiftpressed) && (etnum == STBL))
+    if ((shiftpressed) && (tables.m_num == STBL))
     {
-      int speed = (ltable[etnum][etpos] << 8) | rtable[etnum][etpos];
+      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
       speed *= 34716;
       speed /= 32768;
       if (speed > 65535) speed = 65535;
 
-      ltable[etnum][etpos] = speed >> 8;
-      rtable[etnum][etpos] = speed & 0xff;
+      ltable[tables.m_num][tables.m_pos] = speed >> 8;
+      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
     }
     break;
 
     case KEY_A:
-    if ((shiftpressed) && (etnum == STBL))
+    if ((shiftpressed) && (tables.m_num == STBL))
     {
-      int speed = (ltable[etnum][etpos] << 8) | rtable[etnum][etpos];
+      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
       speed *= 30929;
       speed /= 32768;
 
-      ltable[etnum][etpos] = speed >> 8;
-      rtable[etnum][etpos] = speed & 0xff;
+      ltable[tables.m_num][tables.m_pos] = speed >> 8;
+      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
     }
     break;
 
     case KEY_W:
-    if ((shiftpressed) && (etnum == STBL))
+    if ((shiftpressed) && (tables.m_num == STBL))
     {
-      int speed = (ltable[etnum][etpos] << 8) | rtable[etnum][etpos];
+      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
       speed *= 2;
       if (speed > 65535) speed = 65535;
 
-      ltable[etnum][etpos] = speed >> 8;
-      rtable[etnum][etpos] = speed & 0xff;
+      ltable[tables.m_num][tables.m_pos] = speed >> 8;
+      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
     }
-    if ((shiftpressed) && ((etnum == PTBL) || (etnum == FTBL)) && (ltable[etnum][etpos] < 0x80))
+    if ((shiftpressed) && ((tables.m_num == PTBL) || (tables.m_num == FTBL)) && (ltable[tables.m_num][tables.m_pos] < 0x80))
     {
-      int speed = (signed char)(rtable[etnum][etpos]);
+      int speed = (signed char)(rtable[tables.m_num][tables.m_pos]);
       speed *= 2;
 
       if (speed > 127) speed = 127;
       if (speed < -128) speed = -128;
-      rtable[etnum][etpos] = speed;
+      rtable[tables.m_num][tables.m_pos] = speed;
     }
     break;
 
     case KEY_S:
-    if ((shiftpressed) && (etnum == STBL))
+    if ((shiftpressed) && (tables.m_num == STBL))
     {
-      int speed = (ltable[etnum][etpos] << 8) | rtable[etnum][etpos];
+      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
       speed /= 2;
 
-      ltable[etnum][etpos] = speed >> 8;
-      rtable[etnum][etpos] = speed & 0xff;
+      ltable[tables.m_num][tables.m_pos] = speed >> 8;
+      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
     }
-    if ((shiftpressed) && ((etnum == PTBL) || (etnum == FTBL)) && (ltable[etnum][etpos] < 0x80))
+    if ((shiftpressed) && ((tables.m_num == PTBL) || (tables.m_num == FTBL)) && (ltable[tables.m_num][tables.m_pos] < 0x80))
     {
-      int speed = (signed char)(rtable[etnum][etpos]);
+      int speed = (signed char)(rtable[tables.m_num][tables.m_pos]);
       speed /= 2;
 
-      rtable[etnum][etpos] = speed;
+      rtable[tables.m_num][tables.m_pos] = speed;
     }
     break;
 
@@ -129,93 +122,93 @@ void tablecommands()
     break;
 
     case KEY_RIGHT:
-    etcolumn++;
-    if (etcolumn > 3)
+    tables.m_column++;
+    if (tables.m_column > 3)
     {
-      etpos -= etview[etnum];
-      etcolumn = 0;
-      etnum++;
-      if (etnum >= MAX_TABLES) etnum = 0;
-      etpos += etview[etnum];
+      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_column = 0;
+      tables.m_num++;
+      if (tables.m_num >= MAX_TABLES) tables.m_num = 0;
+      tables.m_pos += tables.m_view[tables.m_num];
     }
-    if (shiftpressed) etmarknum = -1;
+    if (shiftpressed) tables.m_marknum = -1;
     break;
 
     case KEY_LEFT:
-    etcolumn--;
-    if (etcolumn < 0)
+    tables.m_column--;
+    if (tables.m_column < 0)
     {
-      etpos -= etview[etnum];
-      etcolumn = 3;
-      etnum--;
-      if (etnum < 0) etnum = MAX_TABLES - 1;
-      etpos += etview[etnum];
+      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_column = 3;
+      tables.m_num--;
+      if (tables.m_num < 0) tables.m_num = MAX_TABLES - 1;
+      tables.m_pos += tables.m_view[tables.m_num];
     }
-    if (shiftpressed) etmarknum = -1;
+    if (shiftpressed) tables.m_marknum = -1;
     break;
 
     case KEY_HOME:
-    while (etpos != 0) tableup();
+    while (tables.m_pos != 0) tables.tableup(shiftpressed);
     break;
 
     case KEY_END:
-    while (etpos != MAX_TABLELEN-1) tabledown();
+    while (tables.m_pos != MAX_TABLELEN-1) tables.tabledown(shiftpressed);
     break;
 
     case KEY_PGUP:
-    for (int c = 0; c < PGUPDNREPEAT; c++) tableup();
+    for (int c = 0; c < PGUPDNREPEAT; c++) tables.tableup(shiftpressed);
     break;
 
     case KEY_PGDN:
-    for (int c = 0; c < PGUPDNREPEAT; c++) tabledown();
+    for (int c = 0; c < PGUPDNREPEAT; c++) tables.tabledown(shiftpressed);
     break;
 
     case KEY_UP:
-    tableup();
+    tables.tableup(shiftpressed);
     break;
 
     case KEY_DOWN:
-    tabledown();
+    tables.tabledown(shiftpressed);
     break;
 
     case KEY_X:
     case KEY_C:
     if (shiftpressed)
     {
-      if (etmarknum != -1)
+      if (tables.m_marknum != -1)
       {
         int d = 0;
-        if (etmarkstart <= etmarkend)
+        if (tables.m_markstart <= tables.m_markend)
         {
-          for (int c = etmarkstart; c <= etmarkend; c++)
+          for (int c = tables.m_markstart; c <= tables.m_markend; c++)
           {
-            ltablecopybuffer[d] = ltable[etmarknum][c];
-            rtablecopybuffer[d] = rtable[etmarknum][c];
+            ltablecopybuffer[d] = ltable[tables.m_marknum][c];
+            rtablecopybuffer[d] = rtable[tables.m_marknum][c];
             if (rawkey == KEY_X)
             {
-              ltable[etmarknum][c] = 0;
-              rtable[etmarknum][c] = 0;
+              ltable[tables.m_marknum][c] = 0;
+              rtable[tables.m_marknum][c] = 0;
             }
             d++;
           }
         }
         else
         {
-          for (int c = etmarkend; c <= etmarkstart; c++)
+          for (int c = tables.m_markend; c <= tables.m_markstart; c++)
           {
-            ltablecopybuffer[d] = ltable[etmarknum][c];
-            rtablecopybuffer[d] = rtable[etmarknum][c];
+            ltablecopybuffer[d] = ltable[tables.m_marknum][c];
+            rtablecopybuffer[d] = rtable[tables.m_marknum][c];
             if (rawkey == KEY_X)
             {
-              ltable[etmarknum][c] = 0;
-              rtable[etmarknum][c] = 0;
+              ltable[tables.m_marknum][c] = 0;
+              rtable[tables.m_marknum][c] = 0;
             }
             d++;
           }
         }
         tablecopyrows = d;
       }
-      etmarknum = -1;
+      tables.m_marknum = -1;
     }
     break;
 
@@ -226,35 +219,35 @@ void tablecommands()
       {
         for (int c = 0; c < tablecopyrows; c++)
         {
-          ltable[etnum][etpos] = ltablecopybuffer[c];
-          rtable[etnum][etpos] = rtablecopybuffer[c];
-          etpos++;
-          if (etpos >= MAX_TABLELEN) etpos = MAX_TABLELEN-1;
+          ltable[tables.m_num][tables.m_pos] = ltablecopybuffer[c];
+          rtable[tables.m_num][tables.m_pos] = rtablecopybuffer[c];
+          tables.m_pos++;
+          if (tables.m_pos >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
         }
       }
     }
     break;
 
     case KEY_O:
-    if (shiftpressed) optimizetable(etnum);
+    if (shiftpressed) optimizetable(tables.m_num);
     break;
 
     case KEY_U:
     if (shiftpressed)
     {
-      etlock ^= 1;
-      validatetableview();
+      tables.fliplock();
+      tables.validatetableview();
     }
     break;
 
     case KEY_R:
-    if (etnum == WTBL)
+    if (tables.m_num == WTBL)
     {
-      if (ltable[etnum][etpos] != 0xff)
+      if (ltable[tables.m_num][tables.m_pos] != 0xff)
       {
         // Convert absolute pitch to relative pitch or vice versa
         int basenote = epoctave * 12;
-        int note = rtable[etnum][etpos];
+        int note = rtable[tables.m_num][tables.m_pos];
 
         if (note >= 0x80)
         {
@@ -267,16 +260,16 @@ void tablecommands()
           note |= 0x80;
         }
 
-        rtable[etnum][etpos] = note;
+        rtable[tables.m_num][tables.m_pos] = note;
       }
     }
     /* fall through */
     case KEY_L:
-    if (etnum == PTBL)
+    if (tables.m_num == PTBL)
     {
       int currentpulse = -1;
-      int targetpulse = ltable[etnum][etpos] << 4;
-      int speed = rtable[etnum][etpos];
+      int targetpulse = ltable[tables.m_num][tables.m_pos] << 4;
+      int speed = rtable[tables.m_num][tables.m_pos];
       int time;
       int steps;
 
@@ -284,12 +277,12 @@ void tablecommands()
 
       int c;
       // Follow the chain of pulse commands backwards to the nearest set command so we know what current pulse is
-      for (c = etpos-1; c >= 0; c--)
+      for (c = tables.m_pos-1; c >= 0; c--)
       {
-        if (ltable[etnum][c] == 0xff) break;
-        if (ltable[etnum][c] >= 0x80)
+        if (ltable[tables.m_num][c] == 0xff) break;
+        if (ltable[tables.m_num][c] >= 0x80)
         {
-          currentpulse = (ltable[etnum][c] << 8) | rtable[etnum][c];
+          currentpulse = (ltable[tables.m_num][c] << 8) | rtable[tables.m_num][c];
           currentpulse &= 0xfff;
           break;
         }
@@ -297,12 +290,12 @@ void tablecommands()
       if (currentpulse == -1) break;
 
       // Then follow the chain of modulation steps
-      for (; c < etpos; c++)
+      for (; c < tables.m_pos; c++)
       {
-        if (ltable[etnum][c] < 0x80)
+        if (ltable[tables.m_num][c] < 0x80)
         {
-          currentpulse += ltable[etnum][c] * (rtable[etnum][c] & 0xff);
-          if (rtable[etnum][c] >= 0x80) currentpulse -= 256 * ltable[etnum][c];
+          currentpulse += ltable[tables.m_num][c] * (rtable[tables.m_num][c] & 0xff);
+          if (rtable[tables.m_num][c] >= 0x80) currentpulse -= 256 * ltable[tables.m_num][c];
           currentpulse &= 0xfff;
         }
       }
@@ -314,37 +307,37 @@ void tablecommands()
         steps = time;
 
       if (!steps) break;
-      if (etpos + steps > MAX_TABLELEN) break;
+      if (tables.m_pos + steps > MAX_TABLELEN) break;
       if (targetpulse < currentpulse) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) inserttable(etnum, etpos, 1);
+      for (c = steps; c > 1; c--) inserttable(tables.m_num, tables.m_pos, 1);
 
       while (time)
       {
         if (std::abs(speed) < 128)
         {
-          if (time < 127) ltable[etnum][etpos] = time;
-            else ltable[etnum][etpos] = 127;
-          rtable[etnum][etpos] = speed;
-          time -= ltable[etnum][etpos];
-          etpos++;
+          if (time < 127) ltable[tables.m_num][tables.m_pos] = time;
+            else ltable[tables.m_num][tables.m_pos] = 127;
+          rtable[tables.m_num][tables.m_pos] = speed;
+          time -= ltable[tables.m_num][tables.m_pos];
+          tables.m_pos++;
         }
         else
         {
           currentpulse += speed;
-          ltable[etnum][etpos] = 0x80 | ((currentpulse >> 8) & 0xf);
-          rtable[etnum][etpos] = currentpulse & 0xff;
+          ltable[tables.m_num][tables.m_pos] = 0x80 | ((currentpulse >> 8) & 0xf);
+          rtable[tables.m_num][tables.m_pos] = currentpulse & 0xff;
           time--;
-          etpos++;
+          tables.m_pos++;
         }
       }
     }
-    if (etnum == FTBL)
+    if (tables.m_num == FTBL)
     {
       int currentfilter = -1;
-      int targetfilter = ltable[etnum][etpos];
-      int speed = rtable[etnum][etpos] & 0x7f;
+      int targetfilter = ltable[tables.m_num][tables.m_pos];
+      int speed = rtable[tables.m_num][tables.m_pos] & 0x7f;
       int time;
       int steps;
 
@@ -352,23 +345,23 @@ void tablecommands()
 
       int c;
       // Follow the chain of filter commands backwards to the nearest set command so we know what current pulse is
-      for (c = etpos-1; c >= 0; c--)
+      for (c = tables.m_pos-1; c >= 0; c--)
       {
-        if (ltable[etnum][c] == 0xff) break;
-        if (ltable[etnum][c] == 0x00)
+        if (ltable[tables.m_num][c] == 0xff) break;
+        if (ltable[tables.m_num][c] == 0x00)
         {
-          currentfilter = rtable[etnum][c];
+          currentfilter = rtable[tables.m_num][c];
           break;
         }
       }
       if (currentfilter == -1) break;
 
       // Then follow the chain of modulation steps
-      for (; c < etpos; c++)
+      for (; c < tables.m_pos; c++)
       {
-        if (ltable[etnum][c] < 0x80)
+        if (ltable[tables.m_num][c] < 0x80)
         {
-          currentfilter += ltable[etnum][c] * rtable[etnum][c];
+          currentfilter += ltable[tables.m_num][c] * rtable[tables.m_num][c];
           currentfilter &= 0xff;
         }
       }
@@ -376,19 +369,19 @@ void tablecommands()
       time = std::abs(targetfilter - currentfilter) / speed;
       steps = (time + 126) / 127;
       if (!steps) break;
-      if (etpos + steps > MAX_TABLELEN) break;
+      if (tables.m_pos + steps > MAX_TABLELEN) break;
       if (targetfilter < currentfilter) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) inserttable(etnum, etpos, 1);
+      for (c = steps; c > 1; c--) inserttable(tables.m_num, tables.m_pos, 1);
 
       while (time)
       {
-        if (time < 127) ltable[etnum][etpos] = time;
-          else ltable[etnum][etpos] = 127;
-        rtable[etnum][etpos] = speed;
-        time -= ltable[etnum][etpos];
-        etpos++;
+        if (time < 127) ltable[tables.m_num][tables.m_pos] = time;
+          else ltable[tables.m_num][tables.m_pos] = 127;
+        rtable[tables.m_num][tables.m_pos] = speed;
+        time -= ltable[tables.m_num][tables.m_pos];
+        tables.m_pos++;
       }
     }
     break;
@@ -396,41 +389,41 @@ void tablecommands()
     case KEY_N:
     if (shiftpressed)
     {
-      switch (etnum)
+      switch (tables.m_num)
       {
         // Negate pulse or filter speed
         case FTBL:
-        if (!ltable[etnum][etpos]) break;
+        if (!ltable[tables.m_num][tables.m_pos]) break;
         /* fall through */
         case PTBL:
-        if (ltable[etnum][etpos] < 0x80)
-          rtable[etnum][etpos] = (rtable[etnum][etpos] ^ 0xff) + 1;
+        if (ltable[tables.m_num][tables.m_pos] < 0x80)
+          rtable[tables.m_num][tables.m_pos] = (rtable[tables.m_num][tables.m_pos] ^ 0xff) + 1;
         break;
 
         // Negate relative note
         case WTBL:
-        if ((ltable[etnum][etpos] != 0xff) && (rtable[etnum][etpos] < 0x80))
-          rtable[etnum][etpos] = (0x80 - rtable[etnum][etpos]) & 0x7f;
+        if ((ltable[tables.m_num][tables.m_pos] != 0xff) && (rtable[tables.m_num][tables.m_pos] < 0x80))
+          rtable[tables.m_num][tables.m_pos] = (0x80 - rtable[tables.m_num][tables.m_pos]) & 0x7f;
         break;
       }
     }
     break;
 
     case KEY_DEL:
-    deletetable(etnum, etpos);
+    deletetable(tables.m_num, tables.m_pos);
     break;
 
     case KEY_INS:
-    inserttable(etnum, etpos, shiftpressed);
+    inserttable(tables.m_num, tables.m_pos, shiftpressed);
     break;
 
     case KEY_ENTER:
-    if (etnum == WTBL)
+    if (tables.m_num == WTBL)
     {
       int table = -1;
       int mstmode = MST_PORTAMENTO;
 
-      switch (ltable[etnum][etpos])
+      switch (ltable[tables.m_num][tables.m_pos])
       {
         case WAVECMD + CMD_PORTAUP:
         case WAVECMD + CMD_PORTADOWN:
@@ -460,26 +453,26 @@ void tablecommands()
       {
         default:
         editmode = EDIT_INSTRUMENT;
-        eipos = etnum + 2;
+        eipos = tables.m_num + 2;
         return;
 
         case STBL:
-        if (rtable[etnum][etpos])
+        if (rtable[tables.m_num][tables.m_pos])
         {
           if (!shiftpressed)
           {
-            gototable(STBL, rtable[etnum][etpos] - 1);
+            gototable(STBL, rtable[tables.m_num][tables.m_pos] - 1);
             return;
           }
           else
           {
-            int oldeditpos = etpos;
-            int oldeditcolumn = etcolumn;
-            int pos = makespeedtable(rtable[etnum][etpos], mstmode, true);
+            int oldeditpos = tables.m_pos;
+            int oldeditcolumn = tables.m_column;
+            int pos = makespeedtable(rtable[tables.m_num][tables.m_pos], mstmode, true);
             gototable(WTBL, oldeditpos);
-            etcolumn = oldeditcolumn;
+            tables.m_column = oldeditcolumn;
 
-            rtable[etnum][etpos] = pos + 1;
+            rtable[tables.m_num][tables.m_pos] = pos + 1;
             return;
           }
         }
@@ -488,7 +481,7 @@ void tablecommands()
           int pos = findfreespeedtable();
           if (pos >= 0)
           {
-            rtable[etnum][etpos] = pos + 1;
+            rtable[tables.m_num][tables.m_pos] = pos + 1;
             gototable(STBL, pos);
             return;
           }
@@ -497,9 +490,9 @@ void tablecommands()
 
         case PTBL:
         case FTBL:
-        if (rtable[etnum][etpos])
+        if (rtable[tables.m_num][tables.m_pos])
         {
-          gototable(table, rtable[etnum][etpos] - 1);
+          gototable(table, rtable[tables.m_num][tables.m_pos] - 1);
           return;
         }
         else
@@ -508,7 +501,7 @@ void tablecommands()
           {
             int pos = gettablelen(table);
             if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-            rtable[etnum][etpos] = pos + 1;
+            rtable[tables.m_num][tables.m_pos] = pos + 1;
             gototable(table, pos);
             return;
           }
@@ -518,7 +511,7 @@ void tablecommands()
     else
     {
       editmode = EDIT_INSTRUMENT;
-      eipos = etnum + 2;
+      eipos = tables.m_num + 2;
       return;
     }
     break;
@@ -526,51 +519,51 @@ void tablecommands()
     case KEY_APOST2:
     if (shiftpressed)
     {
-      etpos -= etview[etnum];
-      etnum--;
-      if (etnum < 0) etnum = MAX_TABLES-1;
-      etpos += etview[etnum];
+      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_num--;
+      if (tables.m_num < 0) tables.m_num = MAX_TABLES-1;
+      tables.m_pos += tables.m_view[tables.m_num];
     }
     else
     {
-      etpos -= etview[etnum];
-      etnum++;
-      if (etnum >= MAX_TABLES) etnum = 0;
-      etpos += etview[etnum];
+      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_num++;
+      if (tables.m_num >= MAX_TABLES) tables.m_num = 0;
+      tables.m_pos += tables.m_view[tables.m_num];
     }
   }
 
   if (hexnybble >= 0)
   {
-    switch(etcolumn)
+    switch(tables.m_column)
     {
       case 0:
-      ltable[etnum][etpos] &= 0x0f;
-      ltable[etnum][etpos] |= hexnybble << 4;
+      ltable[tables.m_num][tables.m_pos] &= 0x0f;
+      ltable[tables.m_num][tables.m_pos] |= hexnybble << 4;
       break;
       case 1:
-      ltable[etnum][etpos] &= 0xf0;
-      ltable[etnum][etpos] |= hexnybble;
+      ltable[tables.m_num][tables.m_pos] &= 0xf0;
+      ltable[tables.m_num][tables.m_pos] |= hexnybble;
       break;
       case 2:
-      rtable[etnum][etpos] &= 0x0f;
-      rtable[etnum][etpos] |= hexnybble << 4;
+      rtable[tables.m_num][tables.m_pos] &= 0x0f;
+      rtable[tables.m_num][tables.m_pos] |= hexnybble << 4;
       break;
       case 3:
-      rtable[etnum][etpos] &= 0xf0;
-      rtable[etnum][etpos] |= hexnybble;
+      rtable[tables.m_num][tables.m_pos] &= 0xf0;
+      rtable[tables.m_num][tables.m_pos] |= hexnybble;
       break;
     }
-    etcolumn++;
-    if (etcolumn > 3)
+    tables.m_column++;
+    if (tables.m_column > 3)
     {
-      etcolumn = 0;
-      etpos++;
-      if (etpos >= MAX_TABLELEN) etpos = MAX_TABLELEN-1;
+      tables.m_column = 0;
+      tables.m_pos++;
+      if (tables.m_pos >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
     }
   }
 
-  validatetableview();
+  tables.validatetableview();
 }
 
 void deletetable(int num, int pos)
@@ -930,7 +923,7 @@ int makespeedtable(unsigned data, int mode, bool makenew)
       ltable[STBL][c] = l;
       rtable[STBL][c] = r;
 
-      settableview(STBL, c);
+      tables.settableview(STBL, c);
       return c;
     }
   }
@@ -961,75 +954,6 @@ void deleteinstrtable(int i)
         while (len--) deletetable(c, pos);
     }
   }
-}
-
-void gototable(int num, int pos)
-{
-  editmode = EDIT_TABLES;
-  settableview(num, pos);
-}
-
-void settableview(int num, int pos)
-{
-  etnum = num;
-  etcolumn = 0;
-  etpos = pos;
-
-  validatetableview();
-}
-
-void settableviewfirst(int num, int pos)
-{
-  etview[num] = pos;
-  settableview(num, pos);
-}
-
-void validatetableview(void)
-{
-  if (etpos - etview[etnum] < 0)
-    etview[etnum] = etpos;
-  if (etpos - etview[etnum] >= VISIBLETABLEROWS)
-    etview[etnum] = etpos - VISIBLETABLEROWS + 1;
-
-  // Table view lock?
-  if (etlock)
-  {
-    for (int c = 0; c < MAX_TABLES; c++) etview[c] = etview[etnum];
-  }
-}
-
-void tableup()
-{
-  if (shiftpressed)
-  {
-    if ((etmarknum != etnum) || (etpos != etmarkend))
-    {
-      etmarknum = etnum;
-      etmarkstart = etmarkend = etpos;
-    }
-  }
-  etpos--;
-  if (etpos < 0) etpos = 0;
-  if (shiftpressed) etmarkend = etpos;
-
-  validatetableview();
-}
-
-void tabledown()
-{
-  if (shiftpressed)
-  {
-    if ((etmarknum != etnum) || (etpos != etmarkend))
-    {
-      etmarknum = etnum;
-      etmarkstart = etmarkend = etpos;
-    }
-  }
-  etpos++;
-  if (etpos >= MAX_TABLELEN) etpos = MAX_TABLELEN-1;
-  if (shiftpressed) etmarkend = etpos;
-
-  validatetableview();
 }
 
 void exectable(int num, int ptr)
@@ -1083,3 +1007,116 @@ int findfreespeedtable()
   return -1;
 }
 
+void gototable(int num, int pos)
+{
+  editmode = EDIT_TABLES;
+  tables.settableview(num, pos);
+}
+
+void Tables::settableview(int num, int pos)
+{
+  m_num = num;
+  m_column = 0;
+  m_pos = pos;
+
+  validatetableview();
+}
+
+void Tables::settableviewfirst(int num, int pos)
+{
+  m_view[num] = pos;
+  settableview(num, pos);
+}
+
+void Tables::validatetableview()
+{
+  if (m_pos - m_view[m_num] < 0)
+    m_view[m_num] = m_pos;
+  if (m_pos - m_view[m_num] >= VISIBLETABLEROWS)
+    m_view[m_num] = m_pos - VISIBLETABLEROWS + 1;
+
+  // Table view lock?
+  if (m_lock)
+  {
+    for (int c = 0; c < MAX_TABLES; c++) m_view[c] = m_view[m_num];
+  }
+}
+
+void Tables::tableup(bool shiftpressed)
+{
+  if (shiftpressed)
+  {
+    if ((m_marknum != m_num) || (m_pos != m_markend))
+    {
+      m_marknum = m_num;
+      m_markstart = m_pos;
+      m_markend = m_pos;
+    }
+  }
+  m_pos--;
+  if (m_pos < 0) m_pos = 0;
+  if (shiftpressed) m_markend = m_pos;
+
+  validatetableview();
+}
+
+void Tables::tabledown(bool shiftpressed)
+{
+  if (shiftpressed)
+  {
+    if ((m_marknum != m_num) || (m_pos != m_markend))
+    {
+      m_marknum = m_num;
+      m_markstart = m_pos;
+      m_markend = m_pos;
+    }
+  }
+  m_pos++;
+  if (m_pos >= MAX_TABLELEN) m_pos = MAX_TABLELEN-1;
+  if (shiftpressed) m_markend = m_pos;
+
+  validatetableview();
+}
+
+void Tables::setnum(int num)
+{
+    m_num = num;
+}
+
+void Tables::setpos(int pos)
+{
+    m_pos = pos;
+    if (m_pos < 0) m_pos = 0;
+    if (m_pos > MAX_TABLELEN-1) m_pos = MAX_TABLELEN-1;
+}
+
+void Tables::setcolumn(int column)
+{
+    m_column = column;
+    if (m_column >= 2) m_column--;
+}
+
+void Tables::setmarknum(int marknum)
+{
+    m_marknum = marknum;
+}
+
+void Tables::setmarkstart(int markstart)
+{
+    m_markstart = markstart;
+}
+
+void Tables::setmarkend(int markend)
+{
+    m_markend = markend;
+}
+
+void Tables::fliplock()
+{
+    m_lock = !m_lock;
+}
+
+void Tables::clear()
+{
+  m_marknum = -1;
+}

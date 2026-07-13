@@ -564,9 +564,9 @@ void mousecommands()
         (mousex <= dpos.instrumentsX+7+(MAX_TABLES-1)*12))
     {
         if (win_mouseywheel > 0.f)
-          tableup();
+          tables.tableup(shiftpressed);
         else if (win_mouseywheel < 0.f)
-          tabledown();
+          tables.tabledown(shiftpressed);
     }
   }
 
@@ -729,7 +729,7 @@ void mousecommands()
             (mousex >= dpos.instrumentsX+3+c*12) &&
             (mousex <= dpos.instrumentsX+7+c*12))
     {
-      int newpos = mousey-(dpos.instrumentsY+8)+etview[etnum];
+      int newpos = mousey-(dpos.instrumentsY+8)+tables.curview();
       if (newpos < 0) newpos = 0;
       if (newpos >= MAX_TABLELEN) newpos = MAX_TABLELEN-1;
 
@@ -737,23 +737,21 @@ void mousecommands()
 
       if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb))
       {
-        if ((etmarknum != etnum) || (newpos != etmarkend))
+        if ((tables.marknum() != tables.num()) || (newpos != tables.markend()))
         {
-          etmarknum = c;
-          etmarkstart = etmarkend = newpos;
+          tables.setmarknum(c);
+          tables.setmarkstart(newpos);
+          tables.setmarkend(newpos);
         }
       }
       if (mouseb & MOUSEB_LEFT)
       {
-        etnum = c;
-        etpos = mousey-(dpos.instrumentsY+8)+etview[etnum];
-        etcolumn = mousex-(dpos.instrumentsX+3+c*12);
+        tables.setnum(c);
+        tables.setpos(mousey-(dpos.instrumentsY+8)+tables.curview());
+        tables.setcolumn(mousex-(dpos.instrumentsX+3+c*12));
       }
-      if (etcolumn >= 2) etcolumn--;
-      if (etpos < 0) etpos = 0;
-      if (etpos > MAX_TABLELEN-1) etpos = MAX_TABLELEN-1;
 
-      if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) etmarkend = newpos;
+      if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) tables.setmarkend(newpos);
     }
   }
 

@@ -840,7 +840,7 @@ void loadsong()
     std::strcpy(loadedsongfilename, songfilename);
 
     // Reset table views
-    for (int c = 0; c < MAX_TABLES; c++) settableview(c, 0);
+    for (int c = 0; c < MAX_TABLES; c++) tables.settableview(c, 0);
 
     // Convert pulsemodulation speed of < v2.4 songs
     if (ident[3] < '4')
@@ -1309,7 +1309,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 
   masterfader = 0x0f;
   epmarkchn = -1;
-  etmarknum = -1;
+  tables.clear();
   esmarkchn = -1;
   followplay = false;
 
@@ -1383,7 +1383,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
     {
       std::memset(ltable[c], 0, MAX_TABLELEN);
       std::memset(rtable[c], 0, MAX_TABLELEN);
-      settableview(c, 0);
+      tables.settableview(c, 0);
     }
   }
   countpatternlengths();
