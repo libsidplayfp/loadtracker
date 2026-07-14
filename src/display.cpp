@@ -168,15 +168,11 @@ void printstatus()
     if (optimizerealtime)
       printtext(dpos.statusTopFvX+6, dpos.statusTopY, colors.CHEADER, "RO");
 
-    if (ntsc)
-      printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, "NTSC");
-    else
-      printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, " PAL");
+    const char *clk = ntsc ? "NTSC" : "PAL";
+    printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, clk);
 
-    if (!sidmodel)
-      printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, "6581");
-    else
-      printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, "8580");
+    const char *model = sidmodel ? "8580" : "6581";
+    printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, model);
 
     std::sprintf(textbuffer, "HR:%04X", adparam);
     printtext(dpos.statusTopFvX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
@@ -250,7 +246,6 @@ void printstatus()
     {
       int p = epview+d;
       int color = colors.CNORMAL;
-      int color2;
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
@@ -298,18 +293,11 @@ void printstatus()
         }
       }
       textbuffer[3] = 0;
-      if (p%stepsize)
-      {
-        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CNORMAL, textbuffer);
-      }
-      else
-      {
-        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CCOMMAND, textbuffer);
-      }
-      if (color == colors.CNORMAL)
-        color2 = colors.CCOMMAND;
-      else
-        color2 = color;
+
+      int color2 = (p%stepsize) ? colors.CNORMAL : colors.CCOMMAND;
+      printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, color2, textbuffer);
+
+      color2 = (color == colors.CNORMAL) ? colors.CCOMMAND : color;
       printtext(dpos.patternsX+3+c*13, dpos.patternsY+1+d, color2, &textbuffer[4]);
       printtext(dpos.patternsX+7+c*13, dpos.patternsY+1+d, color, &textbuffer[8]);
       printtext(dpos.patternsX+9+c*13, dpos.patternsY+1+d, color2, &textbuffer[10]);
@@ -354,10 +342,8 @@ void printstatus()
   printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
   std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
-  if (numsids == 2)
-    std::sprintf(textbuffer, "            ");
-  else
-    std::sprintf(textbuffer, "                                      ");
+  const char *olhdr = (numsids == 1) ? "                                      " : "            ";
+  std::sprintf(textbuffer, olhdr);
   printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < maxChns; c++)
@@ -500,7 +486,7 @@ void printstatus()
   {
     for (int d = 0; d < VISIBLETABLEROWS; d++)
     {
-      int p = etview[c]+d;
+      int p = tables.view(c)+d;
 
       int color = colors.CNORMAL;
       switch (c)
@@ -517,7 +503,7 @@ void printstatus()
         if ((ltable[c][p] >= 0x80) || ((!ltable[c][p]) && (rtable[c][p]))) color = colors.CCOMMAND;
         break;
       }
-      if ((p == etpos) && (etnum == c)) color = colors.CEDIT;
+      if ((p == tables.pos()) && (tables.num() == c)) color = colors.CEDIT;
       std::sprintf(textbuffer, "%02X:%02X %02X", p+1, ltable[c][p], rtable[c][p]);
       if (patterndispmode & 2)
       {
@@ -529,16 +515,16 @@ void printstatus()
       }
       printtext(dpos.instrumentsX+12*c, dpos.instrumentsY+8+d, color, textbuffer);
 
-      if (etmarknum == c)
+      if (tables.marknum() == c)
       {
-        if (etmarkstart <= etmarkend)
+        if (tables.markstart() <= tables.markend())
         {
-          if ((p >= etmarkstart) && (p <= etmarkend))
+          if ((p >= tables.markstart()) && (p <= tables.markend()))
             printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
         else
         {
-          if ((p <= etmarkstart) && (p >= etmarkend))
+          if ((p <= tables.markstart()) && (p >= tables.markend()))
             printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
         }
       }
@@ -547,7 +533,7 @@ void printstatus()
 
   if (editmode == EDIT_TABLES)
   {
-    if (!eamode) printbg(dpos.instrumentsX+3+etnum*12+(etcolumn & 1)+(etcolumn/2)*3, dpos.instrumentsY+8+etpos-etview[etnum], cc, 1);
+    if (!eamode) printbg(dpos.instrumentsX+3+tables.num()*12+tables.column(), dpos.instrumentsY+8+tables.pos()-tables.curview(), cc, 1);
   }
 
   // Info view
@@ -599,46 +585,31 @@ void printstatus()
     break;
   }
 
-  if (recordmode) printtext(dpos.octaveX, dpos.octaveY+1, color, "EDITMODE");
-  else printtext(dpos.octaveX, dpos.octaveY+1, color, "JAM MODE");
+  const char *edtmode = recordmode ? "EDITMODE" : "JAM MODE";
+  printtext(dpos.octaveX, dpos.octaveY+1, color, edtmode);
 
-  if (isplaying()) printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, "PLAYING");
-  else printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, "STOPPED");
+  const char *playmode = isplaying() ? "PLAYING" : "STOPPED";
+  printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, playmode);
+  int idx;
   if (multiplier)
   {
-    if (!ntsc)
-      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(25*multiplier) & 1], timesec);
-    else
-      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[timeframe/(30*multiplier) & 1], timesec);
+    idx = (ntsc ? 30 : 25) * multiplier;
   }
   else
   {
-    if (!ntsc)
-      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/13) & 1], timesec);
-    else
-      std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/15) & 1], timesec);
+    idx = ntsc ? 15 : 13;
   }
+  std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/idx) & 1], timesec);
 
   printtext(dpos.octaveX+10, dpos.octaveY+1, colors.CEDIT, textbuffer);
 
-  if (numsids == 1)
-  {
-    printtext(
-        dpos.channelsX,
-        dpos.channelsY,
-        colors.CTITLE,
-        " CHN1   CHN2   CHN3 "
-    );
-  }
-  else if (numsids == 2)
-  {
-    printtext(
-        dpos.channelsX,
-        dpos.channelsY,
-        colors.CTITLE,
-        " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 "
-    );
-  }
+  const char *chnls = (numsids == 1) ? " CHN1   CHN2   CHN3 " : " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 ";
+  printtext(
+    dpos.channelsX,
+    dpos.channelsY,
+    colors.CTITLE,
+    chnls
+  );
   for (int c = 0; c < maxChns; c++)
   {
     int chnpos = chn[c].songptr;
@@ -648,13 +619,12 @@ void printstatus()
     if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
     if (chnrow >= 100) chnrow -= 100;
 
-    std::sprintf(textbuffer, "%03X/%02X",
-      chnpos,chnrow);
+    std::sprintf(textbuffer, "%03X/%02X", chnpos, chnrow);
     printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 
-  if (etlock) printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, " ");
-    else printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, "U");
+  const char *lock = tables.islocked() ? " " : "U";
+  printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, lock);
 }
 
 

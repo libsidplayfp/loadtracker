@@ -151,8 +151,8 @@ void instrumentcommands()
     case KEY_U:
     if (shiftpressed)
     {
-      etlock ^= 1;
-      validatetableview();
+      tables.fliplock();
+      tables.validatetableview();
     }
     break;
 
@@ -251,6 +251,17 @@ void clearinstr(int num)
   }
 }
 
+void clearinstr()
+{
+    for (int c = 0; c < MAX_INSTR; c++)
+      clearinstr(c);
+    std::memset(&instrcopybuffer, 0, sizeof(INSTR));
+    eipos = 0;
+    eicolumn = 0;
+    eirow = 1;
+    einum = 1;
+}
+
 void gotoinstr(int i)
 {
   if ((i < 0) || (i >= MAX_INSTR)) return;
@@ -279,12 +290,12 @@ void previnstr()
 
 void showinstrtable()
 {
-  if (!etlock)
+  if (!tables.islocked())
   {
     for (int c = MAX_TABLES-1; c >= 0; c--)
     {
       if (instr[einum].ptr[c])
-        settableviewfirst(c, instr[einum].ptr[c] - 1);
+        tables.settableviewfirst(c, instr[einum].ptr[c] - 1);
     }
   }
 }
