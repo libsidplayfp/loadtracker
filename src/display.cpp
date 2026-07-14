@@ -246,7 +246,6 @@ void printstatus()
     {
       int p = epview+d;
       int color = colors.CNORMAL;
-      int color2;
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
@@ -294,18 +293,11 @@ void printstatus()
         }
       }
       textbuffer[3] = 0;
-      if (p%stepsize)
-      {
-        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CNORMAL, textbuffer);
-      }
-      else
-      {
-        printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, colors.CCOMMAND, textbuffer);
-      }
-      if (color == colors.CNORMAL)
-        color2 = colors.CCOMMAND;
-      else
-        color2 = color;
+
+      int color2 = (p%stepsize) ? colors.CNORMAL : colors.CCOMMAND;
+      printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, color2, textbuffer);
+
+      color2 = (color == colors.CNORMAL) ? colors.CCOMMAND : color;
       printtext(dpos.patternsX+3+c*13, dpos.patternsY+1+d, color2, &textbuffer[4]);
       printtext(dpos.patternsX+7+c*13, dpos.patternsY+1+d, color, &textbuffer[8]);
       printtext(dpos.patternsX+9+c*13, dpos.patternsY+1+d, color2, &textbuffer[10]);
