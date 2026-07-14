@@ -22,6 +22,12 @@
 #define MAX_FILENAME 60
 #define MAX_PATHNAME 256
 
+#ifndef FILE_C
+extern char songpath[MAX_PATHNAME];
+extern char instrpath[MAX_PATHNAME];
+extern char packedpath[MAX_PATHNAME];
+#endif
+
 void initpaths();
 bool fileselector(char *name, char *path, char *filter, const char *title, int filemode);
 

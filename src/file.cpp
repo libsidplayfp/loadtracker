@@ -57,6 +57,10 @@ typedef struct
 
 DIRENTRY direntry[MAX_DIRFILES];
 
+char songpath[MAX_PATHNAME];
+char instrpath[MAX_PATHNAME];
+char packedpath[MAX_PATHNAME];
+
 int cmpname(char *string1, char *string2);
 
 void initpaths()
