@@ -581,7 +581,7 @@ void relocator()
   // Select playroutine options
   clearscreen();
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
-  if (!strlen(loadedsongfilename))
+  if (!std::strlen(loadedsongfilename))
     sprintf(textbuffer, "%s Packer/Relocator", programname);
   else
     sprintf(textbuffer, "%s Packer/Relocator - %s", programname, loadedsongfilename);
@@ -1498,7 +1498,7 @@ void relocator()
   // Print results
   clearscreen();
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
-  if (!strlen(loadedsongfilename))
+  if (!std::strlen(loadedsongfilename))
     sprintf(textbuffer, "%s Packer/Relocator", programname);
   else
     sprintf(textbuffer, "%s Packer/Relocator - %s", programname, loadedsongfilename);
