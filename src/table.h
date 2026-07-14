@@ -42,11 +42,13 @@ int findfreespeedtable();
 
 class Tables
 {
-public:
+private:
     int m_view[MAX_TABLES];
+public:
     int m_num;
     int m_pos;
     int m_column;
+private:
     int m_marknum = -1;
     int m_markstart;
     int m_markend;
@@ -65,8 +67,8 @@ public:
     void setnum(int num);
     void setpos(int pos);
     void setcolumn(int column);
-    void setmarknum(int marknum);
-    void setmarkstart(int markstart);
+    void resetmarknum();
+    void setmarkstart(int num, int markstart);
     void setmarkend(int markend);
     void fliplock();
     void clear();

@@ -627,8 +627,7 @@ void printstatus()
     if (chnrow > getPattlen(chn[c].pattnum)) chnrow = getPattlen(chn[c].pattnum);
     if (chnrow >= 100) chnrow -= 100;
 
-    std::sprintf(textbuffer, "%03X/%02X",
-      chnpos,chnrow);
+    std::sprintf(textbuffer, "%03X/%02X", chnpos, chnrow);
     printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 

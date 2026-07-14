@@ -51,66 +51,66 @@ void tablecommands()
   switch(rawkey)
   {
     case KEY_Q:
-    if ((shiftpressed) && (tables.m_num == STBL))
+    if ((shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
+      int speed = (ltable[tables.num()][tables.pos()] << 8) | rtable[tables.num()][tables.pos()];
       speed *= 34716;
       speed /= 32768;
       if (speed > 65535) speed = 65535;
 
-      ltable[tables.m_num][tables.m_pos] = speed >> 8;
-      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
+      ltable[tables.num()][tables.pos()] = speed >> 8;
+      rtable[tables.num()][tables.pos()] = speed & 0xff;
     }
     break;
 
     case KEY_A:
-    if ((shiftpressed) && (tables.m_num == STBL))
+    if ((shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
+      int speed = (ltable[tables.num()][tables.pos()] << 8) | rtable[tables.num()][tables.pos()];
       speed *= 30929;
       speed /= 32768;
 
-      ltable[tables.m_num][tables.m_pos] = speed >> 8;
-      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
+      ltable[tables.num()][tables.pos()] = speed >> 8;
+      rtable[tables.num()][tables.pos()] = speed & 0xff;
     }
     break;
 
     case KEY_W:
-    if ((shiftpressed) && (tables.m_num == STBL))
+    if ((shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
+      int speed = (ltable[tables.num()][tables.pos()] << 8) | rtable[tables.num()][tables.pos()];
       speed *= 2;
       if (speed > 65535) speed = 65535;
 
-      ltable[tables.m_num][tables.m_pos] = speed >> 8;
-      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
+      ltable[tables.num()][tables.pos()] = speed >> 8;
+      rtable[tables.num()][tables.pos()] = speed & 0xff;
     }
-    if ((shiftpressed) && ((tables.m_num == PTBL) || (tables.m_num == FTBL)) && (ltable[tables.m_num][tables.m_pos] < 0x80))
+    if ((shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (ltable[tables.num()][tables.pos()] < 0x80))
     {
-      int speed = (signed char)(rtable[tables.m_num][tables.m_pos]);
+      int speed = (signed char)(rtable[tables.num()][tables.pos()]);
       speed *= 2;
 
       if (speed > 127) speed = 127;
       if (speed < -128) speed = -128;
-      rtable[tables.m_num][tables.m_pos] = speed;
+      rtable[tables.num()][tables.pos()] = speed;
     }
     break;
 
     case KEY_S:
-    if ((shiftpressed) && (tables.m_num == STBL))
+    if ((shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (ltable[tables.m_num][tables.m_pos] << 8) | rtable[tables.m_num][tables.m_pos];
+      int speed = (ltable[tables.num()][tables.pos()] << 8) | rtable[tables.num()][tables.pos()];
       speed /= 2;
 
-      ltable[tables.m_num][tables.m_pos] = speed >> 8;
-      rtable[tables.m_num][tables.m_pos] = speed & 0xff;
+      ltable[tables.num()][tables.pos()] = speed >> 8;
+      rtable[tables.num()][tables.pos()] = speed & 0xff;
     }
-    if ((shiftpressed) && ((tables.m_num == PTBL) || (tables.m_num == FTBL)) && (ltable[tables.m_num][tables.m_pos] < 0x80))
+    if ((shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (ltable[tables.num()][tables.pos()] < 0x80))
     {
-      int speed = (signed char)(rtable[tables.m_num][tables.m_pos]);
+      int speed = (signed char)(rtable[tables.num()][tables.pos()]);
       speed /= 2;
 
-      rtable[tables.m_num][tables.m_pos] = speed;
+      rtable[tables.num()][tables.pos()] = speed;
     }
     break;
 
@@ -125,34 +125,34 @@ void tablecommands()
     tables.m_column++;
     if (tables.m_column > 3)
     {
-      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_pos -= tables.curview();
       tables.m_column = 0;
       tables.m_num++;
-      if (tables.m_num >= MAX_TABLES) tables.m_num = 0;
-      tables.m_pos += tables.m_view[tables.m_num];
+      if (tables.num() >= MAX_TABLES) tables.m_num = 0;
+      tables.m_pos += tables.curview();
     }
-    if (shiftpressed) tables.m_marknum = -1;
+    if (shiftpressed) tables.resetmarknum();
     break;
 
     case KEY_LEFT:
     tables.m_column--;
     if (tables.m_column < 0)
     {
-      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_pos -= tables.curview();
       tables.m_column = 3;
       tables.m_num--;
-      if (tables.m_num < 0) tables.m_num = MAX_TABLES - 1;
-      tables.m_pos += tables.m_view[tables.m_num];
+      if (tables.num() < 0) tables.m_num = MAX_TABLES - 1;
+      tables.m_pos += tables.curview();
     }
-    if (shiftpressed) tables.m_marknum = -1;
+    if (shiftpressed) tables.resetmarknum();
     break;
 
     case KEY_HOME:
-    while (tables.m_pos != 0) tables.tableup(shiftpressed);
+    while (tables.pos() != 0) tables.tableup(shiftpressed);
     break;
 
     case KEY_END:
-    while (tables.m_pos != MAX_TABLELEN-1) tables.tabledown(shiftpressed);
+    while (tables.pos() != MAX_TABLELEN-1) tables.tabledown(shiftpressed);
     break;
 
     case KEY_PGUP:
@@ -175,40 +175,40 @@ void tablecommands()
     case KEY_C:
     if (shiftpressed)
     {
-      if (tables.m_marknum != -1)
+      if (tables.marknum() != -1)
       {
         int d = 0;
-        if (tables.m_markstart <= tables.m_markend)
+        if (tables.markstart() <= tables.markend())
         {
-          for (int c = tables.m_markstart; c <= tables.m_markend; c++)
+          for (int c = tables.markstart(); c <= tables.markend(); c++)
           {
-            ltablecopybuffer[d] = ltable[tables.m_marknum][c];
-            rtablecopybuffer[d] = rtable[tables.m_marknum][c];
+            ltablecopybuffer[d] = ltable[tables.marknum()][c];
+            rtablecopybuffer[d] = rtable[tables.marknum()][c];
             if (rawkey == KEY_X)
             {
-              ltable[tables.m_marknum][c] = 0;
-              rtable[tables.m_marknum][c] = 0;
+              ltable[tables.marknum()][c] = 0;
+              rtable[tables.marknum()][c] = 0;
             }
             d++;
           }
         }
         else
         {
-          for (int c = tables.m_markend; c <= tables.m_markstart; c++)
+          for (int c = tables.markend(); c <= tables.markstart(); c++)
           {
-            ltablecopybuffer[d] = ltable[tables.m_marknum][c];
-            rtablecopybuffer[d] = rtable[tables.m_marknum][c];
+            ltablecopybuffer[d] = ltable[tables.marknum()][c];
+            rtablecopybuffer[d] = rtable[tables.marknum()][c];
             if (rawkey == KEY_X)
             {
-              ltable[tables.m_marknum][c] = 0;
-              rtable[tables.m_marknum][c] = 0;
+              ltable[tables.marknum()][c] = 0;
+              rtable[tables.marknum()][c] = 0;
             }
             d++;
           }
         }
         tablecopyrows = d;
       }
-      tables.m_marknum = -1;
+      tables.resetmarknum();
     }
     break;
 
@@ -219,17 +219,17 @@ void tablecommands()
       {
         for (int c = 0; c < tablecopyrows; c++)
         {
-          ltable[tables.m_num][tables.m_pos] = ltablecopybuffer[c];
-          rtable[tables.m_num][tables.m_pos] = rtablecopybuffer[c];
+          ltable[tables.num()][tables.pos()] = ltablecopybuffer[c];
+          rtable[tables.num()][tables.pos()] = rtablecopybuffer[c];
           tables.m_pos++;
-          if (tables.m_pos >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
+          if (tables.pos() >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
         }
       }
     }
     break;
 
     case KEY_O:
-    if (shiftpressed) optimizetable(tables.m_num);
+    if (shiftpressed) optimizetable(tables.num());
     break;
 
     case KEY_U:
@@ -241,13 +241,13 @@ void tablecommands()
     break;
 
     case KEY_R:
-    if (tables.m_num == WTBL)
+    if (tables.num() == WTBL)
     {
-      if (ltable[tables.m_num][tables.m_pos] != 0xff)
+      if (ltable[tables.num()][tables.pos()] != 0xff)
       {
         // Convert absolute pitch to relative pitch or vice versa
         int basenote = epoctave * 12;
-        int note = rtable[tables.m_num][tables.m_pos];
+        int note = rtable[tables.num()][tables.pos()];
 
         if (note >= 0x80)
         {
@@ -260,16 +260,16 @@ void tablecommands()
           note |= 0x80;
         }
 
-        rtable[tables.m_num][tables.m_pos] = note;
+        rtable[tables.num()][tables.pos()] = note;
       }
     }
     /* fall through */
     case KEY_L:
-    if (tables.m_num == PTBL)
+    if (tables.num() == PTBL)
     {
       int currentpulse = -1;
-      int targetpulse = ltable[tables.m_num][tables.m_pos] << 4;
-      int speed = rtable[tables.m_num][tables.m_pos];
+      int targetpulse = ltable[tables.num()][tables.pos()] << 4;
+      int speed = rtable[tables.num()][tables.pos()];
       int time;
       int steps;
 
@@ -277,12 +277,12 @@ void tablecommands()
 
       int c;
       // Follow the chain of pulse commands backwards to the nearest set command so we know what current pulse is
-      for (c = tables.m_pos-1; c >= 0; c--)
+      for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (ltable[tables.m_num][c] == 0xff) break;
-        if (ltable[tables.m_num][c] >= 0x80)
+        if (ltable[tables.num()][c] == 0xff) break;
+        if (ltable[tables.num()][c] >= 0x80)
         {
-          currentpulse = (ltable[tables.m_num][c] << 8) | rtable[tables.m_num][c];
+          currentpulse = (ltable[tables.num()][c] << 8) | rtable[tables.num()][c];
           currentpulse &= 0xfff;
           break;
         }
@@ -290,12 +290,12 @@ void tablecommands()
       if (currentpulse == -1) break;
 
       // Then follow the chain of modulation steps
-      for (; c < tables.m_pos; c++)
+      for (; c < tables.pos(); c++)
       {
-        if (ltable[tables.m_num][c] < 0x80)
+        if (ltable[tables.num()][c] < 0x80)
         {
-          currentpulse += ltable[tables.m_num][c] * (rtable[tables.m_num][c] & 0xff);
-          if (rtable[tables.m_num][c] >= 0x80) currentpulse -= 256 * ltable[tables.m_num][c];
+          currentpulse += ltable[tables.num()][c] * (rtable[tables.num()][c] & 0xff);
+          if (rtable[tables.num()][c] >= 0x80) currentpulse -= 256 * ltable[tables.num()][c];
           currentpulse &= 0xfff;
         }
       }
@@ -307,37 +307,37 @@ void tablecommands()
         steps = time;
 
       if (!steps) break;
-      if (tables.m_pos + steps > MAX_TABLELEN) break;
+      if (tables.pos() + steps > MAX_TABLELEN) break;
       if (targetpulse < currentpulse) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) inserttable(tables.m_num, tables.m_pos, 1);
+      for (c = steps; c > 1; c--) inserttable(tables.num(), tables.pos(), 1);
 
       while (time)
       {
         if (std::abs(speed) < 128)
         {
-          if (time < 127) ltable[tables.m_num][tables.m_pos] = time;
-            else ltable[tables.m_num][tables.m_pos] = 127;
-          rtable[tables.m_num][tables.m_pos] = speed;
-          time -= ltable[tables.m_num][tables.m_pos];
+          if (time < 127) ltable[tables.num()][tables.pos()] = time;
+            else ltable[tables.num()][tables.pos()] = 127;
+          rtable[tables.num()][tables.pos()] = speed;
+          time -= ltable[tables.num()][tables.pos()];
           tables.m_pos++;
         }
         else
         {
           currentpulse += speed;
-          ltable[tables.m_num][tables.m_pos] = 0x80 | ((currentpulse >> 8) & 0xf);
-          rtable[tables.m_num][tables.m_pos] = currentpulse & 0xff;
+          ltable[tables.num()][tables.pos()] = 0x80 | ((currentpulse >> 8) & 0xf);
+          rtable[tables.num()][tables.pos()] = currentpulse & 0xff;
           time--;
           tables.m_pos++;
         }
       }
     }
-    if (tables.m_num == FTBL)
+    if (tables.num() == FTBL)
     {
       int currentfilter = -1;
-      int targetfilter = ltable[tables.m_num][tables.m_pos];
-      int speed = rtable[tables.m_num][tables.m_pos] & 0x7f;
+      int targetfilter = ltable[tables.num()][tables.pos()];
+      int speed = rtable[tables.num()][tables.pos()] & 0x7f;
       int time;
       int steps;
 
@@ -345,23 +345,23 @@ void tablecommands()
 
       int c;
       // Follow the chain of filter commands backwards to the nearest set command so we know what current pulse is
-      for (c = tables.m_pos-1; c >= 0; c--)
+      for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (ltable[tables.m_num][c] == 0xff) break;
-        if (ltable[tables.m_num][c] == 0x00)
+        if (ltable[tables.num()][c] == 0xff) break;
+        if (ltable[tables.num()][c] == 0x00)
         {
-          currentfilter = rtable[tables.m_num][c];
+          currentfilter = rtable[tables.num()][c];
           break;
         }
       }
       if (currentfilter == -1) break;
 
       // Then follow the chain of modulation steps
-      for (; c < tables.m_pos; c++)
+      for (; c < tables.pos(); c++)
       {
-        if (ltable[tables.m_num][c] < 0x80)
+        if (ltable[tables.num()][c] < 0x80)
         {
-          currentfilter += ltable[tables.m_num][c] * rtable[tables.m_num][c];
+          currentfilter += ltable[tables.num()][c] * rtable[tables.num()][c];
           currentfilter &= 0xff;
         }
       }
@@ -369,18 +369,18 @@ void tablecommands()
       time = std::abs(targetfilter - currentfilter) / speed;
       steps = (time + 126) / 127;
       if (!steps) break;
-      if (tables.m_pos + steps > MAX_TABLELEN) break;
+      if (tables.pos() + steps > MAX_TABLELEN) break;
       if (targetfilter < currentfilter) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) inserttable(tables.m_num, tables.m_pos, 1);
+      for (c = steps; c > 1; c--) inserttable(tables.num(), tables.pos(), 1);
 
       while (time)
       {
-        if (time < 127) ltable[tables.m_num][tables.m_pos] = time;
-          else ltable[tables.m_num][tables.m_pos] = 127;
-        rtable[tables.m_num][tables.m_pos] = speed;
-        time -= ltable[tables.m_num][tables.m_pos];
+        if (time < 127) ltable[tables.num()][tables.pos()] = time;
+          else ltable[tables.num()][tables.pos()] = 127;
+        rtable[tables.num()][tables.pos()] = speed;
+        time -= ltable[tables.num()][tables.pos()];
         tables.m_pos++;
       }
     }
@@ -389,41 +389,41 @@ void tablecommands()
     case KEY_N:
     if (shiftpressed)
     {
-      switch (tables.m_num)
+      switch (tables.num())
       {
         // Negate pulse or filter speed
         case FTBL:
-        if (!ltable[tables.m_num][tables.m_pos]) break;
+        if (!ltable[tables.num()][tables.pos()]) break;
         /* fall through */
         case PTBL:
-        if (ltable[tables.m_num][tables.m_pos] < 0x80)
-          rtable[tables.m_num][tables.m_pos] = (rtable[tables.m_num][tables.m_pos] ^ 0xff) + 1;
+        if (ltable[tables.num()][tables.pos()] < 0x80)
+          rtable[tables.num()][tables.pos()] = (rtable[tables.num()][tables.pos()] ^ 0xff) + 1;
         break;
 
         // Negate relative note
         case WTBL:
-        if ((ltable[tables.m_num][tables.m_pos] != 0xff) && (rtable[tables.m_num][tables.m_pos] < 0x80))
-          rtable[tables.m_num][tables.m_pos] = (0x80 - rtable[tables.m_num][tables.m_pos]) & 0x7f;
+        if ((ltable[tables.num()][tables.pos()] != 0xff) && (rtable[tables.num()][tables.pos()] < 0x80))
+          rtable[tables.num()][tables.pos()] = (0x80 - rtable[tables.num()][tables.pos()]) & 0x7f;
         break;
       }
     }
     break;
 
     case KEY_DEL:
-    deletetable(tables.m_num, tables.m_pos);
+    deletetable(tables.num(), tables.pos());
     break;
 
     case KEY_INS:
-    inserttable(tables.m_num, tables.m_pos, shiftpressed);
+    inserttable(tables.num(), tables.pos(), shiftpressed);
     break;
 
     case KEY_ENTER:
-    if (tables.m_num == WTBL)
+    if (tables.num() == WTBL)
     {
       int table = -1;
       int mstmode = MST_PORTAMENTO;
 
-      switch (ltable[tables.m_num][tables.m_pos])
+      switch (ltable[tables.num()][tables.pos()])
       {
         case WAVECMD + CMD_PORTAUP:
         case WAVECMD + CMD_PORTADOWN:
@@ -453,26 +453,26 @@ void tablecommands()
       {
         default:
         editmode = EDIT_INSTRUMENT;
-        eipos = tables.m_num + 2;
+        eipos = tables.num() + 2;
         return;
 
         case STBL:
-        if (rtable[tables.m_num][tables.m_pos])
+        if (rtable[tables.num()][tables.pos()])
         {
           if (!shiftpressed)
           {
-            gototable(STBL, rtable[tables.m_num][tables.m_pos] - 1);
+            gototable(STBL, rtable[tables.num()][tables.pos()] - 1);
             return;
           }
           else
           {
-            int oldeditpos = tables.m_pos;
+            int oldeditpos = tables.pos();
             int oldeditcolumn = tables.m_column;
-            int pos = makespeedtable(rtable[tables.m_num][tables.m_pos], mstmode, true);
+            int pos = makespeedtable(rtable[tables.num()][tables.pos()], mstmode, true);
             gototable(WTBL, oldeditpos);
             tables.m_column = oldeditcolumn;
 
-            rtable[tables.m_num][tables.m_pos] = pos + 1;
+            rtable[tables.num()][tables.pos()] = pos + 1;
             return;
           }
         }
@@ -481,7 +481,7 @@ void tablecommands()
           int pos = findfreespeedtable();
           if (pos >= 0)
           {
-            rtable[tables.m_num][tables.m_pos] = pos + 1;
+            rtable[tables.num()][tables.pos()] = pos + 1;
             gototable(STBL, pos);
             return;
           }
@@ -490,9 +490,9 @@ void tablecommands()
 
         case PTBL:
         case FTBL:
-        if (rtable[tables.m_num][tables.m_pos])
+        if (rtable[tables.num()][tables.pos()])
         {
-          gototable(table, rtable[tables.m_num][tables.m_pos] - 1);
+          gototable(table, rtable[tables.num()][tables.pos()] - 1);
           return;
         }
         else
@@ -501,7 +501,7 @@ void tablecommands()
           {
             int pos = gettablelen(table);
             if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-            rtable[tables.m_num][tables.m_pos] = pos + 1;
+            rtable[tables.num()][tables.pos()] = pos + 1;
             gototable(table, pos);
             return;
           }
@@ -511,7 +511,7 @@ void tablecommands()
     else
     {
       editmode = EDIT_INSTRUMENT;
-      eipos = tables.m_num + 2;
+      eipos = tables.num() + 2;
       return;
     }
     break;
@@ -519,17 +519,17 @@ void tablecommands()
     case KEY_APOST2:
     if (shiftpressed)
     {
-      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_pos -= tables.curview();
       tables.m_num--;
-      if (tables.m_num < 0) tables.m_num = MAX_TABLES-1;
-      tables.m_pos += tables.m_view[tables.m_num];
+      if (tables.num() < 0) tables.m_num = MAX_TABLES-1;
+      tables.m_pos += tables.curview();
     }
     else
     {
-      tables.m_pos -= tables.m_view[tables.m_num];
+      tables.m_pos -= tables.curview();
       tables.m_num++;
-      if (tables.m_num >= MAX_TABLES) tables.m_num = 0;
-      tables.m_pos += tables.m_view[tables.m_num];
+      if (tables.num() >= MAX_TABLES) tables.m_num = 0;
+      tables.m_pos += tables.curview();
     }
   }
 
@@ -538,20 +538,20 @@ void tablecommands()
     switch(tables.m_column)
     {
       case 0:
-      ltable[tables.m_num][tables.m_pos] &= 0x0f;
-      ltable[tables.m_num][tables.m_pos] |= hexnybble << 4;
+      ltable[tables.num()][tables.pos()] &= 0x0f;
+      ltable[tables.num()][tables.pos()] |= hexnybble << 4;
       break;
       case 1:
-      ltable[tables.m_num][tables.m_pos] &= 0xf0;
-      ltable[tables.m_num][tables.m_pos] |= hexnybble;
+      ltable[tables.num()][tables.pos()] &= 0xf0;
+      ltable[tables.num()][tables.pos()] |= hexnybble;
       break;
       case 2:
-      rtable[tables.m_num][tables.m_pos] &= 0x0f;
-      rtable[tables.m_num][tables.m_pos] |= hexnybble << 4;
+      rtable[tables.num()][tables.pos()] &= 0x0f;
+      rtable[tables.num()][tables.pos()] |= hexnybble << 4;
       break;
       case 3:
-      rtable[tables.m_num][tables.m_pos] &= 0xf0;
-      rtable[tables.m_num][tables.m_pos] |= hexnybble;
+      rtable[tables.num()][tables.pos()] &= 0xf0;
+      rtable[tables.num()][tables.pos()] |= hexnybble;
       break;
     }
     tables.m_column++;
@@ -559,7 +559,7 @@ void tablecommands()
     {
       tables.m_column = 0;
       tables.m_pos++;
-      if (tables.m_pos >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
+      if (tables.pos() >= MAX_TABLELEN) tables.m_pos = MAX_TABLELEN-1;
     }
   }
 
@@ -1096,14 +1096,19 @@ void Tables::setcolumn(int column)
     if (m_column >= 2) m_column--;
 }
 
-void Tables::setmarknum(int marknum)
+void Tables::resetmarknum()
 {
-    m_marknum = marknum;
+    m_marknum = -1;
 }
 
-void Tables::setmarkstart(int markstart)
+void Tables::setmarkstart(int num, int markstart)
 {
-    m_markstart = markstart;
+    if ((m_marknum != m_num) || (markstart != m_markend))
+    {
+        m_marknum = num;
+        m_markstart = markstart;
+        m_markend = markstart;
+    }
 }
 
 void Tables::setmarkend(int markend)

@@ -737,12 +737,7 @@ void mousecommands()
 
       if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb))
       {
-        if ((tables.marknum() != tables.num()) || (newpos != tables.markend()))
-        {
-          tables.setmarknum(c);
-          tables.setmarkstart(newpos);
-          tables.setmarkend(newpos);
-        }
+        tables.setmarkstart(c, newpos);
       }
       if (mouseb & MOUSEB_LEFT)
       {

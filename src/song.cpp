@@ -1369,13 +1369,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   }
   if (ci)
   {
-    for (int c = 0; c < MAX_INSTR; c++)
-      clearinstr(c);
-    std::memset(&instrcopybuffer, 0, sizeof(INSTR));
-    eipos = 0;
-    eicolumn = 0;
-    eirow = 1;
-    einum = 1;
+    clearinstr();
   }
   if (ct == 1)
   {

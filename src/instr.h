@@ -28,12 +28,12 @@ extern int einum;
 extern int eirow;
 extern int eipos;
 extern int eicolumn;
-extern INSTR instrcopybuffer;
 #endif
 
 void instrumentcommands();
 void nextinstr();
 void previnstr();
+void clearinstr();
 void clearinstr(int num);
 void gotoinstr(int i);
 void showinstrtable();
