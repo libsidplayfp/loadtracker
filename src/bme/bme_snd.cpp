@@ -88,7 +88,7 @@ void insertnote(int newnote);
 
 extern int einum;
 extern int epchn;
-extern int epview;
+extern int epview[];
 extern int eppos;
 
 int current_note_on = -1;
@@ -158,7 +158,7 @@ bool snd_init_jack() {
 void noteOn(unsigned char note) {
     current_note_on = note;
     insertnote(note + 72);
-    epview = eppos-VISIBLEPATTROWS/2;
+    epview[epchn] = eppos-VISIBLEPATTROWS/2;
 }
 
 void noteOff(unsigned char note) {

@@ -359,7 +359,8 @@ void orderlistcommands()
     epchn = eschn;
     epcolumn = 0;
     eppos = 0;
-    epview = - VISIBLEPATTROWS/2;
+    for (int i=0; i<MAX_CHN; i++)
+        epview[i] = - VISIBLEPATTROWS/2;
     editmode = EDIT_PATTERN;
     if (epchn == epmarkchn) epmarkchn = -1;
     break;
@@ -627,7 +628,8 @@ void songchange()
   updateviewtopos();
 
   eppos = 0;
-  epview = - VISIBLEPATTROWS/2;
+  for (int i=0; i<MAX_CHN; i++)
+    epview[i] = - VISIBLEPATTROWS/2;
   eseditpos = 0;
   if (eseditpos == currentSonglen) eseditpos++;
   esview = 0;

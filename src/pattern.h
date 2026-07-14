@@ -31,7 +31,7 @@ enum
 #ifndef PATTERN_C
 extern int epnum[MAX_CHN];
 extern int eppos;
-extern int epview;
+extern int epview[MAX_CHN];
 extern int epcolumn;
 extern int epchn;
 extern int epoctave;

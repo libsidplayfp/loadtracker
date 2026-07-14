@@ -601,7 +601,7 @@ void mousecommands()
                 (mousex <= dpos.patternsX + 11 + c*13))
       {
         int x = mousex-(dpos.patternsX + 3)-c*13;
-        int newpos = mousey-(dpos.patternsY+1)+epview;
+        int newpos = mousey-(dpos.patternsY+1)+epview[c];
         if (newpos < 0) newpos = 0;
         if (newpos > getPattlen(epnum[epchn])) newpos = getPattlen(epnum[epchn]);
 
