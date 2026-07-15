@@ -604,7 +604,7 @@ void printstatus()
   color = isplaying() ? colors.CEDIT : colors.CMUTE;
   printtext(dpos.octaveX+10, dpos.octaveY+1, color, textbuffer);
 
-  const char *cmds = isplaying() ? " [] Stop " : " |> Play ";
+  const char *cmds = isplaying() ? " [] Stop " : " [> Play ";
   printtext(dpos.octaveX+20, dpos.octaveY, colors.CTITLE|(colors.CHDRBG<<4), cmds);
 
   const char *chnls = (numsids == 1) ? " CHN1   CHN2   CHN3 " : " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 ";
@@ -627,8 +627,8 @@ void printstatus()
     printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 
-  const char *lock = tables.islocked() ? " " : "U";
-  printtext(dpos.channelsX-2, dpos.channelsY+1, colors.CTITLE, lock);
+  const char *lock = tables.islocked() ? "Lck" : "   ";
+  printtext(dpos.channelsX-4, dpos.channelsY+1, colors.CTITLE, lock);
 }
 
 

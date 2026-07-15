@@ -706,9 +706,9 @@ void mousecommands()
   {
     // Instr param
     eicolumn = (mousex-(dpos.instrumentsX+20))%3;
+    if (eicolumn == 2) eicolumn--;
     eipos = (mousex-(dpos.instrumentsX+20))/3;
-    einum = eirow+mousey-(dpos.instrumentsY+1);
-    editmode = (eicolumn < 2) ? EDIT_INSTRUMENT : -1;
+    gotoinstr(eirow+mousey-(dpos.instrumentsY+1));
   }
   if ((mousey >= dpos.instrumentsY+1) &&
         (mousey <= dpos.instrumentsY+5) &&
@@ -718,7 +718,7 @@ void mousecommands()
     // Instr name
     editmode = EDIT_INSTRUMENT;
     eipos = 9;
-    einum = eirow+mousey-(dpos.instrumentsY+1);
+    gotoinstr(eirow+mousey-(dpos.instrumentsY+1));
   }
 
   // Table editpos
@@ -792,7 +792,7 @@ void mousecommands()
       }
       else
       {
-        initsong(esnum, PLAY_BEGINNING);
+        initsong(esnum, shiftpressed ? PLAY_BEGINNING : PLAY_POS);
         followplay = true;
       }
     }

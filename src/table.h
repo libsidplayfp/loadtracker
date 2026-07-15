@@ -52,7 +52,7 @@ private:
     int m_marknum = -1;
     int m_markstart;
     int m_markend;
-    bool m_lock = true;
+    bool m_lock = false;
 
 public:
     inline int view(int num) const { return m_view[num]; }

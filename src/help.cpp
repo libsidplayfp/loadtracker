@@ -130,7 +130,7 @@ void onlinehelp(int standalone,int context)
     "SHIFT+O Optimize table (remove unused)",
     "SHIFT+R Convert absolute/relative note",
     "SHIFT+S ""Smart"" instrument paste",
-    "SHIFT+U Unlock/lock table view",
+    "SHIFT+U Lock/unlock table view",
     "SHIFT+X,C,V Cut,copy,paste instr./table",
     "SHIFT+DEL Delete instrument+tabledata",
     "SHIFT+RET Convert vibrato parameter",
