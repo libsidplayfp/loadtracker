@@ -1078,22 +1078,16 @@ void Tables::tabledown(bool shiftpressed)
   validatetableview();
 }
 
-void Tables::setnum(int num)
+void Tables::setrow(int num, int pos, int column)
 {
     m_num = num;
-}
-
-void Tables::setpos(int pos)
-{
     m_pos = pos;
     if (m_pos < 0) m_pos = 0;
     if (m_pos > MAX_TABLELEN-1) m_pos = MAX_TABLELEN-1;
-}
-
-void Tables::setcolumn(int column)
-{
     m_column = column;
     if (m_column >= 2) m_column--;
+
+    validatetableview();
 }
 
 void Tables::resetmarknum()

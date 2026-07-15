@@ -741,9 +741,9 @@ void mousecommands()
       }
       if (mouseb & MOUSEB_LEFT)
       {
-        tables.setnum(c);
-        tables.setpos(mousey-(dpos.instrumentsY+8)+tables.curview());
-        tables.setcolumn(mousex-(dpos.instrumentsX+3+c*12));
+        tables.setrow(c,
+            newpos,
+            mousex-(dpos.instrumentsX+3+c*12));
       }
 
       if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) tables.setmarkend(newpos);

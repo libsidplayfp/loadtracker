@@ -64,9 +64,7 @@ public:
     inline int markstart() const { return m_markstart; }
     inline int markend() const { return m_markend; }
     inline bool islocked() const { return m_lock; }
-    void setnum(int num);
-    void setpos(int pos);
-    void setcolumn(int column);
+    void setrow(int num, int pos, int column);
     void resetmarknum();
     void setmarkstart(int num, int markstart);
     void setmarkend(int markend);
