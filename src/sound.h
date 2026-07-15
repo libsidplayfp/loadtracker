@@ -26,7 +26,7 @@
 #define NTSCFRAMERATE 60
 #define NTSCCLOCKRATE 1022727
 
-int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
+bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
                unsigned multiplier, unsigned interpolate, unsigned customclockrate,
                unsigned exsid, float filterbias, unsigned combwaves);
 void sound_uninit();

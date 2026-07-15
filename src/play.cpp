@@ -198,7 +198,6 @@ void playroutine()
 {
   INSTR *iptr;
   CHN *cptr = &chn[0];
-  int maxChns = MAX_CHN_MONO;
 
   if (songinit == PLAY_STOP)
     followplay = false;
@@ -218,7 +217,7 @@ void playroutine()
          songinit = PLAY_BEGINNING;
     }
 
-    for (int c = 0; c < maxChns; c++)
+    for (int c = 0; c < MAX_CHN_MONO; c++)
     {
       cptr->songptr = 0;
       cptr->command = 0;
@@ -331,13 +330,13 @@ void playroutine()
         if (!filtertime) filterptr++;
       }
     }
-    FILTERSTOP:
+FILTERSTOP:
     sidreg[0x15] = 0x00;
     sidreg[0x16] = filtercutoff;
     sidreg[0x17] = filterctrl;
     sidreg[0x18] = filtertype | masterfader;
 
-    for (int c = 0; c < maxChns; c++)
+    for (int c = 0; c < MAX_CHN_MONO; c++)
     {
       iptr = &instr[cptr->instr];
 
@@ -763,7 +762,7 @@ void playroutine()
       }
 
       // Tick N command
-      TICKNEFFECTS:
+TICKNEFFECTS:
       if ((!optimizerealtime) || (cptr->tick))
       {
         switch(cptr->command)
@@ -885,7 +884,7 @@ void playroutine()
         }
       }
 
-      PULSEEXEC:
+PULSEEXEC:
       if (optimizepulse)
       {
         if ((songinit != PLAY_STOPPED) && (cptr->tick == cptr->gatetimer)) goto GETNEWNOTES;
@@ -942,7 +941,7 @@ void playroutine()
       if ((songinit == PLAY_STOPPED) || (cptr->tick != cptr->gatetimer)) goto NEXTCHN;
 
       // New notes processing
-      GETNEWNOTES:
+GETNEWNOTES:
       {
         unsigned char newnote;
 
@@ -1042,7 +1041,7 @@ void sequencer(int c, CHN *cptr)
     if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < songlen[psnum][c]))
       cptr->songptr = espos[c];
   }
-  SEQDONE: {}
+SEQDONE: {}
 }
 
 /* ========================================================================== */

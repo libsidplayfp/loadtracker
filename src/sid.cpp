@@ -59,11 +59,10 @@ void sid_init(int speed, unsigned m,
               unsigned customclockrate, unsigned numsids,
               float filterbias, unsigned combwaves)
 {
-  if (ntsc) clockrate = NTSCCLOCKRATE;
-    else clockrate = PALCLOCKRATE;
-
   if (customclockrate)
     clockrate = customclockrate;
+  else
+    clockrate = ntsc ? NTSCCLOCKRATE : PALCLOCKRATE;
 
   samplerate = speed;
 

@@ -19,6 +19,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <new>
+
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -94,24 +96,29 @@ extern int eppos;
 int current_note_on = -1;
 
 #ifdef USE_JACK
-int snd_jack_process(jack_nframes_t nframes, void *) {
-    if (use_jack_audio) {
+int snd_jack_process(jack_nframes_t nframes, void *)
+{
+    if (use_jack_audio)
+    {
         sample_t* buffer = (sample_t*)jack_port_get_buffer(output_port, nframes);
         snd_mixdata((Uint8*)buffer, sizeof(sample_t) * nframes);
     }
     return 0;
 }
 
-bool snd_init_jack() {
+bool snd_init_jack()
+{
     jack_status_t status;
 
     client = jack_client_open("goattracker2", JackNoStartServer, &status);
-    if (client == 0) {
+    if (client == 0)
+    {
         fprintf(stderr, "failed to create jack client\n");
         return false;
     }
 
-    if (use_jack_audio) {
+    if (use_jack_audio)
+    {
         snd_mixrate = jack_get_sample_rate(client);
 
         snd_bpmcount = 0;
@@ -134,17 +141,20 @@ bool snd_init_jack() {
 
     jack_set_process_callback(client, snd_jack_process, 0);
 
-    if (use_jack_audio) {
+    if (use_jack_audio)
+    {
         output_port = jack_port_register(client, "playback",
             JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
 
-        if (!output_port) {
+        if (!output_port)
+        {
             fprintf(stderr, "failed to register port\n");
             return false;
         }
     }
 
-    if (jack_activate(client)) {
+    if (jack_activate(client))
+    {
         fprintf(stderr, "failed to activate\n");
         return false;
     }
@@ -155,37 +165,46 @@ bool snd_init_jack() {
 #endif
 
 #ifdef USE_MIDI_INPUT
-void noteOn(unsigned char note) {
+void noteOn(unsigned char note)
+{
     current_note_on = note;
     insertnote(note + 72);
     epview[epchn] = eppos-VISIBLEPATTROWS/2;
 }
 
-void noteOff(unsigned char note) {
-    if (note == current_note_on) {
+void noteOff(unsigned char note)
+{
+    if (note == current_note_on)
+    {
         playtestnote(190, einum, epchn); // off note
         current_note_on = -1;
     }
 }
 
-void snd_midi_process(double, const unsigned char *message, size_t messageSize, void*) {
-    size_t i;
-
-    for (i = 0; i < messageSize; i++) {
+void snd_midi_process(double, const unsigned char *message, size_t messageSize, void*)
+{
+    for (size_t i = 0; i < messageSize; i++)
+    {
          //printf("size: %u: %02X %u %u\n", messageSize,
          //    *message, *(message+1), *(message+2));
 
         unsigned char midi_cmd = message[i++];
-        if ((midi_cmd & 0xf0) == 0x90) {
+        if ((midi_cmd & 0xf0) == 0x90)
+        {
             // note on
             unsigned char note = message[i++];
             unsigned char velocity = message[i];
-            if (velocity != 0) {
+            if (velocity != 0)
+            {
                 noteOn(note);
-            } else {
+            }
+            else
+            {
                 noteOff(note);
             }
-        } else if ((midi_cmd & 0xf0) == 0x80) {
+        }
+        else if ((midi_cmd & 0xf0) == 0x80)
+        {
             // note off
             unsigned char note = message[i++];
             noteOff(note);
@@ -193,27 +212,32 @@ void snd_midi_process(double, const unsigned char *message, size_t messageSize, 
     }
 }
 
-bool snd_init_midi() {
+bool snd_init_midi()
+{
     RtMidiInPtr midi_device = rtmidi_in_create(RTMIDI_API_UNSPECIFIED, "goattracker2", 100);
-    if (!midi_device->ok) {
+    if (!midi_device->ok)
+    {
         fprintf(stderr, "failed to activate midi: %s\n", midi_device->msg);
         return false;
     }
 
     unsigned int ports = rtmidi_get_port_count(midi_device);
-    if (!ports) {
+    if (!ports)
+    {
         fprintf(stderr, "no available ports\n");
         return false;
     }
 
     rtmidi_open_port(midi_device, 0, "midi_in");
-    if (!midi_device->ok) {
+    if (!midi_device->ok)
+    {
         fprintf(stderr, "failed to open port: %s\n", midi_device->msg);
         return false;
     }
 
     rtmidi_in_set_callback(midi_device, snd_midi_process, nullptr);
-    if (!midi_device->ok) {
+    if (!midi_device->ok)
+    {
         fprintf(stderr, "failed to set midi callback: %s\n", midi_device->msg);
         return false;
     }
@@ -243,7 +267,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     if (!snd_atexit_registered)
     {
-        atexit(snd_uninit);
+        std::atexit(snd_uninit);
         snd_atexit_registered = 1;
     }
 
@@ -257,13 +281,8 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     }
 
     spec.freq = mixrate;
-    spec.format = SDL_AUDIO_U8;
-    if (mixmode & SIXTEENBIT)
-    {
-        spec.format = SDL_AUDIO_S16;
-    }
-    spec.channels = 1;
-    if (mixmode & STEREO) spec.channels = 2;
+    spec.format = (mixmode & SIXTEENBIT) ? SDL_AUDIO_S16 : SDL_AUDIO_U8;
+    spec.channels = (mixmode & STEREO) ? 2 : 1;
 
     // Init tempo count
 
@@ -338,22 +357,21 @@ bool snd_initchannels(unsigned channels) {
 
     if (snd_previouschannels != channels)
     {
-        CHANNEL *chptr;
         if (snd_channel)
         {
-            std::free(snd_channel);
+            delete [] snd_channel;
             snd_channel = nullptr;
             snd_channels = 0;
         }
 
-        snd_channel = (CHANNEL*)std::malloc(channels * sizeof(CHANNEL));
+        snd_channel = new (std::nothrow) CHANNEL[channels];
         if (!snd_channel)
         {
             bme_error = BME_OUT_OF_MEMORY;
             snd_uninit();
             return false;
         }
-        chptr = &snd_channel[0];
+        CHANNEL *chptr = &snd_channel[0];
         snd_channels = channels;
         snd_previouschannels = channels;
 
@@ -449,8 +467,6 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
 
     if (snd_player) // Must the player be called?
     {
-        int musicsamples;
-
         while(mixsamples)
         {
             if ((!snd_bpmcount) && (snd_player)) // Player still active?
@@ -461,7 +477,7 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
                 snd_bpmcount = ((snd_mixrate * 5) >> 1) / snd_bpmtempo;
             }
 
-            musicsamples = mixsamples;
+            int musicsamples = mixsamples;
             if (musicsamples > snd_bpmcount) musicsamples = snd_bpmcount;
             snd_bpmcount -= musicsamples;
             if (!snd_custommixer)
@@ -575,21 +591,19 @@ static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples)
 {
     if (chptr->voicemode & VM_ON)
     {
-          unsigned freq, intadd, fractadd;
-
-          freq = chptr->freq;
+          unsigned freq = chptr->freq;
           if (freq > 535232) freq = 535232;
-          intadd = freq / snd_mixrate;
-          fractadd = (((freq % snd_mixrate) << 16) / snd_mixrate) & 65535;
+          unsigned intadd = freq / snd_mixrate;
+          unsigned fractadd = (((freq % snd_mixrate) << 16) / snd_mixrate) & 65535;
 
           if (snd_mixmode & STEREO)
           {
                 int leftvol = (((chptr->vol * chptr->mastervol) >> 6) * (255-chptr->panning)) >> 7;
                 int rightvol = (((chptr->vol * chptr->mastervol) >> 6) * (chptr->panning)) >> 7;
-                if (leftvol > 255) leftvol = 255;
-                if (rightvol > 255) rightvol = 255;
                 if (leftvol < 0) leftvol = 0;
+                if (leftvol > 255) leftvol = 255;
                 if (rightvol < 0) rightvol = 0;
+                if (rightvol > 255) rightvol = 255;
 
                 if (chptr->voicemode & VM_16BIT)
                 {
@@ -691,8 +705,8 @@ static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples)
           else
           {
                 int vol = ((chptr->vol * chptr->mastervol) >> 6);
-                if (vol > 255) vol = 255;
                 if (vol < 0) vol = 0;
+                if (vol > 255) vol = 255;
 
                 if (chptr->voicemode & VM_16BIT)
                 {

@@ -68,7 +68,7 @@ void sound_playrout();
 void sound_mixer(Sint32 *dest, unsigned samples);
 Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
-int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
+bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
                unsigned multiplier, unsigned interpolate, unsigned customclockrate,
                unsigned exsid, float filterbias, unsigned combwaves)
 {
@@ -106,10 +106,10 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   {
     exsidfd = exSID_new();
     if (!exsidfd)
-      return 0;
+      return false;
 
     if (exSID_init(exsidfd) < 0)
-      return 0;
+      return false;
 
     int model = exSID_hwmodel(exsidfd);
     switch (model)
@@ -127,7 +127,7 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
       break;
 
       default:
-      return 0;
+      return false;
     }
 
     exsidDelay /= framerate;
@@ -152,13 +152,10 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
 
-  if (numsids == 1 && !snd_init(mr, SIXTEENBIT|MONO))
+  unsigned mixmode = SIXTEENBIT | ((numsids == 1) ? MONO : STEREO);
+  if (!snd_init(playspeed, mixmode))
   {
-    return 0;
-  }
-  else if (numsids == 2 && !snd_init(mr, SIXTEENBIT|STEREO))
-  {
-    return 0;
+    return false;
   }
   playspeed = snd_mixrate;
   sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
@@ -170,10 +167,10 @@ int sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
 SOUNDOK:
 #endif
   initted = true;
-  return 1;
+  return true;
 }
 
-void sound_uninit(void)
+void sound_uninit()
 {
   if (!initted) return;
   initted = false;
