@@ -213,8 +213,8 @@ void printstatus()
       if (c == epchn)
       {
         eppos = newpos;
-        epview = newpos-VISIBLEPATTROWS/2;
       }
+      epview[c] = newpos-VISIBLEPATTROWS/2;
 
       newpos = chn[c].songptr;
       newpos--;
@@ -244,7 +244,7 @@ void printstatus()
 
     for (int d = 0; d < VISIBLEPATTROWS; d++)
     {
-      int p = epview+d;
+      int p = epview[c]+d;
       int color = colors.CNORMAL;
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {

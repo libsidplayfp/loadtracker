@@ -1350,7 +1350,8 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
     eschn = 0;
     esnum = 0;
     eppos = 0;
-    epview =-VISIBLEPATTROWS/2;
+    for (int i=0; i<MAX_CHN; i++)
+        epview[i] =-VISIBLEPATTROWS/2;
     epcolumn = 0;
     epchn = 0;
   }

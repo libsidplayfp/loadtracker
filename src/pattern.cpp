@@ -59,7 +59,7 @@ int cmdcopyrows = 0;
 
 int epnum[MAX_CHN];
 int eppos;
-int epview;
+int epview[MAX_CHN];
 int epcolumn;
 int epchn;
 int epoctave = 2;
@@ -1366,6 +1366,7 @@ void joinpattern()
 
 void updateview()
 {
-  epview = eppos-VISIBLEPATTROWS/2;
+    for (int i=0; i<MAX_CHN; i++)
+        epview[i] = eppos-VISIBLEPATTROWS/2;
 }
 
