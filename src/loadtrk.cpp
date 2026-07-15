@@ -781,6 +781,22 @@ void mousecommands()
             (mousex <= dpos.channelsX+5 + 7*c))
       mutechannel(c);
   }
+  if ((!prevmouseb) && (mousey == dpos.octaveY))
+  {
+    if ((mousex >= dpos.octaveX+20) &&
+        (mousex <= dpos.octaveX+28))
+    {
+      if (isplaying())
+      {
+        stopsong();
+      }
+      else
+      {
+        initsong(esnum, PLAY_BEGINNING);
+        followplay = true;
+      }
+    }
+  }
 
   // Titlebar actions
   if (!menu)

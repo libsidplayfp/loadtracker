@@ -603,6 +603,9 @@ void printstatus()
 
   printtext(dpos.octaveX+10, dpos.octaveY+1, colors.CEDIT, textbuffer);
 
+  const char *cmds = isplaying() ? " [] Stop " : " |> Play ";
+  printtext(dpos.octaveX+20, dpos.octaveY, colors.CTITLE|(colors.CHDRBG<<4), cmds);
+
   const char *chnls = (numsids == 1) ? " CHN1   CHN2   CHN3 " : " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 ";
   printtext(
     dpos.channelsX,
