@@ -601,7 +601,8 @@ void printstatus()
   }
   std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/idx) & 1], timesec);
 
-  printtext(dpos.octaveX+10, dpos.octaveY+1, colors.CEDIT, textbuffer);
+  color = isplaying() ? colors.CEDIT : colors.CMUTE;
+  printtext(dpos.octaveX+10, dpos.octaveY+1, color, textbuffer);
 
   const char *cmds = isplaying() ? " [] Stop " : " |> Play ";
   printtext(dpos.octaveX+20, dpos.octaveY, colors.CTITLE|(colors.CHDRBG<<4), cmds);
