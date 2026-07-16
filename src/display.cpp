@@ -39,6 +39,8 @@
 #include "bme_snd.h"
 #include "bme_win.h"
 
+#include <utility>
+
 #include <cstdio>
 #include <cstring>
 
@@ -133,9 +135,7 @@ void printstatus()
   int visibleOrderlist = getVisibleOrderlist();
   int maxChns = getMaxChannels();
 
-  menu = false;
-
-  if ((mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode)) menu = true;
+  menu = (mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode);
 
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
 
@@ -304,16 +304,14 @@ void printstatus()
       printtext(dpos.patternsX+10+c*13, dpos.patternsY+1+d, color, &textbuffer[11]);
       if (c == epmarkchn)
       {
-        if (epmarkstart <= epmarkend)
+        int markstart = epmarkstart;
+        int markend = epmarkend;
+        if (epmarkstart > epmarkend)
         {
-          if ((p >= epmarkstart) && (p <= epmarkend))
-            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, colors.CHDRBG, 9);
+            std::swap(markstart, markend);
         }
-        else
-        {
-          if ((p <= epmarkstart) && (p >= epmarkend))
-            printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, colors.CHDRBG, 9);
-        }
+        if ((p >= markstart) && (p <= markend))
+          printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, colors.CHDRBG, 9);
       }
       if ((color == colors.CEDIT) && (editmode == EDIT_PATTERN) && (epchn == c))
       {
@@ -411,25 +409,15 @@ void printstatus()
       printtext(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, color, textbuffer);
       if (c == esmarkchn)
       {
-        if (esmarkstart <= esmarkend)
+        int markstart = esmarkstart;
+        int markend = esmarkend;
+        if (markstart > markend)
         {
-          if ((p >= esmarkstart) && (p <= esmarkend))
-          {
-            if (p != esmarkend)
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 3);
-            else
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 2);
-          }
+          std::swap(markstart, markend);
         }
-        else
+        if ((p >= esmarkstart) && (p <= esmarkend))
         {
-          if ((p <= esmarkstart) && (p >= esmarkend))
-          {
-            if (p != esmarkstart)
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 3);
-            else
-              printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, 2);
-          }
+          printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, (p != esmarkend) ? 3 : 2);
         }
       }
       if ((p == eseditpos) && (editmode == EDIT_ORDERLIST) && (eschn == c))
@@ -517,16 +505,14 @@ void printstatus()
 
       if (tables.marknum() == c)
       {
-        if (tables.markstart() <= tables.markend())
+        int markstart = tables.markstart();
+        int markend = tables.markend();
+        if (markstart > markend)
         {
-          if ((p >= tables.markstart()) && (p <= tables.markend()))
-            printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
+            std::swap(markstart, markend);
         }
-        else
-        {
-          if ((p <= tables.markstart()) && (p >= tables.markend()))
-            printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
-        }
+        if ((p >= markstart) && (p <= markend))
+          printbg(dpos.instrumentsX+3+12*c, dpos.instrumentsY+8+d, colors.CHDRBG, 5);
       }
     }
   }
@@ -643,23 +629,12 @@ void incrementtime()
 {
   {
     timeframe++;
-    if (!ntsc)
+    unsigned framerate = ntsc ? NTSCFRAMERATE : PALFRAMERATE;
+    if (((multiplier) && (timeframe >= framerate*multiplier))
+        || ((!multiplier) && (timeframe >= framerate/2)))
     {
-      if (((multiplier) && (timeframe >= PALFRAMERATE*multiplier))
-          || ((!multiplier) && (timeframe >= PALFRAMERATE/2)))
-      {
-        timeframe = 0;
-        timesec++;
-      }
-    }
-    else
-    {
-      if (((multiplier) && (timeframe >= NTSCFRAMERATE*multiplier))
-          || ((!multiplier) && (timeframe >= NTSCFRAMERATE/2)))
-      {
-        timeframe = 0;
-        timesec++;
-      }
+      timeframe = 0;
+      timesec++;
     }
     if (timesec == 60)
     {

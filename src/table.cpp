@@ -34,6 +34,8 @@
 
 #include "bme_main.h"
 
+#include <utility>
+
 #include <cmath>
 #include <cstring>
 
@@ -177,34 +179,23 @@ void tablecommands()
     {
       if (tables.marknum() != -1)
       {
-        int d = 0;
-        if (tables.markstart() <= tables.markend())
+        int markstart = tables.markstart();
+        int markend = tables.markend();
+        if (markstart > markend)
         {
-          for (int c = tables.markstart(); c <= tables.markend(); c++)
-          {
-            ltablecopybuffer[d] = ltable[tables.marknum()][c];
-            rtablecopybuffer[d] = rtable[tables.marknum()][c];
-            if (rawkey == KEY_X)
-            {
-              ltable[tables.marknum()][c] = 0;
-              rtable[tables.marknum()][c] = 0;
-            }
-            d++;
-          }
+            std::swap(markstart, markend);
         }
-        else
+        int d = 0;
+        for (int c = markstart; c <= markend; c++)
         {
-          for (int c = tables.markend(); c <= tables.markstart(); c++)
+          ltablecopybuffer[d] = ltable[tables.marknum()][c];
+          rtablecopybuffer[d] = rtable[tables.marknum()][c];
+          if (rawkey == KEY_X)
           {
-            ltablecopybuffer[d] = ltable[tables.marknum()][c];
-            rtablecopybuffer[d] = rtable[tables.marknum()][c];
-            if (rawkey == KEY_X)
-            {
-              ltable[tables.marknum()][c] = 0;
-              rtable[tables.marknum()][c] = 0;
-            }
-            d++;
+            ltable[tables.marknum()][c] = 0;
+            rtable[tables.marknum()][c] = 0;
           }
+          d++;
         }
         tablecopyrows = d;
       }
@@ -270,8 +261,6 @@ void tablecommands()
       int currentpulse = -1;
       int targetpulse = ltable[tables.num()][tables.pos()] << 4;
       int speed = rtable[tables.num()][tables.pos()];
-      int time;
-      int steps;
 
       if (!speed) break;
 
@@ -300,11 +289,8 @@ void tablecommands()
         }
       }
 
-      time = std::abs(targetpulse - currentpulse) / speed;
-      if (speed < 128)
-        steps = (time + 126) / 127;
-      else
-        steps = time;
+      int time = std::abs(targetpulse - currentpulse) / speed;
+      int steps = (speed < 128) ? (time + 126) / 127 : time;
 
       if (!steps) break;
       if (tables.pos() + steps > MAX_TABLELEN) break;
@@ -317,8 +303,7 @@ void tablecommands()
       {
         if (std::abs(speed) < 128)
         {
-          if (time < 127) ltable[tables.num()][tables.pos()] = time;
-            else ltable[tables.num()][tables.pos()] = 127;
+          ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
           rtable[tables.num()][tables.pos()] = speed;
           time -= ltable[tables.num()][tables.pos()];
           tables.m_pos++;
@@ -338,8 +323,6 @@ void tablecommands()
       int currentfilter = -1;
       int targetfilter = ltable[tables.num()][tables.pos()];
       int speed = rtable[tables.num()][tables.pos()] & 0x7f;
-      int time;
-      int steps;
 
       if (!speed) break;
 
@@ -366,8 +349,8 @@ void tablecommands()
         }
       }
 
-      time = std::abs(targetfilter - currentfilter) / speed;
-      steps = (time + 126) / 127;
+      int time = std::abs(targetfilter - currentfilter) / speed;
+      int steps = (time + 126) / 127;
       if (!steps) break;
       if (tables.pos() + steps > MAX_TABLELEN) break;
       if (targetfilter < currentfilter) speed = -speed;
@@ -377,8 +360,7 @@ void tablecommands()
 
       while (time)
       {
-        if (time < 127) ltable[tables.num()][tables.pos()] = time;
-          else ltable[tables.num()][tables.pos()] = 127;
+        ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
         rtable[tables.num()][tables.pos()] = speed;
         time -= ltable[tables.num()][tables.pos()];
         tables.m_pos++;
@@ -875,9 +857,9 @@ void optimizetable(int num)
 
 int makespeedtable(unsigned data, int mode, bool makenew)
 {
-  unsigned char l = 0, r = 0;
-
   if (!data) return -1;
+
+  unsigned char l = 0, r = 0;
 
   switch (mode)
   {

@@ -1162,7 +1162,7 @@ void save()
       // Repeat until quit or save successful
       while (!done)
       {
-        if ((!strlen(instrfilename)) && (strlen(instr[einum].name)))
+        if ((!std::strlen(instrfilename)) && (strlen(instr[einum].name)))
         {
           useinstrname = 1;
           std::strcpy(instrfilename, instr[einum].name);
@@ -1245,7 +1245,7 @@ void clear()
 
   if (cp)
   {
-    int selectdone = 0;
+    bool selectdone = false;
     unsigned olddpl = defaultpatternlength;
 
     printtext(dpos.statusBottomX+20, dpos.statusBottomY, 15, "Pattern length:");
@@ -1281,11 +1281,11 @@ void clear()
 
         case KEY_ESC:
         defaultpatternlength = olddpl;
-        selectdone = 1;
+        selectdone = true;
         break;
 
         case KEY_ENTER:
-        selectdone = 1;
+        selectdone = true;
         break;
       }
     }
@@ -1502,7 +1502,7 @@ void calculatefreqtable()
     for (int c = 0; c < 8*12 ; c++)
     {
       double note = c;
-      double freq = basefreq * pow(2.0, note/(double)equaldivisionsperoctave);
+      double freq = basefreq * std::pow(2.0, note/(double)equaldivisionsperoctave);
       int intfreq = freq + 0.5;
       if (intfreq > 0xffff)
           intfreq = 0xffff;
@@ -1598,14 +1598,14 @@ void readscalatuningfile()
           std::strcat(specialnotenames, name);
         }
       }
-      if (!strchr(strbuf, '.'))
+      if (!std::strchr(strbuf, '.'))
       {
         double numerator;
         double denominator;
         std::sscanf(strbuf, "%lf", &numerator);
         if (std::strchr(strbuf, '/'))
         {
-          std::sscanf(strchr(strbuf, '/') + 1, "%lf", &denominator);
+          std::sscanf(std::strchr(strbuf, '/') + 1, "%lf", &denominator);
           tuning[i] = numerator / denominator;
         }
       }
@@ -1623,14 +1623,7 @@ void readscalatuningfile()
 void switchMode()
 {
     char nextMode[7];
-    if (numsids == 1)
-    {
-        std::strcpy(nextMode, "STEREO");
-    }
-    else
-    {
-        std::strcpy(nextMode, "MONO");
-    }
+    std::strcpy(nextMode, (numsids == 1) ? "STEREO" : "MONO");
 
     char textbuffer[80];
     std::sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);

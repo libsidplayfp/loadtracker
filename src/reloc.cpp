@@ -263,7 +263,7 @@ void relocator()
   membuf_free(&src);
   membuf_free(&dest);
 
-  int maxChns = 3;
+  int maxChns = getMaxChannels();
 
   // Process song-orderlists
   countpatternlengths();
@@ -1756,7 +1756,7 @@ void relocator()
   std::fwrite(packeddata, packedsize, 1, songhandle);
   std::fclose(songhandle);
 
-  PRCLEANUP:
+PRCLEANUP:
   membuf_free(&src);
   membuf_free(&dest);
 
@@ -3536,7 +3536,7 @@ SKIPTABLE_S:
     // Print results
     clearscreen();
     printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
-    if (!strlen(loadedsongfilename))
+    if (!std::strlen(loadedsongfilename))
         sprintf(textbuffer, "%s Packer/Relocator", programname);
     else
         sprintf(textbuffer, "%s Packer/Relocator - %s", programname, loadedsongfilename);
