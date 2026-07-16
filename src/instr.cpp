@@ -61,7 +61,7 @@ void instrumentcommands()
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = einum;
-      std::memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(INSTR));
       clearinstr(einum);
     }
     break;
@@ -70,20 +70,20 @@ void instrumentcommands()
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = -1;
-      std::memcpy(&instrcopybuffer, &instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(INSTR));
     }
     break;
 
     case KEY_S:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      std::memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(INSTR));
       if (cutinstr != -1)
       {
         for (int c = 0; c < MAX_PATT; c++)
         {
           for (int d = 0; d < getPattlen(c); d++)
-            if (pattern[c][d*4+1] == cutinstr) pattern[c][d*4+1] = einum;
+            if (song.pattern[c][d*4+1] == cutinstr) song.pattern[c][d*4+1] = einum;
         }
       }
     }
@@ -92,7 +92,7 @@ void instrumentcommands()
     case KEY_V:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      std::memcpy(&instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(INSTR));
     }
     break;
 
@@ -177,20 +177,20 @@ void instrumentcommands()
       {
         int pos;
 
-        if (instr[einum].ptr[eipos-2])
+        if (song.instr[einum].ptr[eipos-2])
         {
           if ((eipos == 5) && (shiftpressed))
           {
-            instr[einum].ptr[STBL] = makespeedtable(instr[einum].ptr[STBL], finevibrato, true) + 1;
+            song.instr[einum].ptr[STBL] = makespeedtable(song.instr[einum].ptr[STBL], finevibrato, true) + 1;
             break;
           }
-          pos = instr[einum].ptr[eipos-2] - 1;
+          pos = song.instr[einum].ptr[eipos-2] - 1;
         }
         else
         {
           pos = gettablelen(eipos-2);
           if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-          if (shiftpressed) instr[einum].ptr[eipos-2] = pos + 1;
+          if (shiftpressed) song.instr[einum].ptr[eipos-2] = pos + 1;
         }
         gototable(eipos-2, pos);
       }
@@ -202,10 +202,10 @@ void instrumentcommands()
     }
     break;
   }
-  if ((eipos == 9) && (einum)) editstring(instr[einum].name, MAX_INSTRNAMELEN);
+  if ((eipos == 9) && (einum)) editstring(song.instr[einum].name, MAX_INSTRNAMELEN);
   if ((hexnybble >= 0) && (eipos < 9) && (einum))
   {
-    unsigned char *ptr = &instr[einum].ad;
+    unsigned char *ptr = &song.instr[einum].ad;
     ptr += eipos;
 
     switch(eicolumn)
@@ -232,22 +232,22 @@ void instrumentcommands()
   // Validate instrument parameters
   if (einum)
   {
-    if (!(instr[einum].gatetimer & 0x3f)) instr[einum].gatetimer |= 1;
+    if (!(song.instr[einum].gatetimer & 0x3f)) song.instr[einum].gatetimer |= 1;
   }
 }
 
 
 void clearinstr(int num)
 {
-  std::memset(&instr[num], 0, sizeof(INSTR));
+  std::memset(&song.instr[num], 0, sizeof(INSTR));
   if (num)
   {
     if (multiplier)
-      instr[num].gatetimer = 2 * multiplier;
+      song.instr[num].gatetimer = 2 * multiplier;
     else
-      instr[num].gatetimer = 1;
+      song.instr[num].gatetimer = 1;
 
-    instr[num].firstwave = 0x9;
+    song.instr[num].firstwave = 0x9;
   }
 }
 
@@ -294,8 +294,8 @@ void showinstrtable()
   {
     for (int c = MAX_TABLES-1; c >= 0; c--)
     {
-      if (instr[einum].ptr[c])
-        tables.settableviewfirst(c, instr[einum].ptr[c] - 1);
+      if (song.instr[einum].ptr[c])
+        tables.settableviewfirst(c, song.instr[einum].ptr[c] - 1);
     }
   }
 }

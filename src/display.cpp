@@ -204,7 +204,7 @@ void printstatus()
   {
     for (int c = 0; c < maxChns; c++)
     {
-      int currentSonglen = songlen[esnum][c];
+      int currentSonglen = song.len[esnum][c];
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
@@ -271,7 +271,7 @@ void printstatus()
         else
           std::sprintf(textbuffer, " %02X", p);
 
-        if (pattern[epnum[c]][p*4] == ENDPATT)
+        if (song.pattern[epnum[c]][p*4] == ENDPATT)
         {
           std::sprintf(&textbuffer[3], " PATT. END");
           if (color == colors.CNORMAL) color = colors.CCOMMAND;
@@ -279,15 +279,15 @@ void printstatus()
         else
         {
           std::sprintf(&textbuffer[3], " %s %02X%01X%02X",
-            notename[pattern[epnum[c]][p*4]-FIRSTNOTE],
-            pattern[epnum[c]][p*4+1],
-            pattern[epnum[c]][p*4+2],
-            pattern[epnum[c]][p*4+3]);
+            notename[song.pattern[epnum[c]][p*4]-FIRSTNOTE],
+            song.pattern[epnum[c]][p*4+1],
+            song.pattern[epnum[c]][p*4+2],
+            song.pattern[epnum[c]][p*4+3]);
           if (patterndispmode & 2)
           {
-            if (!pattern[epnum[c]][p*4+1])
+            if (!song.pattern[epnum[c]][p*4+1])
               std::memset(&textbuffer[8], '.', 2);
-            if (!pattern[epnum[c]][p*4+2])
+            if (!song.pattern[epnum[c]][p*4+2])
               std::memset(&textbuffer[10], '.', 3);
           }
         }
@@ -351,8 +351,8 @@ void printstatus()
     for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview+d;
-      unsigned char currentSongorder = songorder[esnum][c][p];
-      int currentSonglen = songlen[esnum][c];
+      unsigned char currentSongorder = song.order[esnum][c][p];
+      int currentSonglen = song.len[esnum][c];
       int color = colors.CNORMAL;
       if (isplaying())
       {
@@ -437,16 +437,16 @@ void printstatus()
     int color = insnum == einum ? colors.CEDIT : colors.CNORMAL;
     std::sprintf(textbuffer, "%2d %-16s %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                 insnum,
-                instr[insnum].name,
-                instr[insnum].ad,
-                instr[insnum].sr,
-                instr[insnum].ptr[WTBL],
-                instr[insnum].ptr[PTBL],
-                instr[insnum].ptr[FTBL],
-                instr[insnum].ptr[STBL],
-                instr[insnum].vibdelay,
-                instr[insnum].gatetimer,
-                instr[insnum].firstwave
+                song.instr[insnum].name,
+                song.instr[insnum].ad,
+                song.instr[insnum].sr,
+                song.instr[insnum].ptr[WTBL],
+                song.instr[insnum].ptr[PTBL],
+                song.instr[insnum].ptr[FTBL],
+                song.instr[insnum].ptr[STBL],
+                song.instr[insnum].vibdelay,
+                song.instr[insnum].gatetimer,
+                song.instr[insnum].firstwave
                 );
     printtext(dpos.instrumentsX, dpos.instrumentsY+1+i, color, textbuffer);
   }
@@ -462,7 +462,7 @@ void printstatus()
     else
     {
       // Instr name
-      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(instr[einum].name), dpos.instrumentsY+1+selpos, cc, 1);
+      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(song.instr[einum].name), dpos.instrumentsY+1+selpos, cc, 1);
     }
   }
 
@@ -480,22 +480,22 @@ void printstatus()
       switch (c)
       {
         case WTBL:
-        if (ltable[c][p] >= WAVECMD) color = colors.CCOMMAND;
+        if (song.ltable[c][p] >= WAVECMD) color = colors.CCOMMAND;
         break;
 
         case PTBL:
-        if (ltable[c][p] >= 0x80) color = colors.CCOMMAND;
+        if (song.ltable[c][p] >= 0x80) color = colors.CCOMMAND;
         break;
 
         case FTBL:
-        if ((ltable[c][p] >= 0x80) || ((!ltable[c][p]) && (rtable[c][p]))) color = colors.CCOMMAND;
+        if ((song.ltable[c][p] >= 0x80) || ((!song.ltable[c][p]) && (song.rtable[c][p]))) color = colors.CCOMMAND;
         break;
       }
       if ((p == tables.pos()) && (tables.num() == c)) color = colors.CEDIT;
-      std::sprintf(textbuffer, "%02X:%02X %02X", p+1, ltable[c][p], rtable[c][p]);
+      std::sprintf(textbuffer, "%02X:%02X %02X", p+1, song.ltable[c][p], song.rtable[c][p]);
       if (patterndispmode & 2)
       {
-        if (!ltable[c][p] && !rtable[c][p] && !ltable[c][p+1] && !rtable[c][p+1])
+        if (!song.ltable[c][p] && !song.rtable[c][p] && !song.ltable[c][p+1] && !song.rtable[c][p+1])
         {
           std::memset(&textbuffer[3], '.', 2);
           std::memset(&textbuffer[6], '.', 2);
@@ -524,15 +524,15 @@ void printstatus()
 
   // Info view
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CTITLE, "NAME     ");
-  std::sprintf(textbuffer, "%-32s", songname);
+  std::sprintf(textbuffer, "%-32s", song.title);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+1, colors.CEDIT, textbuffer);
 
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CTITLE, "AUTHOR   ");
-  std::sprintf(textbuffer, "%-32s", authorname);
+  std::sprintf(textbuffer, "%-32s", song.author);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+2, colors.CEDIT, textbuffer);
 
   printtext(dpos.instrumentsX, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CTITLE, "RELEASED ");
-  std::sprintf(textbuffer, "%-32s", copyrightname);
+  std::sprintf(textbuffer, "%-32s", song.released);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CEDIT, textbuffer);
 
   if ((editmode == EDIT_NAMES) && (!eamode))
@@ -540,13 +540,13 @@ void printstatus()
     switch(enpos)
     {
       case 0:
-      printbg(dpos.instrumentsX+9+std::strlen(songname), dpos.instrumentsY+8+VISIBLETABLEROWS+1, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(song.title), dpos.instrumentsY+8+VISIBLETABLEROWS+1, cc, 1);
       break;
       case 1:
-      printbg(dpos.instrumentsX+9+std::strlen(authorname), dpos.instrumentsY+8+VISIBLETABLEROWS+2, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(song.author), dpos.instrumentsY+8+VISIBLETABLEROWS+2, cc, 1);
       break;
       case 2:
-      printbg(dpos.instrumentsX+9+std::strlen(copyrightname), dpos.instrumentsY+8+VISIBLETABLEROWS+3, cc, 1);
+      printbg(dpos.instrumentsX+9+std::strlen(song.released), dpos.instrumentsY+8+VISIBLETABLEROWS+3, cc, 1);
       break;
     }
   }

@@ -39,16 +39,12 @@
 #include <cstring>
 #include <cstdio>
 
-INSTR instr[MAX_INSTR];
-unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
-unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
-unsigned char songorder[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
-unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
+Song song;
+
 char songname[MAX_STR];
 char authorname[MAX_STR];
 char copyrightname[MAX_STR];
 int pattlen[MAX_PATT];
-int songlen[MAX_SONGS][MAX_CHN];
 int highestusedpattern;
 int highestusedinstr;
 
@@ -78,8 +74,8 @@ bool savesong()
     countpatternlengths();
     for (int c = 1; c < MAX_INSTR; c++)
     {
-      if ((instr[c].ad) || (instr[c].sr) || (instr[c].ptr[0]) || (instr[c].ptr[1]) ||
-          (instr[c].ptr[2]) || (instr[c].vibdelay) || (instr[c].ptr[3]))
+      if ((song.instr[c].ad) || (song.instr[c].sr) || (song.instr[c].ptr[0]) || (song.instr[c].ptr[1]) ||
+          (song.instr[c].ptr[2]) || (song.instr[c].vibdelay) || (song.instr[c].ptr[3]))
       {
         if (c > highestusedinstr) highestusedinstr = c;
       }
@@ -94,25 +90,25 @@ bool savesong()
     int c = MAX_SONGS - 1;
     for (;;)
     {
-     if ((songlen[c][0]) &&
-         (songlen[c][1]) &&
-         (songlen[c][2])) break;
+     if ((song.len[c][0]) &&
+         (song.len[c][1]) &&
+         (song.len[c][2])) break;
      if (c == 0) break;
      c--;
     }
     int amount = c + 1;
 
     fwrite8(handle, amount);
-    // Write songorderlists
+    // Write song.orderlists
     for (int d = 0; d < amount; d++)
     {
       for (int c = 0; c < maxChns; c++)
       {
-         int length = songlen[d][c]+1;
+         int length = song.len[d][c]+1;
          fwrite8(handle, length);
          int writebytes = length;
          writebytes++;
-         std::fwrite(songorder[d][c], writebytes, 1, handle);
+         std::fwrite(song.order[d][c], writebytes, 1, handle);
       }
     }
     // Write amount of instruments
@@ -120,24 +116,24 @@ bool savesong()
     // Write instruments
     for (int c = 1; c <= highestusedinstr; c++)
     {
-      fwrite8(handle, instr[c].ad);
-      fwrite8(handle, instr[c].sr);
-      fwrite8(handle, instr[c].ptr[WTBL]);
-      fwrite8(handle, instr[c].ptr[PTBL]);
-      fwrite8(handle, instr[c].ptr[FTBL]);
-      fwrite8(handle, instr[c].ptr[STBL]);
-      fwrite8(handle, instr[c].vibdelay);
-      fwrite8(handle, instr[c].gatetimer);
-      fwrite8(handle, instr[c].firstwave);
-      std::fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+      fwrite8(handle, song.instr[c].ad);
+      fwrite8(handle, song.instr[c].sr);
+      fwrite8(handle, song.instr[c].ptr[WTBL]);
+      fwrite8(handle, song.instr[c].ptr[PTBL]);
+      fwrite8(handle, song.instr[c].ptr[FTBL]);
+      fwrite8(handle, song.instr[c].ptr[STBL]);
+      fwrite8(handle, song.instr[c].vibdelay);
+      fwrite8(handle, song.instr[c].gatetimer);
+      fwrite8(handle, song.instr[c].firstwave);
+      std::fwrite(&song.instr[c].name, MAX_INSTRNAMELEN, 1, handle);
     }
     // Write tables
     for (int c = 0; c < MAX_TABLES; c++)
     {
       int writebytes = gettablelen(c);
       fwrite8(handle, writebytes);
-      std::fwrite(ltable[c], writebytes, 1, handle);
-      std::fwrite(rtable[c], writebytes, 1, handle);
+      std::fwrite(song.ltable[c], writebytes, 1, handle);
+      std::fwrite(song.rtable[c], writebytes, 1, handle);
     }
     // Write patterns
     amount = highestusedpattern + 1;
@@ -146,7 +142,7 @@ bool savesong()
     {
       int length = pattlen[c]+1;
       fwrite8(handle, length);
-      fwrite(pattern[c], length * 4, 1, handle);
+      fwrite(song.pattern[c], length * 4, 1, handle);
     }
     std::fclose(handle);
     std::strcpy(loadedsongfilename, songfilename);
@@ -175,25 +171,25 @@ bool saveinstrument()
     std::fwrite(ident, 4, 1, handle);
 
     // Write instrument
-    fwrite8(handle, instr[einum].ad);
-    fwrite8(handle, instr[einum].sr);
-    fwrite8(handle, instr[einum].ptr[WTBL]);
-    fwrite8(handle, instr[einum].ptr[PTBL]);
-    fwrite8(handle, instr[einum].ptr[FTBL]);
-    fwrite8(handle, instr[einum].ptr[STBL]);
-    fwrite8(handle, instr[einum].vibdelay);
-    fwrite8(handle, instr[einum].gatetimer);
-    fwrite8(handle, instr[einum].firstwave);
-    fwrite(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
+    fwrite8(handle, song.instr[einum].ad);
+    fwrite8(handle, song.instr[einum].sr);
+    fwrite8(handle, song.instr[einum].ptr[WTBL]);
+    fwrite8(handle, song.instr[einum].ptr[PTBL]);
+    fwrite8(handle, song.instr[einum].ptr[FTBL]);
+    fwrite8(handle, song.instr[einum].ptr[STBL]);
+    fwrite8(handle, song.instr[einum].vibdelay);
+    fwrite8(handle, song.instr[einum].gatetimer);
+    fwrite8(handle, song.instr[einum].firstwave);
+    fwrite(&song.instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
     for (int c = 0; c < MAX_TABLES; c++)
     {
-      if (instr[einum].ptr[c])
+      if (song.instr[einum].ptr[c])
       {
-        int pos = instr[einum].ptr[c] - 1;
+        int pos = song.instr[einum].ptr[c] - 1;
         int len = gettablepartlen(c, pos);
         fwrite8(handle, len);
-        std::fwrite(&ltable[c][pos], len, 1, handle);
-        std::fwrite(&rtable[c][pos], len, 1, handle);
+        std::fwrite(&song.ltable[c][pos], len, 1, handle);
+        std::fwrite(&song.rtable[c][pos], len, 1, handle);
       }
       else fwrite8(handle, 0);
     }
@@ -229,7 +225,7 @@ void loadsong()
       std::fread(authorname, sizeof authorname, 1, handle);
       std::fread(copyrightname, sizeof copyrightname, 1, handle);
 
-      // Read songorderlists
+      // Read song.orderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
       for (int d = 0; d < amount; d++)
@@ -239,37 +235,37 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          std::fread(songorder[d][c], loadsize, 1, handle);
+          std::fread(song.order[d][c], loadsize, 1, handle);
         }
       }
       // Read instruments
       amount = fread8(handle);
       for (int c = 1; c <= amount; c++)
       {
-        instr[c].ad = fread8(handle);
-        instr[c].sr = fread8(handle);
-        instr[c].ptr[WTBL] = fread8(handle);
-        instr[c].ptr[PTBL] = fread8(handle);
-        instr[c].ptr[FTBL] = fread8(handle);
-        instr[c].ptr[STBL] = fread8(handle);
-        instr[c].vibdelay = fread8(handle);
-        instr[c].gatetimer = fread8(handle);
-        instr[c].firstwave = fread8(handle);
-        std::fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+        song.instr[c].ad = fread8(handle);
+        song.instr[c].sr = fread8(handle);
+        song.instr[c].ptr[WTBL] = fread8(handle);
+        song.instr[c].ptr[PTBL] = fread8(handle);
+        song.instr[c].ptr[FTBL] = fread8(handle);
+        song.instr[c].ptr[STBL] = fread8(handle);
+        song.instr[c].vibdelay = fread8(handle);
+        song.instr[c].gatetimer = fread8(handle);
+        song.instr[c].firstwave = fread8(handle);
+        std::fread(&song.instr[c].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
       for (int c = 0; c < MAX_TABLES; c++)
       {
         loadsize = fread8(handle);
-        std::fread(ltable[c], loadsize, 1, handle);
-        std::fread(rtable[c], loadsize, 1, handle);
+        std::fread(song.ltable[c], loadsize, 1, handle);
+        std::fread(song.rtable[c], loadsize, 1, handle);
       }
       // Read patterns
       amount = fread8(handle);
       for (int c = 0; c < amount; c++)
       {
         length = fread8(handle) * 4;
-        std::fread(pattern[c], length, 1, handle);
+        std::fread(song.pattern[c], length, 1, handle);
       }
       countpatternlengths();
       songchange();
@@ -289,7 +285,7 @@ void loadsong()
       std::fread(authorname, sizeof authorname, 1, handle);
       std::fread(copyrightname, sizeof copyrightname, 1, handle);
 
-      // Read songorderlists
+      // Read song.orderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
       for (int d = 0; d < amount; d++)
@@ -299,55 +295,55 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          std::fread(songorder[d][c], loadsize, 1, handle);
+          std::fread(song.order[d][c], loadsize, 1, handle);
         }
       }
       // Read instruments
       amount = fread8(handle);
       for (int c = 1; c <= amount; c++)
       {
-        instr[c].ad = fread8(handle);
-        instr[c].sr = fread8(handle);
-        instr[c].ptr[WTBL] = fread8(handle);
-        instr[c].ptr[PTBL] = fread8(handle);
-        instr[c].ptr[FTBL] = fread8(handle);
-        instr[c].vibdelay = fread8(handle);
-        instr[c].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
-        instr[c].gatetimer = fread8(handle);
-        instr[c].firstwave = fread8(handle);
-        std::fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+        song.instr[c].ad = fread8(handle);
+        song.instr[c].sr = fread8(handle);
+        song.instr[c].ptr[WTBL] = fread8(handle);
+        song.instr[c].ptr[PTBL] = fread8(handle);
+        song.instr[c].ptr[FTBL] = fread8(handle);
+        song.instr[c].vibdelay = fread8(handle);
+        song.instr[c].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
+        song.instr[c].gatetimer = fread8(handle);
+        song.instr[c].firstwave = fread8(handle);
+        std::fread(&song.instr[c].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
       for (int c = 0; c < MAX_TABLES-1; c++)
       {
         loadsize = fread8(handle);
-        std::fread(ltable[c], loadsize, 1, handle);
-        std::fread(rtable[c], loadsize, 1, handle);
+        std::fread(song.ltable[c], loadsize, 1, handle);
+        std::fread(song.rtable[c], loadsize, 1, handle);
       }
       // Read patterns
       amount = fread8(handle);
       for (int c = 0; c < amount; c++)
       {
         length = fread8(handle) * 4;
-        std::fread(pattern[c], length, 1, handle);
+        std::fread(song.pattern[c], length, 1, handle);
 
         // Convert speedtable-requiring commands
         for (int d = 0; d < length; d++)
         {
-          switch (pattern[c][d*4+2])
+          switch (song.pattern[c][d*4+2])
           {
             case CMD_FUNKTEMPO:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_FUNKTEMPO, false) + 1;
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_FUNKTEMPO, false) + 1;
             break;
 
             case CMD_PORTAUP:
             case CMD_PORTADOWN:
             case CMD_TONEPORTA:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
             break;
 
             case CMD_VIBRATO:
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], finevibrato, false) + 1;
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], finevibrato, false) + 1;
             break;
           }
         }
@@ -380,7 +376,7 @@ void loadsong()
       std::fread(authorname, sizeof authorname, 1, handle);
       std::fread(copyrightname, sizeof copyrightname, 1, handle);
 
-      // Read songorderlists
+      // Read song.orderlists
       channelstoload = determinechannels(handle);
       amount = fread8(handle);
       for (int d = 0; d < amount; d++)
@@ -390,7 +386,7 @@ void loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          std::fread(songorder[d][c], loadsize, 1, handle);
+          std::fread(song.order[d][c], loadsize, 1, handle);
         }
       }
 
@@ -399,31 +395,31 @@ void loadsong()
       {
         unsigned char wavelen;
 
-        instr[c].ad = fread8(handle);
-        instr[c].sr = fread8(handle);
+        song.instr[c].ad = fread8(handle);
+        song.instr[c].sr = fread8(handle);
         pulse[c] = fread8(handle);
         pulseadd[c] = fread8(handle);
         pulselimitlow[c] = fread8(handle);
         pulselimithigh[c] = fread8(handle);
-        instr[c].ptr[FTBL] = fread8(handle); // Will be converted later
-        if (instr[c].ptr[FTBL] > numfilter) numfilter = instr[c].ptr[FTBL];
-        if (pulse[c] & 1) instr[c].gatetimer |= 0x80; // "No hardrestart" flag
+        song.instr[c].ptr[FTBL] = fread8(handle); // Will be converted later
+        if (song.instr[c].ptr[FTBL] > numfilter) numfilter = song.instr[c].ptr[FTBL];
+        if (pulse[c] & 1) song.instr[c].gatetimer |= 0x80; // "No hardrestart" flag
         pulse[c] &= 0xfe;
         wavelen = fread8(handle)/2;
-        std::fread(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
-        instr[c].ptr[WTBL] = fw+1;
+        std::fread(&song.instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+        song.instr[c].ptr[WTBL] = fw+1;
 
         // Convert wavetable
         for (int d = 0; d < wavelen; d++)
         {
           if (fw < MAX_TABLELEN)
           {
-            ltable[WTBL][fw] = fread8(handle);
-            rtable[WTBL][fw] = fread8(handle);
-            if (ltable[WTBL][fw] == 0xff)
-              if (rtable[WTBL][fw]) rtable[WTBL][fw] += instr[c].ptr[WTBL]-1;
-            if ((ltable[WTBL][fw] >= 0x8) && (ltable[WTBL][fw] <= 0xf))
-              ltable[WTBL][fw] |= 0xe0;
+            song.ltable[WTBL][fw] = fread8(handle);
+            song.rtable[WTBL][fw] = fread8(handle);
+            if (song.ltable[WTBL][fw] == 0xff)
+              if (song.rtable[WTBL][fw]) song.rtable[WTBL][fw] += song.instr[c].ptr[WTBL]-1;
+            if ((song.ltable[WTBL][fw] >= 0x8) && (song.ltable[WTBL][fw] <= 0xf))
+              song.ltable[WTBL][fw] |= 0xe0;
             fw++;
           }
           else
@@ -434,14 +430,14 @@ void loadsong()
         }
 
         // Remove empty wavetable afterwards
-        if ((wavelen == 2) && (!ltable[WTBL][fw-2]) && (!rtable[WTBL][fw-2]))
+        if ((wavelen == 2) && (!song.ltable[WTBL][fw-2]) && (!song.rtable[WTBL][fw-2]))
         {
-          instr[c].ptr[WTBL] = 0;
+          song.instr[c].ptr[WTBL] = 0;
           fw -= 2;
-          ltable[WTBL][fw] = 0;
-          rtable[WTBL][fw] = 0;
-          ltable[WTBL][fw+1] = 0;
-          rtable[WTBL][fw+1] = 0;
+          song.ltable[WTBL][fw] = 0;
+          song.rtable[WTBL][fw] = 0;
+          song.ltable[WTBL][fw+1] = 0;
+          song.rtable[WTBL][fw+1] = 0;
         }
 
         // Convert pulsetable
@@ -455,16 +451,16 @@ void loadsong()
             if ((pulse[d] == pulse[c]) && (pulseadd[d] == pulseadd[c]) && (pulselimitlow[d] == pulselimitlow[c]) &&
                 (pulselimithigh[d] == pulselimithigh[c]))
             {
-              instr[c].ptr[PTBL] = instr[d].ptr[PTBL];
+              song.instr[c].ptr[PTBL] = song.instr[d].ptr[PTBL];
               goto PULSEDONE;
             }
           }
 
           // Initial pulse setting
           if (fp >= MAX_TABLELEN) goto PULSEDONE;
-          instr[c].ptr[PTBL] = fp+1;
-          ltable[PTBL][fp] = 0x80 | (pulse[c] >> 4);
-          rtable[PTBL][fp] = pulse[c] << 4;
+          song.instr[c].ptr[PTBL] = fp+1;
+          song.ltable[PTBL][fp] = 0x80 | (pulse[c] >> 4);
+          song.rtable[PTBL][fp] = pulse[c] << 4;
           fp++;
 
           // Pulse modulation
@@ -483,8 +479,8 @@ void loadsong()
                 int acttime = pulsetime;
                 if (acttime > 127) acttime = 127;
                 if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                ltable[PTBL][fp] = acttime;
-                rtable[PTBL][fp] = pulseadd[c] / 2;
+                song.ltable[PTBL][fp] = acttime;
+                song.rtable[PTBL][fp] = pulseadd[c] / 2;
                 fp++;
                 pulsetime -= acttime;
               }
@@ -502,8 +498,8 @@ void loadsong()
                 int acttime = pulsetime;
                 if (acttime > 127) acttime = 127;
                 if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                ltable[PTBL][fp] = acttime;
-                rtable[PTBL][fp] = -(pulseadd[c] / 2);
+                song.ltable[PTBL][fp] = acttime;
+                song.rtable[PTBL][fp] = -(pulseadd[c] / 2);
                 fp++;
                 pulsetime -= acttime;
               }
@@ -521,16 +517,16 @@ void loadsong()
                   int acttime = pulsetime;
                   if (acttime > 127) acttime = 127;
                   if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                  ltable[PTBL][fp] = acttime;
-                  rtable[PTBL][fp] = pulseadd[c] / 2;
+                  song.ltable[PTBL][fp] = acttime;
+                  song.rtable[PTBL][fp] = pulseadd[c] / 2;
                   fp++;
                   pulsetime -= acttime;
                 }
               }
               // Pulse jump back to beginning
               if (fp >= MAX_TABLELEN) goto PULSEDONE;
-              ltable[PTBL][fp] = 0xff;
-              rtable[PTBL][fp] = instr[c].ptr[PTBL] + 1;
+              song.ltable[PTBL][fp] = 0xff;
+              song.rtable[PTBL][fp] = song.instr[c].ptr[PTBL] + 1;
               fp++;
             }
             else
@@ -544,16 +540,16 @@ void loadsong()
                   int acttime = pulsetime;
                   if (acttime > 127) acttime = 127;
                   if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                  ltable[PTBL][fp] = acttime;
-                  rtable[PTBL][fp] = pulseadd[c] / 2;
+                  song.ltable[PTBL][fp] = acttime;
+                  song.rtable[PTBL][fp] = pulseadd[c] / 2;
                   fp++;
                   pulsetime -= acttime;
                 }
               }
               // Pulse jump back to beginning
               if (fp >= MAX_TABLELEN) goto PULSEDONE;
-              ltable[PTBL][fp] = 0xff;
-              rtable[PTBL][fp] = hlpos + 1;
+              song.ltable[PTBL][fp] = 0xff;
+              song.rtable[PTBL][fp] = hlpos + 1;
               fp++;
             }
           }
@@ -561,8 +557,8 @@ void loadsong()
           {
             // Pulse stopped
             if (fp >= MAX_TABLELEN) goto PULSEDONE;
-            ltable[PTBL][fp] = 0xff;
-            rtable[PTBL][fp] = 0;
+            song.ltable[PTBL][fp] = 0xff;
+            song.rtable[PTBL][fp] = 0;
             fp++;
           }
           PULSEDONE: {}
@@ -617,10 +613,10 @@ void loadsong()
             }
             break;
           }
-          pattern[c][d*4] = note;
-          pattern[c][d*4+1] = instr;
-          pattern[c][d*4+2] = cmd;
-          pattern[c][d*4+3] = data;
+          song.pattern[c][d*4] = note;
+          song.pattern[c][d*4+1] = instr;
+          song.pattern[c][d*4+2] = cmd;
+          song.pattern[c][d*4+3] = data;
         }
       }
       countpatternlengths();
@@ -649,13 +645,13 @@ void loadsong()
           // Filter set
           if (filtertable[c*4])
           {
-            ltable[FTBL][ff] = 0x80 + (filtertable[c*4+1] & 0x70);
-            rtable[FTBL][ff] = filtertable[c*4];
+            song.ltable[FTBL][ff] = 0x80 + (filtertable[c*4+1] & 0x70);
+            song.rtable[FTBL][ff] = filtertable[c*4];
             ff++;
             if (filtertable[c*4+2])
             {
-              ltable[FTBL][ff] = 0x00;
-              rtable[FTBL][ff] = filtertable[c*4+2];
+              song.ltable[FTBL][ff] = 0x00;
+              song.rtable[FTBL][ff] = filtertable[c*4+2];
               ff++;
             }
           }
@@ -668,8 +664,8 @@ void loadsong()
             {
               int acttime = time;
               if (acttime > 127) acttime = 127;
-              ltable[FTBL][ff] = acttime;
-              rtable[FTBL][ff] = filtertable[c*4+2];
+              song.ltable[FTBL][ff] = acttime;
+              song.rtable[FTBL][ff] = filtertable[c*4+2];
               ff++;
               time -= acttime;
             }
@@ -679,8 +675,8 @@ void loadsong()
           if (filtertable[c*4+3] != c+1)
           {
             filterjumppos[c] = ff;
-            ltable[FTBL][ff] = 0xff;
-            rtable[FTBL][ff] = filtertable[c*4+3]; // Fix the jump later
+            song.ltable[FTBL][ff] = 0xff;
+            song.rtable[FTBL][ff] = filtertable[c*4+3]; // Fix the jump later
             ff++;
           }
         }
@@ -690,12 +686,12 @@ void loadsong()
       for (int c = 1; c <= numfilter; c++)
       {
         if (filterjumppos[c] != -1)
-          rtable[FTBL][filterjumppos[c]] = filtermap[rtable[FTBL][filterjumppos[c]]];
+          song.rtable[FTBL][filterjumppos[c]] = filtermap[song.rtable[FTBL][filterjumppos[c]]];
       }
 
       // Fix filterpointers in instruments
       for (int c = 1; c < 32; c++)
-        instr[c].ptr[FTBL] = filtermap[instr[c].ptr[FTBL]];
+        song.instr[c].ptr[FTBL] = filtermap[song.instr[c].ptr[FTBL]];
 
       // Now fix pattern commands
       std::memset(arpmap, 0, sizeof arpmap);
@@ -704,35 +700,35 @@ void loadsong()
         unsigned char i = 0;
         for (int d = 0; d <= MAX_PATTROWS; d++)
         {
-          if (pattern[c][d*4+1]) i = pattern[c][d*4+1];
+          if (song.pattern[c][d*4+1]) i = song.pattern[c][d*4+1];
 
           // Convert portamento & vibrato
-          if (pattern[c][d*4+2] == CMD_PORTAUP)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
-          if (pattern[c][d*4+2] == CMD_PORTADOWN)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
-          if (pattern[c][d*4+2] == CMD_TONEPORTA)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
-          if (pattern[c][d*4+2] == CMD_VIBRATO)
-            pattern[c][d*4+3] = makespeedtable(pattern[c][d*4+3], MST_NOFINEVIB, false) + 1;
+          if (song.pattern[c][d*4+2] == CMD_PORTAUP)
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
+          if (song.pattern[c][d*4+2] == CMD_PORTADOWN)
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
+          if (song.pattern[c][d*4+2] == CMD_TONEPORTA)
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_PORTAMENTO, false) + 1;
+          if (song.pattern[c][d*4+2] == CMD_VIBRATO)
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], MST_NOFINEVIB, false) + 1;
 
           // Convert filterjump
-          if (pattern[c][d*4+2] == CMD_SETFILTERPTR)
-            pattern[c][d*4+3] = filtermap[pattern[c][d*4+3]];
+          if (song.pattern[c][d*4+2] == CMD_SETFILTERPTR)
+            song.pattern[c][d*4+3] = filtermap[song.pattern[c][d*4+3]];
 
           // Convert funktempo
-          if ((pattern[c][d*4+2] == CMD_SETTEMPO) && (!pattern[c][d*4+3]))
+          if ((song.pattern[c][d*4+2] == CMD_SETTEMPO) && (!song.pattern[c][d*4+3]))
           {
-            pattern[c][d*4+2] = CMD_FUNKTEMPO;
-            pattern[c][d*4+3] = makespeedtable((filtertable[2] << 4) | (filtertable[3] & 0x0f), MST_FUNKTEMPO, false) + 1;
+            song.pattern[c][d*4+2] = CMD_FUNKTEMPO;
+            song.pattern[c][d*4+3] = makespeedtable((filtertable[2] << 4) | (filtertable[3] & 0x0f), MST_FUNKTEMPO, false) + 1;
           }
           // Convert arpeggio
-          if ((pattern[c][d*4+2] == CMD_DONOTHING) && (pattern[c][d*4+3]))
+          if ((song.pattern[c][d*4+2] == CMD_DONOTHING) && (song.pattern[c][d*4+3]))
           {
             // Must be in conjunction with a note
-            if ((pattern[c][d*4] >= FIRSTNOTE) && (pattern[c][d*4] <= LASTNOTE))
+            if ((song.pattern[c][d*4] >= FIRSTNOTE) && (song.pattern[c][d*4] <= LASTNOTE))
             {
-              unsigned char param = pattern[c][d*4+3];
+              unsigned char param = song.pattern[c][d*4+3];
               if (i)
               {
                 // Old arpeggio
@@ -741,13 +737,13 @@ void loadsong()
                   // As command, or as instrument?
                   if (arpmap[i][param] < 256)
                   {
-                    pattern[c][d*4+2] = CMD_SETWAVEPTR;
-                    pattern[c][d*4+3] = arpmap[i][param];
+                    song.pattern[c][d*4+2] = CMD_SETWAVEPTR;
+                    song.pattern[c][d*4+3] = arpmap[i][param];
                   }
                   else
                   {
-                    pattern[c][d*4+1] = arpmap[i][param] - 256;
-                    pattern[c][d*4+3] = 0;
+                    song.pattern[c][d*4+1] = arpmap[i][param] - 256;
+                    song.pattern[c][d*4+3] = 0;
                   }
                 }
                 else
@@ -759,14 +755,14 @@ void loadsong()
                   // New arpeggio
                   // Copy first the instrument's wavetable up to loop/end point
                   arpstart = fw + 1;
-                  if (instr[i].ptr[WTBL])
+                  if (song.instr[i].ptr[WTBL])
                   {
-                    for (e = instr[i].ptr[WTBL]-1;; e++)
+                    for (e = song.instr[i].ptr[WTBL]-1;; e++)
                     {
-                      if (ltable[WTBL][e] == 0xff) break;
+                      if (song.ltable[WTBL][e] == 0xff) break;
                       if (fw < MAX_TABLELEN)
                       {
-                        ltable[WTBL][fw] = ltable[WTBL][e];
+                        song.ltable[WTBL][fw] = song.ltable[WTBL][e];
                         fw++;
                       }
                     }
@@ -775,31 +771,31 @@ void loadsong()
                   arploop = fw + 1;
                   if (fw < MAX_TABLELEN-3)
                   {
-                    ltable[WTBL][fw] = (param & 0x80) >> 7;
-                    rtable[WTBL][fw] = (param  & 0x70) >> 4;
+                    song.ltable[WTBL][fw] = (param & 0x80) >> 7;
+                    song.rtable[WTBL][fw] = (param  & 0x70) >> 4;
                     fw++;
-                    ltable[WTBL][fw] = (param & 0x80) >> 7;
-                    rtable[WTBL][fw] = (param & 0xf);
+                    song.ltable[WTBL][fw] = (param & 0x80) >> 7;
+                    song.rtable[WTBL][fw] = (param & 0xf);
                     fw++;
-                    ltable[WTBL][fw] = (param & 0x80) >> 7;
-                    rtable[WTBL][fw] = 0;
+                    song.ltable[WTBL][fw] = (param & 0x80) >> 7;
+                    song.rtable[WTBL][fw] = 0;
                     fw++;
-                    ltable[WTBL][fw] = 0xff;
-                    rtable[WTBL][fw] = arploop;
+                    song.ltable[WTBL][fw] = 0xff;
+                    song.rtable[WTBL][fw] = arploop;
                     fw++;
 
                     // Create new instrument if possible
                     if (fi < MAX_INSTR)
                     {
                       arpmap[i][param] = fi + 256;
-                      instr[fi] = instr[i];
-                      instr[fi].ptr[WTBL] = arpstart;
+                      song.instr[fi] = song.instr[i];
+                      song.instr[fi].ptr[WTBL] = arpstart;
                       // Add arpeggio parameter to new instrument name
-                      if (strlen(instr[fi].name) < MAX_INSTRNAMELEN-3)
+                      if (strlen(song.instr[fi].name) < MAX_INSTRNAMELEN-3)
                       {
                         char arpname[8];
                         sprintf(arpname, "0%02X", param&0x7f);
-                        strcat(instr[fi].name, arpname);
+                        strcat(song.instr[fi].name, arpname);
                       }
                       fi++;
                     }
@@ -814,21 +810,21 @@ void loadsong()
                     // As command, or as instrument?
                     if (arpmap[i][param] < 256)
                     {
-                      pattern[c][d*4+2] = CMD_SETWAVEPTR;
-                      pattern[c][d*4+3] = arpmap[i][param];
+                      song.pattern[c][d*4+2] = CMD_SETWAVEPTR;
+                      song.pattern[c][d*4+3] = arpmap[i][param];
                     }
                     else
                     {
-                      pattern[c][d*4+1] = arpmap[i][param] - 256;
-                      pattern[c][d*4+3] = 0;
+                      song.pattern[c][d*4+1] = arpmap[i][param] - 256;
+                      song.pattern[c][d*4+3] = 0;
                     }
                   }
                 }
               }
             }
             // If arpeggio could not be converted, databyte zero
-            if (!pattern[c][d*4+2])
-              pattern[c][d*4+3] = 0;
+            if (!song.pattern[c][d*4+2])
+              song.pattern[c][d*4+3] = 0;
           }
         }
       }
@@ -847,13 +843,13 @@ void loadsong()
     {
       for (int c = 0; c < MAX_TABLELEN; c++)
       {
-        if ((ltable[PTBL][c] < 0x80) && (rtable[PTBL][c]))
+        if ((song.ltable[PTBL][c] < 0x80) && (song.rtable[PTBL][c]))
         {
-          int speed = ((signed char)rtable[PTBL][c]);
+          int speed = ((signed char)song.rtable[PTBL][c]);
           speed <<= 1;
           if (speed > 127) speed = 127;
           if (speed < -128) speed = -128;
-          rtable[PTBL][c] = speed;
+          song.rtable[PTBL][c] = speed;
         }
       }
     }
@@ -863,12 +859,12 @@ void loadsong()
     {
         for (int c = 1; c < MAX_INSTR; c++)
         {
-            if (instr[c].firstwave >= 0x80)
+            if (song.instr[c].firstwave >= 0x80)
             {
-                instr[c].gatetimer |= 0x80;
-                instr[c].firstwave &= 0x7f;
+                song.instr[c].gatetimer |= 0x80;
+                song.instr[c].firstwave &= 0x7f;
             }
-            if (!instr[c].firstwave) instr[c].gatetimer |= 0x40;
+            if (!song.instr[c].firstwave) song.instr[c].gatetimer |= 0x40;
         }
     }
 
@@ -886,8 +882,8 @@ void loadsong()
           int ok = 1;
           for (d = 0; d < pattlen[c]; d++)
           {
-            if ((pattern[c][d*4] != REST) || (pattern[c][d*4+1] != 0x00) ||
-                (pattern[c][d*4+2] != 0x00) || (pattern[c][d*4+3] != 0x00))
+            if ((song.pattern[c][d*4] != REST) || (song.pattern[c][d*4+1] != 0x00) ||
+                (song.pattern[c][d*4+2] != 0x00) || (song.pattern[c][d*4+3] != 0x00))
               ok = 0;
           }
 
@@ -901,14 +897,14 @@ void loadsong()
 
       for (int c = 0; c < MAX_SONGS; c++)
       {
-        if (songlen[c][0])
+        if (song.len[c][0])
         {
            for (int d = channelstoload; d < MAX_CHN; d++)
            {
-             songorder[c][d][0] = emptypatt;
-             songorder[c][d][1] = 0xff;
-             songorder[c][d][2] = 0x00;
-             songlen[c][d] = 1;
+             song.order[c][d][0] = emptypatt;
+             song.order[c][d][1] = 0xff;
+             song.order[c][d][2] = 0x00;
+             song.len[c][d] = 1;
            }
         }
       }
@@ -933,16 +929,16 @@ void loadinstrument()
     {
       unsigned char optr[4];
 
-      instr[einum].ad = fread8(handle);
-      instr[einum].sr = fread8(handle);
+      song.instr[einum].ad = fread8(handle);
+      song.instr[einum].sr = fread8(handle);
       optr[0] = fread8(handle);
       optr[1] = fread8(handle);
       optr[2] = fread8(handle);
       optr[3] = fread8(handle);
-      instr[einum].vibdelay = fread8(handle);
-      instr[einum].gatetimer = fread8(handle);
-      instr[einum].firstwave = fread8(handle);
-      std::fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
+      song.instr[einum].vibdelay = fread8(handle);
+      song.instr[einum].gatetimer = fread8(handle);
+      song.instr[einum].firstwave = fread8(handle);
+      std::fread(&song.instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
 
       // Erase old tabledata
       deleteinstrtable(einum);
@@ -957,14 +953,14 @@ void loadinstrument()
         {
           int d;
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
-            ltable[c][d] = fread8(handle);
+            song.ltable[c][d] = fread8(handle);
           while (d < start+len)
           {
             fread8(handle);
             d++;
           }
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
-            rtable[c][d] = fread8(handle);
+            song.rtable[c][d] = fread8(handle);
           while (d < start+len)
           {
             fread8(handle);
@@ -974,10 +970,10 @@ void loadinstrument()
           {
             for (int d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
             {
-              if (ltable[c][d] == 0xff)
+              if (song.ltable[c][d] == 0xff)
               {
-                if (rtable[c][d])
-                  rtable[c][d] = rtable[c][d] - optr[c] + start + 1;
+                if (song.rtable[c][d])
+                  song.rtable[c][d] = song.rtable[c][d] - optr[c] + start + 1;
               }
             }
           }
@@ -986,9 +982,9 @@ void loadinstrument()
             pulsestart = start;
             pulseend = start + len;
           }
-          instr[einum].ptr[c] = start + 1;
+          song.instr[einum].ptr[c] = start + 1;
         }
-        else instr[einum].ptr[c] = 0;
+        else song.instr[einum].ptr[c] = 0;
       }
     }
 
@@ -997,16 +993,16 @@ void loadinstrument()
     {
       unsigned char optr[3];
 
-      instr[einum].ad = fread8(handle);
-      instr[einum].sr = fread8(handle);
+      song.instr[einum].ad = fread8(handle);
+      song.instr[einum].sr = fread8(handle);
       optr[0] = fread8(handle);
       optr[1] = fread8(handle);
       optr[2] = fread8(handle);
-      instr[einum].vibdelay = fread8(handle);
-      instr[einum].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
-      instr[einum].gatetimer = fread8(handle);
-      instr[einum].firstwave = fread8(handle);
-      std::fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
+      song.instr[einum].vibdelay = fread8(handle);
+      song.instr[einum].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
+      song.instr[einum].gatetimer = fread8(handle);
+      song.instr[einum].firstwave = fread8(handle);
+      std::fread(&song.instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
 
       // Erase old tabledata
       deleteinstrtable(einum);
@@ -1021,14 +1017,14 @@ void loadinstrument()
         {
           int d;
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
-            ltable[c][d] = fread8(handle);
+            song.ltable[c][d] = fread8(handle);
           while (d < start+len)
           {
             fread8(handle);
             d++;
           }
           for (d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
-            rtable[c][d] = fread8(handle);
+            song.rtable[c][d] = fread8(handle);
           while (d < start+len)
           {
             fread8(handle);
@@ -1036,10 +1032,10 @@ void loadinstrument()
           }
           for (int d = start; (d < start+len) && (d < MAX_TABLELEN); d++)
           {
-            if (ltable[c][d] == 0xff)
+            if (song.ltable[c][d] == 0xff)
             {
-              if (rtable[c][d])
-                rtable[c][d] = rtable[c][d] - optr[c] + start + 1;
+              if (song.rtable[c][d])
+                song.rtable[c][d] = song.rtable[c][d] - optr[c] + start + 1;
             }
           }
           if (c == PTBL)
@@ -1047,9 +1043,9 @@ void loadinstrument()
             pulsestart = start;
             pulseend = start + len;
           }
-          instr[einum].ptr[c] = start + 1;
+          song.instr[einum].ptr[c] = start + 1;
         }
-        else instr[einum].ptr[c] = 0;
+        else song.instr[einum].ptr[c] = 0;
       }
     }
     // Goattracker 1.xx import
@@ -1067,32 +1063,32 @@ void loadinstrument()
       fp = gettablelen(PTBL);
       ff = gettablelen(FTBL);
 
-      instr[einum].ad = fread8(handle);
-      instr[einum].sr = fread8(handle);
+      song.instr[einum].ad = fread8(handle);
+      song.instr[einum].sr = fread8(handle);
       if (multiplier)
-        instr[einum].gatetimer = 2 * multiplier;
+        song.instr[einum].gatetimer = 2 * multiplier;
       else
-        instr[einum].gatetimer = 1;
-      instr[einum].firstwave = 0x9;
+        song.instr[einum].gatetimer = 1;
+      song.instr[einum].firstwave = 0x9;
       pulse = fread8(handle);
       pulseadd = fread8(handle);
       pulselimitlow = fread8(handle);
       pulselimithigh = fread8(handle);
-      instr[einum].ptr[FTBL] = fread8(handle) ? ff+1 : 0;
-      if (pulse & 1) instr[einum].gatetimer |= 0x80; // "No hardrestart" flag
+      song.instr[einum].ptr[FTBL] = fread8(handle) ? ff+1 : 0;
+      if (pulse & 1) song.instr[einum].gatetimer |= 0x80; // "No hardrestart" flag
         wavelen = fread8(handle)/2;
-      std::fread(&instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
-      instr[einum].ptr[WTBL] = fw+1;
+      std::fread(&song.instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
+      song.instr[einum].ptr[WTBL] = fw+1;
 
       // Convert wavetable
       for (int d = 0; d < wavelen; d++)
       {
         if (fw < MAX_TABLELEN)
         {
-          ltable[WTBL][fw] = fread8(handle);
-          rtable[WTBL][fw] = fread8(handle);
-          if (ltable[WTBL][fw] == 0xff)
-            if (rtable[WTBL][fw]) rtable[WTBL][fw] += instr[einum].ptr[WTBL]-1;
+          song.ltable[WTBL][fw] = fread8(handle);
+          song.rtable[WTBL][fw] = fread8(handle);
+          if (song.ltable[WTBL][fw] == 0xff)
+            if (song.rtable[WTBL][fw]) song.rtable[WTBL][fw] += song.instr[einum].ptr[WTBL]-1;
           fw++;
         }
         else
@@ -1103,14 +1099,14 @@ void loadinstrument()
       }
 
       // Remove empty wavetable afterwards
-      if ((wavelen == 2) && (!ltable[WTBL][fw-2]) && (!rtable[WTBL][fw-2]))
+      if ((wavelen == 2) && (!song.ltable[WTBL][fw-2]) && (!song.rtable[WTBL][fw-2]))
       {
-        instr[einum].ptr[WTBL] = 0;
+        song.instr[einum].ptr[WTBL] = 0;
         fw -= 2;
-        ltable[WTBL][fw] = 0;
-        rtable[WTBL][fw] = 0;
-        ltable[WTBL][fw+1] = 0;
-        rtable[WTBL][fw+1] = 0;
+        song.ltable[WTBL][fw] = 0;
+        song.rtable[WTBL][fw] = 0;
+        song.ltable[WTBL][fw+1] = 0;
+        song.rtable[WTBL][fw+1] = 0;
       }
 
       // Convert pulsetable
@@ -1122,9 +1118,9 @@ void loadinstrument()
         // Initial pulse setting
         if (fp >= MAX_TABLELEN) goto PULSEDONE;
         pulsestart = fp;
-        instr[einum].ptr[PTBL] = fp+1;
-        ltable[PTBL][fp] = 0x80 | (pulse >> 4);
-        rtable[PTBL][fp] = pulse << 4;
+        song.instr[einum].ptr[PTBL] = fp+1;
+        song.ltable[PTBL][fp] = 0x80 | (pulse >> 4);
+        song.rtable[PTBL][fp] = pulse << 4;
         fp++;
 
         // Pulse modulation
@@ -1143,8 +1139,8 @@ void loadinstrument()
               int acttime = pulsetime;
               if (acttime > 127) acttime = 127;
               if (fp >= MAX_TABLELEN) goto PULSEDONE;
-              ltable[PTBL][fp] = acttime;
-              rtable[PTBL][fp] = pulseadd / 2;
+              song.ltable[PTBL][fp] = acttime;
+              song.rtable[PTBL][fp] = pulseadd / 2;
               fp++;
               pulsetime -= acttime;
             }
@@ -1162,8 +1158,8 @@ void loadinstrument()
               int acttime = pulsetime;
               if (acttime > 127) acttime = 127;
               if (fp >= MAX_TABLELEN) goto PULSEDONE;
-              ltable[PTBL][fp] = acttime;
-              rtable[PTBL][fp] = -(pulseadd / 2);
+              song.ltable[PTBL][fp] = acttime;
+              song.rtable[PTBL][fp] = -(pulseadd / 2);
               fp++;
               pulsetime -= acttime;
             }
@@ -1181,16 +1177,16 @@ void loadinstrument()
                 int acttime = pulsetime;
                 if (acttime > 127) acttime = 127;
                 if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                ltable[PTBL][fp] = acttime;
-                rtable[PTBL][fp] = pulseadd / 2;
+                song.ltable[PTBL][fp] = acttime;
+                song.rtable[PTBL][fp] = pulseadd / 2;
                 fp++;
                 pulsetime -= acttime;
               }
             }
             // Pulse jump back to beginning
             if (fp >= MAX_TABLELEN) goto PULSEDONE;
-            ltable[PTBL][fp] = 0xff;
-            rtable[PTBL][fp] = instr[einum].ptr[PTBL] + 1;
+            song.ltable[PTBL][fp] = 0xff;
+            song.rtable[PTBL][fp] = song.instr[einum].ptr[PTBL] + 1;
             fp++;
           }
           else
@@ -1204,16 +1200,16 @@ void loadinstrument()
                 int acttime = pulsetime;
                 if (acttime > 127) acttime = 127;
                 if (fp >= MAX_TABLELEN) goto PULSEDONE;
-                ltable[PTBL][fp] = acttime;
-                rtable[PTBL][fp] = pulseadd / 2;
+                song.ltable[PTBL][fp] = acttime;
+                song.rtable[PTBL][fp] = pulseadd / 2;
                 fp++;
                 pulsetime -= acttime;
               }
             }
             // Pulse jump back to beginning
             if (fp >= MAX_TABLELEN) goto PULSEDONE;
-            ltable[PTBL][fp] = 0xff;
-            rtable[PTBL][fp] = hlpos + 1;
+            song.ltable[PTBL][fp] = 0xff;
+            song.rtable[PTBL][fp] = hlpos + 1;
             fp++;
           }
         }
@@ -1221,8 +1217,8 @@ void loadinstrument()
         {
           // Pulse stopped
           if (fp >= MAX_TABLELEN) goto PULSEDONE;
-          ltable[PTBL][fp] = 0xff;
-          rtable[PTBL][fp] = 0;
+          song.ltable[PTBL][fp] = 0xff;
+          song.rtable[PTBL][fp] = 0;
           fp++;
         }
         PULSEDONE:
@@ -1230,19 +1226,19 @@ void loadinstrument()
       }
 
       // Convert filter (if any)
-      if ((instr[einum].ptr[FTBL]) && (ff < MAX_TABLELEN-2))
+      if ((song.instr[einum].ptr[FTBL]) && (ff < MAX_TABLELEN-2))
       {
         std::fread(filtertemp, sizeof filtertemp, 1, handle);
         // Filter set
         if (filtertemp[0])
         {
-          ltable[FTBL][ff] = 0x80 + (filtertemp[1] & 0x70);
-          rtable[FTBL][ff] = filtertemp[0];
+          song.ltable[FTBL][ff] = 0x80 + (filtertemp[1] & 0x70);
+          song.rtable[FTBL][ff] = filtertemp[0];
           ff++;
           if (filtertemp[2])
           {
-            ltable[FTBL][ff] = 0x00;
-            rtable[FTBL][ff] = filtertemp[2];
+            song.ltable[FTBL][ff] = 0x00;
+            song.rtable[FTBL][ff] = filtertemp[2];
             ff++;
           }
         }
@@ -1255,16 +1251,16 @@ void loadinstrument()
           {
             int acttime = time;
             if (acttime > 127) acttime = 127;
-            ltable[FTBL][ff] = acttime;
-            rtable[FTBL][ff] = filtertemp[2];
+            song.ltable[FTBL][ff] = acttime;
+            song.rtable[FTBL][ff] = filtertemp[2];
             ff++;
             time -= acttime;
           }
         }
 
         // Jump to next step: always end the filter
-        ltable[FTBL][ff] = 0xff;
-        rtable[FTBL][ff] = 0;
+        song.ltable[FTBL][ff] = 0xff;
+        song.rtable[FTBL][ff] = 0;
         ff++;
       }
     }
@@ -1276,25 +1272,25 @@ void loadinstrument()
     {
       for (int c = pulsestart; (c < pulseend) && (c < MAX_TABLELEN); c++)
       {
-        if ((ltable[PTBL][c] < 0x80) && (rtable[PTBL][c]))
+        if ((song.ltable[PTBL][c] < 0x80) && (song.rtable[PTBL][c]))
         {
-          int speed = ((signed char)rtable[PTBL][c]);
+          int speed = ((signed char)song.rtable[PTBL][c]);
           speed <<= 1;
           if (speed > 127) speed = 127;
           if (speed < -128) speed = -128;
-          rtable[PTBL][c] = speed;
+          song.rtable[PTBL][c] = speed;
         }
       }
     }
     // Convert old legato/nohr parameters
     if (ident[3] < '5')
     {
-      if (instr[einum].firstwave >= 0x80)
+      if (song.instr[einum].firstwave >= 0x80)
       {
-        instr[einum].firstwave &= 0x7f;
-        instr[einum].gatetimer |= 0x80;
+        song.instr[einum].firstwave &= 0x7f;
+        song.instr[einum].gatetimer |= 0x80;
       }
-      if (!instr[einum].firstwave) instr[einum].gatetimer |= 0x40;
+      if (!song.instr[einum].firstwave) song.instr[einum].gatetimer |= 0x40;
     }
   }
 }
@@ -1326,18 +1322,18 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
       std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
       for (int d = 0; d < MAX_SONGS; d++)
       {
-        std::memset(&songorder[d][c][0], 0, MAX_SONGLEN+2);
+        std::memset(&song.order[d][c][0], 0, MAX_SONGLEN+2);
         if (!d)
         {
-          songorder[d][c][0] = c;
-          songorder[d][c][1] = LOOPSONG;
+          song.order[d][c][0] = c;
+          song.order[d][c][1] = LOOPSONG;
         }
         else
         {
-          songorder[d][c][0] = LOOPSONG;
+          song.order[d][c][0] = LOOPSONG;
         }
       }
-      epnum[c] = songorder[0][c][0];
+      epnum[c] = song.order[0][c][0];
       espos[c] = 0;
       esend[c] = 0;
     }
@@ -1376,8 +1372,8 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   {
     for (int c = MAX_TABLES-1; c >= 0; c--)
     {
-      std::memset(ltable[c], 0, MAX_TABLELEN);
-      std::memset(rtable[c], 0, MAX_TABLELEN);
+      std::memset(song.ltable[c], 0, MAX_TABLELEN);
+      std::memset(song.rtable[c], 0, MAX_TABLELEN);
       tables.settableview(c, 0);
     }
   }
@@ -1395,10 +1391,10 @@ void countpatternlengths()
     int d;
     for (d = 0; d <= MAX_PATTROWS; d++)
     {
-      if (pattern[c][d*4] == ENDPATT) break;
-      if ((pattern[c][d*4] != REST) || (pattern[c][d*4+1]) || (pattern[c][d*4+2]) || (pattern[c][d*4+3]))
+      if (song.pattern[c][d*4] == ENDPATT) break;
+      if ((song.pattern[c][d*4] != REST) || (song.pattern[c][d*4+1]) || (song.pattern[c][d*4+2]) || (song.pattern[c][d*4+3]))
         highestusedpattern = c;
-      if (pattern[c][d*4+1] > highestusedinstr) highestusedinstr = pattern[c][d*4+1];
+      if (song.pattern[c][d*4+1] > highestusedinstr) highestusedinstr = song.pattern[c][d*4+1];
     }
     pattlen[c] = d;
   }
@@ -1410,14 +1406,14 @@ void countpatternlengths()
       int d;
       for (d = 0; d < MAX_SONGLEN; d++)
       {
-        if (songorder[e][c][d] >= LOOPSONG) break;
-        if ((songorder[e][c][d] < REPEAT) &&
-            (songorder[e][c][d] > highestusedpattern))
+        if (song.order[e][c][d] >= LOOPSONG) break;
+        if ((song.order[e][c][d] < REPEAT) &&
+            (song.order[e][c][d] > highestusedpattern))
         {
-          highestusedpattern = songorder[e][c][d];
+          highestusedpattern = song.order[e][c][d];
         }
       }
-      songlen[e][c] = d;
+      song.len[e][c] = d;
     }
   }
 }
@@ -1428,7 +1424,7 @@ void countthispattern()
   int d;
   for (d = 0; d <= MAX_PATTROWS; d++)
   {
-    if (pattern[c][d*4] == ENDPATT) break;
+    if (song.pattern[c][d*4] == ENDPATT) break;
   }
   pattlen[c] = d;
 
@@ -1436,13 +1432,13 @@ void countthispattern()
   c = eschn;
   for (d = 0; d < MAX_SONGLEN; d++)
   {
-    if (songorder[e][c][d] >= LOOPSONG) break;
-    if (songorder[e][c][d] > highestusedpattern)
+    if (song.order[e][c][d] >= LOOPSONG) break;
+    if (song.order[e][c][d] > highestusedpattern)
     {
-      highestusedpattern = songorder[e][c][d];
+      highestusedpattern = song.order[e][c][d];
     }
   }
-  songlen[e][c] = d;
+  song.len[e][c] = d;
 }
 
 int insertpattern(int p)
@@ -1452,23 +1448,23 @@ int insertpattern(int p)
   findusedpatterns();
   if (p >= MAX_PATT-2) return 0;
   if (pattused[MAX_PATT-1]) return 0;
-  std::memmove(pattern[p+2], pattern[p+1], (MAX_PATT-p-2)*(MAX_PATTROWS*4+4));  
+  std::memmove(song.pattern[p+2], song.pattern[p+1], (MAX_PATT-p-2)*(MAX_PATTROWS*4+4));  
   countpatternlengths();
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
+    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = songlen[c][d];
+        int tmp = song.len[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if ((songorder[c][d][e] < REPEAT) &&
-              (songorder[c][d][e] > p) &&
-              (songorder[c][d][e] != MAX_PATT-1))
+          if ((song.order[c][d][e] < REPEAT) &&
+              (song.order[c][d][e] > p) &&
+              (song.order[c][d][e] != MAX_PATT-1))
           {
-            songorder[c][d][e]++;
+            song.order[c][d][e]++;
           }
         }
       }
@@ -1489,23 +1485,23 @@ void deletepattern(int p)
 
   if (p == MAX_PATT-1) return;
 
-  std::memmove(pattern[p], pattern[p+1], (MAX_PATT-p-1)*(MAX_PATTROWS*4+4));
+  std::memmove(song.pattern[p], song.pattern[p+1], (MAX_PATT-p-1)*(MAX_PATTROWS*4+4));
   clearpattern(MAX_PATT-1);
   countpatternlengths();
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
+    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = songlen[c][d];
+        int tmp = song.len[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if ((songorder[c][d][e] < REPEAT) &&
-              (songorder[c][d][e] > p))
+          if ((song.order[c][d][e] < REPEAT) &&
+              (song.order[c][d][e] > p))
           {
-            songorder[c][d][e]--;
+            song.order[c][d][e]--;
           }
         }
       }
@@ -1520,9 +1516,9 @@ void deletepattern(int p)
 
 void clearpattern(int p)
 {
-  std::memset(pattern[p], 0, MAX_PATTROWS*4);
-  for (int c = 0; c < defaultpatternlength; c++) pattern[p][c*4] = REST;
-  for (int c = defaultpatternlength; c <= MAX_PATTROWS; c++) pattern[p][c*4] = ENDPATT;
+  std::memset(song.pattern[p], 0, MAX_PATTROWS*4);
+  for (int c = 0; c < defaultpatternlength; c++) song.pattern[p][c*4] = REST;
+  for (int c = defaultpatternlength; c <= MAX_PATTROWS; c++) song.pattern[p][c*4] = ENDPATT;
 }
 
 void findusedpatterns()
@@ -1533,16 +1529,16 @@ void findusedpatterns()
   std::memset(pattused, 0, sizeof pattused);
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((songlen[c][0]) && (songlen[c][1]) && (songlen[c][2]))
+    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = songlen[c][d];
+        int tmp = song.len[c][d];
         for (int e = 0; e < tmp; e++)
         {
-          if (songorder[c][d][e] < REPEAT)
+          if (song.order[c][d][e] < REPEAT)
           {
-            pattused[songorder[c][d][e]] = 1;
+            pattused[song.order[c][d][e]] = 1;
           }
         }
       }
@@ -1557,8 +1553,8 @@ void mergesong()
   highestusedinstr = 0;
   for (int c = 1; c < MAX_INSTR; c++)
   {
-    if ((instr[c].ad) || (instr[c].sr) || (instr[c].ptr[0]) || (instr[c].ptr[1]) ||
-        (instr[c].ptr[2]) || (instr[c].vibdelay) || (instr[c].ptr[3]))
+    if ((song.instr[c].ad) || (song.instr[c].sr) || (song.instr[c].ptr[0]) || (song.instr[c].ptr[1]) ||
+        (song.instr[c].ptr[2]) || (song.instr[c].vibdelay) || (song.instr[c].ptr[3]))
     {
       if (c > highestusedinstr) highestusedinstr = c;
     }
@@ -1568,9 +1564,9 @@ void mergesong()
   int c = MAX_SONGS - 1;
   for (;;)
   {
-    if ((songlen[c][0]) &&
-        (songlen[c][1]) &&
-        (songlen[c][2])) break;
+    if ((song.len[c][0]) &&
+        (song.len[c][1]) &&
+        (song.len[c][2])) break;
     if (c == 0) break;
     c--;
   }
@@ -1601,7 +1597,7 @@ void mergesong()
       // Skip infotexts
       std::fseek(handle, sizeof songname + sizeof authorname + sizeof copyrightname, SEEK_CUR);
 
-      // Read songorderlists
+      // Read song.orderlists
       int channelstoload = determinechannels(handle);
       int amount = fread8(handle);
       if (amount + songbase > MAX_SONGS)
@@ -1613,12 +1609,12 @@ void mergesong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          std::fread(songorder[songbase + d][c], loadsize, 1, handle);
+          std::fread(song.order[songbase + d][c], loadsize, 1, handle);
           // Remap patterns
           for (int e = 0; e < loadsize - 1; e++)
           {
-            if (songorder[songbase + d][c][e] < REPEAT)
-                songorder[songbase + d][c][e] += pattbase;
+            if (song.order[songbase + d][c][e] < REPEAT)
+                song.order[songbase + d][c][e] += pattbase;
           }
         }
       }
@@ -1628,24 +1624,24 @@ void mergesong()
         goto ABORT;
       for (int c = 1; c <= amount; c++)
       {
-        instr[c + instrbase].ad = fread8(handle);
-        instr[c + instrbase].sr = fread8(handle);
-        instr[c + instrbase].ptr[WTBL] = fread8(handle);
-        instr[c + instrbase].ptr[PTBL] = fread8(handle);
-        instr[c + instrbase].ptr[FTBL] = fread8(handle);
-        instr[c + instrbase].ptr[STBL] = fread8(handle);
-        if (instr[c + instrbase].ptr[WTBL] > 0)
-          instr[c + instrbase].ptr[WTBL] += tablebase[WTBL];
-        if (instr[c + instrbase].ptr[PTBL] > 0)
-          instr[c + instrbase].ptr[PTBL] += tablebase[PTBL];
-        if (instr[c + instrbase].ptr[FTBL] > 0)
-          instr[c + instrbase].ptr[FTBL] += tablebase[FTBL];
-        if (instr[c + instrbase].ptr[STBL] > 0)
-          instr[c + instrbase].ptr[STBL] += tablebase[STBL];
-        instr[c + instrbase].vibdelay = fread8(handle);
-        instr[c + instrbase].gatetimer = fread8(handle);
-        instr[c + instrbase].firstwave = fread8(handle);
-        std::fread(&instr[c + instrbase].name, MAX_INSTRNAMELEN, 1, handle);
+        song.instr[c + instrbase].ad = fread8(handle);
+        song.instr[c + instrbase].sr = fread8(handle);
+        song.instr[c + instrbase].ptr[WTBL] = fread8(handle);
+        song.instr[c + instrbase].ptr[PTBL] = fread8(handle);
+        song.instr[c + instrbase].ptr[FTBL] = fread8(handle);
+        song.instr[c + instrbase].ptr[STBL] = fread8(handle);
+        if (song.instr[c + instrbase].ptr[WTBL] > 0)
+          song.instr[c + instrbase].ptr[WTBL] += tablebase[WTBL];
+        if (song.instr[c + instrbase].ptr[PTBL] > 0)
+          song.instr[c + instrbase].ptr[PTBL] += tablebase[PTBL];
+        if (song.instr[c + instrbase].ptr[FTBL] > 0)
+          song.instr[c + instrbase].ptr[FTBL] += tablebase[FTBL];
+        if (song.instr[c + instrbase].ptr[STBL] > 0)
+          song.instr[c + instrbase].ptr[STBL] += tablebase[STBL];
+        song.instr[c + instrbase].vibdelay = fread8(handle);
+        song.instr[c + instrbase].gatetimer = fread8(handle);
+        song.instr[c + instrbase].firstwave = fread8(handle);
+        std::fread(&song.instr[c + instrbase].name, MAX_INSTRNAMELEN, 1, handle);
       }
       // Read tables
       for (int c = 0; c < MAX_TABLES; c++)
@@ -1653,24 +1649,24 @@ void mergesong()
         loadsize = fread8(handle);
         if (loadsize + tablebase[c] > MAX_TABLELEN)
           goto ABORT;
-        std::fread(&ltable[c][tablebase[c]], loadsize, 1, handle);
-        std::fread(&rtable[c][tablebase[c]], loadsize, 1, handle);
+        std::fread(&song.ltable[c][tablebase[c]], loadsize, 1, handle);
+        std::fread(&song.rtable[c][tablebase[c]], loadsize, 1, handle);
         // Remap jumps and tablecommands
         for (int d = tablebase[c]; d < tablebase[c] + loadsize; d++)
         {
-          if (ltable[c][d] == 0xff && rtable[c][d] > 0)
-            rtable[c][d] += tablebase[c];
-          if (c == 0 && (ltable[c][d] >= WAVECMD && ltable[c][d] <= WAVELASTCMD))
+          if (song.ltable[c][d] == 0xff && song.rtable[c][d] > 0)
+            song.rtable[c][d] += tablebase[c];
+          if (c == 0 && (song.ltable[c][d] >= WAVECMD && song.ltable[c][d] <= WAVELASTCMD))
           {
-            int cmd = ltable[c][d] & 0xf;
-            if (cmd == CMD_SETWAVEPTR && rtable[c][d] > 0)
-              rtable[c][d] += tablebase[WTBL];
-            if (cmd == CMD_SETPULSEPTR && rtable[c][d] > 0)
-              rtable[c][d] += tablebase[PTBL];
-            if (cmd == CMD_SETFILTERPTR && rtable[c][d] > 0)
-              rtable[c][d] += tablebase[FTBL];
-            if (((cmd >= CMD_PORTAUP && cmd <= CMD_VIBRATO) || cmd == CMD_FUNKTEMPO) && rtable[c][d] > 0)
-              rtable[c][d] += tablebase[STBL];
+            int cmd = song.ltable[c][d] & 0xf;
+            if (cmd == CMD_SETWAVEPTR && song.rtable[c][d] > 0)
+              song.rtable[c][d] += tablebase[WTBL];
+            if (cmd == CMD_SETPULSEPTR && song.rtable[c][d] > 0)
+              song.rtable[c][d] += tablebase[PTBL];
+            if (cmd == CMD_SETFILTERPTR && song.rtable[c][d] > 0)
+              song.rtable[c][d] += tablebase[FTBL];
+            if (((cmd >= CMD_PORTAUP && cmd <= CMD_VIBRATO) || cmd == CMD_FUNKTEMPO) && song.rtable[c][d] > 0)
+              song.rtable[c][d] += tablebase[STBL];
           }
         }
       }
@@ -1682,21 +1678,21 @@ void mergesong()
       for (int c = 0; c < amount; c++)
       {
         length = fread8(handle) * 4;
-        std::fread(pattern[c + pattbase], length, 1, handle);
-        // Remap pattern instruments and commands
+        std::fread(song.pattern[c + pattbase], length, 1, handle);
+        // Remap song.pattern instruments and commands
         for (int d = 0; d < length; d += 4)
         {
-          if (pattern[c + pattbase][d + 1] > 0)
-            pattern[c + pattbase][d + 1] += instrbase;
-          if (pattern[c + pattbase][d + 2] == CMD_SETWAVEPTR && pattern[c + pattbase][d + 3] > 0)
-            pattern[c + pattbase][d + 3] += tablebase[WTBL];
-          if (pattern[c + pattbase][d + 2] == CMD_SETPULSEPTR && pattern[c + pattbase][d + 3] > 0)
-            pattern[c + pattbase][d + 3] += tablebase[PTBL];
-          if (pattern[c + pattbase][d + 2] == CMD_SETFILTERPTR && pattern[c + pattbase][d + 3] > 0)
-            pattern[c + pattbase][d + 3] += tablebase[FTBL];
-          if (((pattern[c + pattbase][d + 2] >= CMD_PORTAUP && pattern[c + pattbase][d + 2] <= CMD_VIBRATO) ||
-            pattern[c + pattbase][d + 2] == CMD_FUNKTEMPO) && pattern[c + pattbase][d + 3] > 0)
-            pattern[c + pattbase][d + 3] += tablebase[STBL];
+          if (song.pattern[c + pattbase][d + 1] > 0)
+            song.pattern[c + pattbase][d + 1] += instrbase;
+          if (song.pattern[c + pattbase][d + 2] == CMD_SETWAVEPTR && song.pattern[c + pattbase][d + 3] > 0)
+            song.pattern[c + pattbase][d + 3] += tablebase[WTBL];
+          if (song.pattern[c + pattbase][d + 2] == CMD_SETPULSEPTR && song.pattern[c + pattbase][d + 3] > 0)
+            song.pattern[c + pattbase][d + 3] += tablebase[PTBL];
+          if (song.pattern[c + pattbase][d + 2] == CMD_SETFILTERPTR && song.pattern[c + pattbase][d + 3] > 0)
+            song.pattern[c + pattbase][d + 3] += tablebase[FTBL];
+          if (((song.pattern[c + pattbase][d + 2] >= CMD_PORTAUP && song.pattern[c + pattbase][d + 2] <= CMD_VIBRATO) ||
+            song.pattern[c + pattbase][d + 2] == CMD_FUNKTEMPO) && song.pattern[c + pattbase][d + 3] > 0)
+            song.pattern[c + pattbase][d + 3] += tablebase[STBL];
         }
       }
     }

@@ -35,6 +35,8 @@
 
 #include "bme_main.h"
 
+#include <utility>
+
 #include <cstring>
 
 unsigned char notekeytbl1[] = {KEY_Z, KEY_S, KEY_X, KEY_D, KEY_C, KEY_V,
@@ -78,19 +80,19 @@ void insertnote(int newnote)
 {
     if (recordmode && (eppos < getPattlen(epnum[epchn])))
     {
-        pattern[epnum[epchn]][eppos*4] = newnote;
+        song.pattern[epnum[epchn]][eppos*4] = newnote;
         if (newnote < REST)
         {
-            pattern[epnum[epchn]][eppos*4+1] = einum;
+            song.pattern[epnum[epchn]][eppos*4+1] = einum;
         }
         else
         {
-            pattern[epnum[epchn]][eppos*4+1] = 0;
+            song.pattern[epnum[epchn]][eppos*4+1] = 0;
         }
         if ((shiftpressed) && (newnote == REST))
         {
-            pattern[epnum[epchn]][eppos*4+2] = 0;
-            pattern[epnum[epchn]][eppos*4+3] = 0;
+            song.pattern[epnum[epchn]][eppos*4+2] = 0;
+            song.pattern[epnum[epchn]][eppos*4+3] = 0;
         }
     }
 
@@ -194,20 +196,20 @@ void patterncommands()
 
         case 1:
         case 2:
-        if (pattern[epnum[epchn]][eppos*4+1])
+        if (song.pattern[epnum[epchn]][eppos*4+1])
         {
-          gotoinstr(pattern[epnum[epchn]][eppos*4+1]);
+          gotoinstr(song.pattern[epnum[epchn]][eppos*4+1]);
           return;
         }
         break;
 
         default:
-        switch (pattern[epnum[epchn]][eppos*4+2])
+        switch (song.pattern[epnum[epchn]][eppos*4+2])
         {
           case CMD_SETWAVEPTR:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
-            gototable(WTBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+            gototable(WTBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
             return;
           }
           else
@@ -216,7 +218,7 @@ void patterncommands()
             {
               int pos = gettablelen(WTBL);
               if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
               gototable(WTBL, pos);
               return;
             }
@@ -224,9 +226,9 @@ void patterncommands()
           break;
 
           case CMD_SETPULSEPTR:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
-            gototable(PTBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+            gototable(PTBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
             return;
           }
           else
@@ -235,7 +237,7 @@ void patterncommands()
             {
               int pos = gettablelen(PTBL);
               if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
               gototable(PTBL, pos);
               return;
             }
@@ -243,9 +245,9 @@ void patterncommands()
           break;
 
           case CMD_SETFILTERPTR:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
-            gototable(FTBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+            gototable(FTBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
             return;
           }
           else
@@ -254,7 +256,7 @@ void patterncommands()
             {
               int pos = gettablelen(FTBL);
               if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
               gototable(FTBL, pos);
               return;
             }
@@ -262,17 +264,17 @@ void patterncommands()
           break;
 
           case CMD_FUNKTEMPO:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
             if (!shiftpressed)
             {
-              gototable(STBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+              gototable(STBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
               return;
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, true);
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              int pos = makespeedtable(song.pattern[epnum[epchn]][eppos*4+3], MST_FUNKTEMPO, true);
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
           else
@@ -282,7 +284,7 @@ void patterncommands()
               int pos = findfreespeedtable();
               if (pos >= 0)
               {
-                pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+                song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
                 gototable(STBL, pos);
                 return;
               }
@@ -293,17 +295,17 @@ void patterncommands()
           case CMD_PORTAUP:
           case CMD_PORTADOWN:
           case CMD_TONEPORTA:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
             if (!shiftpressed)
             {
-              gototable(STBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+              gototable(STBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
               return;
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, true);
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              int pos = makespeedtable(song.pattern[epnum[epchn]][eppos*4+3], MST_PORTAMENTO, true);
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
           else
@@ -313,7 +315,7 @@ void patterncommands()
               int pos = findfreespeedtable();
               if (pos >= 0)
               {
-                pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+                song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
                 gototable(STBL, pos);
                 return;
               }
@@ -322,17 +324,17 @@ void patterncommands()
           break;
 
           case CMD_VIBRATO:
-          if (pattern[epnum[epchn]][eppos*4+3])
+          if (song.pattern[epnum[epchn]][eppos*4+3])
           {
             if (!shiftpressed)
             {
-              gototable(STBL, pattern[epnum[epchn]][eppos*4+3] - 1);
+              gototable(STBL, song.pattern[epnum[epchn]][eppos*4+3] - 1);
               return;
             }
             else
             {
-              int pos = makespeedtable(pattern[epnum[epchn]][eppos*4+3], finevibrato, true);
-              pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+              int pos = makespeedtable(song.pattern[epnum[epchn]][eppos*4+3], finevibrato, true);
+              song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
           else
@@ -342,7 +344,7 @@ void patterncommands()
               int pos = findfreespeedtable();
               if (pos >= 0)
               {
-                pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+                song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
                 gototable(STBL, pos);
                 return;
               }
@@ -407,8 +409,8 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
-            cmdcopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
+            cmdcopybuffer[d*4+2] = song.pattern[epnum[epmarkchn]][c*4+2];
+            cmdcopybuffer[d*4+3] = song.pattern[epnum[epmarkchn]][c*4+3];
             d++;
           }
           cmdcopyrows = d;
@@ -419,8 +421,8 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            cmdcopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
-            cmdcopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
+            cmdcopybuffer[d*4+2] = song.pattern[epnum[epmarkchn]][c*4+2];
+            cmdcopybuffer[d*4+3] = song.pattern[epnum[epmarkchn]][c*4+3];
             d++;
           }
           cmdcopyrows = d;
@@ -431,8 +433,8 @@ void patterncommands()
       {
         if (eppos < getPattlen(epnum[epchn]))
         {
-          cmdcopybuffer[2] = pattern[epnum[epchn]][eppos*4+2];
-          cmdcopybuffer[3] = pattern[epnum[epchn]][eppos*4+3];
+          cmdcopybuffer[2] = song.pattern[epnum[epchn]][eppos*4+2];
+          cmdcopybuffer[3] = song.pattern[epnum[epchn]][eppos*4+3];
           cmdcopyrows = 1;
         }
       }
@@ -445,8 +447,8 @@ void patterncommands()
       for (int c = 0; c < cmdcopyrows; c++)
       {
         if (eppos >= getPattlen(epnum[epchn])) break;
-        pattern[epnum[epchn]][eppos*4+2] = cmdcopybuffer[c*4+2];
-        pattern[epnum[epchn]][eppos*4+3] = cmdcopybuffer[c*4+3];
+        song.pattern[epnum[epchn]][eppos*4+2] = cmdcopybuffer[c*4+2];
+        song.pattern[epnum[epchn]][eppos*4+3] = cmdcopybuffer[c*4+3];
         eppos++;
       }
     }
@@ -455,7 +457,6 @@ void patterncommands()
     case KEY_I:
     if (shiftpressed)
     {
-      char temp;
       if (epmarkchn != -1)
       {
         if (epmarkstart <= epmarkend)
@@ -466,9 +467,7 @@ void patterncommands()
             if (c >= getPattlen(epnum[epmarkchn])) break;
             for (int d = 0; d < 4; d++)
             {
-              temp = pattern[epnum[epmarkchn]][c*4+d];
-              pattern[epnum[epmarkchn]][c*4+d] = pattern[epnum[epmarkchn]][e*4+d];
-              pattern[epnum[epmarkchn]][e*4+d] = temp;
+              std::swap(song.pattern[epnum[epmarkchn]][c*4+d], song.pattern[epnum[epmarkchn]][e*4+d]);
             }
             e--;
             if (e < c) break;
@@ -482,9 +481,7 @@ void patterncommands()
             if (c >= getPattlen(epnum[epmarkchn])) break;
             for (int d = 0; d < 4; d++)
             {
-              temp = pattern[epnum[epmarkchn]][c*4+d];
-              pattern[epnum[epmarkchn]][c*4+d] = pattern[epnum[epmarkchn]][e*4+d];
-              pattern[epnum[epmarkchn]][e*4+d] = temp;
+              std::swap(song.pattern[epnum[epmarkchn]][c*4+d], song.pattern[epnum[epmarkchn]][e*4+d]);
             }
             e--;
             if (e < c) break;
@@ -498,9 +495,7 @@ void patterncommands()
         {
           for (int d = 0; d < 4; d++)
           {
-            temp = pattern[epnum[epchn]][c*4+d];
-            pattern[epnum[epchn]][c*4+d] = pattern[epnum[epchn]][e*4+d];
-            pattern[epnum[epchn]][e*4+d] = temp;
+            std::swap(song.pattern[epnum[epchn]][c*4+d], song.pattern[epnum[epchn]][e*4+d]);
           }
           e--;
           if (e < c) break;
@@ -519,9 +514,9 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
-              pattern[epnum[epmarkchn]][c*4]++;
+            if ((song.pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+              song.pattern[epnum[epmarkchn]][c*4]++;
           }
         }
         else
@@ -529,9 +524,9 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
-              pattern[epnum[epmarkchn]][c*4]++;
+            if ((song.pattern[epnum[epmarkchn]][c*4] < LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+              song.pattern[epnum[epmarkchn]][c*4]++;
           }
         }
       }
@@ -539,9 +534,9 @@ void patterncommands()
       {
         for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
-          if ((pattern[epnum[epchn]][c*4] < LASTNOTE) &&
-              (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
-            pattern[epnum[epchn]][c*4]++;
+          if ((song.pattern[epnum[epchn]][c*4] < LASTNOTE) &&
+              (song.pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
+            song.pattern[epnum[epchn]][c*4]++;
         }
       }
     }
@@ -557,9 +552,9 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
-              pattern[epnum[epmarkchn]][c*4]--;
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
+              song.pattern[epnum[epmarkchn]][c*4]--;
           }
         }
         else
@@ -567,9 +562,9 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
-              pattern[epnum[epmarkchn]][c*4]--;
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] > FIRSTNOTE))
+              song.pattern[epnum[epmarkchn]][c*4]--;
           }
         }
       }
@@ -577,9 +572,9 @@ void patterncommands()
       {
         for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
-          if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
-              (pattern[epnum[epchn]][c*4] > FIRSTNOTE))
-            pattern[epnum[epchn]][c*4]--;
+          if ((song.pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epchn]][c*4] > FIRSTNOTE))
+            song.pattern[epnum[epchn]][c*4]--;
         }
       }
     }
@@ -595,12 +590,12 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
-              pattern[epnum[epmarkchn]][c*4] += 12;
-              if (pattern[epnum[epmarkchn]][c*4] > LASTNOTE)
-                pattern[epnum[epmarkchn]][c*4] = LASTNOTE;
+              song.pattern[epnum[epmarkchn]][c*4] += 12;
+              if (song.pattern[epnum[epmarkchn]][c*4] > LASTNOTE)
+                song.pattern[epnum[epmarkchn]][c*4] = LASTNOTE;
             }
           }
         }
@@ -609,12 +604,12 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
-              pattern[epnum[epmarkchn]][c*4] += 12;
-              if (pattern[epnum[epmarkchn]][c*4] > LASTNOTE)
-                pattern[epnum[epmarkchn]][c*4] = LASTNOTE;
+              song.pattern[epnum[epmarkchn]][c*4] += 12;
+              if (song.pattern[epnum[epmarkchn]][c*4] > LASTNOTE)
+                song.pattern[epnum[epmarkchn]][c*4] = LASTNOTE;
             }
           }
         }
@@ -623,12 +618,12 @@ void patterncommands()
       {
         for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
-          if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
-              (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
+          if ((song.pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
           {
-            pattern[epnum[epchn]][c*4] += 12;
-            if (pattern[epnum[epchn]][c*4] > LASTNOTE)
-              pattern[epnum[epchn]][c*4] = LASTNOTE;
+            song.pattern[epnum[epchn]][c*4] += 12;
+            if (song.pattern[epnum[epchn]][c*4] > LASTNOTE)
+              song.pattern[epnum[epchn]][c*4] = LASTNOTE;
           }
         }
       }
@@ -645,12 +640,12 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
-              pattern[epnum[epmarkchn]][c*4] -= 12;
-              if (pattern[epnum[epmarkchn]][c*4] < FIRSTNOTE)
-                pattern[epnum[epmarkchn]][c*4] = FIRSTNOTE;
+              song.pattern[epnum[epmarkchn]][c*4] -= 12;
+              if (song.pattern[epnum[epmarkchn]][c*4] < FIRSTNOTE)
+                song.pattern[epnum[epmarkchn]][c*4] = FIRSTNOTE;
             }
           }
         }
@@ -659,12 +654,12 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            if ((pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
-                (pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
+            if ((song.pattern[epnum[epmarkchn]][c*4] <= LASTNOTE) &&
+                (song.pattern[epnum[epmarkchn]][c*4] >= FIRSTNOTE))
             {
-              pattern[epnum[epmarkchn]][c*4] -= 12;
-              if (pattern[epnum[epmarkchn]][c*4] < FIRSTNOTE)
-                pattern[epnum[epmarkchn]][c*4] = FIRSTNOTE;
+              song.pattern[epnum[epmarkchn]][c*4] -= 12;
+              if (song.pattern[epnum[epmarkchn]][c*4] < FIRSTNOTE)
+                song.pattern[epnum[epmarkchn]][c*4] = FIRSTNOTE;
             }
           }
         }
@@ -673,12 +668,12 @@ void patterncommands()
       {
         for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
-          if ((pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
-              (pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
+          if ((song.pattern[epnum[epchn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epchn]][c*4] >= FIRSTNOTE))
           {
-            pattern[epnum[epchn]][c*4] -= 12;
-            if (pattern[epnum[epchn]][c*4] < FIRSTNOTE)
-              pattern[epnum[epchn]][c*4] = FIRSTNOTE;
+            song.pattern[epnum[epchn]][c*4] -= 12;
+            if (song.pattern[epnum[epchn]][c*4] < FIRSTNOTE)
+              song.pattern[epnum[epchn]][c*4] = FIRSTNOTE;
           }
         }
       }
@@ -705,24 +700,24 @@ void patterncommands()
     if (shiftpressed)
     {
       int c;
-      switch (pattern[epnum[epchn]][eppos*4+2])
+      switch (song.pattern[epnum[epchn]][eppos*4+2])
       {
         case CMD_PORTAUP:
         case CMD_PORTADOWN:
         case CMD_VIBRATO:
         case CMD_TONEPORTA:
-        if (pattern[epnum[epchn]][eppos*4+2] == CMD_TONEPORTA)
+        if (song.pattern[epnum[epchn]][eppos*4+2] == CMD_TONEPORTA)
           c = eppos-1;
         else
           c = eppos;
         for (; c >= 0; c--)
         {
-          if ((pattern[epnum[epchn]][c*4] >= FIRSTNOTE) &&
-              (pattern[epnum[epchn]][c*4] <= LASTNOTE))
+          if ((song.pattern[epnum[epchn]][c*4] >= FIRSTNOTE) &&
+              (song.pattern[epnum[epchn]][c*4] <= LASTNOTE))
           {
-            int note = pattern[epnum[epchn]][c*4] - FIRSTNOTE;
-            int right = pattern[epnum[epchn]][eppos*4+3] & 0xf;
-            int left = pattern[epnum[epchn]][eppos*4+3] >> 4;
+            int note = song.pattern[epnum[epchn]][c*4] - FIRSTNOTE;
+            int right = song.pattern[epnum[epchn]][eppos*4+3] & 0xf;
+            int left = song.pattern[epnum[epchn]][eppos*4+3] >> 4;
 
             if (note > MAX_NOTES-1) note--;
             int pitch1 = freqtbllo[note] | (freqtblhi[note] << 8);
@@ -732,12 +727,12 @@ void patterncommands()
             while (left--) delta <<= 1;
             while (right--) delta >>= 1;
 
-            if (pattern[epnum[epchn]][eppos*4+2] == CMD_VIBRATO)
+            if (song.pattern[epnum[epchn]][eppos*4+2] == CMD_VIBRATO)
             {
               if (delta > 0xff) delta = 0xff;
             }
             int pos = makespeedtable(delta, MST_RAW, true);
-            pattern[epnum[epchn]][eppos*4+3] = pos + 1;
+            song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             break;
           }
         }
@@ -771,16 +766,16 @@ void patterncommands()
           for (int c = epmarkstart; c <= epmarkend; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
-            patterncopybuffer[d*4+1] = pattern[epnum[epmarkchn]][c*4+1];
-            patterncopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
-            patterncopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
+            patterncopybuffer[d*4] = song.pattern[epnum[epmarkchn]][c*4];
+            patterncopybuffer[d*4+1] = song.pattern[epnum[epmarkchn]][c*4+1];
+            patterncopybuffer[d*4+2] = song.pattern[epnum[epmarkchn]][c*4+2];
+            patterncopybuffer[d*4+3] = song.pattern[epnum[epmarkchn]][c*4+3];
             if (rawkey == KEY_X)
             {
-              pattern[epnum[epmarkchn]][c*4] = REST;
-              pattern[epnum[epmarkchn]][c*4+1] = 0;
-              pattern[epnum[epmarkchn]][c*4+2] = 0;
-              pattern[epnum[epmarkchn]][c*4+3] = 0;
+              song.pattern[epnum[epmarkchn]][c*4] = REST;
+              song.pattern[epnum[epmarkchn]][c*4+1] = 0;
+              song.pattern[epnum[epmarkchn]][c*4+2] = 0;
+              song.pattern[epnum[epmarkchn]][c*4+3] = 0;
             }
             d++;
           }
@@ -792,16 +787,16 @@ void patterncommands()
           for (int c = epmarkend; c <= epmarkstart; c++)
           {
             if (c >= getPattlen(epnum[epmarkchn])) break;
-            patterncopybuffer[d*4] = pattern[epnum[epmarkchn]][c*4];
-            patterncopybuffer[d*4+1] = pattern[epnum[epmarkchn]][c*4+1];
-            patterncopybuffer[d*4+2] = pattern[epnum[epmarkchn]][c*4+2];
-            patterncopybuffer[d*4+3] = pattern[epnum[epmarkchn]][c*4+3];
+            patterncopybuffer[d*4] = song.pattern[epnum[epmarkchn]][c*4];
+            patterncopybuffer[d*4+1] = song.pattern[epnum[epmarkchn]][c*4+1];
+            patterncopybuffer[d*4+2] = song.pattern[epnum[epmarkchn]][c*4+2];
+            patterncopybuffer[d*4+3] = song.pattern[epnum[epmarkchn]][c*4+3];
             if (rawkey == KEY_X)
             {
-              pattern[epnum[epmarkchn]][c*4] = REST;
-              pattern[epnum[epmarkchn]][c*4+1] = 0;
-              pattern[epnum[epmarkchn]][c*4+2] = 0;
-              pattern[epnum[epmarkchn]][c*4+3] = 0;
+              song.pattern[epnum[epmarkchn]][c*4] = REST;
+              song.pattern[epnum[epmarkchn]][c*4+1] = 0;
+              song.pattern[epnum[epmarkchn]][c*4+2] = 0;
+              song.pattern[epnum[epmarkchn]][c*4+3] = 0;
             }
             d++;
           }
@@ -814,16 +809,16 @@ void patterncommands()
         int d = 0;
         for (int c = 0; c < getPattlen(epnum[epchn]); c++)
         {
-          patterncopybuffer[d*4] = pattern[epnum[epchn]][c*4];
-          patterncopybuffer[d*4+1] = pattern[epnum[epchn]][c*4+1];
-          patterncopybuffer[d*4+2] = pattern[epnum[epchn]][c*4+2];
-          patterncopybuffer[d*4+3] = pattern[epnum[epchn]][c*4+3];
+          patterncopybuffer[d*4] = song.pattern[epnum[epchn]][c*4];
+          patterncopybuffer[d*4+1] = song.pattern[epnum[epchn]][c*4+1];
+          patterncopybuffer[d*4+2] = song.pattern[epnum[epchn]][c*4+2];
+          patterncopybuffer[d*4+3] = song.pattern[epnum[epchn]][c*4+3];
           if (rawkey == KEY_X)
           {
-            pattern[epnum[epchn]][c*4] = REST;
-            pattern[epnum[epchn]][c*4+1] = 0;
-            pattern[epnum[epchn]][c*4+2] = 0;
-            pattern[epnum[epchn]][c*4+3] = 0;
+            song.pattern[epnum[epchn]][c*4] = REST;
+            song.pattern[epnum[epchn]][c*4+1] = 0;
+            song.pattern[epnum[epchn]][c*4+2] = 0;
+            song.pattern[epnum[epchn]][c*4+3] = 0;
           }
           d++;
         }
@@ -838,10 +833,10 @@ void patterncommands()
       for (int c = 0; c < patterncopyrows; c++)
       {
         if (eppos >= getPattlen(epnum[epchn])) break;
-        pattern[epnum[epchn]][eppos*4] = patterncopybuffer[c*4];
-        pattern[epnum[epchn]][eppos*4+1] = patterncopybuffer[c*4+1];
-        pattern[epnum[epchn]][eppos*4+2] = patterncopybuffer[c*4+2];
-        pattern[epnum[epchn]][eppos*4+3] = patterncopybuffer[c*4+3];
+        song.pattern[epnum[epchn]][eppos*4] = patterncopybuffer[c*4];
+        song.pattern[epnum[epchn]][eppos*4+1] = patterncopybuffer[c*4+1];
+        song.pattern[epnum[epchn]][eppos*4+2] = patterncopybuffer[c*4+2];
+        song.pattern[epnum[epchn]][eppos*4+3] = patterncopybuffer[c*4+3];
         eppos++;
       }
     }
@@ -851,13 +846,13 @@ void patterncommands()
     if (epmarkchn == epchn) epmarkchn = -1;
     if ((getPattlen(epnum[epchn])-eppos)*4-4 >= 0)
     {
-      std::memmove(&pattern[epnum[epchn]][eppos*4],
-        &pattern[epnum[epchn]][eppos*4+4],
+      std::memmove(&song.pattern[epnum[epchn]][eppos*4],
+        &song.pattern[epnum[epchn]][eppos*4+4],
         (getPattlen(epnum[epchn])-eppos)*4-4);
-      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = REST;
-      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
-      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
-      pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
+      song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = REST;
+      song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
+      song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
+      song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
     }
     else
     {
@@ -865,10 +860,10 @@ void patterncommands()
       {
         if (getPattlen(epnum[epchn]) > 1)
         {
-          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = ENDPATT;
-          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
-          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
-          pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
+          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = ENDPATT;
+          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
+          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
+          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
           countthispattern();
           eppos = getPattlen(epnum[epchn]);
         }
@@ -880,13 +875,13 @@ void patterncommands()
     if (epmarkchn == epchn) epmarkchn = -1;
     if ((getPattlen(epnum[epchn])-eppos)*4-4 >= 0)
     {
-      std::memmove(&pattern[epnum[epchn]][eppos*4+4],
-        &pattern[epnum[epchn]][eppos*4],
+      std::memmove(&song.pattern[epnum[epchn]][eppos*4+4],
+        &song.pattern[epnum[epchn]][eppos*4],
         (getPattlen(epnum[epchn])-eppos)*4-4);
-      pattern[epnum[epchn]][eppos*4] = REST;
-      pattern[epnum[epchn]][eppos*4+1] = 0x00;
-      pattern[epnum[epchn]][eppos*4+2] = 0x00;
-      pattern[epnum[epchn]][eppos*4+3] = 0x00;
+      song.pattern[epnum[epchn]][eppos*4] = REST;
+      song.pattern[epnum[epchn]][eppos*4+1] = 0x00;
+      song.pattern[epnum[epchn]][eppos*4+2] = 0x00;
+      song.pattern[epnum[epchn]][eppos*4+3] = 0x00;
     }
     else
     {
@@ -894,14 +889,14 @@ void patterncommands()
       {
         if (getPattlen(epnum[epchn]) < MAX_PATTROWS)
         {
-          pattern[epnum[epchn]][eppos*4] = REST;
-          pattern[epnum[epchn]][eppos*4+1] = 0x00;
-          pattern[epnum[epchn]][eppos*4+2] = 0x00;
-          pattern[epnum[epchn]][eppos*4+3] = 0x00;
-          pattern[epnum[epchn]][eppos*4+4] = ENDPATT;
-          pattern[epnum[epchn]][eppos*4+5] = 0x00;
-          pattern[epnum[epchn]][eppos*4+6] = 0x00;
-          pattern[epnum[epchn]][eppos*4+7] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4] = REST;
+          song.pattern[epnum[epchn]][eppos*4+1] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4+2] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4+3] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4+4] = ENDPATT;
+          song.pattern[epnum[epchn]][eppos*4+5] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4+6] = 0x00;
+          song.pattern[epnum[epchn]][eppos*4+7] = 0x00;
           countthispattern();
           eppos = getPattlen(epnum[epchn]);
         }
@@ -920,7 +915,7 @@ void patterncommands()
         {
           for (int c = 0; c < maxChns; c++)
           {
-            if (eseditpos < songlen[esnum][c]) espos[c] = eseditpos;
+            if (eseditpos < song.len[esnum][c]) espos[c] = eseditpos;
             if (esend[c] <= espos[c]) esend[c] = 0;
           }
         }
@@ -1035,7 +1030,7 @@ void patterncommands()
   }
   if ((keypreset == KEY_DMC) && (hexnybble >= 0) && (hexnybble <= 7) && (!epcolumn))
   {
-    int oldbyte = pattern[epnum[epchn]][eppos*4];
+    int oldbyte = song.pattern[epnum[epchn]][eppos*4];
     epoctave = hexnybble;
     if ((oldbyte >= FIRSTNOTE) && (oldbyte <= LASTNOTE))
     {
@@ -1047,7 +1042,7 @@ void patterncommands()
         newbyte = oldnote+epoctave*12 + FIRSTNOTE;
         if (newbyte <= LASTNOTE)
         {
-          pattern[epnum[epchn]][eppos*4] = newbyte;
+          song.pattern[epnum[epchn]][eppos*4] = newbyte;
         }
       }
       if (recordmode && (autoadvance < 1))
@@ -1068,35 +1063,35 @@ void patterncommands()
       switch(epcolumn)
       {
         case 1:
-        pattern[epnum[epchn]][eppos*4+1] &= 0x0f;
-        pattern[epnum[epchn]][eppos*4+1] |= hexnybble << 4;
-        pattern[epnum[epchn]][eppos*4+1] &= (MAX_INSTR - 1);
+        song.pattern[epnum[epchn]][eppos*4+1] &= 0x0f;
+        song.pattern[epnum[epchn]][eppos*4+1] |= hexnybble << 4;
+        song.pattern[epnum[epchn]][eppos*4+1] &= (MAX_INSTR - 1);
         break;
 
         case 2:
-        pattern[epnum[epchn]][eppos*4+1] &= 0xf0;
-        pattern[epnum[epchn]][eppos*4+1] |= hexnybble;
-        pattern[epnum[epchn]][eppos*4+1] &= (MAX_INSTR - 1);
+        song.pattern[epnum[epchn]][eppos*4+1] &= 0xf0;
+        song.pattern[epnum[epchn]][eppos*4+1] |= hexnybble;
+        song.pattern[epnum[epchn]][eppos*4+1] &= (MAX_INSTR - 1);
         break;
 
         case 3:
-        pattern[epnum[epchn]][eppos*4+2] = hexnybble;
-        if (!pattern[epnum[epchn]][eppos*4+2])
-          pattern[epnum[epchn]][eppos*4+3] = 0;
+        song.pattern[epnum[epchn]][eppos*4+2] = hexnybble;
+        if (!song.pattern[epnum[epchn]][eppos*4+2])
+          song.pattern[epnum[epchn]][eppos*4+3] = 0;
         break;
 
         case 4:
-        pattern[epnum[epchn]][eppos*4+3] &= 0x0f;
-        pattern[epnum[epchn]][eppos*4+3] |= hexnybble << 4;
-        if (!pattern[epnum[epchn]][eppos*4+2])
-          pattern[epnum[epchn]][eppos*4+3] = 0;
+        song.pattern[epnum[epchn]][eppos*4+3] &= 0x0f;
+        song.pattern[epnum[epchn]][eppos*4+3] |= hexnybble << 4;
+        if (!song.pattern[epnum[epchn]][eppos*4+2])
+          song.pattern[epnum[epchn]][eppos*4+3] = 0;
         break;
 
         case 5:
-        pattern[epnum[epchn]][eppos*4+3] &= 0xf0;
-        pattern[epnum[epchn]][eppos*4+3] |= hexnybble;
-        if (!pattern[epnum[epchn]][eppos*4+2])
-          pattern[epnum[epchn]][eppos*4+3] = 0;
+        song.pattern[epnum[epchn]][eppos*4+3] &= 0xf0;
+        song.pattern[epnum[epchn]][eppos*4+3] |= hexnybble;
+        if (!song.pattern[epnum[epchn]][eppos*4+2])
+          song.pattern[epnum[epchn]][eppos*4+3] = 0;
         break;
       }
     }
@@ -1183,16 +1178,16 @@ void shrinkpattern()
 
   for (int d = 0; d < nl; d++)
   {
-    pattern[c][d*4] = pattern[c][d*2*4];
-    pattern[c][d*4+1] = pattern[c][d*2*4+1];
-    pattern[c][d*4+2] = pattern[c][d*2*4+2];
-    pattern[c][d*4+3] = pattern[c][d*2*4+3];
+    song.pattern[c][d*4] = song.pattern[c][d*2*4];
+    song.pattern[c][d*4+1] = song.pattern[c][d*2*4+1];
+    song.pattern[c][d*4+2] = song.pattern[c][d*2*4+2];
+    song.pattern[c][d*4+3] = song.pattern[c][d*2*4+3];
   }
 
-  pattern[c][nl*4] = ENDPATT;
-  pattern[c][nl*4+1] = 0;
-  pattern[c][nl*4+2] = 0;
-  pattern[c][nl*4+3] = 0;
+  song.pattern[c][nl*4] = ENDPATT;
+  song.pattern[c][nl*4+1] = 0;
+  song.pattern[c][nl*4+2] = 0;
+  song.pattern[c][nl*4+3] = 0;
 
   eppos /= 2;
 
@@ -1222,14 +1217,14 @@ void expandpattern()
     }
     else
     {
-      temp[d*4] = pattern[c][d*2];
-      temp[d*4+1] = pattern[c][d*2+1];
-      temp[d*4+2] = pattern[c][d*2+2];
-      temp[d*4+3] = pattern[c][d*2+3];
+      temp[d*4] = song.pattern[c][d*2];
+      temp[d*4+1] = song.pattern[c][d*2+1];
+      temp[d*4+2] = song.pattern[c][d*2+2];
+      temp[d*4+3] = song.pattern[c][d*2+3];
     }
   }
 
-  std::memcpy(pattern[c], temp, (nl+1)*4);
+  std::memcpy(song.pattern[c], temp, (nl+1)*4);
 
   eppos *= 2;
 
@@ -1254,15 +1249,15 @@ void splitpattern()
 
     for (int d = eppos; d <= l; d++)
     {
-      pattern[c+1][(d-eppos)*4] = pattern[c][d*4];
-      pattern[c+1][(d-eppos)*4+1] = pattern[c][d*4+1];
-      pattern[c+1][(d-eppos)*4+2] = pattern[c][d*4+2];
-      pattern[c+1][(d-eppos)*4+3] = pattern[c][d*4+3];
+      song.pattern[c+1][(d-eppos)*4] = song.pattern[c][d*4];
+      song.pattern[c+1][(d-eppos)*4+1] = song.pattern[c][d*4+1];
+      song.pattern[c+1][(d-eppos)*4+2] = song.pattern[c][d*4+2];
+      song.pattern[c+1][(d-eppos)*4+3] = song.pattern[c][d*4+3];
     }
-    pattern[c][eppos*4] = ENDPATT;
-    pattern[c][eppos*4+1] = 0;
-    pattern[c][eppos*4+2] = 0;
-    pattern[c][eppos*4+3] = 0;
+    song.pattern[c][eppos*4] = ENDPATT;
+    song.pattern[c][eppos*4+1] = 0;
+    song.pattern[c][eppos*4+2] = 0;
+    song.pattern[c][eppos*4+3] = 0;
 
     countpatternlengths();
 
@@ -1270,11 +1265,11 @@ void splitpattern()
     {
       for (eschn = 0; eschn < maxChns; eschn++)
       {
-        for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
+        for (eseditpos = 0; eseditpos < song.len[esnum][eschn]; eseditpos++)
         {
-          if (songorder[esnum][eschn][eseditpos] == c)
+          if (song.order[esnum][eschn][eseditpos] == c)
           {
-            songorder[esnum][eschn][eseditpos] = c+1;
+            song.order[esnum][eschn][eseditpos] = c+1;
             insertorder(c);
           }
         }
@@ -1292,9 +1287,9 @@ void joinpattern()
   int maxChns = getMaxChannels();
 
   if (eschn != epchn) return;
-  if (songorder[esnum][epchn][eseditpos] != c) return;
+  if (song.order[esnum][epchn][eseditpos] != c) return;
 
-  int d = songorder[esnum][epchn][eseditpos + 1];
+  int d = song.order[esnum][epchn][eseditpos + 1];
   if (d >= MAX_PATT) return;
   if (getPattlen(c) + getPattlen(d) > MAX_PATTROWS) return;
 
@@ -1310,23 +1305,23 @@ void joinpattern()
     int e;
     for (e = 0; e < getPattlen(c); e++)
     {
-      pattern[c+1][e*4] = pattern[c][e*4];
-      pattern[c+1][e*4+1] = pattern[c][e*4+1];
-      pattern[c+1][e*4+2] = pattern[c][e*4+2];
-      pattern[c+1][e*4+3] = pattern[c][e*4+3];
+      song.pattern[c+1][e*4] = song.pattern[c][e*4];
+      song.pattern[c+1][e*4+1] = song.pattern[c][e*4+1];
+      song.pattern[c+1][e*4+2] = song.pattern[c][e*4+2];
+      song.pattern[c+1][e*4+3] = song.pattern[c][e*4+3];
     }
     for (int f = 0; f < getPattlen(d); f++)
     {
-      pattern[c+1][e*4] = pattern[d][f*4];
-      pattern[c+1][e*4+1] = pattern[d][f*4+1];
-       pattern[c+1][e*4+2] = pattern[d][f*4+2];
-       pattern[c+1][e*4+3] = pattern[d][f*4+3];
-       e++;
+      song.pattern[c+1][e*4] = song.pattern[d][f*4];
+      song.pattern[c+1][e*4+1] = song.pattern[d][f*4+1];
+      song.pattern[c+1][e*4+2] = song.pattern[d][f*4+2];
+      song.pattern[c+1][e*4+3] = song.pattern[d][f*4+3];
+      e++;
     }
-    pattern[c+1][e*4] = ENDPATT;
-    pattern[c+1][e*4+1] = 0;
-    pattern[c+1][e*4+2] = 0;
-    pattern[c+1][e*4+3] = 0;
+    song.pattern[c+1][e*4] = ENDPATT;
+    song.pattern[c+1][e*4+1] = 0;
+    song.pattern[c+1][e*4+2] = 0;
+    song.pattern[c+1][e*4+3] = 0;
 
     countpatternlengths();
 
@@ -1334,12 +1329,12 @@ void joinpattern()
     {
       for (eschn = 0; eschn < maxChns; eschn++)
       {
-        for (eseditpos = 0; eseditpos < songlen[esnum][eschn]; eseditpos++)
+        for (eseditpos = 0; eseditpos < song.len[esnum][eschn]; eseditpos++)
         {
-          if ((songorder[esnum][eschn][eseditpos] == c) && (songorder[esnum][eschn][eseditpos+1] == d))
+          if ((song.order[esnum][eschn][eseditpos] == c) && (song.order[esnum][eschn][eseditpos+1] == d))
           {
             deleteorder();
-            songorder[esnum][eschn][eseditpos] = c+1;
+            song.order[esnum][eschn][eseditpos] = c+1;
           }
         }
       }
