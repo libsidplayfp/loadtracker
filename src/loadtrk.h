@@ -47,7 +47,6 @@ extern bool exitprogram;
 extern int eacolumn;
 extern int eamode;
 extern int ebmode;
-extern bool usefinevib;
 
 extern bool monomode;
 extern char loadedsongfilename[MAX_FILENAME];

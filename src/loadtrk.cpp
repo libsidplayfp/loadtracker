@@ -58,7 +58,6 @@ int eacolumn = 0;
 int eamode = 0;
 int ebmode = 0;
 
-bool usefinevib = false;
 bool monomode = false;
 bool writer = false;
 
@@ -83,7 +82,7 @@ char textbuffer[MAX_PATHNAME];
 unsigned char hexkeytbl[] = {'0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-extern unsigned char datafile[];
+extern unsigned char datafile[]; // from ltrkdata.cpp
 
 COLORS colors;
 
@@ -189,7 +188,7 @@ int main(int argc, char **argv)
         waitkeynoupdate();
 #else
         for (int y = 0; y < usagelen; ++y)
-          printf("%s\n", usage[y]);
+          std::printf("%s\n", usage[y]);
 #endif
         return EXIT_SUCCESS;
 
@@ -295,7 +294,7 @@ int main(int argc, char **argv)
     else
     {
       std::strcpy(songfilename, argv[c]);
-      for (int d = strlen(argv[c])-1; d >= 0; d--)
+      for (int d = std::strlen(argv[c])-1; d >= 0; d--)
       {
         if ((argv[c][d] == '/') || (argv[c][d] == '\\'))
         {
@@ -315,28 +314,7 @@ int main(int argc, char **argv)
   initcolorscheme(dark);
 
   // Validate parameters
-  sidmodel &= 1;
-  adparam &= 0xffff;
-  zeropageadr &= 0xff;
-  playeradr &= 0xff00;
-  sidaddress &= 0xffff;
-  sid2address &= 0xffff;
-  if (!stepsize) stepsize = 4;
-  if (multiplier > 16) multiplier = 16;
-  if (keypreset > 2) keypreset = 0;
-  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = true;
-  if (finevibrato > 1) usefinevib = true;
-  if (optimizepulse > 1) optimizepulse = 1;
-  if (optimizerealtime > 1) optimizerealtime = 1;
-  if (residdelay > 63) residdelay = 63;
-  if (customclockrate < 100) customclockrate = 0;
-  if (defaultpatternlength < 1) defaultpatternlength = 1;
-  if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
-  if (panning < 0) panning = 0;
-  if (panning > 1) panning = 1;
-  if (combwaves > 2) combwaves = 2;
-  if (filterbias < 0.0) filterbias = 0.0;
-  else if (filterbias > 1.0) filterbias = 1.0;
+  validateconfig();
 
   initDisplayPositions();
 
@@ -1145,7 +1123,7 @@ void save()
     // Repeat until quit or save successful
     while (!done)
     {
-      if (strlen(loadedsongfilename)) strcpy(songfilename, loadedsongfilename);
+      if (std::strlen(loadedsongfilename)) strcpy(songfilename, loadedsongfilename);
       if (fileselector(songfilename, songpath, songfilter, "SAVE SONG", 3))
         done = savesong();
       else done = true;

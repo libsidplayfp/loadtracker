@@ -75,6 +75,8 @@ char scalatuningfilepath[MAX_PATHNAME];
 unsigned exsid = 0;
 unsigned darkmode = 0;
 
+bool usefinevib = false;
+
 void getparam(FILE *handle, unsigned *value);
 void getfloatparam(FILE *handle, float *value);
 void getstringparam(FILE *handle, char *value);
@@ -344,3 +346,29 @@ void getstringparam(FILE *handle, char *value)
 }
 
 // TODO getboolparam
+
+void validateconfig()
+{
+  sidmodel &= 1;
+  adparam &= 0xffff;
+  zeropageadr &= 0xff;
+  playeradr &= 0xff00;
+  sidaddress &= 0xffff;
+  sid2address &= 0xffff;
+  if (!stepsize) stepsize = 4;
+  if (multiplier > 16) multiplier = 16;
+  if (keypreset > 2) keypreset = 0;
+  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = true;
+  if (finevibrato > 1) usefinevib = true;
+  if (optimizepulse > 1) optimizepulse = 1;
+  if (optimizerealtime > 1) optimizerealtime = 1;
+  if (residdelay > 63) residdelay = 63;
+  if (customclockrate < 100) customclockrate = 0;
+  if (defaultpatternlength < 1) defaultpatternlength = 1;
+  if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
+  if (panning < 0) panning = 0;
+  if (panning > 1) panning = 1;
+  if (combwaves > 2) combwaves = 2;
+  if (filterbias < 0.0) filterbias = 0.0;
+  if (filterbias > 1.0) filterbias = 1.0;
+}

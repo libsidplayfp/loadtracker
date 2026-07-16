@@ -38,7 +38,6 @@ static bool io_datafileopen = false;
 static HEADER *fileheaders;
 static unsigned files;
 static HANDLE handle[MAX_HANDLES];
-static FILE *datafilehandle = nullptr;
 static unsigned char *datafileptr;
 static unsigned char *datafilestart;
 
@@ -48,9 +47,6 @@ static unsigned linkedreadle32(void);
 
 bool io_openlinkeddatafile(unsigned char *ptr)
 {
-    if (datafilehandle) std::fclose(datafilehandle);
-    datafilehandle = nullptr;
-
     datafilestart = ptr;
     linkedseek(0);
 
@@ -97,9 +93,10 @@ int io_open(const char *name)
     if (namelength > 12) namelength = 12;
     char namecopy[13];
     std::memcpy(namecopy, name, namelength + 1);
-    for (size_t index = 0; index < std::strlen(namecopy); index++)
+    namelength = std::strlen(namecopy);
+    for (size_t index = 0; index < namelength; index++)
     {
-        namecopy[index] = toupper(namecopy[index]);
+        namecopy[index] = std::toupper(namecopy[index]);
     }
 
     for (size_t index = 0; index < MAX_HANDLES; index++)
@@ -169,20 +166,11 @@ int io_read(int index, void *buffer, int length)
     if (length + handle[index].filepos > handle[index].currentheader->length)
     length = handle[index].currentheader->length - handle[index].filepos;
 
-    int readbytes;
-    if (datafilehandle)
-    {
-        std::fseek(datafilehandle, handle[index].currentheader->offset + handle[index].filepos, SEEK_SET);
-        readbytes = std::fread(buffer, 1, length, datafilehandle);
-    }
-    else
-    {
-        linkedseek(handle[index].currentheader->offset + handle[index].filepos);
-        linkedread(buffer, length);
-        readbytes = length;
-    }
-    handle[index].filepos += readbytes;
-    return readbytes;
+    linkedseek(handle[index].currentheader->offset + handle[index].filepos);
+    linkedread(buffer, length);
+
+    handle[index].filepos += length;
+    return length;
 }
 
 // Returns nothing

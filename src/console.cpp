@@ -56,10 +56,11 @@ unsigned oldmousepixelx = 0xffffffff;
 unsigned oldmousepixely = 0xffffffff;
 int mouseheld = 0;
 int region[MAX_ROWS];
-int fontwidth = 8;
-int fontheight = 14;
-int mousesizex = 19;
-int mousesizey = 24;
+
+constexpr int fontwidth = 8;
+constexpr int fontheight = 14;
+constexpr int mousesizex = 19;
+constexpr int mousesizey = 24;
 
 POSITIONS dpos =
 {
@@ -398,7 +399,7 @@ void fliptoscreen()
 
           unsigned char e = *chptr++;
 
-          for (int c = 0; c < 14; c++)
+          for (int c = 0; c < fontheight; c++)
           {
             e = *chptr++;
 

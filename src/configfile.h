@@ -52,9 +52,12 @@ extern char specialnotenames[];
 extern char scalatuningfilepath[];
 extern unsigned exsid;
 extern unsigned darkmode;
+
+extern bool usefinevib;
 #endif
 
 void loadconfig();
 void saveconfig();
+void validateconfig();
 
 #endif
