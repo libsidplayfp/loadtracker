@@ -348,6 +348,10 @@ bool gfx_init(unsigned xsize, unsigned ysize)
                                              SDL_TEXTUREACCESS_STREAMING,
                                              xsize, ysize);
 
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+    SDL_SetTextureScaleMode(sdlTexture, SDL_SCALEMODE_PIXELART);
+#endif
+
     SDL_HideCursor();
 
     gfx_initted = true;
