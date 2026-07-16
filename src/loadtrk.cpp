@@ -486,7 +486,7 @@ void mousecommands()
 {
   int maxChns = getMaxChannels();
 
-  int currentSonglen = songlen[esnum][eschn];
+  int currentSonglen = song.len[esnum][eschn];
 
   if (win_mouseywheel != 0.f)
   {
@@ -528,7 +528,7 @@ void mousecommands()
       }
       else if (win_mouseywheel < 0.f)
       {
-        if ((songlen[esnum][eschn]-esview) > getVisibleOrderlist()-1)
+        if ((song.len[esnum][eschn]-esview) > getVisibleOrderlist()-1)
         {
           esview++;
           eseditpos++;
@@ -934,7 +934,7 @@ void generalcommands()
     case ':':
     for (int c = 0; c < maxChns; c++)
     {
-      currentSonglen = songlen[esnum][c];
+      currentSonglen = song.len[esnum][c];
       if (espos[c] < (currentSonglen-1))
         espos[c]++;
       if ((espos[c] - esview) >= visibleOrderlist)
@@ -1140,10 +1140,10 @@ void save()
       // Repeat until quit or save successful
       while (!done)
       {
-        if ((!std::strlen(instrfilename)) && (strlen(instr[einum].name)))
+        if ((!std::strlen(instrfilename)) && (std::strlen(song.instr[einum].name)))
         {
           useinstrname = 1;
-          std::strcpy(instrfilename, instr[einum].name);
+          std::strcpy(instrfilename, song.instr[einum].name);
           std::strcat(instrfilename, ".ins");
           std::strcpy(tempfilename, instrfilename);
         }
@@ -1661,9 +1661,9 @@ void optimizeeverything()
     {
       for (int d = 0; d < MAX_PATTROWS; d++)
       {
-        if (pattern[c][d*4] == ENDPATT) break;
-        if (pattern[c][d*4+1])
-          instrused[pattern[c][d*4+1]] = 1;
+        if (song.pattern[c][d*4] == ENDPATT) break;
+        if (song.pattern[c][d*4+1])
+          instrused[song.pattern[c][d*4+1]] = 1;
       }
     }
     else deletepattern(c);
@@ -1679,14 +1679,14 @@ void optimizeeverything()
 
       if (c < MAX_INSTR-2)
       {
-        std::memmove(&instr[c], &instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
+        std::memmove(&song.instr[c], &song.instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
         clearinstr(MAX_INSTR-2);
         for (int d = 0; d < MAX_PATT; d++)
         {
           for (int e = 0; e < getPattlen(d); e++)
           {
-            if ((pattern[d][e*4+1] > c) && (pattern[d][e*4+1] != MAX_INSTR-1))
-              pattern[d][e*4+1]--;
+            if ((song.pattern[d][e*4+1] > c) && (song.pattern[d][e*4+1] != MAX_INSTR-1))
+              song.pattern[d][e*4+1]--;
           }
         }
       }
@@ -1710,20 +1710,20 @@ void findduplicatepatterns()
       {
         if (getPattlen(d) == getPattlen(c))
         {
-          if (!std::memcmp(pattern[c], pattern[d], getPattlen(c)*4))
+          if (!std::memcmp(song.pattern[c], song.pattern[d], getPattlen(c)*4))
           {
             for (int f = 0; f < MAX_SONGS; f++)
             {
-              if ((songlen[f][0]) &&
-                  (songlen[f][1]) &&
-                  (songlen[f][2]))
+              if ((song.len[f][0]) &&
+                  (song.len[f][1]) &&
+                  (song.len[f][2]))
               {
                 for (int g = 0; g < maxChns; g++)
                 {
-                  for (int h = 0; h < songlen[f][g]; h++)
+                  for (int h = 0; h < song.len[f][g]; h++)
                   {
-                    if (songorder[f][g][h] == d)
-                      songorder[f][g][h] = c;
+                    if (song.order[f][g][h] == d)
+                      song.order[f][g][h] = c;
                   }
                 }
               }

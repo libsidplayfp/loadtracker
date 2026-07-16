@@ -19,16 +19,25 @@
 #ifndef SONG_H
 #define SONG_H
 
+#include "common.h"
+
+struct Song
+{
+    INSTR instr[MAX_INSTR];
+    unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
+    unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
+    unsigned char order[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
+    int len[MAX_SONGS][MAX_CHN];
+    unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
+
+    char title[MAX_STR];
+    char author[MAX_STR];
+    char released[MAX_STR];
+};
+
+
 #ifndef SONG_C
-extern INSTR instr[MAX_INSTR];
-extern unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
-extern unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
-extern unsigned char songorder[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
-extern int songlen[MAX_SONGS][MAX_CHN];
-extern unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
-extern char songname[MAX_STR];
-extern char authorname[MAX_STR];
-extern char copyrightname[MAX_STR];
+extern Song song;
 #endif
 
 void loadsong();

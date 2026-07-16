@@ -270,47 +270,47 @@ void relocator()
   // Calculate amount of songs with nonzero length
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((songlen[c][0]) &&
-        (songlen[c][1]) &&
-        (songlen[c][2]))
+    if ((song.len[c][0]) &&
+        (song.len[c][1]) &&
+        (song.len[c][2]))
     {
       // See which patterns are used in this song
       for (int d = 0; d < maxChns; d++)
       {
-        songdatasize += songlen[c][d]+2;
-        for (int e = 0; e < songlen[c][d]; e++)
+        songdatasize += song.len[c][d]+2;
+        for (int e = 0; e < song.len[c][d]; e++)
         {
-          if (songorder[c][d][e] < REPEAT)
+          if (song.order[c][d][e] < REPEAT)
           {
-            int num = songorder[c][d][e];
+            int num = song.order[c][d][e];
 
             pattused[num] = 1;
             for (int f = 0; f < getPattlen(num); f++)
             {
-              if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
+              if ((song.pattern[num][f*4] != REST) || (song.pattern[num][f*4+1]) || (song.pattern[num][f*4+2]))
                 chnused[d] = 1;
             }
           }
           else
           {
-            if (songorder[c][d][e] >= TRANSDOWN)
+            if (song.order[c][d][e] >= TRANSDOWN)
             {
               notrans = 0;
-              if (songorder[c][d][e] < TRANSUP)
+              if (song.order[c][d][e] < TRANSUP)
               {
-                int newtransdownrange = -(songorder[c][d][e] - TRANSUP);
+                int newtransdownrange = -(song.order[c][d][e] - TRANSUP);
                 if (newtransdownrange > transdownrange) transdownrange = newtransdownrange;
               }
               else
               {
-                int newtransuprange = songorder[c][d][e] - TRANSUP;
+                int newtransuprange = song.order[c][d][e] - TRANSUP;
                 if (newtransuprange > transuprange) transuprange = newtransuprange;
               }
             }
             else norepeat = 0;
           }
         }
-        if (songorder[c][d][songlen[c][d]+1] >= songlen[c][d])
+        if (song.order[c][d][song.len[c][d]+1] >= song.len[c][d])
         {
           sprintf(textbuffer, "ILLEGAL SONG RESTART POSITION! (SUBTUNE %02X, CHANNEL %d)", c, d+1);
           clearscreen();
@@ -354,33 +354,33 @@ void relocator()
       {
         tableerror = 0;
 
-        if ((pattern[c][d*4] == KEYOFF) || (pattern[c][d*4] == KEYON))
+        if ((song.pattern[c][d*4] == KEYOFF) || (song.pattern[c][d*4] == KEYON))
           nogate = 0;
-        if (pattern[c][d*4+1])
-          instrused[pattern[c][d*4+1]] = 1;
-        if (pattern[c][d*4+2])
+        if (song.pattern[c][d*4+1])
+          instrused[song.pattern[c][d*4+1]] = 1;
+        if (song.pattern[c][d*4+2])
           noeffects = 0;
-        if ((pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (pattern[c][d*4+2] <= CMD_SETFILTERPTR))
-          exectable(pattern[c][d*4+2] - CMD_SETWAVEPTR, pattern[c][d*4+3]);
-        if ((pattern[c][d*4+2] >= CMD_PORTAUP) && (pattern[c][d*4+2] <= CMD_VIBRATO))
+        if ((song.pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (song.pattern[c][d*4+2] <= CMD_SETFILTERPTR))
+          exectable(song.pattern[c][d*4+2] - CMD_SETWAVEPTR, song.pattern[c][d*4+3]);
+        if ((song.pattern[c][d*4+2] >= CMD_PORTAUP) && (song.pattern[c][d*4+2] <= CMD_VIBRATO))
         {
-          exectable(STBL, pattern[c][d*4+3]);
-          calcspeedtest(pattern[c][d*4+3]);
+          exectable(STBL, song.pattern[c][d*4+3]);
+          calcspeedtest(song.pattern[c][d*4+3]);
         }
-        if (pattern[c][d*4+2] == CMD_FUNKTEMPO)
-          exectable(STBL, pattern[c][d*4+3]);
-        if (pattern[c][d*4+2] == CMD_FUNKTEMPO)
+        if (song.pattern[c][d*4+2] == CMD_FUNKTEMPO)
+          exectable(STBL, song.pattern[c][d*4+3]);
+        if (song.pattern[c][d*4+2] == CMD_FUNKTEMPO)
         {
           nofunktempo = 0;
           noglobaltempo = 0;
         }
-        if ((pattern[c][d*4+2] == CMD_SETTEMPO) && ((pattern[c][d*4+3] & 0x7f) < 3)) nofunktempo = 0;
+        if ((song.pattern[c][d*4+2] == CMD_SETTEMPO) && ((song.pattern[c][d*4+3] & 0x7f) < 3)) nofunktempo = 0;
 
         // See, which are the highest/lowest notes used
-        if ((pattern[c][d*4] >= FIRSTNOTE) && (pattern[c][d*4] <= LASTNOTE))
+        if ((song.pattern[c][d*4] >= FIRSTNOTE) && (song.pattern[c][d*4] <= LASTNOTE))
         {
-          int newfirstnote = pattern[c][d*4] - FIRSTNOTE - transdownrange;
-          int newlastnote = pattern[c][d*4] - FIRSTNOTE + transuprange;
+          int newfirstnote = song.pattern[c][d*4] - FIRSTNOTE - transdownrange;
+          int newlastnote = song.pattern[c][d*4] - FIRSTNOTE + transuprange;
           if (newfirstnote < 0) newfirstnote = 0;
           if (newlastnote > MAX_NOTES-1) newlastnote = MAX_NOTES-1;
 
@@ -413,13 +413,13 @@ void relocator()
   {
     if (instrused[c])
     {
-      if (instr[c].gatetimer & 0x40) numlegato++;
+      if (song.instr[c].gatetimer & 0x40) numlegato++;
       else
       {
-        if (instr[c].gatetimer & 0x80) numnohr++;
+        if (song.instr[c].gatetimer & 0x80) numnohr++;
         else numnormal++;
       }
-      if ((!instr[c].firstwave) || (instr[c].firstwave >= 0xfe))
+      if ((!song.instr[c].firstwave) || (song.instr[c].firstwave >= 0xfe))
         nofirstwavecmd = 0;
     }
   }
@@ -432,18 +432,18 @@ void relocator()
   {
     if (instrused[c])
     {
-      if (instr[c].gatetimer & 0x40) instrmap[c] = freelegato++;
+      if (song.instr[c].gatetimer & 0x40) instrmap[c] = freelegato++;
       else
       {
-        if (instr[c].gatetimer & 0x80) instrmap[c] = freenohr++;
+        if (song.instr[c].gatetimer & 0x80) instrmap[c] = freenohr++;
         else instrmap[c] = freenormal++;
       }
       instruments++;
       for (d = 0; d < MAX_TABLES; d++)
       {
         tableerror = 0;
-        exectable(d, instr[c].ptr[d]);
-        if (d == STBL) calcspeedtest(instr[c].ptr[d]);
+        exectable(d, song.instr[c].ptr[d]);
+        if (d == STBL) calcspeedtest(song.instr[c].ptr[d]);
         if ((tableerror) && (!tableerrortype))
         {
           tableerrortype = tableerror;
@@ -460,19 +460,19 @@ void relocator()
   {
     if (tableused[WTBL][c+1])
     {
-      if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
+      if ((song.ltable[WTBL][c] >= WAVECMD) && (song.ltable[WTBL][c] <= WAVELASTCMD))
       {
         int d = -1;
         tableerror = 0;
 
-        switch(ltable[WTBL][c] - WAVECMD)
+        switch(song.ltable[WTBL][c] - WAVECMD)
         {
           case CMD_PORTAUP:
           case CMD_PORTADOWN:
           case CMD_TONEPORTA:
           case CMD_VIBRATO:
           d = STBL;
-          calcspeedtest(rtable[WTBL][c]);
+          calcspeedtest(song.rtable[WTBL][c]);
           break;
 
           case CMD_SETPULSEPTR:
@@ -488,7 +488,7 @@ void relocator()
           case CMD_DONOTHING:
           case CMD_SETWAVEPTR:
           case CMD_FUNKTEMPO:
-          sprintf(textbuffer, "ILLEGAL WAVETABLE COMMAND (ROW %02X, COMMAND %X)", c+1, ltable[WTBL][c] - WAVECMD);
+          sprintf(textbuffer, "ILLEGAL WAVETABLE COMMAND (ROW %02X, COMMAND %X)", c+1, song.ltable[WTBL][c] - WAVECMD);
           clearscreen();
           printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
           fliptoscreen();
@@ -496,7 +496,7 @@ void relocator()
           goto PRCLEANUP;
         }
 
-        if (d != -1) exectable(d, rtable[WTBL][c]);
+        if (d != -1) exectable(d, song.rtable[WTBL][c]);
 
         if ((tableerror) && (!tableerrortype))
         {
@@ -727,54 +727,54 @@ void relocator()
     goto PRCLEANUP;
   }
 
-  // Generate songorderlists & songtable
+  // Generate song.orderlists & songtable
   songdatasize = 0;
   for (int c = 0; c < songs; c++)
   {
-    if ((songlen[c][0]) &&
-        (songlen[c][1]) &&
-        (songlen[c][2]))
+    if ((song.len[c][0]) &&
+        (song.len[c][1]) &&
+        (song.len[c][2]))
     {
       for (int d = 0; d < maxChns; d++)
       {
         songoffset[c][d] = songdatasize;
-        songsize[c][d] = songlen[c][d] + 2;
+        songsize[c][d] = song.len[c][d] + 2;
 
         int e;
-        for (e = 0; e < songlen[c][d]; e++)
+        for (e = 0; e < song.len[c][d]; e++)
         {
           // Pattern
-          if (songorder[c][d][e] < REPEAT)
-            songwork[songdatasize++] = pattmap[songorder[c][d][e]];
+          if (song.order[c][d][e] < REPEAT)
+            songwork[songdatasize++] = pattmap[song.order[c][d][e]];
           else
           {
             // Transpose
-            if (songorder[c][d][e] >= TRANSDOWN)
+            if (song.order[c][d][e] >= TRANSDOWN)
             {
-              songwork[songdatasize++] = songorder[c][d][e];
+              songwork[songdatasize++] = song.order[c][d][e];
             }
             // Repeat sequence: must be swapped
             else
             {
               // See that repeat amount is more than 1
-              if (songorder[c][d][e] > REPEAT)
+              if (song.order[c][d][e] > REPEAT)
               {
                 // Insanity check that a pattern indeed follows
-                if (songorder[c][d][e+1] < REPEAT)
+                if (song.order[c][d][e+1] < REPEAT)
                 {
-                  songwork[songdatasize++] = pattmap[songorder[c][d][e+1]];
-                  songwork[songdatasize++] = songorder[c][d][e];
+                  songwork[songdatasize++] = pattmap[song.order[c][d][e+1]];
+                  songwork[songdatasize++] = song.order[c][d][e];
                   e++;
                 }
                 else
-                  songwork[songdatasize++] = songorder[c][d][e];
+                  songwork[songdatasize++] = song.order[c][d][e];
               }
             }
           }
         }
         // Endmark & repeat position
-        songwork[songdatasize++] = songorder[c][d][e++];
-        songwork[songdatasize++] = songorder[c][d][e++];
+        songwork[songdatasize++] = song.order[c][d][e++];
+        songwork[songdatasize++] = song.order[c][d][e++];
       }
     }
     else
@@ -792,7 +792,7 @@ void relocator()
   {
     if (pattused[c])
     {
-      int result = packpattern(patttemp, pattern[c], getPattlen(c));
+      int result = packpattern(patttemp, song.pattern[c], getPattlen(c));
 
       if (result < 0)
       {
@@ -826,7 +826,7 @@ void relocator()
     if (pattused[c])
     {
       pattoffset[d] = pattdatasize;
-      pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
+      pattsize[d] = packpattern(&pattwork[pattdatasize], song.pattern[c], getPattlen(c));
       pattdatasize += pattsize[d];
       d++;
     }
@@ -849,40 +849,40 @@ void relocator()
     if (instrused[c])
     {
       d = instrmap[c] - 1;
-      instrwork[d] = instr[c].ad;
-      instrwork[d+instruments] = instr[c].sr;
-      instrwork[d+instruments*2] = tablemap[WTBL][instr[c].ptr[WTBL]];
-      instrwork[d+instruments*3] = tablemap[PTBL][instr[c].ptr[PTBL]];
-      instrwork[d+instruments*4] = tablemap[FTBL][instr[c].ptr[FTBL]];
-      if (instr[c].vibdelay)
+      instrwork[d] = song.instr[c].ad;
+      instrwork[d+instruments] = song.instr[c].sr;
+      instrwork[d+instruments*2] = tablemap[WTBL][song.instr[c].ptr[WTBL]];
+      instrwork[d+instruments*3] = tablemap[PTBL][song.instr[c].ptr[PTBL]];
+      instrwork[d+instruments*4] = tablemap[FTBL][song.instr[c].ptr[FTBL]];
+      if (song.instr[c].vibdelay)
       {
-        instrwork[d+instruments*5] = tablemap[STBL][instr[c].ptr[STBL]];
-        instrwork[d+instruments*6] = instr[c].vibdelay - 1;
+        instrwork[d+instruments*5] = tablemap[STBL][song.instr[c].ptr[STBL]];
+        instrwork[d+instruments*6] = song.instr[c].vibdelay - 1;
       }
       else
       {
         instrwork[d+instruments*5] = 0;
         instrwork[d+instruments*6] = 0;
       }
-      instrwork[d+instruments*7] = instr[c].gatetimer & 0x3f;
-      instrwork[d+instruments*8] = instr[c].firstwave;
+      instrwork[d+instruments*7] = song.instr[c].gatetimer & 0x3f;
+      instrwork[d+instruments*8] = song.instr[c].firstwave;
 
-      if (instr[c].ptr[STBL])
+      if (song.instr[c].ptr[STBL])
       {
         novib = 0;
         noinsvib = 0;
       }
-      if (instr[c].ptr[PTBL])
+      if (song.instr[c].ptr[PTBL])
         nopulse = 0;
-      if (instr[c].ptr[FTBL])
+      if (song.instr[c].ptr[FTBL])
         nofilter = 0;
 
       // See if all instruments use same gatetimer & firstwave parameters
-      if ((instr[c].gatetimer != instr[1].gatetimer) ||
-          (instr[c].firstwave != instr[1].firstwave))
+      if ((song.instr[c].gatetimer != song.instr[1].gatetimer) ||
+          (song.instr[c].firstwave != song.instr[1].firstwave))
         fixedparams = 0;
       // or if special firstwave commands are in use
-      if ((!instr[c].firstwave) || (instr[c].firstwave >= 0xfe))
+      if ((!song.instr[c].firstwave) || (song.instr[c].firstwave >= 0xfe))
         fixedparams = 0;
     }
   }
@@ -906,12 +906,12 @@ void relocator()
     if (tableused[WTBL][c+1])
     {
       wavetblsize += 2;
-      if ((ltable[WTBL][c] >= WAVEDELAY) && (ltable[WTBL][c] <= WAVELASTDELAY)) nowavedelay = 0;
-      if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
+      if ((song.ltable[WTBL][c] >= WAVEDELAY) && (song.ltable[WTBL][c] <= WAVELASTDELAY)) nowavedelay = 0;
+      if ((song.ltable[WTBL][c] >= WAVECMD) && (song.ltable[WTBL][c] <= WAVELASTCMD))
       {
         nowavecmd = 0;
         noeffects = 0;
-        switch (ltable[WTBL][c] - WAVECMD)
+        switch (song.ltable[WTBL][c] - WAVECMD)
         {
           case CMD_PORTAUP:
           case CMD_PORTADOWN:
@@ -959,19 +959,19 @@ void relocator()
           break;
         }
       }
-      if (ltable[WTBL][c] < WAVECMD)
+      if (song.ltable[WTBL][c] < WAVECMD)
       {
-        if (rtable[WTBL][c] <= 0x80)
+        if (song.rtable[WTBL][c] <= 0x80)
         {
-          int newlastnote = rtable[WTBL][c] + patternlastnote;
+          int newlastnote = song.rtable[WTBL][c] + patternlastnote;
           if (newlastnote > MAX_NOTES - 1) newlastnote = MAX_NOTES - 1;
-          if (rtable[WTBL][c] >= 0x20) firstnote = 0;
+          if (song.rtable[WTBL][c] >= 0x20) firstnote = 0;
            if (newlastnote > lastnote) lastnote = newlastnote;
         }
         else
         {
-          int newfirstnote = rtable[WTBL][c] & 0x7f;
-          int newlastnote = rtable[WTBL][c] & 0x7f;
+          int newfirstnote = song.rtable[WTBL][c] & 0x7f;
+          int newlastnote = song.rtable[WTBL][c] & 0x7f;
           if (newlastnote > MAX_NOTES - 1) newlastnote = MAX_NOTES - 1;
           if (newfirstnote < firstnote) firstnote = newfirstnote;
           if (newlastnote > lastnote) lastnote = newlastnote;
@@ -984,14 +984,14 @@ void relocator()
     if (tableused[PTBL][c+1])
     {
       pulsetblsize += 2;
-      if ((ltable[PTBL][c] >= 0x80) && (ltable[PTBL][c] != 0xff))
+      if ((song.ltable[PTBL][c] >= 0x80) && (song.ltable[PTBL][c] != 0xff))
       {
-        if (rtable[PTBL][c] & 0xf) simplepulse = 0;
+        if (song.rtable[PTBL][c] & 0xf) simplepulse = 0;
       }
-      if (ltable[PTBL][c] < 0x80)
+      if (song.ltable[PTBL][c] < 0x80)
       {
         nopulsemod = 0;
-        if (rtable[PTBL][c] & 0xf) simplepulse = 0;
+        if (song.rtable[PTBL][c] & 0xf) simplepulse = 0;
       }
     }
   }
@@ -1000,7 +1000,7 @@ void relocator()
     if (tableused[FTBL][c+1])
     {
       filttblsize += 2;
-      if (ltable[FTBL][c] < 0x80) nofiltermod = 0;
+      if (song.ltable[FTBL][c] < 0x80) nofiltermod = 0;
     }
   }
   for (int c = 0; c < MAX_TABLELEN; c++)
@@ -1214,16 +1214,16 @@ void relocator()
   insertdefine("SRPARAM", adparam & 0xff);
   insertdefine("CIAVALLO", ciaval & 0xff);
   insertdefine("CIAVALHI", ciaval >> 8);
-  if ((instr[MAX_INSTR-1].ad >= 2) && (!(instr[MAX_INSTR-1].ptr[WTBL])))
-    insertdefine("DEFAULTTEMPO", instr[MAX_INSTR-1].ad - 1);
+  if ((song.instr[MAX_INSTR-1].ad >= 2) && (!(song.instr[MAX_INSTR-1].ptr[WTBL])))
+    insertdefine("DEFAULTTEMPO", song.instr[MAX_INSTR-1].ad - 1);
   else
     insertdefine("DEFAULTTEMPO", multiplier ? (multiplier*6-1) : 5);
 
   // Fixed firstwave & gatetimer
   if (fixedparams)
   {
-    insertdefine("FIRSTWAVEPARAM", instr[1].firstwave);
-    insertdefine("GATETIMERPARAM", instr[1].gatetimer & 0x3f);
+    insertdefine("FIRSTWAVEPARAM", song.instr[1].firstwave);
+    insertdefine("GATETIMERPARAM", song.instr[1].gatetimer & 0x3f);
   }
 
   // Insert source code of player
@@ -1342,30 +1342,30 @@ void relocator()
           // In wavetable, convert waveform values for the playroutine
           case WTBL:
           {
-            unsigned char wave = ltable[c][d];
-            if ((ltable[c][d] >= WAVESILENT) && (ltable[c][d] <= WAVELASTSILENT)) wave &= 0xf;
-            if ((ltable[c][d] > WAVELASTDELAY) && (ltable[c][d] <= WAVELASTSILENT) && (!nowavedelay)) wave += 0x10;
+            unsigned char wave = song.ltable[c][d];
+            if ((song.ltable[c][d] >= WAVESILENT) && (song.ltable[c][d] <= WAVELASTSILENT)) wave &= 0xf;
+            if ((song.ltable[c][d] > WAVELASTDELAY) && (song.ltable[c][d] <= WAVELASTSILENT) && (!nowavedelay)) wave += 0x10;
             insertbyte(wave);
           }
           break;
 
           case PTBL:
-          if ((simplepulse) && (ltable[c][d] != 0xff) && (ltable[c][d] > 0x80))
+          if ((simplepulse) && (song.ltable[c][d] != 0xff) && (song.ltable[c][d] > 0x80))
             insertbyte(0x80);
           else
-            insertbyte(ltable[c][d]);
+            insertbyte(song.ltable[c][d]);
           break;
 
-          // In filtertable, modify passband bits
+          // In filtesong.rtable, modify passband bits
           case FTBL:
-          if ((ltable[c][d] != 0xff) && (ltable[c][d] > 0x80))
-            insertbyte(((ltable[c][d] & 0x70) >> 1) | 0x80);
+          if ((song.ltable[c][d] != 0xff) && (song.ltable[c][d] > 0x80))
+            insertbyte(((song.ltable[c][d] & 0x70) >> 1) | 0x80);
           else
-            insertbyte(ltable[c][d]);
+            insertbyte(song.ltable[c][d]);
           break;
 
           default:
-          insertbyte(ltable[c][d]);
+          insertbyte(song.ltable[c][d]);
           break;
         }
       }
@@ -1381,52 +1381,52 @@ void relocator()
     {
       if (tableused[c][d+1])
       {
-        if ((ltable[c][d] != 0xff) || (c == STBL))
+        if ((song.ltable[c][d] != 0xff) || (c == STBL))
         {
           switch(c)
           {
             case WTBL:
-            if ((ltable[c][d] >= WAVECMD) && (ltable[c][d] <= WAVELASTCMD))
+            if ((song.ltable[c][d] >= WAVECMD) && (song.ltable[c][d] <= WAVELASTCMD))
             {
               // Remap table-referencing commands
-              switch (ltable[c][d] - WAVECMD)
+              switch (song.ltable[c][d] - WAVECMD)
               {
                 case CMD_PORTAUP:
                 case CMD_PORTADOWN:
                 case CMD_TONEPORTA:
                 case CMD_VIBRATO:
-                insertbyte(tablemap[STBL][rtable[c][d]]);
+                insertbyte(tablemap[STBL][song.rtable[c][d]]);
                 break;
 
                 case CMD_SETPULSEPTR:
-                insertbyte(tablemap[PTBL][rtable[c][d]]);
+                insertbyte(tablemap[PTBL][song.rtable[c][d]]);
                 break;
 
                 case CMD_SETFILTERPTR:
-                insertbyte(tablemap[FTBL][rtable[c][d]]);
+                insertbyte(tablemap[FTBL][song.rtable[c][d]]);
                 break;
 
                 default:
-                insertbyte(rtable[c][d]);
+                insertbyte(song.rtable[c][d]);
                 break;
               }
             }
             else
             {
               // For normal notes, reverse all right side high bits
-              insertbyte(rtable[c][d] ^ 0x80);
+              insertbyte(song.rtable[c][d] ^ 0x80);
             }
             break;
 
             case PTBL:
             if (simplepulse)
             {
-              if (ltable[c][d] >= 0x80)
-                insertbyte((ltable[c][d] & 0x0f) | (rtable[c][d] & 0xf0));
+              if (song.ltable[c][d] >= 0x80)
+                insertbyte((song.ltable[c][d] & 0x0f) | (song.rtable[c][d] & 0xf0));
               else
               {
-                int pulsespeed = rtable[c][d] >> 4;
-                if (rtable[c][d] & 0x80)
+                int pulsespeed = song.rtable[c][d] >> 4;
+                if (song.rtable[c][d] & 0x80)
                 {
                   pulsespeed |= 0xf0;
                   pulsespeed--;
@@ -1436,16 +1436,16 @@ void relocator()
               }
             }
             else
-              insertbyte(rtable[c][d]);
+              insertbyte(song.rtable[c][d]);
             break;
 
             default:
-            insertbyte(rtable[c][d]);
+            insertbyte(song.rtable[c][d]);
             break;
           }
         }
         else
-          insertbyte(tablemap[c][rtable[c][d]]);
+          insertbyte(tablemap[c][song.rtable[c][d]]);
       }
     }
 
@@ -1489,7 +1489,7 @@ void relocator()
   {
     for (int c = 0; c < 32; c++)
     {
-      packeddata[32+c] = authorname[c];
+      packeddata[32+c] = song.author[c];
       // Convert 0 to space
       if (packeddata[32+c] == 0) packeddata[32+c] = 0x20;
     }
@@ -1715,9 +1715,9 @@ void relocator()
     fwrite8(songhandle, byte);
 
     // Songname etc.
-    std::fwrite(songname, sizeof songname, 1, songhandle);
-    std::fwrite(authorname, sizeof authorname, 1, songhandle);
-    std::fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
+    std::fwrite(song.title, sizeof song.title, 1, songhandle);
+    std::fwrite(song.author, sizeof song.author, 1, songhandle);
+    std::fwrite(song.released, sizeof song.released, 1, songhandle);
 
     // Flags
     byte = 0x00;
@@ -2130,7 +2130,7 @@ void findtableduplicates(int num)
         {
           if (tableused[num][d])
           {
-            if ((ltable[num][d-1] == ltable[num][c-1]) && (rtable[num][d-1] == rtable[num][c-1]))
+            if ((song.ltable[num][d-1] == song.ltable[num][c-1]) && (song.rtable[num][d-1] == song.rtable[num][c-1]))
             {
               // Duplicate found, remove and map to the original
               tableused[num][d] = 0;
@@ -2160,24 +2160,24 @@ void findtableduplicates(int num)
               if (e < len-1)
               {
                 // Is table data the same?
-                if ((ltable[num][d+e-1] != ltable[num][c+e-1]) || (rtable[num][d+e-1] != rtable[num][c+e-1]))
+                if ((song.ltable[num][d+e-1] != song.ltable[num][c+e-1]) || (song.rtable[num][d+e-1] != song.rtable[num][c+e-1]))
                   break;
               }
               else
               {
                 // Do both parts have a jump in the end?
-                if (ltable[num][d+e-1] != ltable[num][c+e-1])
+                if (song.ltable[num][d+e-1] != song.ltable[num][c+e-1])
                   break;
                 // Do both parts end?
-                if (rtable[num][d+e-1] == 0)
+                if (song.rtable[num][d+e-1] == 0)
                 {
-                  if (rtable[num][c+e-1] != 0)
+                  if (song.rtable[num][c+e-1] != 0)
                     break;
                 }
                 else
                 {
                   // Do both parts loop in the same way?
-                  if ((rtable[num][d+e-1] - d) != (rtable[num][c+e-1] - c))
+                  if ((song.rtable[num][d+e-1] - d) != (song.rtable[num][c+e-1] - c))
                     break;
                 }
               }
@@ -2214,15 +2214,15 @@ int isusedandselfcontained(int num, int start)
     if (tableused[num][c] == 0) return 0;
   }
   // Check for jump to outside
-  if (rtable[num][end-1] != 0)
+  if (song.rtable[num][end-1] != 0)
   {
-    if ((rtable[num][end-1] < start) || (rtable[num][end-1] > end)) return 0;
+    if ((song.rtable[num][end-1] < start) || (song.rtable[num][end-1] > end)) return 0;
   }
   // Check for jump from outside
   for (int c = 1; c < start; c++)
-    if ((tableused[num][c]) && (ltable[num][c-1] == 0xff) && (rtable[num][c-1] >= start) && (rtable[num][c-1] <= end)) return 0;
+    if ((tableused[num][c]) && (song.ltable[num][c-1] == 0xff) && (song.rtable[num][c-1] >= start) && (song.rtable[num][c-1] <= end)) return 0;
   for (int c = end+1; c <= MAX_TABLELEN; c++)
-    if ((tableused[num][c]) && (ltable[num][c-1] == 0xff) && (rtable[num][c-1] >= start) && (rtable[num][c-1] <= end)) return 0;
+    if ((tableused[num][c]) && (song.ltable[num][c-1] == 0xff) && (song.rtable[num][c-1] >= start) && (song.rtable[num][c-1] <= end)) return 0;
 
   // OK!
   return 1;
@@ -2236,7 +2236,7 @@ void calcspeedtest(unsigned char pos)
     return;
   }
 
-  if (ltable[STBL][pos-1] >= 0x80) nocalculatedspeed = 0;
+  if (song.ltable[STBL][pos-1] >= 0x80) nocalculatedspeed = 0;
   else nonormalspeed = 0;
 }
 
@@ -2338,47 +2338,47 @@ void relocator_stereo()
     // Calculate amount of songs with nonzero length
     for (int c = 0; c < MAX_SONGS; c++)
     {
-        if ((songlen[c][0]) &&
-                (songlen[c][1]) &&
-                (songlen[c][2]))
+        if ((song.len[c][0]) &&
+                (song.len[c][1]) &&
+                (song.len[c][2]))
         {
             // See which patterns are used in this song
             for (int d = 0; d < MAX_CHN; d++)
             {
-                songdatasize += songlen[c][d]+2;
-                for (int e = 0; e < songlen[c][d]; e++)
+                songdatasize += song.len[c][d]+2;
+                for (int e = 0; e < song.len[c][d]; e++)
                 {
-                    if (songorder[c][d][e] < REPEAT)
+                    if (song.order[c][d][e] < REPEAT)
                     {
-                        int num = songorder[c][d][e];
+                        int num = song.order[c][d][e];
 
                         pattused[num] = 1;
                         for (int f = 0; f < getPattlen(num); f++)
                         {
-                            if ((pattern[num][f*4] != REST) || (pattern[num][f*4+1]) || (pattern[num][f*4+2]))
+                            if ((song.pattern[num][f*4] != REST) || (song.pattern[num][f*4+1]) || (song.pattern[num][f*4+2]))
                                 chnused_stereo[d] = 1;
                         }
                     }
                     else
                     {
-                        if (songorder[c][d][e] >= TRANSDOWN)
+                        if (song.order[c][d][e] >= TRANSDOWN)
                         {
                             notrans = 0;
-                            if (songorder[c][d][e] < TRANSUP)
+                            if (song.order[c][d][e] < TRANSUP)
                             {
-                                int newtransdownrange = -(songorder[c][d][e] - TRANSUP);
+                                int newtransdownrange = -(song.order[c][d][e] - TRANSUP);
                                 if (newtransdownrange > transdownrange) transdownrange = newtransdownrange;
                             }
                             else
                             {
-                                int newtransuprange = songorder[c][d][e] - TRANSUP;
+                                int newtransuprange = song.order[c][d][e] - TRANSUP;
                                 if (newtransuprange > transuprange) transuprange = newtransuprange;
                             }
                         }
                         else norepeat = 0;
                     }
                 }
-                if (songorder[c][d][songlen[c][d]+1] >= songlen[c][d])
+                if (song.order[c][d][song.len[c][d]+1] >= song.len[c][d])
                 {
                     sprintf(textbuffer, "ILLEGAL SONG RESTART POSITION! (SUBTUNE %02X, CHANNEL %d)", c, d+1);
                     clearscreen();
@@ -2416,33 +2416,33 @@ void relocator_stereo()
             {
                 tableerror = 0;
 
-                if ((pattern[c][d*4] == KEYOFF) || (pattern[c][d*4] == KEYON))
+                if ((song.pattern[c][d*4] == KEYOFF) || (song.pattern[c][d*4] == KEYON))
                     nogate = 0;
-                if (pattern[c][d*4+1])
-                    instrused[pattern[c][d*4+1]] = 1;
-                if (pattern[c][d*4+2])
+                if (song.pattern[c][d*4+1])
+                    instrused[song.pattern[c][d*4+1]] = 1;
+                if (song.pattern[c][d*4+2])
                     noeffects = 0;
-                if ((pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (pattern[c][d*4+2] <= CMD_SETFILTERPTR))
-                    exectable(pattern[c][d*4+2] - CMD_SETWAVEPTR, pattern[c][d*4+3]);
-                if ((pattern[c][d*4+2] >= CMD_PORTAUP) && (pattern[c][d*4+2] <= CMD_VIBRATO))
+                if ((song.pattern[c][d*4+2] >= CMD_SETWAVEPTR) && (song.pattern[c][d*4+2] <= CMD_SETFILTERPTR))
+                    exectable(song.pattern[c][d*4+2] - CMD_SETWAVEPTR, song.pattern[c][d*4+3]);
+                if ((song.pattern[c][d*4+2] >= CMD_PORTAUP) && (song.pattern[c][d*4+2] <= CMD_VIBRATO))
                 {
-                    exectable(STBL, pattern[c][d*4+3]);
-                    calcspeedtest(pattern[c][d*4+3]);
+                    exectable(STBL, song.pattern[c][d*4+3]);
+                    calcspeedtest(song.pattern[c][d*4+3]);
                 }
-                if (pattern[c][d*4+2] == CMD_FUNKTEMPO)
-                    exectable(STBL, pattern[c][d*4+3]);
-                if (pattern[c][d*4+2] == CMD_FUNKTEMPO)
+                if (song.pattern[c][d*4+2] == CMD_FUNKTEMPO)
+                    exectable(STBL, song.pattern[c][d*4+3]);
+                if (song.pattern[c][d*4+2] == CMD_FUNKTEMPO)
                 {
                     nofunktempo = 0;
                     noglobaltempo = 0;
                 }
-                if ((pattern[c][d*4+2] == CMD_SETTEMPO) && ((pattern[c][d*4+3] & 0x7f) < 3)) nofunktempo = 0;
+                if ((song.pattern[c][d*4+2] == CMD_SETTEMPO) && ((song.pattern[c][d*4+3] & 0x7f) < 3)) nofunktempo = 0;
 
                 // See, which are the highest/lowest notes used
-                if ((pattern[c][d*4] >= FIRSTNOTE) && (pattern[c][d*4] <= LASTNOTE))
+                if ((song.pattern[c][d*4] >= FIRSTNOTE) && (song.pattern[c][d*4] <= LASTNOTE))
                 {
-                    int newfirstnote = pattern[c][d*4] - FIRSTNOTE - transdownrange;
-                    int newlastnote = pattern[c][d*4] - FIRSTNOTE + transuprange;
+                    int newfirstnote = song.pattern[c][d*4] - FIRSTNOTE - transdownrange;
+                    int newlastnote = song.pattern[c][d*4] - FIRSTNOTE + transuprange;
                     if (newfirstnote < 0) newfirstnote = 0;
                     if (newlastnote > MAX_NOTES-1) newlastnote = MAX_NOTES-1;
 
@@ -2475,13 +2475,13 @@ void relocator_stereo()
     {
         if (instrused[c])
         {
-            if (instr[c].gatetimer & 0x40) numlegato++;
+            if (song.instr[c].gatetimer & 0x40) numlegato++;
             else
             {
-                if (instr[c].gatetimer & 0x80) numnohr++;
+                if (song.instr[c].gatetimer & 0x80) numnohr++;
                 else numnormal++;
             }
-            if ((!instr[c].firstwave) || (instr[c].firstwave >= 0xfe))
+            if ((!song.instr[c].firstwave) || (song.instr[c].firstwave >= 0xfe))
                 nofirstwavecmd = 0;
         }
     }
@@ -2494,18 +2494,18 @@ void relocator_stereo()
     {
         if (instrused[c])
         {
-            if (instr[c].gatetimer & 0x40) instrmap[c] = freelegato++;
+            if (song.instr[c].gatetimer & 0x40) instrmap[c] = freelegato++;
             else
             {
-                if (instr[c].gatetimer & 0x80) instrmap[c] = freenohr++;
+                if (song.instr[c].gatetimer & 0x80) instrmap[c] = freenohr++;
                 else instrmap[c] = freenormal++;
             }
             instruments++;
             for (d = 0; d < MAX_TABLES; d++)
             {
                 tableerror = 0;
-                exectable(d, instr[c].ptr[d]);
-                if (d == STBL) calcspeedtest(instr[c].ptr[d]);
+                exectable(d, song.instr[c].ptr[d]);
+                if (d == STBL) calcspeedtest(song.instr[c].ptr[d]);
                 if ((tableerror) && (!tableerrortype))
                 {
                     tableerrortype = tableerror;
@@ -2522,19 +2522,19 @@ void relocator_stereo()
     {
         if (tableused[WTBL][c+1])
         {
-            if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
+            if ((song.ltable[WTBL][c] >= WAVECMD) && (song.ltable[WTBL][c] <= WAVELASTCMD))
             {
                 int d = -1;
                 tableerror = 0;
 
-                switch(ltable[WTBL][c] - WAVECMD)
+                switch(song.ltable[WTBL][c] - WAVECMD)
                 {
                 case CMD_PORTAUP:
                 case CMD_PORTADOWN:
                 case CMD_TONEPORTA:
                 case CMD_VIBRATO:
                     d = STBL;
-                    calcspeedtest(rtable[WTBL][c]);
+                    calcspeedtest(song.rtable[WTBL][c]);
                     break;
 
                 case CMD_SETPULSEPTR:
@@ -2550,7 +2550,7 @@ void relocator_stereo()
                 case CMD_DONOTHING:
                 case CMD_SETWAVEPTR:
                 case CMD_FUNKTEMPO:
-                    sprintf(textbuffer, "ILLEGAL WAVETABLE COMMAND (ROW %02X, COMMAND %X)", c+1, ltable[WTBL][c] - WAVECMD);
+                    sprintf(textbuffer, "ILLEGAL WAVETABLE COMMAND (ROW %02X, COMMAND %X)", c+1, song.ltable[WTBL][c] - WAVECMD);
                     clearscreen();
                     printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
                     fliptoscreen();
@@ -2558,7 +2558,7 @@ void relocator_stereo()
                     goto PRCLEANUP_S;
                 }
 
-                if (d != -1) exectable(d, rtable[WTBL][c]);
+                if (d != -1) exectable(d, song.rtable[WTBL][c]);
 
                 if ((tableerror) && (!tableerrortype))
                 {
@@ -2779,54 +2779,54 @@ TABLETYPE_S:
         goto PRCLEANUP_S;
     }
 
-    // Generate songorderlists & songtable
+    // Generate song.orderlists & songtable
     songdatasize = 0;
     for (int c = 0; c < songs; c++)
     {
-        if ((songlen[c][0]) &&
-                (songlen[c][1]) &&
-                (songlen[c][2]))
+        if ((song.len[c][0]) &&
+                (song.len[c][1]) &&
+                (song.len[c][2]))
         {
             for (d = 0; d < MAX_CHN; d++)
             {
                 songoffset[c][d] = songdatasize;
-                songsize[c][d] = songlen[c][d] + 2;
+                songsize[c][d] = song.len[c][d] + 2;
 
                 int e;
-                for (e = 0; e < songlen[c][d]; e++)
+                for (e = 0; e < song.len[c][d]; e++)
                 {
                     // Pattern
-                    if (songorder[c][d][e] < REPEAT)
-                        songwork[songdatasize++] = pattmap[songorder[c][d][e]];
+                    if (song.order[c][d][e] < REPEAT)
+                        songwork[songdatasize++] = pattmap[song.order[c][d][e]];
                     else
                     {
                         // Transpose
-                        if (songorder[c][d][e] >= TRANSDOWN)
+                        if (song.order[c][d][e] >= TRANSDOWN)
                         {
-                            songwork[songdatasize++] = songorder[c][d][e];
+                            songwork[songdatasize++] = song.order[c][d][e];
                         }
                         // Repeat sequence: must be swapped
                         else
                         {
                             // See that repeat amount is more than 1
-                            if (songorder[c][d][e] > REPEAT)
+                            if (song.order[c][d][e] > REPEAT)
                             {
                                 // Insanity check that a pattern indeed follows
-                                if (songorder[c][d][e+1] < REPEAT)
+                                if (song.order[c][d][e+1] < REPEAT)
                                 {
-                                    songwork[songdatasize++] = pattmap[songorder[c][d][e+1]];
-                                    songwork[songdatasize++] = songorder[c][d][e];
+                                    songwork[songdatasize++] = pattmap[song.order[c][d][e+1]];
+                                    songwork[songdatasize++] = song.order[c][d][e];
                                     e++;
                                 }
                                 else
-                                    songwork[songdatasize++] = songorder[c][d][e];
+                                    songwork[songdatasize++] = song.order[c][d][e];
                             }
                         }
                     }
                 }
                 // Endmark & repeat position
-                songwork[songdatasize++] = songorder[c][d][e++];
-                songwork[songdatasize++] = songorder[c][d][e++];
+                songwork[songdatasize++] = song.order[c][d][e++];
+                songwork[songdatasize++] = song.order[c][d][e++];
             }
         }
         else
@@ -2844,7 +2844,7 @@ TABLETYPE_S:
     {
         if (pattused[c])
         {
-            int result = packpattern(patttemp, pattern[c], getPattlen(c));
+            int result = packpattern(patttemp, song.pattern[c], getPattlen(c));
 
             if (result < 0)
             {
@@ -2878,7 +2878,7 @@ TABLETYPE_S:
         if (pattused[c])
         {
             pattoffset[d] = pattdatasize;
-            pattsize[d] = packpattern(&pattwork[pattdatasize], pattern[c], getPattlen(c));
+            pattsize[d] = packpattern(&pattwork[pattdatasize], song.pattern[c], getPattlen(c));
             pattdatasize += pattsize[d];
             d++;
         }
@@ -2901,40 +2901,40 @@ TABLETYPE_S:
         if (instrused[c])
         {
             d = instrmap[c] - 1;
-            instrwork[d] = instr[c].ad;
-            instrwork[d+instruments] = instr[c].sr;
-            instrwork[d+instruments*2] = tablemap[WTBL][instr[c].ptr[WTBL]];
-            instrwork[d+instruments*3] = tablemap[PTBL][instr[c].ptr[PTBL]];
-            instrwork[d+instruments*4] = tablemap[FTBL][instr[c].ptr[FTBL]];
-            if (instr[c].vibdelay)
+            instrwork[d] = song.instr[c].ad;
+            instrwork[d+instruments] = song.instr[c].sr;
+            instrwork[d+instruments*2] = tablemap[WTBL][song.instr[c].ptr[WTBL]];
+            instrwork[d+instruments*3] = tablemap[PTBL][song.instr[c].ptr[PTBL]];
+            instrwork[d+instruments*4] = tablemap[FTBL][song.instr[c].ptr[FTBL]];
+            if (song.instr[c].vibdelay)
             {
-                instrwork[d+instruments*5] = tablemap[STBL][instr[c].ptr[STBL]];
-                instrwork[d+instruments*6] = instr[c].vibdelay - 1;
+                instrwork[d+instruments*5] = tablemap[STBL][song.instr[c].ptr[STBL]];
+                instrwork[d+instruments*6] = song.instr[c].vibdelay - 1;
             }
             else
             {
                 instrwork[d+instruments*5] = 0;
                 instrwork[d+instruments*6] = 0;
             }
-            instrwork[d+instruments*7] = instr[c].gatetimer & 0x3f;
-            instrwork[d+instruments*8] = instr[c].firstwave;
+            instrwork[d+instruments*7] = song.instr[c].gatetimer & 0x3f;
+            instrwork[d+instruments*8] = song.instr[c].firstwave;
 
-            if (instr[c].ptr[STBL])
+            if (song.instr[c].ptr[STBL])
             {
                 novib = 0;
                 noinsvib = 0;
             }
-            if (instr[c].ptr[PTBL])
+            if (song.instr[c].ptr[PTBL])
                 nopulse = 0;
-            if (instr[c].ptr[FTBL])
+            if (song.instr[c].ptr[FTBL])
                 nofilter = 0;
 
             // See if all instruments use same gatetimer & firstwave parameters
-            if ((instr[c].gatetimer != instr[1].gatetimer) ||
-                    (instr[c].firstwave != instr[1].firstwave))
+            if ((song.instr[c].gatetimer != song.instr[1].gatetimer) ||
+                    (song.instr[c].firstwave != song.instr[1].firstwave))
                 fixedparams = 0;
             // or if special firstwave commands are in use
-            if ((!instr[c].firstwave) || (instr[c].firstwave >= 0xfe))
+            if ((!song.instr[c].firstwave) || (song.instr[c].firstwave >= 0xfe))
                 fixedparams = 0;
         }
     }
@@ -2958,12 +2958,12 @@ TABLETYPE_S:
         if (tableused[WTBL][c+1])
         {
             wavetblsize += 2;
-            if ((ltable[WTBL][c] >= WAVEDELAY) && (ltable[WTBL][c] <= WAVELASTDELAY)) nowavedelay = 0;
-            if ((ltable[WTBL][c] >= WAVECMD) && (ltable[WTBL][c] <= WAVELASTCMD))
+            if ((song.ltable[WTBL][c] >= WAVEDELAY) && (song.ltable[WTBL][c] <= WAVELASTDELAY)) nowavedelay = 0;
+            if ((song.ltable[WTBL][c] >= WAVECMD) && (song.ltable[WTBL][c] <= WAVELASTCMD))
             {
                 nowavecmd = 0;
                 noeffects = 0;
-                switch (ltable[WTBL][c] - WAVECMD)
+                switch (song.ltable[WTBL][c] - WAVECMD)
                 {
                 case CMD_PORTAUP:
                 case CMD_PORTADOWN:
@@ -3011,19 +3011,19 @@ TABLETYPE_S:
                     break;
                 }
             }
-            if (ltable[WTBL][c] < WAVECMD)
+            if (song.ltable[WTBL][c] < WAVECMD)
             {
-                if (rtable[WTBL][c] <= 0x80)
+                if (song.rtable[WTBL][c] <= 0x80)
                 {
-                    int newlastnote = rtable[WTBL][c] + patternlastnote;
+                    int newlastnote = song.rtable[WTBL][c] + patternlastnote;
                     if (newlastnote > MAX_NOTES - 1) newlastnote = MAX_NOTES - 1;
-                    if (rtable[WTBL][c] >= 0x20) firstnote = 0;
+                    if (song.rtable[WTBL][c] >= 0x20) firstnote = 0;
                     if (newlastnote > lastnote) lastnote = newlastnote;
                 }
                 else
                 {
-                    int newfirstnote = rtable[WTBL][c] & 0x7f;
-                    int newlastnote = rtable[WTBL][c] & 0x7f;
+                    int newfirstnote = song.rtable[WTBL][c] & 0x7f;
+                    int newlastnote = song.rtable[WTBL][c] & 0x7f;
                     if (newlastnote > MAX_NOTES - 1) newlastnote = MAX_NOTES - 1;
                     if (newfirstnote < firstnote) firstnote = newfirstnote;
                     if (newlastnote > lastnote) lastnote = newlastnote;
@@ -3036,14 +3036,14 @@ TABLETYPE_S:
         if (tableused[PTBL][c+1])
         {
             pulsetblsize += 2;
-            if ((ltable[PTBL][c] >= 0x80) && (ltable[PTBL][c] != 0xff))
+            if ((song.ltable[PTBL][c] >= 0x80) && (song.ltable[PTBL][c] != 0xff))
             {
-                if (rtable[PTBL][c] & 0xf) simplepulse = 0;
+                if (song.rtable[PTBL][c] & 0xf) simplepulse = 0;
             }
-            if (ltable[PTBL][c] < 0x80)
+            if (song.ltable[PTBL][c] < 0x80)
             {
                 nopulsemod = 0;
-                if (rtable[PTBL][c] & 0xf) simplepulse = 0;
+                if (song.rtable[PTBL][c] & 0xf) simplepulse = 0;
             }
         }
     }
@@ -3052,7 +3052,7 @@ TABLETYPE_S:
         if (tableused[FTBL][c+1])
         {
             filttblsize += 2;
-            if (ltable[FTBL][c] < 0x80) nofiltermod = 0;
+            if (song.ltable[FTBL][c] < 0x80) nofiltermod = 0;
         }
     }
     for (int c = 0; c < MAX_TABLELEN; c++)
@@ -3266,16 +3266,16 @@ TABLETYPE_S:
     insertdefine("SRPARAM", adparam & 0xff);
     insertdefine("CIAVALLO", ciaval & 0xff);
     insertdefine("CIAVALHI", ciaval >> 8);
-    if ((instr[MAX_INSTR-1].ad >= 2) && (!(instr[MAX_INSTR-1].ptr[WTBL])))
-        insertdefine("DEFAULTTEMPO", instr[MAX_INSTR-1].ad - 1);
+    if ((song.instr[MAX_INSTR-1].ad >= 2) && (!(song.instr[MAX_INSTR-1].ptr[WTBL])))
+        insertdefine("DEFAULTTEMPO", song.instr[MAX_INSTR-1].ad - 1);
     else
         insertdefine("DEFAULTTEMPO", multiplier ? (multiplier*6-1) : 5);
 
     // Fixed firstwave & gatetimer
     if (fixedparams)
     {
-        insertdefine("FIRSTWAVEPARAM", instr[1].firstwave);
-        insertdefine("GATETIMERPARAM", instr[1].gatetimer & 0x3f);
+        insertdefine("FIRSTWAVEPARAM", song.instr[1].firstwave);
+        insertdefine("GATETIMERPARAM", song.instr[1].gatetimer & 0x3f);
     }
 
     // Insert source code of player
@@ -3379,30 +3379,30 @@ TABLETYPE_S:
                 // In wavetable, convert waveform values for the playroutine
                 case WTBL:
                 {
-                    unsigned char wave = ltable[c][d];
-                    if ((ltable[c][d] >= WAVESILENT) && (ltable[c][d] <= WAVELASTSILENT)) wave &= 0xf;
-                    if ((ltable[c][d] > WAVELASTDELAY) && (ltable[c][d] <= WAVELASTSILENT) && (!nowavedelay)) wave += 0x10;
+                    unsigned char wave = song.ltable[c][d];
+                    if ((song.ltable[c][d] >= WAVESILENT) && (song.ltable[c][d] <= WAVELASTSILENT)) wave &= 0xf;
+                    if ((song.ltable[c][d] > WAVELASTDELAY) && (song.ltable[c][d] <= WAVELASTSILENT) && (!nowavedelay)) wave += 0x10;
                     insertbyte(wave);
                 }
                 break;
 
                 case PTBL:
-                    if ((simplepulse) && (ltable[c][d] != 0xff) && (ltable[c][d] > 0x80))
+                    if ((simplepulse) && (song.ltable[c][d] != 0xff) && (song.ltable[c][d] > 0x80))
                         insertbyte(0x80);
                     else
-                        insertbyte(ltable[c][d]);
+                        insertbyte(song.ltable[c][d]);
                     break;
 
-                // In filtertable, modify passband bits
+                // In filtesong.rtable, modify passband bits
                 case FTBL:
-                    if ((ltable[c][d] != 0xff) && (ltable[c][d] > 0x80))
-                        insertbyte(((ltable[c][d] & 0x70) >> 1) | 0x80);
+                    if ((song.ltable[c][d] != 0xff) && (song.ltable[c][d] > 0x80))
+                        insertbyte(((song.ltable[c][d] & 0x70) >> 1) | 0x80);
                     else
-                        insertbyte(ltable[c][d]);
+                        insertbyte(song.ltable[c][d]);
                     break;
 
                 default:
-                    insertbyte(ltable[c][d]);
+                    insertbyte(song.ltable[c][d]);
                     break;
                 }
             }
@@ -3418,52 +3418,52 @@ TABLETYPE_S:
         {
             if (tableused[c][d+1])
             {
-                if ((ltable[c][d] != 0xff) || (c == STBL))
+                if ((song.ltable[c][d] != 0xff) || (c == STBL))
                 {
                     switch(c)
                     {
                     case WTBL:
-                        if ((ltable[c][d] >= WAVECMD) && (ltable[c][d] <= WAVELASTCMD))
+                        if ((song.ltable[c][d] >= WAVECMD) && (song.ltable[c][d] <= WAVELASTCMD))
                         {
                             // Remap table-referencing commands
-                            switch (ltable[c][d] - WAVECMD)
+                            switch (song.ltable[c][d] - WAVECMD)
                             {
                             case CMD_PORTAUP:
                             case CMD_PORTADOWN:
                             case CMD_TONEPORTA:
                             case CMD_VIBRATO:
-                                insertbyte(tablemap[STBL][rtable[c][d]]);
+                                insertbyte(tablemap[STBL][song.rtable[c][d]]);
                                 break;
 
                             case CMD_SETPULSEPTR:
-                                insertbyte(tablemap[PTBL][rtable[c][d]]);
+                                insertbyte(tablemap[PTBL][song.rtable[c][d]]);
                                 break;
 
                             case CMD_SETFILTERPTR:
-                                insertbyte(tablemap[FTBL][rtable[c][d]]);
+                                insertbyte(tablemap[FTBL][song.rtable[c][d]]);
                                 break;
 
                             default:
-                                insertbyte(rtable[c][d]);
+                                insertbyte(song.rtable[c][d]);
                                 break;
                             }
                         }
                         else
                         {
                             // For normal notes, reverse all right side high bits
-                            insertbyte(rtable[c][d] ^ 0x80);
+                            insertbyte(song.rtable[c][d] ^ 0x80);
                         }
                         break;
 
                     case PTBL:
                         if (simplepulse)
                         {
-                            if (ltable[c][d] >= 0x80)
-                                insertbyte((ltable[c][d] & 0x0f) | (rtable[c][d] & 0xf0));
+                            if (song.ltable[c][d] >= 0x80)
+                                insertbyte((song.ltable[c][d] & 0x0f) | (song.rtable[c][d] & 0xf0));
                             else
                             {
-                                int pulsespeed = rtable[c][d] >> 4;
-                                if (rtable[c][d] & 0x80)
+                                int pulsespeed = song.rtable[c][d] >> 4;
+                                if (song.rtable[c][d] & 0x80)
                                 {
                                     pulsespeed |= 0xf0;
                                     pulsespeed--;
@@ -3473,16 +3473,16 @@ TABLETYPE_S:
                             }
                         }
                         else
-                            insertbyte(rtable[c][d]);
+                            insertbyte(song.rtable[c][d]);
                         break;
 
                     default:
-                        insertbyte(rtable[c][d]);
+                        insertbyte(song.rtable[c][d]);
                         break;
                     }
                 }
                 else
-                    insertbyte(tablemap[c][rtable[c][d]]);
+                    insertbyte(tablemap[c][song.rtable[c][d]]);
             }
         }
 
@@ -3527,7 +3527,7 @@ SKIPTABLE_S:
     {
         for (int c = 0; c < 32; c++)
         {
-            packeddata[32+c] = authorname[c];
+            packeddata[32+c] = song.author[c];
             // Convert 0 to space
             if (packeddata[32+c] == 0) packeddata[32+c] = 0x20;
         }
@@ -3753,9 +3753,9 @@ SKIPTABLE_S:
         fwrite8(songhandle, byte);
 
         // Songname etc.
-        std::fwrite(songname, sizeof songname, 1, songhandle);
-        std::fwrite(authorname, sizeof authorname, 1, songhandle);
-        std::fwrite(copyrightname, sizeof copyrightname, 1, songhandle);
+        std::fwrite(song.title, sizeof song.title, 1, songhandle);
+        std::fwrite(song.author, sizeof song.author, 1, songhandle);
+        std::fwrite(song.released, sizeof song.released, 1, songhandle);
 
         // Flags
         byte = 0x00;
