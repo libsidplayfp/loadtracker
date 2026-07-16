@@ -41,9 +41,6 @@
 
 Song song;
 
-char songname[MAX_STR];
-char authorname[MAX_STR];
-char copyrightname[MAX_STR];
 int pattlen[MAX_PATT];
 int highestusedpattern;
 int highestusedinstr;
@@ -82,9 +79,9 @@ bool savesong()
     }
 
     // Write infotexts
-    std::fwrite(songname, sizeof songname, 1, handle);
-    std::fwrite(authorname, sizeof authorname, 1, handle);
-    std::fwrite(copyrightname, sizeof copyrightname, 1, handle);
+    std::fwrite(song.title, sizeof song.title, 1, handle);
+    std::fwrite(song.author, sizeof song.author, 1, handle);
+    std::fwrite(song.released, sizeof song.released, 1, handle);
 
     // Determine amount of songs to be saved
     int c = MAX_SONGS - 1;
@@ -221,9 +218,9 @@ void loadsong()
       ok = 1;
 
       // Read infotexts
-      std::fread(songname, sizeof songname, 1, handle);
-      std::fread(authorname, sizeof authorname, 1, handle);
-      std::fread(copyrightname, sizeof copyrightname, 1, handle);
+      std::fread(song.title, sizeof song.title, 1, handle);
+      std::fread(song.author, sizeof song.author, 1, handle);
+      std::fread(song.released, sizeof song.released, 1, handle);
 
       // Read song.orderlists
       channelstoload = determinechannels(handle);
@@ -281,9 +278,9 @@ void loadsong()
       ok = 1;
 
       // Read infotexts
-      std::fread(songname, sizeof songname, 1, handle);
-      std::fread(authorname, sizeof authorname, 1, handle);
-      std::fread(copyrightname, sizeof copyrightname, 1, handle);
+      std::fread(song.title, sizeof song.title, 1, handle);
+      std::fread(song.author, sizeof song.author, 1, handle);
+      std::fread(song.released, sizeof song.released, 1, handle);
 
       // Read song.orderlists
       channelstoload = determinechannels(handle);
@@ -372,9 +369,9 @@ void loadsong()
       ok = 1;
 
       // Read infotexts
-      std::fread(songname, sizeof songname, 1, handle);
-      std::fread(authorname, sizeof authorname, 1, handle);
-      std::fread(copyrightname, sizeof copyrightname, 1, handle);
+      std::fread(song.title, sizeof song.title, 1, handle);
+      std::fread(song.author, sizeof song.author, 1, handle);
+      std::fread(song.released, sizeof song.released, 1, handle);
 
       // Read song.orderlists
       channelstoload = determinechannels(handle);
@@ -915,13 +912,13 @@ void loadsong()
 
 void loadinstrument()
 {
-  char ident[4];
-  int pulsestart = -1;
-  int pulseend = -1;
-
   FILE *handle = std::fopen(instrfilename, "rb");
   if (handle)
   {
+    char ident[4];
+    int pulsestart = -1;
+    int pulseend = -1;
+
     stopsong();
     std::fread(ident, 4, 1, handle);
 
@@ -1113,8 +1110,6 @@ void loadinstrument()
       pulse &= 0xfe;
       if (pulse)
       {
-        int pulsetime, pulsedist, hlpos;
-
         // Initial pulse setting
         if (fp >= MAX_TABLELEN) goto PULSEDONE;
         pulsestart = fp;
@@ -1129,10 +1124,10 @@ void loadinstrument()
           int startpulse = pulse*16;
           int currentpulse = pulse*16;
           // Phase 1: From startpos to high limit
-          pulsedist = pulselimithigh*16 - currentpulse;
+          int pulsedist = pulselimithigh*16 - currentpulse;
           if (pulsedist > 0)
           {
-            pulsetime = pulsedist/pulseadd;
+            int pulsetime = pulsedist/pulseadd;
             currentpulse += pulsetime*pulseadd;
             while (pulsetime)
             {
@@ -1146,12 +1141,12 @@ void loadinstrument()
             }
           }
 
-          hlpos = fp;
+          int hlpos = fp;
           // Phase 2: from high limit to low limit
           pulsedist = currentpulse - pulselimitlow*16;
           if (pulsedist > 0)
           {
-            pulsetime = pulsedist/pulseadd;
+            int pulsetime = pulsedist/pulseadd;
             currentpulse -= pulsetime*pulseadd;
             while (pulsetime)
             {
@@ -1171,7 +1166,7 @@ void loadinstrument()
             pulsedist = startpulse - currentpulse;
             if (pulsedist > 0)
             {
-              pulsetime = pulsedist/pulseadd;
+              int pulsetime = pulsedist/pulseadd;
               while (pulsetime)
               {
                 int acttime = pulsetime;
@@ -1194,7 +1189,7 @@ void loadinstrument()
             pulsedist = pulselimithigh*16 - currentpulse;
             if (pulsedist > 0)
             {
-              pulsetime = pulsedist/pulseadd;
+              int pulsetime = pulsedist/pulseadd;
               while (pulsetime)
               {
                 int acttime = pulsetime;
@@ -1221,7 +1216,7 @@ void loadinstrument()
           song.rtable[PTBL][fp] = 0;
           fp++;
         }
-        PULSEDONE:
+PULSEDONE:
         pulseend = fp;
       }
 
@@ -1353,9 +1348,9 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   }
   if (cn)
   {
-    std::memset(songname, 0, sizeof songname);
-    std::memset(authorname, 0, sizeof authorname);
-    std::memset(copyrightname, 0, sizeof copyrightname);
+    std::memset(song.title, 0, sizeof song.title);
+    std::memset(song.author, 0, sizeof song.author);
+    std::memset(song.released, 0, sizeof song.released);
     enpos = 0;
   }
   if (cp)
@@ -1595,7 +1590,7 @@ void mergesong()
       int loadsize;
 
       // Skip infotexts
-      std::fseek(handle, sizeof songname + sizeof authorname + sizeof copyrightname, SEEK_CUR);
+      std::fseek(handle, sizeof song.title + sizeof song.author + sizeof song.released, SEEK_CUR);
 
       // Read song.orderlists
       int channelstoload = determinechannels(handle);
@@ -1724,7 +1719,7 @@ int determinechannels(FILE* handle)
             if ((songbuffer[loadsize - 2] != 0xff) || (songbuffer[loadsize - 1] >= loadsize))
             {
                 std::fseek(handle, returnpos, SEEK_SET);
-                return 3;
+                return MAX_CHN_MONO;
             }
         }
     }
