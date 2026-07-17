@@ -399,7 +399,7 @@ void gfx_flip()
 {
     SDL_Surface* surf = SDL_ConvertSurface(gfx_screen, SDL_PIXELFORMAT_RGBA32);
     if (!surf)
-        printf("Error: %s\n", SDL_GetError());
+        std::printf("Error: %s\n", SDL_GetError());
     SDL_UpdateTexture(sdlTexture, nullptr, surf->pixels, surf->pitch);
     SDL_DestroySurface(surf);
     SDL_RenderClear(gfx_renderer);

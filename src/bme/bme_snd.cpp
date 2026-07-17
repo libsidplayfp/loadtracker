@@ -113,7 +113,7 @@ bool snd_init_jack()
     client = jack_client_open("goattracker2", JackNoStartServer, &status);
     if (client == 0)
     {
-        fprintf(stderr, "failed to create jack client\n");
+        std::fprintf(stderr, "failed to create jack client\n");
         return false;
     }
 
@@ -148,14 +148,14 @@ bool snd_init_jack()
 
         if (!output_port)
         {
-            fprintf(stderr, "failed to register port\n");
+            std::fprintf(stderr, "failed to register port\n");
             return false;
         }
     }
 
     if (jack_activate(client))
     {
-        fprintf(stderr, "failed to activate\n");
+        std::fprintf(stderr, "failed to activate\n");
         return false;
     }
 
@@ -217,28 +217,28 @@ bool snd_init_midi()
     RtMidiInPtr midi_device = rtmidi_in_create(RTMIDI_API_UNSPECIFIED, "goattracker2", 100);
     if (!midi_device->ok)
     {
-        fprintf(stderr, "failed to activate midi: %s\n", midi_device->msg);
+        std::fprintf(stderr, "failed to activate midi: %s\n", midi_device->msg);
         return false;
     }
 
     unsigned int ports = rtmidi_get_port_count(midi_device);
     if (!ports)
     {
-        fprintf(stderr, "no available ports\n");
+        std::fprintf(stderr, "no available ports\n");
         return false;
     }
 
     rtmidi_open_port(midi_device, 0, "midi_in");
     if (!midi_device->ok)
     {
-        fprintf(stderr, "failed to open port: %s\n", midi_device->msg);
+        std::fprintf(stderr, "failed to open port: %s\n", midi_device->msg);
         return false;
     }
 
     rtmidi_in_set_callback(midi_device, snd_midi_process, nullptr);
     if (!midi_device->ok)
     {
-        fprintf(stderr, "failed to set midi callback: %s\n", midi_device->msg);
+        std::fprintf(stderr, "failed to set midi callback: %s\n", midi_device->msg);
         return false;
     }
 
