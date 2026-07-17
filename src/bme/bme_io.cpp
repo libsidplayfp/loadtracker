@@ -54,7 +54,6 @@ bool io_openlinkeddatafile(unsigned char *ptr)
     linkedread(ident, 4);
     if (std::memcmp(ident, idstring, 4))
     {
-        bme_error = BME_WRONG_FORMAT;
         return false;
     }
 
@@ -62,7 +61,6 @@ bool io_openlinkeddatafile(unsigned char *ptr)
     fileheaders = new (std::nothrow) HEADER[files];
     if (!fileheaders)
     {
-        bme_error = BME_OUT_OF_MEMORY;
         return false;
     }
     for (unsigned index = 0; index < files; index++)
@@ -74,7 +72,6 @@ bool io_openlinkeddatafile(unsigned char *ptr)
 
     for (unsigned index = 0; index < MAX_HANDLES; index++) handle[index].open = false;
     io_datafileopen = true;
-    bme_error = BME_OK;
     return true;
 }
 

@@ -132,7 +132,6 @@ bool snd_init_jack()
 
         if (!snd_initmixer())
         {
-            bme_error = BME_OUT_OF_MEMORY;
             snd_uninit();
             return false;
         }
@@ -159,7 +158,6 @@ bool snd_init_jack()
         return false;
     }
 
-    bme_error = BME_OK;
     return true;
 }
 #endif
@@ -242,7 +240,6 @@ bool snd_init_midi()
         return false;
     }
 
-    bme_error = BME_OK;
     return true;
 }
 #endif
@@ -275,7 +272,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     if (!mixrate)
     {
-        bme_error = BME_ILLEGAL_CONFIG;
         snd_uninit();
         return false;
     }
@@ -292,7 +288,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     if (!stream)
     {
-        bme_error = BME_OPEN_ERROR;
         snd_uninit();
         return false;
     }
@@ -328,7 +323,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     }
     else
     {
-        bme_error = BME_SOUND_ERROR;
         snd_uninit();
         return false;
     }
@@ -343,13 +337,11 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     if (!snd_initmixer())
     {
-        bme_error = BME_OUT_OF_MEMORY;
         snd_uninit();
         return false;
     }
 
     SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
-    bme_error = BME_OK;
     return true;
 }
 
@@ -367,7 +359,6 @@ bool snd_initchannels(unsigned channels) {
         snd_channel = new (std::nothrow) CHANNEL[channels];
         if (!snd_channel)
         {
-            bme_error = BME_OUT_OF_MEMORY;
             snd_uninit();
             return false;
         }

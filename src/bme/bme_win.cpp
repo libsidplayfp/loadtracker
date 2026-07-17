@@ -85,8 +85,6 @@ int spr_ysize = 0;
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
 
-int bme_error = BME_OK;
-
 unsigned xpos = SDL_WINDOWPOS_UNDEFINED;
 unsigned ypos = SDL_WINDOWPOS_UNDEFINED;
 unsigned xsize = MAX_COLUMNS * 8;
@@ -326,7 +324,6 @@ bool gfx_init(unsigned xsize, unsigned ysize)
     {
         gfx_initexec = false;
         gfx_uninit();
-        bme_error = BME_ILLEGAL_CONFIG;
         return false;
     }
 
@@ -452,8 +449,6 @@ void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bot
 
 bool gfx_loadcursor(const char *name)
 {
-    bme_error = BME_OPEN_ERROR;
-
     gfx_freecursor();
 
     int handle = io_open(name);
@@ -470,7 +465,6 @@ bool gfx_loadcursor(const char *name)
     if (!gfx_cursor)
         return false;
 
-    bme_error = BME_OK;
     return true;
 }
 
