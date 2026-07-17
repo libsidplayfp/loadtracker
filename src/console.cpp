@@ -115,10 +115,7 @@ bool initscreen()
   std::memset(region, 0, sizeof region);
 
   chardata = new unsigned char[4096];
-  int handle = io_open("chargen.bin");
-  if (handle == -1) return false;
-  io_read(handle, &chardata[0], 4096);
-  io_close(handle);
+  gfx_loadcharset("font.png", chardata);
 
   loadexternalpalette();
   gfx_setpalette();
