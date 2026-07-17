@@ -221,7 +221,7 @@ void printstatus()
       if (newpos < 0) newpos = 0;
       if (newpos > currentSonglen) newpos = currentSonglen;
 
-      if ((c == eschn) && (chn[c].advance))
+      if (chn[c].advance)
       {
         eseditpos = newpos;
         if (newpos - esview[c] < 0)
