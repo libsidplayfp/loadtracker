@@ -27,6 +27,8 @@ bool gfx_loadcursor(const char *name);
 void gfx_drawcursor(int x, int y);
 void gfx_freecursor();
 
+bool gfx_loadcharset(const char *name, unsigned char *chardata);
+
 void mou_getpos(unsigned *x, unsigned *y);
 unsigned mou_getbuttons();
 

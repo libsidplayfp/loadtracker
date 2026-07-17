@@ -477,6 +477,47 @@ void gfx_freecursor()
     }
 }
 
+bool gfx_loadcharset(const char *name, unsigned char *chardata)
+{
+    int handle = io_open(name);
+    if (handle == -1) return false;
+
+    int size = io_lseek(handle, 0, SEEK_END);
+    char *charbuffer = new (std::nothrow) char[size];
+    if (!charbuffer)
+    {
+        io_close(handle);
+        return false;
+    }
+    io_lseek(handle, 0, SEEK_SET);
+    io_read(handle, charbuffer, size);
+    io_close(handle);
+
+    SDL_IOStream *rw = SDL_IOFromMem(charbuffer, size);
+    SDL_Surface *gfx_chars = SDL_LoadPNG_IO(rw, true);
+    if (!gfx_chars)
+        return false;
+
+    if ((gfx_chars->w != 8) || (gfx_chars->h != 4096))
+        return false;
+
+    int i = 0, j = 0;
+    for (int y=0; y<4096; y++)
+    {
+        chardata[j] = 0xff;
+        for (int x=7; x>=0; x--)
+        {
+            if (((char*)gfx_chars->pixels)[i])
+                chardata[j] &= ~(1u << x);
+            i++;
+        }
+        j++;
+    }
+    SDL_DestroySurface(gfx_chars);
+
+    return true;
+}
+
 void gfx_drawcursor(int x, int y)
 {
     if (!gfx_initted) return;
