@@ -501,6 +501,9 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     if ((gfx_chars->w != 8) || (gfx_chars->h != 4096))
         return false;
 
+    if (gfx_chars->format != SDL_PIXELFORMAT_INDEX8)
+        return false;
+
     int i = 0, j = 0;
     for (int y=0; y<4096; y++)
     {
