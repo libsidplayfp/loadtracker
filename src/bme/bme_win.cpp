@@ -266,7 +266,33 @@ void win_checkmessages()
             break;
 
             case SDL_EVENT_TEXT_INPUT:
-            win_asciikey = event.text.text[0];
+            {
+                const char *in = event.text.text;
+                // convert to ISO-8859-1
+                unsigned int codepoint;
+                while (*in != 0)
+                {
+                    unsigned char ch = static_cast<unsigned char>(*in);
+                    if (ch <= 0x7f)
+                        codepoint = ch;
+                    else if (ch <= 0xbf)
+                        codepoint = (codepoint << 6) | (ch & 0x3f);
+                    else if (ch <= 0xdf)
+                        codepoint = ch & 0x1f;
+                    else if (ch <= 0xef)
+                        codepoint = ch & 0x0f;
+                    else
+                        codepoint = ch & 0x07;
+                    ++in;
+                    if (((*in & 0xc0) != 0x80) && (codepoint <= 0x10ffff))
+                    {
+                        if (codepoint <= 255)
+                        {
+                            win_asciikey = static_cast<char>(codepoint);
+                        }
+                    }
+                }
+            }
             break;
 
             case SDL_EVENT_KEY_DOWN:
