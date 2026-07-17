@@ -507,11 +507,11 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     int i = 0, j = 0;
     for (int y=0; y<4096; y++)
     {
-        chardata[j] = 0xff;
+        chardata[j] = 0;
         for (int x=7; x>=0; x--)
         {
-            if (((char*)gfx_chars->pixels)[i])
-                chardata[j] &= ~(1u << x);
+            if (((unsigned char*)gfx_chars->pixels)[i])
+                chardata[j] |= (1u << x);
             i++;
         }
         j++;

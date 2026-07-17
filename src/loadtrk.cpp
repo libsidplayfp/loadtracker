@@ -764,7 +764,7 @@ void mousecommands()
   if ((!prevmouseb) && (mousey == dpos.octaveY))
   {
     if ((mousex >= dpos.octaveX+20) &&
-        (mousex <= dpos.octaveX+28))
+        (mousex <= dpos.octaveX+23))
     {
       if (isplaying())
       {
