@@ -295,8 +295,8 @@ void drawbox(int x, int y, int color, int sx, int sy)
 
   while (counter--)
   {
-    setcharcolor(dptr, '|', color);
-    setcharcolor(dptr2, '|', color);
+    setcharcolor(dptr, '\x95', color);
+    setcharcolor(dptr2, '\x95', color);
     dptr += MAX_COLUMNS;
     dptr2 += MAX_COLUMNS;
   }
@@ -307,23 +307,23 @@ void drawbox(int x, int y, int color, int sx, int sy)
 
   while (counter--)
   {
-    setcharcolor(dptr, '-', color);
-    setcharcolor(dptr2, '-', color);
+    setcharcolor(dptr, '\x94', color);
+    setcharcolor(dptr2, '\x94', color);
     dptr++;
     dptr2++;
   }
 
   dptr = scrbuffer + (x + y * MAX_COLUMNS);
-  setcharcolor(dptr, '+', color);
+  setcharcolor(dptr, '\x90', color);
 
   dptr = scrbuffer + ((x+sx-1) + y * MAX_COLUMNS);
-  setcharcolor(dptr, '+', color);
+  setcharcolor(dptr, '\x91', color);
 
   dptr = scrbuffer + (x + (y+sy-1) * MAX_COLUMNS);
-  setcharcolor(dptr, '+', color);
+  setcharcolor(dptr, '\x92', color);
 
   dptr = scrbuffer + ((x+sx-1) + (y+sy-1) * MAX_COLUMNS);
-  setcharcolor(dptr, '+', color);
+  setcharcolor(dptr, '\x93', color);
 }
 
 void printbg(int x, int y, int color, int length)
