@@ -1335,14 +1335,16 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   }
   if (cs)
   {
-    esview = 0;
     eseditpos = 0;
     escolumn = 0;
     eschn = 0;
     esnum = 0;
     eppos = 0;
     for (int i=0; i<MAX_CHN; i++)
+    {
         epview[i] =-VISIBLEPATTROWS/2;
+        esview[i] = 0;
+    }
     epcolumn = 0;
     epchn = 0;
   }

@@ -224,13 +224,13 @@ void printstatus()
       if ((c == eschn) && (chn[c].advance))
       {
         eseditpos = newpos;
-        if (newpos - esview < 0)
+        if (newpos - esview[c] < 0)
         {
-          esview = newpos;
+          esview[c] = newpos;
         }
-        if (newpos - esview >= visibleOrderlist)
+        if (newpos - esview[c] >= visibleOrderlist)
         {
-          esview = newpos - visibleOrderlist + 1;
+          esview[c] = newpos - visibleOrderlist + 1;
         }
       }
     }
@@ -350,7 +350,7 @@ void printstatus()
     printtext(dpos.orderlistX, dpos.orderlistY+1+c, colors.CTITLE, textbuffer);
     for (int d = 0; d < visibleOrderlist; d++)
     {
-      int p = esview+d;
+      int p = esview[c]+d;
       unsigned char currentSongorder = song.order[esnum][c][p];
       int currentSonglen = song.len[esnum][c];
       int color = colors.CNORMAL;

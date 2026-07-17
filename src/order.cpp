@@ -42,7 +42,7 @@ int trackcopyrpos;
 int espos[MAX_CHN];
 int esend[MAX_CHN];
 int eseditpos;
-int esview;
+int esview[MAX_CHN];
 int escolumn;
 int eschn;
 int esnum;
@@ -426,14 +426,14 @@ void orderlistcommands()
     if (shiftpressed) esmarkchn = -1;
     break;
   }
-  if (eseditpos - esview < 0)
+  if (eseditpos - esview[eschn] < 0)
   {
-    esview = eseditpos;
+    esview[eschn] = eseditpos;
   }
   int visibleOrderlist = getVisibleOrderlist();
-  if (eseditpos - esview >= visibleOrderlist)
+  if (eseditpos - esview[eschn] >= visibleOrderlist)
   {
-    esview = eseditpos - visibleOrderlist + 1;
+    esview[eschn] = eseditpos - visibleOrderlist + 1;
   }
 }
 
@@ -625,10 +625,12 @@ void songchange()
 
   eppos = 0;
   for (int i=0; i<MAX_CHN; i++)
+  {
     epview[i] = - VISIBLEPATTROWS/2;
+    esview[i] = 0;
+  }
   eseditpos = 0;
   if (eseditpos == currentSonglen) eseditpos++;
-  esview = 0;
   epmarkchn = -1;
   esmarkchn = -1;
   stopsong();

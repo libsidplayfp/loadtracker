@@ -23,7 +23,7 @@
 extern int espos[MAX_CHN];
 extern int esend[MAX_CHN];
 extern int eseditpos;
-extern int esview;
+extern int esview[MAX_CHN];
 extern int escolumn;
 extern int eschn;
 extern int esnum;

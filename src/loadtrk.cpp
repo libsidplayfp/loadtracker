@@ -518,20 +518,21 @@ void mousecommands()
         (mousex >= dpos.orderlistX) &&
         (mousex <= dpos.orderlistX+34+((numsids == 2)?13:34)))
     {
+      int newchn = mousey - (dpos.orderlistY+1);
       if (win_mouseywheel > 0.f)
       {
-        if (esview > 0)
+        if (esview[newchn] > 0)
         {
-          esview--;
-          eseditpos--;
+          esview[newchn]--;
+          if (newchn == eschn) eseditpos--;
         }
       }
       else if (win_mouseywheel < 0.f)
       {
-        if ((song.len[esnum][eschn]-esview) > getVisibleOrderlist()-1)
+        if ((song.len[esnum][newchn]-esview[newchn]) > getVisibleOrderlist()-1)
         {
-          esview++;
-          eseditpos++;
+          esview[newchn]++;
+          if (newchn == eschn) eseditpos++;
         }
       }
     }
@@ -627,9 +628,10 @@ void mousecommands()
         (mousey <= dpos.orderlistY + maxChns + 2) &&
         (mousex >= dpos.orderlistX))
   {
-    int newpos = esview + (mousex-(dpos.orderlistX+4)) / 3;
-        int newcolumn = (mousex-(dpos.orderlistX+4)) % 3;
-    int newchn = mousey - 3;
+    int newcolumn = (mousex-(dpos.orderlistX+4)) % 3;
+    //int newchn = mousey - 3;
+    int newchn = mousey - (dpos.orderlistY+1);
+    int newpos = esview[newchn] + (mousex-(dpos.orderlistX+4)) / 3;
     if (newcolumn < 0) newcolumn = 0;
     if (newcolumn > 1) newcolumn = 1;
     if (newpos < 0)
@@ -921,14 +923,14 @@ void generalcommands()
     for (int c = 0; c < maxChns; c++)
     {
       if (espos[c]) espos[c]--;
-      if (espos[c] < esview)
+      if (espos[c] < esview[c])
       {
-        esview = espos[c];
+        esview[c] = espos[c];
         eseditpos = espos[c];
       }
     }
     updateviewtopos();
-    rewindsong();
+    //rewindsong(); // ??
     break;
 
     case ':':
@@ -937,14 +939,14 @@ void generalcommands()
       currentSonglen = song.len[esnum][c];
       if (espos[c] < (currentSonglen-1))
         espos[c]++;
-      if ((espos[c] - esview) >= visibleOrderlist)
+      if ((espos[c] - esview[c]) >= visibleOrderlist)
       {
-        esview = espos[c] - visibleOrderlist + 1;
+        esview[c] = espos[c] - visibleOrderlist + 1;
         eseditpos = espos[c];
       }
     }
     updateviewtopos();
-    rewindsong();
+    //rewindsong(); // ??
     break;
   }
   if (win_quitted) exitprogram = true;
