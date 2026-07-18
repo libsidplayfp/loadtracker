@@ -201,21 +201,19 @@ void loadsong()
   int maxChns = getMaxChannels();
   int channelstoload = maxChns;
 
-  FILE *handle = std::fopen(songfilename, "rb");
-
-  int ok = 0;
   char ident[4];
+  bool loaded = false;
+
+  FILE *handle = std::fopen(songfilename, "rb");
 
   if (handle)
   {
     std::fread(ident, 4, 1, handle);
     if ((!std::memcmp(ident, "GTS3", 4)) || (!std::memcmp(ident, "GTS4", 4)) || (!std::memcmp(ident, "GTS5", 4)))
     {
-      int length;
       int amount;
-      int loadsize;
       clearsong(true, true, true, true, true);
-      ok = 1;
+      loaded = true;
 
       // Read infotexts
       std::fread(song.title, sizeof song.title, 1, handle);
@@ -229,10 +227,9 @@ void loadsong()
       {
         for (int c = 0; c < channelstoload; c++)
         {
-          length = fread8(handle);
-          loadsize = length;
-          loadsize++;
-          std::fread(song.order[d][c], loadsize, 1, handle);
+          int length = fread8(handle);
+          length++;
+          std::fread(song.order[d][c], length, 1, handle);
         }
       }
       // Read instruments
@@ -253,7 +250,7 @@ void loadsong()
       // Read tables
       for (int c = 0; c < MAX_TABLES; c++)
       {
-        loadsize = fread8(handle);
+        int loadsize = fread8(handle);
         std::fread(song.ltable[c], loadsize, 1, handle);
         std::fread(song.rtable[c], loadsize, 1, handle);
       }
@@ -261,7 +258,7 @@ void loadsong()
       amount = fread8(handle);
       for (int c = 0; c < amount; c++)
       {
-        length = fread8(handle) * 4;
+        int length = fread8(handle) * 4;
         std::fread(song.pattern[c], length, 1, handle);
       }
       countpatternlengths();
@@ -271,11 +268,9 @@ void loadsong()
     // Goattracker v2.xx (3-table) import
     if (!std::memcmp(ident, "GTS2", 4))
     {
-      int length;
       int amount;
-      int loadsize;
       clearsong(true, true, true, true, true);
-      ok = 1;
+      loaded = true;
 
       // Read infotexts
       std::fread(song.title, sizeof song.title, 1, handle);
@@ -289,10 +284,9 @@ void loadsong()
       {
         for (int c = 0; c < channelstoload; c++)
         {
-          length = fread8(handle);
-          loadsize = length;
-          loadsize++;
-          std::fread(song.order[d][c], loadsize, 1, handle);
+          int length = fread8(handle);
+          length++;
+          std::fread(song.order[d][c], length, 1, handle);
         }
       }
       // Read instruments
@@ -313,7 +307,7 @@ void loadsong()
       // Read tables
       for (int c = 0; c < MAX_TABLES-1; c++)
       {
-        loadsize = fread8(handle);
+        int loadsize = fread8(handle);
         std::fread(song.ltable[c], loadsize, 1, handle);
         std::fread(song.rtable[c], loadsize, 1, handle);
       }
@@ -321,7 +315,7 @@ void loadsong()
       amount = fread8(handle);
       for (int c = 0; c < amount; c++)
       {
-        length = fread8(handle) * 4;
+        int length = fread8(handle) * 4;
         std::fread(song.pattern[c], length, 1, handle);
 
         // Convert speedtable-requiring commands
@@ -348,6 +342,7 @@ void loadsong()
       countpatternlengths();
       songchange();
     }
+#if 0
     // Goattracker 1.xx import
     if (!std::memcmp(ident, "GTS!", 4))
     {
@@ -826,9 +821,10 @@ void loadsong()
         }
       }
     }
+#endif
     std::fclose(handle);
   }
-  if (ok)
+  if (loaded)
   {
     std::strcpy(loadedsongfilename, songfilename);
 
@@ -875,13 +871,12 @@ void loadsong()
       {
         if (!pattused[c])
         {
-          int d;
-          int ok = 1;
-          for (d = 0; d < pattlen[c]; d++)
+          bool ok = true;
+          for (int d = 0; d < pattlen[c]; d++)
           {
             if ((song.pattern[c][d*4] != REST) || (song.pattern[c][d*4+1] != 0x00) ||
                 (song.pattern[c][d*4+2] != 0x00) || (song.pattern[c][d*4+3] != 0x00))
-              ok = 0;
+              ok = false;
           }
 
           if (ok)
@@ -1045,6 +1040,7 @@ void loadinstrument()
         else song.instr[einum].ptr[c] = 0;
       }
     }
+#if 0
     // Goattracker 1.xx import
     if (!std::memcmp(ident, "GTI!", 4))
     {
@@ -1259,7 +1255,7 @@ PULSEDONE:
         ff++;
       }
     }
-
+#endif
     std::fclose(handle);
 
     // Convert pulsemodulation speed of < v2.4 instruments
