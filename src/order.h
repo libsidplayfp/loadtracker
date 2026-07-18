@@ -19,6 +19,8 @@
 #ifndef ORDER_H
 #define ORDER_H
 
+#include "common.h"
+
 #ifndef ORDER_C
 extern int espos[MAX_CHN];
 extern int esend[MAX_CHN];
@@ -27,10 +29,8 @@ extern int esview[MAX_CHN];
 extern int escolumn;
 extern int eschn;
 extern int esnum;
-extern int esmarkchn;
-extern int esmarkstart;
-extern int esmarkend;
 extern int enpos;
+extern Selection esmark;
 #endif
 
 void updateviewtopos();

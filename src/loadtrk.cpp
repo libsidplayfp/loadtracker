@@ -588,10 +588,10 @@ void mousecommands()
 
         if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb))
         {
-          if ((epmarkchn != c) || (newpos != epmarkend))
+          if ((epmark.chn != c) || (newpos != epmark.end))
           {
-            epmarkchn = c;
-            epmarkstart = epmarkend = newpos;
+            epmark.chn = c;
+            epmark.start = epmark.end = newpos;
           }
         }
 
@@ -618,7 +618,7 @@ void mousecommands()
         if (eppos < 0) eppos = 0;
         if (eppos > getPattlen(epnum[epchn])) eppos = getPattlen(epnum[epchn]);
 
-        if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) epmarkend = newpos;
+        if (mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) epmark.end = newpos;
       }
     }
   }
@@ -654,10 +654,10 @@ void mousecommands()
 
     if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (!prevmouseb) && (newpos < currentSonglen))
     {
-      if ((esmarkchn != newchn) || (newpos != esmarkend))
+      if ((esmark.chn != newchn) || (newpos != esmark.end))
       {
-        esmarkchn = newchn;
-        esmarkstart = esmarkend = newpos;
+        esmark.chn = newchn;
+        esmark.start = esmark.end = newpos;
       }
     }
 
@@ -668,7 +668,7 @@ void mousecommands()
       escolumn = newcolumn;
     }
 
-    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (newpos < currentSonglen)) esmarkend = newpos;
+    if ((mouseb & (MOUSEB_RIGHT|MOUSEB_MIDDLE)) && (newpos < currentSonglen)) esmark.end = newpos;
   }
   if (((!prevmouseb) || (mouseheld > HOLDDELAY)) &&
         (mousey == dpos.orderlistY) &&

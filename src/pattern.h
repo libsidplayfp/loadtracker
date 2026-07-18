@@ -35,10 +35,8 @@ extern int epview[MAX_CHN];
 extern int epcolumn;
 extern int epchn;
 extern int epoctave;
-extern int epmarkchn;
-extern int epmarkstart;
-extern int epmarkend;
 extern int autoadvance;
+extern Selection epmark;
 #endif
 
 void patterncommands();

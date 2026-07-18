@@ -110,4 +110,11 @@ typedef struct
   char name[MAX_INSTRNAMELEN];
 } INSTR;
 
+typedef struct
+{
+    int chn = -1;
+    int start;
+    int end;
+} Selection;
+
 #endif

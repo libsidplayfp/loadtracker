@@ -32,6 +32,8 @@
 
 #include "bme_main.h"
 
+#include <utility>
+
 #include <cstring>
 
 unsigned char trackcopybuffer[MAX_SONGLEN+2];
@@ -46,10 +48,8 @@ int esview[MAX_CHN];
 int escolumn;
 int eschn;
 int esnum;
-int esmarkchn = -1;
-int esmarkstart;
-int esmarkend;
 int enpos;
+Selection esmark;
 
 void namecommands();
 void orderleft();
@@ -169,7 +169,7 @@ void orderlistcommands()
       int schn = eschn;
       int tchn = 0;
 
-      esmarkchn = -1;
+      esmark.chn = -1;
       if (rawkey == KEY_1) tchn = 0;
       if (rawkey == KEY_2) tchn = 1;
       if (rawkey == KEY_3) tchn = 2;
@@ -181,9 +181,7 @@ void orderlistcommands()
 
         for (int c = 0; c < MAX_SONGLEN+2; c++)
         {
-          unsigned char temp = song.order[esnum][schn][c];
-          song.order[esnum][schn][c] = song.order[esnum][tchn][c];
-          song.order[esnum][tchn][c] = temp;
+          std::swap(song.order[esnum][schn][c], song.order[esnum][tchn][c]);
         }
       }
     }
@@ -192,22 +190,22 @@ void orderlistcommands()
     case KEY_X:
     if (shiftpressed)
     {
-      if (esmarkchn != -1)
+      if (esmark.chn != -1)
       {
         int d = 0;
 
-        eschn = esmarkchn;
-        if (esmarkstart <= esmarkend)
+        eschn = esmark.chn;
+        if (esmark.start <= esmark.end)
         {
-          eseditpos = esmarkstart;
-          for (int c = esmarkstart; c <= esmarkend; c++)
+          eseditpos = esmark.start;
+          for (int c = esmark.start; c <= esmark.end; c++)
             trackcopybuffer[d++] = song.order[esnum][eschn][c];
           trackcopyrows = d;
         }
         else
         {
-          eseditpos = esmarkend;
-          for (int c = esmarkend; c <= esmarkstart; c++)
+          eseditpos = esmark.end;
+          for (int c = esmark.end; c <= esmark.start; c++)
             trackcopybuffer[d++] = song.order[esnum][eschn][c];
           trackcopyrows = d;
         }
@@ -218,7 +216,7 @@ void orderlistcommands()
         }
         else trackcopywhole = 0;
         for (int c = 0; c < trackcopyrows; c++) deleteorder();
-        esmarkchn = -1;
+        esmark.chn = -1;
       }
     }
     break;
@@ -226,18 +224,18 @@ void orderlistcommands()
     case KEY_C:
     if (shiftpressed)
     {
-      if (esmarkchn != -1)
+      if (esmark.chn != -1)
       {
         int d = 0;
-        if (esmarkstart <= esmarkend)
+        if (esmark.start <= esmark.end)
         {
-          for (int c = esmarkstart; c <= esmarkend; c++)
+          for (int c = esmark.start; c <= esmark.end; c++)
             trackcopybuffer[d++] = song.order[esnum][eschn][c];
           trackcopyrows = d;
         }
         else
         {
-          for (int c = esmarkend; c <= esmarkstart; c++)
+          for (int c = esmark.end; c <= esmark.start; c++)
             trackcopybuffer[d++] = song.order[esnum][eschn][c];
           trackcopyrows = d;
         }
@@ -247,7 +245,7 @@ void orderlistcommands()
           trackcopyrpos = song.order[esnum][eschn][song.len[esnum][eschn]+1];
         }
         else trackcopywhole = 0;
-        esmarkchn = -1;
+        esmark.chn = -1;
       }
     }
     break;
@@ -275,13 +273,13 @@ void orderlistcommands()
     case KEY_L:
     if (shiftpressed)
     {
-      if (esmarkchn == -1)
+      if (esmark.chn == -1)
       {
-        esmarkchn = eschn;
-        esmarkstart = 0;
-        esmarkend = song.len[esnum][eschn]-1;
+        esmark.chn = eschn;
+        esmark.start = 0;
+        esmark.end = song.len[esnum][eschn]-1;
       }
-      else esmarkchn = -1;
+      else esmark.chn = -1;
     }
     break;
 
@@ -354,7 +352,7 @@ void orderlistcommands()
           }
         }
       }
-      epmarkchn = -1;
+      epmark.chn = -1;
     }
     epchn = eschn;
     epcolumn = 0;
@@ -362,16 +360,16 @@ void orderlistcommands()
     for (int i=0; i<MAX_CHN; i++)
         epview[i] = - VISIBLEPATTROWS/2;
     editmode = EDIT_PATTERN;
-    if (epchn == epmarkchn) epmarkchn = -1;
+    if (epchn == epmark.chn) epmark.chn = -1;
     break;
 
     case KEY_DEL:
-    esmarkchn = -1;
+    esmark.chn = -1;
     deleteorder();
     break;
 
     case KEY_INS:
-    esmarkchn = -1;
+    esmark.chn = -1;
     insertorder(0);
     break;
 
@@ -412,7 +410,7 @@ void orderlistcommands()
       eseditpos = song.len[esnum][eschn]+1;
       escolumn = 0;
     }
-    if (shiftpressed) esmarkchn = -1;
+    if (shiftpressed) esmark.chn = -1;
     break;
 
     case KEY_DOWN:
@@ -423,7 +421,7 @@ void orderlistcommands()
       eseditpos = song.len[esnum][eschn]+1;
       escolumn = 0;
     }
-    if (shiftpressed) esmarkchn = -1;
+    if (shiftpressed) esmark.chn = -1;
     break;
   }
   if (eseditpos - esview[eschn] < 0)
@@ -546,10 +544,10 @@ void orderleft()
 {
   if ((shiftpressed) && (eseditpos < song.len[esnum][eschn]))
   {
-    if ((esmarkchn != eschn) || (eseditpos != esmarkend))
+    if ((esmark.chn != eschn) || (eseditpos != esmark.end))
     {
-      esmarkchn = eschn;
-      esmarkstart = esmarkend = eseditpos;
+      esmark.chn = eschn;
+      esmark.start = esmark.end = eseditpos;
     }
   }
   escolumn--;
@@ -568,17 +566,17 @@ void orderleft()
     }
     else escolumn = 0;
   }
-  if ((shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmarkend = eseditpos;
+  if ((shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmark.end = eseditpos;
 }
 
 void orderright()
 {
   if ((shiftpressed) && (eseditpos < song.len[esnum][eschn]))
   {
-    if ((esmarkchn != eschn) || (eseditpos != esmarkend))
+    if ((esmark.chn != eschn) || (eseditpos != esmark.end))
     {
-      esmarkchn = eschn;
-      esmarkstart = esmarkend = eseditpos;
+      esmark.chn = eschn;
+      esmark.start = esmark.end = eseditpos;
     }
   }
   escolumn++;
@@ -592,7 +590,7 @@ void orderright()
     }
     else escolumn = 1;
   }
-  if ((shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmarkend = eseditpos;
+  if ((shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmark.end = eseditpos;
 }
 
 void nextsong()
@@ -631,8 +629,8 @@ void songchange()
   }
   eseditpos = 0;
   if (eseditpos == currentSonglen) eseditpos++;
-  epmarkchn = -1;
-  esmarkchn = -1;
+  epmark.chn = -1;
+  esmark.chn = -1;
   stopsong();
 }
 

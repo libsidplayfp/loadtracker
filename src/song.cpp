@@ -1295,9 +1295,9 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   stopsong();
 
   masterfader = 0x0f;
-  epmarkchn = -1;
+  epmark.chn = -1;
   tables.clear();
-  esmarkchn = -1;
+  esmark.chn = -1;
   followplay = false;
 
   for (int c = 0; c < maxChns; c++)
@@ -1584,9 +1584,6 @@ void mergesong()
     std::fread(ident, 4, 1, handle);
     if ((!std::memcmp(ident, "GTS3", 4)) || (!std::memcmp(ident, "GTS4", 4)) || (!std::memcmp(ident, "GTS5", 4)))
     {
-      int length;
-      int loadsize;
-
       // Skip infotexts
       std::fseek(handle, sizeof song.title + sizeof song.author + sizeof song.released, SEEK_CUR);
 
@@ -1599,12 +1596,11 @@ void mergesong()
       {
         for (int c = 0; c < channelstoload; c++)
         {
-          length = fread8(handle);
-          loadsize = length;
-          loadsize++;
-          std::fread(song.order[songbase + d][c], loadsize, 1, handle);
+          int length = fread8(handle);
+          length++;
+          std::fread(song.order[songbase + d][c], length, 1, handle);
           // Remap patterns
-          for (int e = 0; e < loadsize - 1; e++)
+          for (int e = 0; e < length - 1; e++)
           {
             if (song.order[songbase + d][c][e] < REPEAT)
                 song.order[songbase + d][c][e] += pattbase;
@@ -1639,7 +1635,7 @@ void mergesong()
       // Read tables
       for (int c = 0; c < MAX_TABLES; c++)
       {
-        loadsize = fread8(handle);
+        int loadsize = fread8(handle);
         if (loadsize + tablebase[c] > MAX_TABLELEN)
           goto ABORT;
         std::fread(&song.ltable[c][tablebase[c]], loadsize, 1, handle);
@@ -1670,7 +1666,7 @@ void mergesong()
 
       for (int c = 0; c < amount; c++)
       {
-        length = fread8(handle) * 4;
+        int length = fread8(handle) * 4;
         std::fread(song.pattern[c + pattbase], length, 1, handle);
         // Remap song.pattern instruments and commands
         for (int d = 0; d < length; d += 4)

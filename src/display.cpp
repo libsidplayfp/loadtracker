@@ -302,11 +302,11 @@ void printstatus()
       printtext(dpos.patternsX+7+c*13, dpos.patternsY+1+d, color, &textbuffer[8]);
       printtext(dpos.patternsX+9+c*13, dpos.patternsY+1+d, color2, &textbuffer[10]);
       printtext(dpos.patternsX+10+c*13, dpos.patternsY+1+d, color, &textbuffer[11]);
-      if (c == epmarkchn)
+      if (c == epmark.chn)
       {
-        int markstart = epmarkstart;
-        int markend = epmarkend;
-        if (epmarkstart > epmarkend)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (epmark.start > epmark.end)
         {
             std::swap(markstart, markend);
         }
@@ -407,17 +407,17 @@ void printstatus()
       }
       if (chn[c].mute) color = colors.CMUTE;
       printtext(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, color, textbuffer);
-      if (c == esmarkchn)
+      if (c == esmark.chn)
       {
-        int markstart = esmarkstart;
-        int markend = esmarkend;
+        int markstart = esmark.start;
+        int markend = esmark.end;
         if (markstart > markend)
         {
           std::swap(markstart, markend);
         }
-        if ((p >= esmarkstart) && (p <= esmarkend))
+        if ((p >= esmark.start) && (p <= esmark.end))
         {
-          printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, (p != esmarkend) ? 3 : 2);
+          printbg(dpos.orderlistX+4+d*3, dpos.orderlistY+1+c, colors.CHDRBG, (p != esmark.end) ? 3 : 2);
         }
       }
       if ((p == eseditpos) && (editmode == EDIT_ORDERLIST) && (eschn == c))
