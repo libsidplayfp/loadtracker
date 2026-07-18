@@ -168,7 +168,7 @@ void loadexternalpalette()
 
 void initicon()
 {
-  int handle = io_open("loadtrk.bmp");
+  int handle = io_open("loadtrk.png");
   if (handle != -1)
   {
     int size = io_lseek(handle, 0, SEEK_END);
@@ -179,7 +179,7 @@ void initicon()
       io_read(handle, iconbuffer, size);
       io_close(handle);
       SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
-      SDL_Surface *icon = SDL_LoadBMP_IO(rw, true);
+      SDL_Surface *icon = SDL_LoadPNG_IO(rw, true);
       SDL_SetWindowIcon(win_window, icon);
       SDL_DestroySurface(icon);
       delete [] iconbuffer;
