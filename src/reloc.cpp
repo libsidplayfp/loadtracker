@@ -169,7 +169,7 @@ void relocator()
   char packedsongname[MAX_FILENAME];
   char packedfilter[MAX_FILENAME];
 
-  unsigned char *packeddata = NULL;
+  unsigned char *packeddata = nullptr;
   const char *playername = "player.s";
 
   int tableerrortype = TYPE_NONE;
@@ -199,19 +199,17 @@ void relocator()
   int playersize = 0;
   int packedsize = 0;
 
-  FILE *songhandle = NULL;
+  FILE *songhandle = nullptr;
 #ifndef GT2RELOC
   int selectdone;
   int opt = 0;
 #endif
   unsigned char speedcode[] = {0xa2,0x00,0x8e,0x04,0xdc,0xa2,0x00,0x8e,0x05,0xdc};
 
-  int d;
-
   unsigned char patttemp[512];
-  unsigned char *songwork = NULL;
-  unsigned char *pattwork = NULL;
-  unsigned char *instrwork = NULL;
+  unsigned char *songwork = nullptr;
+  unsigned char *pattwork = nullptr;
+  unsigned char *instrwork = nullptr;
 
   channels = getMaxChannels();
   fixedparams = 1;
@@ -350,7 +348,7 @@ void relocator()
       patterns++;
 
       // See which instruments/tablecommands are used
-      for (d = 0; d < getPattlen(c); d++)
+      for (int d = 0; d < getPattlen(c); d++)
       {
         tableerror = 0;
 
@@ -439,7 +437,7 @@ void relocator()
         else instrmap[c] = freenormal++;
       }
       instruments++;
-      for (d = 0; d < MAX_TABLES; d++)
+      for (int d = 0; d < MAX_TABLES; d++)
       {
         tableerror = 0;
         exectable(d, song.instr[c].ptr[d]);
@@ -540,15 +538,15 @@ void relocator()
     switch (tableerrorcause)
     {
       case CAUSE_PATTERN:
-      std::sprintf(textbuffer + strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
+      std::sprintf(textbuffer + std::strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
       break;
 
       case CAUSE_WAVECMD:
-      std::sprintf(textbuffer + strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
+      std::sprintf(textbuffer + std::strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
       goto TABLETYPE;
 
       case CAUSE_INSTRUMENT:
-      std::sprintf(textbuffer + strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
+      std::sprintf(textbuffer + std::strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
       TABLETYPE:
       switch (tableerrorsource2)
       {
@@ -820,8 +818,7 @@ void relocator()
 
   // This time pack the patterns for real
   pattdatasize = 0;
-  d = 0;
-  for (int c = 0; c < MAX_PATT; c++)
+  for (int c = 0, d = 0; c < MAX_PATT; c++)
   {
     if (pattused[c])
     {
@@ -848,7 +845,7 @@ void relocator()
   {
     if (instrused[c])
     {
-      d = instrmap[c] - 1;
+      int d = instrmap[c] - 1;
       instrwork[d] = song.instr[c].ad;
       instrwork[d+instruments] = song.instr[c].sr;
       instrwork[d+instruments*2] = tablemap[WTBL][song.instr[c].ptr[WTBL]];
@@ -1614,10 +1611,10 @@ void relocator()
     if (!fileselector(packedsongname, packedpath, packedfilter, "Save Music+Playroutine", 3))
       goto PRCLEANUP;
 
-    if (strlen(packedsongname) < MAX_FILENAME-4)
+    if (std::strlen(packedsongname) < MAX_FILENAME-4)
     {
       int extfound = 0;
-      for (int c = strlen(packedsongname)-1; c >= 0; c--)
+      for (int c = std::strlen(packedsongname)-1; c >= 0; c--)
       {
         if (packedsongname[c] == '.') extfound = 1;
       }
@@ -2042,7 +2039,7 @@ int insertfile(const char *name)
 
 void inserttext(const char *text)
 {
-  membuf_append(&src, text, strlen(text));
+  membuf_append(&src, text, std::strlen(text));
 }
 
 void insertdefine(const char *name, int value)
@@ -2245,7 +2242,7 @@ void relocator_stereo()
 {
     char packedsongname[MAX_FILENAME];
     char packedfilter[MAX_FILENAME];
-    unsigned char *packeddata = NULL;
+    unsigned char *packeddata = nullptr;
     const char *playername = "player_s.s";
 
     int tableerrortype = TYPE_NONE;
@@ -2274,15 +2271,14 @@ void relocator_stereo()
     int speedtblsize = 0;
     int playersize = 0;
     int packedsize = 0;
-    FILE *songhandle = NULL;
+    FILE *songhandle = nullptr;
     int selectdone;
     int opt = 0;
     unsigned char speedcode[] = {0xa2,0x00,0x8e,0x04,0xdc,0xa2,0x00,0x8e,0x05,0xdc};
-    int d;
     unsigned char patttemp[512];
-    unsigned char *songwork = NULL;
-    unsigned char *pattwork = NULL;
-    unsigned char *instrwork = NULL;
+    unsigned char *songwork = nullptr;
+    unsigned char *pattwork = nullptr;
+    unsigned char *instrwork = nullptr;
 
     channels = 6;
     fixedparams = 1;
@@ -2501,7 +2497,7 @@ void relocator_stereo()
                 else instrmap[c] = freenormal++;
             }
             instruments++;
-            for (d = 0; d < MAX_TABLES; d++)
+            for (int d = 0; d < MAX_TABLES; d++)
             {
                 tableerror = 0;
                 exectable(d, song.instr[c].ptr[d]);
@@ -2602,15 +2598,15 @@ void relocator_stereo()
         switch (tableerrorcause)
         {
         case CAUSE_PATTERN:
-            std::sprintf(textbuffer + strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
+            std::sprintf(textbuffer + std::strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
             break;
 
         case CAUSE_WAVECMD:
-            std::sprintf(textbuffer + strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
+            std::sprintf(textbuffer + std::strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
             goto TABLETYPE_S;
 
         case CAUSE_INSTRUMENT:
-            sprintf(textbuffer + strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
+            sprintf(textbuffer + std::strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
 TABLETYPE_S:
             switch (tableerrorsource2)
             {
@@ -2643,7 +2639,7 @@ TABLETYPE_S:
     // Select playroutine options
     clearscreen();
     printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
-    if (!strlen(loadedsongfilename))
+    if (!std::strlen(loadedsongfilename))
         std::sprintf(textbuffer, "%s Packer/Relocator", programname);
     else
         std::sprintf(textbuffer, "%s Packer/Relocator - %s", programname, loadedsongfilename);
@@ -2787,7 +2783,7 @@ TABLETYPE_S:
                 (song.len[c][1]) &&
                 (song.len[c][2]))
         {
-            for (d = 0; d < MAX_CHN; d++)
+            for (int d = 0; d < MAX_CHN; d++)
             {
                 songoffset[c][d] = songdatasize;
                 songsize[c][d] = song.len[c][d] + 2;
@@ -2872,8 +2868,7 @@ TABLETYPE_S:
 
     // This time pack the patterns for real
     pattdatasize = 0;
-    d = 0;
-    for (int c = 0; c < MAX_PATT; c++)
+    for (int c = 0, d = 0; c < MAX_PATT; c++)
     {
         if (pattused[c])
         {
@@ -2900,7 +2895,7 @@ TABLETYPE_S:
     {
         if (instrused[c])
         {
-            d = instrmap[c] - 1;
+            int d = instrmap[c] - 1;
             instrwork[d] = song.instr[c].ad;
             instrwork[d+instruments] = song.instr[c].sr;
             instrwork[d+instruments*2] = tablemap[WTBL][song.instr[c].ptr[WTBL]];
@@ -3370,7 +3365,7 @@ TABLETYPE_S:
         insertlabel(tableleftname[c]);
 
         // Table data
-        for (d = 0; d < MAX_TABLELEN; d++)
+        for (int d = 0; d < MAX_TABLELEN; d++)
         {
             if (tableused[c][d+1])
             {
