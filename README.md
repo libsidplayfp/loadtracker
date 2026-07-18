@@ -7,6 +7,9 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 * ported to SDL3
 * scrollwheel support
 * dual SID support, merged from [SpiderJ's fork](https://github.com/jansalleine/gt2fork) (Switch with Alt+m)
+* new instrument view based on Daniel Langner's fork of GTUltra
+* proper ISO-8859-1 input support
+* improved pattern and orderlist views during playback
 * dots display extended to tables and enabled by default (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * default to a C64 color theme, with an option to run with original colorscheme (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * using external [reSIDfp](https://github.com/libsidplayfp/libresidfp), reSID dropped
@@ -45,6 +48,10 @@ _You should have received a copy of the GNU General Public License
 * RtMidi 6.0.0  
   https://github.com/thestk/rtmidi  
   distributed under MIT license
+
+* Exomizer
+  https://bitbucket.org/magli143/exomizer/
+  distributed under ZLIB license
 
 ---
 
