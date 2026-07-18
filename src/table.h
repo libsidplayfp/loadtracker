@@ -49,9 +49,7 @@ public:
     int m_pos;
     int m_column;
 private:
-    int m_marknum = -1;
-    int m_markstart;
-    int m_markend;
+    Selection m_mark;
     bool m_lock = false;
 
 public:
@@ -60,9 +58,9 @@ public:
     inline int num() const { return m_num; }
     inline int pos() const { return m_pos; }
     inline int column() const { return (m_column & 1)+(m_column/2)*3; }
-    inline int marknum() const { return m_marknum; }
-    inline int markstart() const { return m_markstart; }
-    inline int markend() const { return m_markend; }
+    inline int marknum() const { return m_mark.chn; }
+    inline int markstart() const { return m_mark.start; }
+    inline int markend() const { return m_mark.end; }
     inline bool islocked() const { return m_lock; }
     void setrow(int num, int pos, int column);
     void resetmarknum();

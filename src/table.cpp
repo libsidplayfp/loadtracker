@@ -1028,16 +1028,16 @@ void Tables::tableup(bool shiftpressed)
 {
   if (shiftpressed)
   {
-    if ((m_marknum != m_num) || (m_pos != m_markend))
+    if ((m_mark.chn != m_num) || (m_pos != m_mark.end))
     {
-      m_marknum = m_num;
-      m_markstart = m_pos;
-      m_markend = m_pos;
+      m_mark.chn = m_num;
+      m_mark.start = m_pos;
+      m_mark.end = m_pos;
     }
   }
   m_pos--;
   if (m_pos < 0) m_pos = 0;
-  if (shiftpressed) m_markend = m_pos;
+  if (shiftpressed) m_mark.end = m_pos;
 
   validatetableview();
 }
@@ -1046,16 +1046,16 @@ void Tables::tabledown(bool shiftpressed)
 {
   if (shiftpressed)
   {
-    if ((m_marknum != m_num) || (m_pos != m_markend))
+    if ((m_mark.chn != m_num) || (m_pos != m_mark.end))
     {
-      m_marknum = m_num;
-      m_markstart = m_pos;
-      m_markend = m_pos;
+      m_mark.chn = m_num;
+      m_mark.start = m_pos;
+      m_mark.end = m_pos;
     }
   }
   m_pos++;
   if (m_pos >= MAX_TABLELEN) m_pos = MAX_TABLELEN-1;
-  if (shiftpressed) m_markend = m_pos;
+  if (shiftpressed) m_mark.end = m_pos;
 
   validatetableview();
 }
@@ -1074,22 +1074,22 @@ void Tables::setrow(int num, int pos, int column)
 
 void Tables::resetmarknum()
 {
-    m_marknum = -1;
+    m_mark.chn = -1;
 }
 
 void Tables::setmarkstart(int num, int markstart)
 {
-    if ((m_marknum != m_num) || (markstart != m_markend))
+    if ((m_mark.chn != m_num) || (markstart != m_mark.end))
     {
-        m_marknum = num;
-        m_markstart = markstart;
-        m_markend = markstart;
+        m_mark.chn = num;
+        m_mark.start = markstart;
+        m_mark.end = markstart;
     }
 }
 
 void Tables::setmarkend(int markend)
 {
-    m_markend = markend;
+    m_mark.end = markend;
 }
 
 void Tables::fliplock()
@@ -1099,5 +1099,5 @@ void Tables::fliplock()
 
 void Tables::clear()
 {
-  m_marknum = -1;
+  m_mark.chn = -1;
 }
