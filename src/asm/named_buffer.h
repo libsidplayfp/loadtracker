@@ -29,11 +29,22 @@
  */
 
 #include "membuf.h"
+#include "chunkpool.h"
+#include "map.h"
 
-void named_buffer_init();
-void named_buffer_free();
+struct named_buffer {
+    struct map map;
+    struct chunkpool buf;
+};
 
-struct membuf *new_named_buffer(const char *name);
-struct membuf *get_named_buffer(const char *name);
+void named_buffer_init(struct named_buffer *nb);
+void named_buffer_free(struct named_buffer *nb);
+void named_buffer_clear(struct named_buffer *nb);
+
+void named_buffer_copy(struct named_buffer *nb,
+                       const struct named_buffer *source);
+
+struct membuf *new_named_buffer(struct named_buffer *nb, const char *name);
+struct membuf *get_named_buffer(struct named_buffer *nb, const char *name);
 
 #endif

@@ -258,6 +258,7 @@ void relocator()
   std::memset(tablemap, 0, sizeof tablemap);
   tableerror = 0;
 
+  parse_init();
   membuf_free(&src);
   membuf_free(&dest);
 
@@ -1468,11 +1469,11 @@ void relocator()
     insertbytes(&pattwork[pattoffset[c]], pattsize[c]);
   }
 
-  /* {
+  {
     FILE *handle = std::fopen("debug.s", "wb");
     std::fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
     std::fclose(handle);
-  } */
+  }
 
   // Assemble; on error fail in a rude way (the parser does so too)
   if (assemble(&src, &dest)) exit(1);
@@ -1756,6 +1757,7 @@ void relocator()
 PRCLEANUP:
   membuf_free(&src);
   membuf_free(&dest);
+  parse_free();
 
   if (pattwork) std::free(pattwork);
   if (songwork) std::free(songwork);
@@ -2326,6 +2328,7 @@ void relocator_stereo()
     std::memset(tablemap, 0, sizeof tablemap);
     tableerror = 0;
 
+    parse_init();
     membuf_free(&src);
     membuf_free(&dest);
 
@@ -3793,6 +3796,7 @@ SKIPTABLE_S:
 PRCLEANUP_S:
     membuf_free(&src);
     membuf_free(&dest);
+    parse_free();
 
     if (pattwork) std::free(pattwork);
     if (songwork) std::free(songwork);

@@ -1,6 +1,3 @@
-#ifndef ALREADY_INCLUDED_EXPR
-#define ALREADY_INCLUDED_EXPR
-
 /*
  * Copyright (c) 2005 Magnus Lind.
  *
@@ -28,30 +25,42 @@
  *
  */
 
-#include "int.h"
-#include "asm.tab.h"
+#include "membuf_io.h"
+#include "log.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-union expr_type
+void read_file(const char *name, struct membuf *buf)
 {
-    i32 number;
-    const char *symref;
-    struct expr *arg1;
-};
+    char block[1024];
+    FILE *in;
+    int len;
 
-struct expr
+    in = fopen(name, "rb");
+    if(in == NULL)
+    {
+        LOG(LOG_ERROR, ("Can't open file \"%s\" for input.\n", name));
+        exit(1);
+    }
+    do
+    {
+        len = fread(block, 1, 1024, in);
+        membuf_append(buf, block, len);
+    }
+    while(len == 1024);
+    LOG(LOG_DEBUG, ("read %d bytes from file\n", len));
+    fclose(in);
+}
+
+void write_file(const char *name, struct membuf *buf)
 {
-    union expr_type type;
-    struct expr *expr_arg2;
-    i16 expr_op;
-};
-
-void expr_init(void);
-void expr_free(void);
-
-struct expr *new_expr_op1(i16 op, struct expr *arg);
-struct expr *new_expr_op2(i16 op, struct expr *arg1, struct expr *arg2);
-struct expr *new_expr_symref(const char *symbol);
-struct expr *new_expr_number(i32 number);
-void expr_dump(int level, struct expr *e);
-
-#endif
+    FILE *out;
+    out = fopen(name, "wb");
+    if(out == NULL)
+    {
+        LOG(LOG_ERROR, ("Can't open file \"%s\" for output.\n", name));
+        exit(1);
+    }
+    fwrite(membuf_get(buf), 1, membuf_memlen(buf), out);
+    fclose(out);
+}

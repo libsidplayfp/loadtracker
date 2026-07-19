@@ -28,9 +28,9 @@
  *
  */
 
-typedef char i8;
-typedef short int i16;
-typedef int i32;
+typedef signed char i8;
+typedef signed short int i16;
+typedef signed int i32;
 
 typedef unsigned char u8;
 typedef unsigned short int u16;

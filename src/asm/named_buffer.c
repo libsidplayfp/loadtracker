@@ -25,98 +25,71 @@
  *
  */
 
-#include "namedbuf.h"
+#include "named_buffer.h"
 #include "log.h"
-#include "vec.h"
-#include "membufio.h"
+#include "chunkpool.h"
+#include "membuf_io.h"
 
 #include <stdlib.h>
 
-
-struct sbe
+void named_buffer_init(struct named_buffer *nb)
 {
-    const char *name;
-    struct membuf mb[1];
-};
-
-static struct vec s_sbe_table[1];
-
-static int sbe_cmp(const void *a, const void *b)
-{
-    struct sbe *sbe_a;
-    struct sbe *sbe_b;
-    int val;
-
-    sbe_a = (struct sbe*)a;
-    sbe_b = (struct sbe*)b;
-
-    val = strcmp(sbe_a->name, sbe_b->name);
-
-    return val;
+    map_init(&nb->map);
+    chunkpool_init(&nb->buf, sizeof(struct membuf));
 }
 
-void sbe_free(struct sbe *e)
-{
-    membuf_free(e->mb);
-}
-
-void named_buffer_init()
-{
-    vec_init(s_sbe_table, sizeof(struct sbe));
-}
-
-void named_buffer_free()
+void named_buffer_free(struct named_buffer *nb)
 {
     typedef void cb_free(void *a);
 
-    vec_free(s_sbe_table, (cb_free*)sbe_free);
+    chunkpool_free2(&nb->buf, (cb_free*)membuf_free);
+    map_free(&nb->map);
 }
 
-struct membuf *new_named_buffer(const char *name)
+void named_buffer_clear(struct named_buffer *nb)
 {
-    int pos;
-    struct sbe e[1];
-    struct sbe *ep;
+    named_buffer_free(nb);
+    named_buffer_init(nb);
+}
+
+void named_buffer_copy(struct named_buffer *nb,
+                       const struct named_buffer *source)
+{
+    struct map_iterator i[1];
+    const struct map_entry *e;
+
+    for(map_get_iterator(&source->map, i); (e = map_iterator_next(i)) != NULL;)
+    {
+        /* don't allocate copies of the entries */
+        map_put(&nb->map, e->key, e->value);
+    }
+}
+
+struct membuf *new_named_buffer(struct named_buffer *nb, const char *name)
+{
     struct membuf *mp;
 
+    mp = chunkpool_malloc(&nb->buf);
     /* name is already strdup:ped */
-    e->name = name;
-    pos = vec_find(s_sbe_table, sbe_cmp, e);
-    if(pos >= 0)
+    if(map_put(&nb->map, name, mp) != NULL)
     {
         /* found */
         LOG(LOG_ERROR, ("buffer already exists.\n"));
-        exit(-1);
+        exit(1);
     }
-    membuf_init(e->mb);
-    ep = vec_insert(s_sbe_table, -(pos + 2), e);
-    mp = ep->mb;
-
+    membuf_init(mp);
     return mp;
 }
 
-struct membuf *get_named_buffer(const char *name)
+struct membuf *get_named_buffer(struct named_buffer *nb, const char *name)
 {
-    int pos;
-    struct sbe e[1];
-    struct sbe *ep;
     struct membuf *mp;
 
-    /* name is already strdup:ped */
-    e->name = name;
-    pos = vec_find(s_sbe_table, sbe_cmp, e);
-    if(pos >= 0)
+    mp = map_get(&nb->map, name);
+    if(mp == NULL)
     {
-        /* found */
-        ep = vec_get(s_sbe_table, pos);
+        mp = new_named_buffer(nb, name);
     }
-    else
-    {
-        membuf_init(e->mb);
-        read_file(name, e->mb);
-        ep = vec_insert(s_sbe_table, -(pos + 2), e);
-    }
-    mp = ep->mb;
 
     return mp;
 }

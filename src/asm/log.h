@@ -30,6 +30,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifndef __GNUC__
+#define  __attribute__(x)  /*NOTHING*/
+#endif
+
 enum log_level {
     LOG_MIN = -99,
     LOG_FATAL = -40,
@@ -88,13 +92,15 @@ void log_vlog(struct log_ctx *ctx,      /* IN */
 
 
 void log_log_default(const char *printf_str,    /* IN */
-                     ...);
+                     ...)
+    __attribute__((format(printf,1,2)));
 
 /* some helper macros */
 
 extern struct log_ctx *G_log_ctx;
 extern enum log_level G_log_level;
 extern enum log_level G_log_log_level;
+extern int G_log_tty_only;
 
 #define LOG_SET_LEVEL(L) \
 do { \
@@ -126,8 +132,20 @@ do { \
 do { \
     if(IS_LOGGABLE(L)) { \
         G_log_log_level = (L); \
+        G_log_tty_only = 0; \
         log_log_default M; \
     } \
 } while(0)
+
+#define LOG_TTY(L, M) \
+do { \
+    if(IS_LOGGABLE(L)) { \
+        G_log_log_level = (L); \
+        G_log_tty_only = 1; \
+        log_log_default M; \
+    } \
+} while(0)
+
+void hex_dump(int level, unsigned char *p, int len);
 
 #endif

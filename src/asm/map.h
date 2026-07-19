@@ -1,8 +1,8 @@
-#ifndef ALREADY_INCLUDED_CHUNKPOOL
-#define ALREADY_INCLUDED_CHUNKPOOL
+#ifndef ALREADY_INCLUDED_MAP
+#define ALREADY_INCLUDED_MAP
 
 /*
- * Copyright (c) 2003 -2005 Magnus Lind.
+ * Copyright (c) 2006 Magnus Lind.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -28,31 +28,42 @@
  *
  */
 
+#include "vec.h"
 #include "callback.h"
 
-#define CHUNKPOOL_CHUNKS_MAX    64
-
-struct chunkpool {
-    int chunk_size;
-    int chunk;
-    int chunk_pos;
-    int chunk_max;
-    void *chunks[64];
+struct map_entry {
+    const char *key;
+    void *value;
 };
 
-void
-chunkpool_init(struct chunkpool *ctx, int size);
+#define STATIC_MAP_INIT {STATIC_VEC_INIT(sizeof(struct map_entry))}
 
-void
-chunkpool_free(struct chunkpool *ctx);
+struct map {
+    struct vec vec;
+};
 
-void
-chunkpool_free2(struct chunkpool *ctx, cb_free *f);
+struct map_iterator {
+    struct vec_iterator vec;
+};
 
-void *
-chunkpool_malloc(struct chunkpool *ctx);
+void map_init(struct map *m);
+void map_clear(struct map *m);
+void map_free(struct map *m);
 
-void *
-chunkpool_calloc(struct chunkpool *ctx);
+void *map_put(struct map *m, const char *key, void *value);
+void *map_get(const struct map *m, const char *key);
+int map_contains_key(const struct map *m, const char *key);
+void map_put_all(struct map *m, const struct map *source);
+
+int map_contains(const struct map *m1, const struct map *m2, cb_cmp *f);
+
+/**
+ * If f is NULL, only the keys will be compared.
+ * returns -1 on error, 1 on equality and 0 otherwise,
+ **/
+int map_equals(const struct map *m1, const struct map *m2, cb_cmp *f);
+
+void map_get_iterator(const struct map *p, struct map_iterator *i);
+const struct map_entry *map_iterator_next(struct map_iterator *i);
 
 #endif

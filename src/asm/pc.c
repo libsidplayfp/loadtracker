@@ -29,10 +29,13 @@
 #include "log.h"
 #include <stdlib.h>
 
+struct pc {
+    struct expr *pc1;
+    int pc2;
+};
 
 static struct expr unset_value[1];
-static struct expr *s_pc1;
-static int s_pc2;
+static struct pc p[1] = {{unset_value, 0}};
 
 void pc_dump(int level)
 {
@@ -40,44 +43,44 @@ void pc_dump(int level)
 
 void pc_set(int pc)
 {
-    s_pc1 = NULL;
-    s_pc2 = pc;
+    p->pc1 = NULL;
+    p->pc2 = pc;
 }
 
 void pc_set_expr(struct expr *pc)
 {
-    s_pc1 = pc;
-    s_pc2 = 0;
+    p->pc1 = pc;
+    p->pc2 = 0;
 }
 
-struct expr *pc_get()
+struct expr *pc_get(void)
 {
     struct expr *old_pc1;
 
-    if(s_pc1 == unset_value)
+    if(p->pc1 == unset_value)
     {
         LOG(LOG_ERROR, ("PC must be set by a .org(pc) call.\n"));
-        exit(-1);
+        exit(1);
     }
-    if(s_pc1 == NULL || s_pc2 != 0)
+    if(p->pc1 == NULL || p->pc2 != 0)
     {
-        old_pc1 = s_pc1;
-        s_pc1 = new_expr_number(s_pc2);
-        s_pc2 = 0;
+        old_pc1 = p->pc1;
+        p->pc1 = new_expr_number(p->pc2);
+        p->pc2 = 0;
         if(old_pc1 != NULL)
         {
-            s_pc1 = new_expr_op2(PLUS, s_pc1, old_pc1);
+            p->pc1 = new_expr_op2(PLUS, p->pc1, old_pc1);
         }
     }
 
-    return s_pc1;
+    return p->pc1;
 }
 
 void pc_add(int offset)
 {
-    if(s_pc1 != unset_value)
+    if(p->pc1 != unset_value)
     {
-        s_pc2 += offset;
+        p->pc2 += offset;
     }
 }
 
@@ -85,18 +88,18 @@ void pc_add_expr(struct expr *pc)
 {
     struct expr *old_pc1;
 
-    if(s_pc1 != unset_value)
+    if(p->pc1 != unset_value)
     {
-        old_pc1 = s_pc1;
-        s_pc1 = pc;
+        old_pc1 = p->pc1;
+        p->pc1 = pc;
         if(old_pc1 != NULL)
         {
-            s_pc1 = new_expr_op2(PLUS, s_pc1, old_pc1);
+            p->pc1 = new_expr_op2(PLUS, p->pc1, old_pc1);
         }
     }
 }
 
-void pc_unset()
+void pc_unset(void)
 {
     pc_set_expr(unset_value);
 }

@@ -41,19 +41,28 @@ void membuf_clear(struct membuf *sb);
 void membuf_free(struct membuf *sb);
 void membuf_new(struct membuf **sbp);
 void membuf_delete(struct membuf **sbp);
-int membuf_memlen(struct membuf *sb);
+/* Gets the length of data put into the membuf */
+int membuf_memlen(const struct membuf *sb);
 void membuf_truncate(struct membuf *sb, int len);
 
 /* returns the new len or < 0 if failure */
 int membuf_trim(struct membuf *sb, int pos);
 
-void *membuf_memcpy(struct membuf *sb, const void *mem, int len);
+void *membuf_memcpy(struct membuf *sb, int offset, const void *mem, int len);
 void *membuf_append(struct membuf *sb, const void *mem, int len);
 void *membuf_append_char(struct membuf *sb, char c);
 void *membuf_insert(struct membuf *sb, int offset, const void *mem, int len);
+void membuf_remove(struct membuf *sb, int offset, int len);
+/* Grows the capacity if it's less than the given size */
 void membuf_atleast(struct membuf *sb, int size);
+/* Skrinks the capacity if it's greater than the given size */
 void membuf_atmost(struct membuf *sb, int size);
-int membuf_get_size(struct membuf *sb);
-void *membuf_get(struct membuf *sb);
+/* Gets the current capacity of the membuf */
+int membuf_get_size(const struct membuf *sb);
+/* Gets a pointer to the internal buffer. Don't dereferece it beyond
+ * its size. */
+void *membuf_get(const struct membuf *sb);
 
+/* Appends a printf formatted string to */
+void membuf_printf(struct membuf *sb, const char *format, ...);
 #endif

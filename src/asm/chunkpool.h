@@ -1,5 +1,8 @@
+#ifndef ALREADY_INCLUDED_CHUNKPOOL
+#define ALREADY_INCLUDED_CHUNKPOOL
+
 /*
- * Copyright (c) 2005 Magnus Lind.
+ * Copyright (c) 2003 - 2005, 2015 Magnus Lind.
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from
@@ -25,43 +28,30 @@
  *
  */
 
-#include "membufio.h"
-#include "log.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "callback.h"
+#include "vec.h"
 
+struct chunkpool {
+    int item_size;
+    int item_pos;
+    int item_end;
+    void *current_chunk;
+    struct vec used_chunks;
+};
 
-void read_file(const char *name, struct membuf *buf)
-{
-    char block[1024];
-    FILE *in;
-    int len;
+void
+chunkpool_init(struct chunkpool *ctx, int item_size);
 
-    in = fopen(name, "rb");
-    if(in == NULL)
-    {
-        LOG(LOG_ERROR, ("Can't open file \"%s\" for input.\n", name));
-        exit(-1);
-    }
-    do
-    {
-        len = fread(block, 1, 1024, in);
-        membuf_append(buf, block, len);
-    }
-    while(len == 1024);
-    LOG(LOG_DEBUG, ("read %d bytes from file\n", len));
-    fclose(in);
-}
+void
+chunkpool_free(struct chunkpool *ctx);
 
-void write_file(const char *name, struct membuf *buf)
-{
-    FILE *out;
-    out = fopen(name, "wb");
-    if(out == NULL)
-    {
-        LOG(LOG_ERROR, ("Can't open file \"%s\" for output.\n", name));
-        exit(-1);
-    }
-    fwrite(membuf_get(buf), 1, membuf_memlen(buf), out);
-    fclose(out);
-}
+void
+chunkpool_free2(struct chunkpool *ctx, cb_free *f);
+
+void *
+chunkpool_malloc(struct chunkpool *ctx);
+
+void *
+chunkpool_calloc(struct chunkpool *ctx);
+
+#endif

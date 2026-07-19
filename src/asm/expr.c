@@ -26,11 +26,10 @@
  */
 
 #include "expr.h"
-#include "chnkpool.h"
+#include "chunkpool.h"
 #include "log.h"
 
 #include <stdlib.h>
-
 
 static struct chunkpool s_expr_pool[1];
 
@@ -57,14 +56,14 @@ void expr_dump(int level, struct expr *e)
     case vNEG:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));
-        /* fall through */
     case LNOT:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));
         break;
     default:
         LOG(level, ("expr %p binary op %d, arg1 %p, arg2 %p\n",
-                    (void*)e, e->expr_op, (void*)e->type.arg1, (void*)e->expr_arg2));
+                    (void*)e, e->expr_op, (void*)e->type.arg1,
+                    (void*)e->expr_arg2));
 
     }
 }

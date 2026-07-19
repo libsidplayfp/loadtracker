@@ -30,6 +30,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdarg.h>
+
+#ifdef WIN32
+#define vsnprintf _vsnprintf
+#endif
 
 void membuf_init(struct membuf *sb)
 {
@@ -62,7 +67,6 @@ void membuf_new(struct membuf **sbp)
         fprintf(stderr, "error, can't allocate memory\n");
         exit(1);
     }
-    
     sb->buf = NULL;
     sb->len = 0;
     sb->size = 0;
@@ -81,7 +85,7 @@ void membuf_delete(struct membuf **sbp)
     *sbp = sb;
 }
 
-int membuf_memlen(struct membuf *sb)
+int membuf_memlen(const struct membuf *sb)
 {
     return sb->len;
 }
@@ -109,12 +113,15 @@ int membuf_trim(struct membuf *sb, int pos)
     return sb->len;
 }
 
-void *membuf_memcpy(struct membuf *sb, const void *mem, int len)
+void *membuf_memcpy(struct membuf *sb, int offset, const void *mem, int len)
 {
-    membuf_atleast(sb, len);
-    memcpy(sb->buf, mem, len);
-    return sb->buf;
+    char *buf;
+    membuf_atleast(sb, offset + len);
+    buf = (char*)sb->buf + offset;
+    memcpy(buf, mem, len);
+    return buf;
 }
+
 void *membuf_append(struct membuf *sb, const void *mem, int len)
 {
     int newlen;
@@ -153,12 +160,30 @@ void *membuf_insert(struct membuf *sb, int offset, const void *mem, int len)
     void *to;
     newlen = sb->len + len;
     membuf_atleast(sb, newlen);
-    from = (char *) sb->buf + offset;
+    from = (char *)sb->buf + offset;
     to = (char *)from + len;
     memmove(to, from, sb->len - offset);
-    memcpy(from, mem, len);
+    if(mem == NULL)
+    {
+        memset(from, 0, len);
+    }
+    else
+    {
+        memcpy(from, mem, len);
+    }
     sb->len = newlen;
     return from;
+}
+
+void membuf_remove(struct membuf *sb, int offset, int len)
+{
+    void *from;
+    void *to;
+    to = (char *)sb->buf + offset;
+    from = (char *)to + len;
+    sb->len -= len;
+    memmove(to, from, sb->len - offset);
+
 }
 
 void membuf_atleast(struct membuf *sb, int len)
@@ -206,11 +231,37 @@ void membuf_atmost(struct membuf *sb, int len)
     }
 }
 
-int membuf_get_size(struct membuf *sb)
+int membuf_get_size(const struct membuf *sb)
 {
     return sb->size;
 }
-void *membuf_get(struct membuf *sb)
+void *membuf_get(const struct membuf *sb)
 {
     return sb->buf;
+}
+void membuf_printf(struct membuf *sb, const char *format, ...)
+{
+    int pos;
+    int printed;
+    va_list args;
+
+    pos = sb->len;
+
+    va_start(args, format);
+    printed = vsnprintf((char*)membuf_get(sb) + pos, sb->size - pos,
+                        format, args);
+    va_end(args);
+
+    if (printed >= sb->size - pos)
+    {
+        va_list args2;
+
+        membuf_atleast(sb, pos + printed + 1);
+
+        va_start(args2, format);
+        printed = vsnprintf((char*)membuf_get(sb) + pos, sb->size - pos,
+                            format, args2);
+        va_end(args2);
+    }
+    sb->len += printed;
 }
