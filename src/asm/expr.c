@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -19,29 +19,24 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
 #include "expr.h"
-#include "chnkpool.h"
+#include "chunkpool.h"
 #include "log.h"
 
 #include <stdlib.h>
 
-
-static struct chunkpool s_expr_pool[1];
+static struct chunkpool s_expr_pool;
 
 void expr_init()
 {
-    chunkpool_init(s_expr_pool, sizeof(struct expr));
+    chunkpool_init(&s_expr_pool, sizeof(struct expr));
 }
 
 void expr_free()
 {
-    chunkpool_free(s_expr_pool);
+    chunkpool_free(&s_expr_pool);
 }
 
 void expr_dump(int level, struct expr *e)
@@ -57,14 +52,14 @@ void expr_dump(int level, struct expr *e)
     case vNEG:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));
-        /* fall through */
     case LNOT:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));
         break;
     default:
         LOG(level, ("expr %p binary op %d, arg1 %p, arg2 %p\n",
-                    (void*)e, e->expr_op, (void*)e->type.arg1, (void*)e->expr_arg2));
+                    (void*)e, e->expr_op, (void*)e->type.arg1,
+                    (void*)e->expr_arg2));
 
     }
 }
@@ -80,7 +75,7 @@ struct expr *new_expr_op1(i16 op, struct expr *arg)
         exit(1);
     }
 
-    val = chunkpool_malloc(s_expr_pool);
+    val = chunkpool_malloc(&s_expr_pool);
     val->expr_op = op;
     val->type.arg1 = arg;
 
@@ -104,7 +99,7 @@ struct expr *new_expr_op2(i16 op, struct expr *arg1, struct expr *arg2)
         exit(1);
     }
 
-    val = chunkpool_malloc(s_expr_pool);
+    val = chunkpool_malloc(&s_expr_pool);
     val->expr_op = op;
     val->type.arg1 = arg1;
     val->expr_arg2 = arg2;
@@ -118,7 +113,7 @@ struct expr *new_expr_symref(const char *symbol)
 {
     struct expr *val;
 
-    val = chunkpool_malloc(s_expr_pool);
+    val = chunkpool_malloc(&s_expr_pool);
     val->expr_op = SYMBOL;
     val->type.symref = symbol;
 
@@ -133,7 +128,7 @@ struct expr *new_expr_number(i32 number)
 
     LOG(LOG_DEBUG, ("creating new number %d\n", number));
 
-    val = chunkpool_malloc(s_expr_pool);
+    val = chunkpool_malloc(&s_expr_pool);
     val->expr_op = NUMBER;
     val->type.number = number;
 

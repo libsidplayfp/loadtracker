@@ -1,5 +1,8 @@
 #ifndef INCLUDED_PARSE
 #define INCLUDED_PARSE
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Copyright (c) 2005 Magnus Lind.
@@ -8,9 +11,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -22,16 +25,16 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
 #include "int.h"
 #include "vec.h"
-#include "membuf.h"
+#include "buf.h"
 #include "expr.h"
+#include "map.h"
+#include "named_buffer.h"
+#include "chunkpool.h"
+#include "pc.h"
 
 #define ATOM_TYPE_OP_ARG_NONE    0	/* uses u.op */
 #define ATOM_TYPE_OP_ARG_U8      1	/* uses u.op */
@@ -80,8 +83,18 @@ extern int push_state_macro;
 extern int push_state_init;
 extern int num_lines;
 
-void parse_init();
-void parse_free();
+void parse_init(void);
+void parse_free(void);
+
+void set_initial_symbol(const char *symbol, i32 value);
+void set_initial_symbol_soft(const char *symbol, i32 value);
+void initial_symbol_dump(int level, const char *symbol);
+
+struct buf *new_initial_named_buffer(const char *name);
+
+int assemble(struct buf *source, struct buf *dest);
+
+/* start of internal functions */
 
 struct atom *new_op(u8 op_code, u8 op_size, struct expr *arg);
 struct atom *new_op0(u8 op_code);
@@ -90,19 +103,25 @@ struct atom *new_exprs(struct expr *arg);
 struct atom *exprs_add(struct atom *atom, struct expr *arg);
 struct atom *exprs_to_byte_exprs(struct atom *atom);
 struct atom *exprs_to_word_exprs(struct atom *atom);
+struct atom *text_to_byte_exprs(const char *text);
 
 struct atom *new_res(struct expr *len, struct expr *value);
-struct atom *new_incbin(const char *name, struct expr *skip, struct expr *len);
+struct atom *new_incbin(const char *name,
+                        struct expr *skip, struct expr *len);
 
 struct expr *new_is_defined(const char *symbol);
-struct expr *new_expr_incword(const char *name, struct expr *skip);
+struct expr *new_expr_inclen(const char *name);
+struct expr *new_expr_incword(const char *name,
+                              struct expr *skip);
 
-void new_symbol(const char *symbol, i32 value);
 void new_symbol_expr(const char *symbol, struct expr *arg);
+void new_symbol_expr_guess(const char *symbol, struct expr *arg);
 
 /* returns NULL if found, not otherwise, expp may be NULL. */
-const char *find_symref(const char *symbol, struct expr **expp);
+const char *find_symref(const char *symbol,
+                        struct expr **expp);
 
+int resolve_symbol(const char *symbol, int *has_valuep, i32 *valuep);
 void symbol_dump_resolved(int level, const char *symbol);
 
 void new_label(const char *label);
@@ -111,11 +130,15 @@ void push_if_state(struct expr *arg);
 void push_macro_state(const char *name);
 void macro_append(const char *text);
 void asm_error(const char *msg);
-void asm_echo(const char *msg);
+void asm_echo(const char *msg, struct atom *atom);
 void asm_include(const char *msg);
 
-int assemble(struct membuf *source, struct membuf *dest);
-void output_atoms(struct membuf *out, struct vec *mem);
-void asm_src_buffer_push(struct membuf *buf);
+void output_atoms(struct buf *out, struct vec *mem);
+void asm_src_buffer_push(struct buf *buf);
 
+int assembleSinglePass(struct buf *source, struct buf *dest);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

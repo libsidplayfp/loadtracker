@@ -1,5 +1,9 @@
 #ifndef ALREADY_INCLUDED_LOG
 #define ALREADY_INCLUDED_LOG
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Copyright (c) 2002, 2003 Magnus Lind.
  *
@@ -7,9 +11,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -21,20 +25,21 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
 #include <stdio.h>
 #include <stdarg.h>
+
+#ifndef __GNUC__
+#define  __attribute__(x)  /*NOTHING*/
+#endif
 
 enum log_level {
     LOG_MIN = -99,
     LOG_FATAL = -40,
     LOG_ERROR = -30,
     LOG_WARNING = -20,
+    LOG_TERSE = -15,
     LOG_BRIEF = -10,
     LOG_NORMAL = 0,
     LOG_VERBOSE = 10,
@@ -44,11 +49,10 @@ enum log_level {
     LOG_MAX = 99
 };
 
-typedef
-void log_formatter_f(FILE * out,        /* IN */
-                     enum log_level level,      /* IN */
-                     const char *context,       /* IN */
-                     const char *);     /* IN */
+typedef void log_formatter_f(FILE * out,        /* IN */
+                             enum log_level level,      /* IN */
+                             const char *context,       /* IN */
+                             const char *);     /* IN */
 
 /*
  * this log output function adds nothing
@@ -88,13 +92,15 @@ void log_vlog(struct log_ctx *ctx,      /* IN */
 
 
 void log_log_default(const char *printf_str,    /* IN */
-                     ...);
+                     ...)
+    __attribute__((format(printf,1,2)));
 
 /* some helper macros */
 
 extern struct log_ctx *G_log_ctx;
 extern enum log_level G_log_level;
 extern enum log_level G_log_log_level;
+extern int G_log_tty_only;
 
 #define LOG_SET_LEVEL(L) \
 do { \
@@ -126,8 +132,23 @@ do { \
 do { \
     if(IS_LOGGABLE(L)) { \
         G_log_log_level = (L); \
+        G_log_tty_only = 0; \
         log_log_default M; \
     } \
 } while(0)
 
+#define LOG_TTY(L, M) \
+do { \
+    if(IS_LOGGABLE(L)) { \
+        G_log_log_level = (L); \
+        G_log_tty_only = 1; \
+        log_log_default M; \
+    } \
+} while(0)
+
+void hex_dump(int level, unsigned char *p, int len);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

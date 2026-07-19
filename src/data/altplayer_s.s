@@ -438,7 +438,7 @@ mt_effectnum:
               .ENDIF
               .ENDIF
               .IF (NOTONEPORTA == 0)
-                ldy mt_chnnote,y
+                ldy  mt_chnnote,x
                 lda mt_chnfreqlo,x              ;Calculate offset to the
                 sbc mt_freqtbllo-FIRSTNOTE,y    ;right frequency
                 pha
@@ -490,7 +490,7 @@ mt_effect_3_found:
                 lda mt_chnnote,x
                 jmp mt_wavenoteabs
               .ELSE
-                ldy mt_chnnote,y
+                ldy  mt_chnnote,x
                 jmp mt_wavenote
               .ENDIF
               .ENDIF
@@ -782,7 +782,7 @@ mt_repeatdone:
 
 mt_tick0:
               .IF (NOEFFECTS == 0)
-                ldy mt_chnnewfx,y               ;Setup tick 0 FX jumps
+                ldy  mt_chnnewfx,x               ;Setup tick 0 FX jumps
                 lda mt_tick0jumptbl,y
                 sta mt_tick0jump1+1
                 sta mt_tick0jump2+1
@@ -794,12 +794,12 @@ mt_checknewpatt:
                 lda mt_chnpattptr,x             ;Fetch next pattern?
                 bne mt_nonewpatt
 mt_sequencer:
-                ldy mt_chnsongnum,y
+                ldy  mt_chnsongnum,x
                 lda mt_songtbllo,y              ;Get address of sequence
                 sta <mt_temp1
                 lda mt_songtblhi,y
                 sta <mt_temp2
-                ldy mt_chnsongptr,y
+                ldy  mt_chnsongptr,x
                 lda (mt_temp1),y                ;Get pattern from sequence
                 cmp #LOOPSONG                   ;Check for loop
                 bcc mt_noloop
@@ -830,7 +830,7 @@ mt_repeatdone2:
         ;New note start
 
 mt_nonewpatt:
-                ldy mt_chninstr,y
+                ldy  mt_chninstr,x
               .IF (FIXEDPARAMS == 0)
                 lda mt_insgatetimer-1,y
                 sta mt_chngatetimer,x
@@ -945,7 +945,7 @@ mt_tick0jump2:
         ;Wavetable execution
 
 mt_waveexec:
-                ldy mt_chnwaveptr,y
+                ldy  mt_chnwaveptr,x
                 beq mt_wavedone
                 lda mt_wavetbl-1,y
               .IF (NOWAVEDELAY == 0)
@@ -1005,7 +1005,7 @@ mt_wavedone:
               .ENDIF
               .ENDIF
               .IF (NOEFFECTS == 0)
-                ldy mt_chnfx,y
+                ldy  mt_chnfx,x
               .IF (NOWAVECMD == 0)
               .IF (.DEFINED(mt_effectnum))
                 sty mt_effectnum+1
@@ -1013,9 +1013,9 @@ mt_wavedone:
               .ENDIF
                 lda mt_effectjumptbl,y
                 sta mt_effectjump+1
-                ldy mt_chnparam,y
+                ldy  mt_chnparam,x
               .ELSE
-                ldy mt_chninstr,y
+                ldy  mt_chninstr,x
                 lda mt_insvibparam-1,y
                 tay
               .ENDIF
@@ -1045,7 +1045,7 @@ mt_calculatedspeed:
                 lda mt_speedrighttbl-1,y
                 sta mt_cscount+1
                 sty mt_csresty+1
-                ldy mt_chnlastnote,y
+                ldy  mt_chnlastnote,x
                 lda mt_freqtbllo+1-FIRSTNOTE,y
                 sec
                 sbc mt_freqtbllo-FIRSTNOTE,y
@@ -1111,7 +1111,7 @@ mt_gatetimer:
         ;Pulse execution
               .IF (NOPULSE == 0)
 mt_pulseexec:
-                ldy mt_chnpulseptr,y            ;See if pulse stopped
+                ldy  mt_chnpulseptr,x            ;See if pulse stopped
                 beq mt_pulseskip
               .IF (PULSEOPTIMIZATION != 0)
                 ora mt_chnpattptr,x             ;Skip when sequencer executed
@@ -1192,12 +1192,12 @@ mt_gatetimer:
         ;New note fetch
 
 mt_getnewnote:
-                ldy mt_chnpattnum,y
+                ldy  mt_chnpattnum,x
                 lda mt_patttbllo,y
                 sta <mt_temp1
                 lda mt_patttblhi,y
                 sta <mt_temp2
-                ldy mt_chnpattptr,y
+                ldy  mt_chnpattptr,x
                 lda (mt_temp1),y
                 cmp #FX
                 bcc mt_instr                    ;Instr. change
@@ -1308,7 +1308,7 @@ mt_endpatt:
 
 mt_loadregs:
               .IF (SOUNDSUPPORT != 0)
-                ldy mt_chnsfx,y
+                ldy  mt_chnsfx,x
                 bne mt_sfxexec
               .ENDIF
 
@@ -1431,7 +1431,7 @@ mt_sfxexec_noend:
                 sta SIDBASE+$00,x
                 lda mt_freqtblhi-$80,y
                 sta SIDBASE+$01,x
-                ldy mt_chnsfx,y
+                ldy  mt_chnsfx,x
                 lda (mt_temp1),y              ;Then take a look at the next
                 beq mt_sfxexec_done           ;byte
                 cmp #$82                      ;Is it a waveform or a note?
@@ -1475,7 +1475,7 @@ mt_sfxexec_noend_sid2:
                 sta SID2BASE-21+$00,x
                 lda mt_freqtblhi-$80,y
                 sta SID2BASE-21+$01,x
-                ldy mt_chnsfx,y
+                ldy  mt_chnsfx,x
                 lda (mt_temp1),y              ;Then take a look at the next
                 beq mt_sfxexec_done_sid2           ;byte
                 cmp #$82                      ;Is it a waveform or a note?

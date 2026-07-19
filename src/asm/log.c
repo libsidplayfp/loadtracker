@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -19,32 +19,25 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  * This file is a part of the Exomizer v1.1 release
  *
  */
- 
-// Modified for GoatTracker2 to compile with -Werror=format-security
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <unistd.h>
 #include "log.h"
-
 
 #ifdef WIN32
 #define vsnprintf _vsnprintf
-#endif
-#ifdef DJGPP
-#define vsnprintf(A, B, C, D) vsprintf((A),(C),(D))
 #endif
 
 struct log_output {
     enum log_level min;
     enum log_level max;
     FILE *stream;
+    int isatty;
     log_formatter_f *f;
 };
 
@@ -57,8 +50,9 @@ struct log_ctx {
 };
 
 struct log_ctx *G_log_ctx = NULL;
-enum log_level G_log_level = 0;
+enum log_level G_log_level = LOG_MIN;
 enum log_level G_log_log_level = 0;
+int G_log_tty_only = 0;
 
 struct log_ctx *log_new(void)
 {
@@ -126,6 +120,7 @@ void log_add_output_stream(struct log_ctx *ctx, /* IN/OUT */
     out->min = min;
     out->max = max;
     out->stream = out_stream;
+    out->isatty = isatty(fileno(out_stream));
     out->f = default_f;
 }
 
@@ -178,7 +173,8 @@ void log_vlog(struct log_ctx *ctx,      /* IN */
         struct log_output *o = &ctx->out[i];
         log_formatter_f *of = f;
 
-        if (level >= o->min && level <= o->max)
+        if (level >= o->min && level <= o->max &&
+            (G_log_tty_only == 0 || o->isatty != 0))
         {
             /* generate log for this output */
             if (of == NULL)
@@ -216,4 +212,33 @@ void log_log(struct log_ctx *ctx,       /* IN */
     va_list argp;
     va_start(argp, printf_str);
     log_vlog(ctx, level, context, f, printf_str, argp);
+}
+
+void hex_dump(int level, unsigned char *p, int len)
+{
+    int i;
+    int j;
+    for(i = 0; i < len;)
+    {
+        LOG(level, ("%02x", p[i]));
+        ++i;
+        if(i == len || (i & 15) == 0)
+        {
+            LOG(level, ("\t\""));
+            for(j = (i - 1) & ~15; j < i; ++j)
+            {
+                unsigned char c = p[j];
+                if(!isprint(c))
+                {
+                    c = '.';
+                }
+                LOG(level, ("%c", c));
+            }
+            LOG(level, ("\"\n"));
+        }
+        else
+        {
+            LOG(level, (","));
+        }
+    }
 }

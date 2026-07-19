@@ -33,14 +33,15 @@ set(LOADTRK_SOURCES
     src/sound.cpp
     src/console.cpp
     src/sid.cpp
-    src/asm/asmtab.c
-    src/asm/chnkpool.c
+    src/asm/asm.tab.c
+    src/asm/chunkpool.c
     src/asm/expr.c
-    src/asm/lexyy.c
+    src/asm/lex.yy.c
     src/asm/log.c
-    src/asm/membuf.c
-    src/asm/membufio.c
-    src/asm/namedbuf.c
+    src/asm/map.c
+    src/asm/buf.c
+    src/asm/buf_io.c
+    src/asm/named_buffer.c
     src/asm/parse.c
     src/asm/pc.c
     src/asm/vec.c

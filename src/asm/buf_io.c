@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -19,19 +19,14 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
-#include "membufio.h"
+#include "buf_io.h"
 #include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-
-void read_file(const char *name, struct membuf *buf)
+void read_file(const char *name, struct buf *buf)
 {
     char block[1024];
     FILE *in;
@@ -41,27 +36,27 @@ void read_file(const char *name, struct membuf *buf)
     if(in == NULL)
     {
         LOG(LOG_ERROR, ("Can't open file \"%s\" for input.\n", name));
-        exit(-1);
+        exit(1);
     }
     do
     {
         len = fread(block, 1, 1024, in);
-        membuf_append(buf, block, len);
+        buf_append(buf, block, len);
     }
     while(len == 1024);
     LOG(LOG_DEBUG, ("read %d bytes from file\n", len));
     fclose(in);
 }
 
-void write_file(const char *name, struct membuf *buf)
+void write_file(const char *name, struct buf *buf)
 {
     FILE *out;
     out = fopen(name, "wb");
     if(out == NULL)
     {
         LOG(LOG_ERROR, ("Can't open file \"%s\" for output.\n", name));
-        exit(-1);
+        exit(1);
     }
-    fwrite(membuf_get(buf), 1, membuf_memlen(buf), out);
+    fwrite(buf_data(buf), 1, buf_size(buf), out);
     fclose(out);
 }

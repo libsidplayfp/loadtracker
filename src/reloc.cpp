@@ -39,7 +39,7 @@
 #include "bme_snd.h"
 
 extern "C" {
-#include "membuf.h"
+#include "buf.h"
 #include "parse.h"
 }
 
@@ -144,8 +144,8 @@ int nozerospeed;
 
 int ciaval;
 
-struct membuf src = STATIC_MEMBUF_INIT;
-struct membuf dest = STATIC_MEMBUF_INIT;
+struct buf src = STATIC_BUF_INIT;
+struct buf dest = STATIC_BUF_INIT;
 
 
 int testoverlap(int area1start, int area1size, int area2start, int area2size);
@@ -258,8 +258,9 @@ void relocator()
   std::memset(tablemap, 0, sizeof tablemap);
   tableerror = 0;
 
-  membuf_free(&src);
-  membuf_free(&dest);
+  parse_init();
+  buf_free(&src);
+  buf_free(&dest);
 
   int maxChns = getMaxChannels();
 
@@ -1239,8 +1240,8 @@ void relocator()
   // Modify ghostregs to not be zeropage if needed
   if ((playerversion & PLAYER_FULLBUFFERED) && (playerversion & PLAYER_ZPGHOSTREGS) == 0)
   {
-    int bufsize = membuf_get_size(&src);
-    char* bufdata = (char*)membuf_get(&src);
+    int bufsize = buf_size(&src);
+    char* bufdata = (char*)buf_data(&src);
     for (int c = 0; c < bufsize; c++)
     {
       if (bufdata[c] == '<')
@@ -1468,17 +1469,17 @@ void relocator()
     insertbytes(&pattwork[pattoffset[c]], pattsize[c]);
   }
 
-  /* {
+  /*  {
     FILE *handle = std::fopen("debug.s", "wb");
-    std::fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
+    std::fwrite(buf_data(&src), buf_size(&src), 1, handle);
     std::fclose(handle);
   } */
 
   // Assemble; on error fail in a rude way (the parser does so too)
   if (assemble(&src, &dest)) exit(1);
 
-  packeddata = (unsigned char*)membuf_get(&dest);
-  packedsize = membuf_memlen(&dest);
+  packeddata = (unsigned char*)buf_data(&dest);
+  packedsize = buf_size(&dest);
   playersize = packedsize - songtblsize - songdatasize - patttblsize - pattdatasize - instrsize - wavetblsize - pulsetblsize - filttblsize - speedtblsize;
 
   // Copy author info
@@ -1754,8 +1755,9 @@ void relocator()
   std::fclose(songhandle);
 
 PRCLEANUP:
-  membuf_free(&src);
-  membuf_free(&dest);
+  buf_free(&src);
+  buf_free(&dest);
+  parse_free();
 
   if (pattwork) std::free(pattwork);
   if (songwork) std::free(songwork);
@@ -2031,7 +2033,7 @@ int insertfile(const char *name)
   io_lseek(handle, 0, SEEK_SET);
   while (size--)
   {
-    membuf_append_char(&src, io_read8(handle));
+    buf_append_char(&src, io_read8(handle));
   }
   io_close(handle);
   return 1;
@@ -2039,7 +2041,7 @@ int insertfile(const char *name)
 
 void inserttext(const char *text)
 {
-  membuf_append(&src, text, std::strlen(text));
+  buf_append(&src, text, std::strlen(text));
 }
 
 void insertdefine(const char *name, int value)
@@ -2326,8 +2328,9 @@ void relocator_stereo()
     std::memset(tablemap, 0, sizeof tablemap);
     tableerror = 0;
 
-    membuf_free(&src);
-    membuf_free(&dest);
+    parse_init();
+    buf_free(&src);
+    buf_free(&dest);
 
     // Process song-orderlists
     countpatternlengths();
@@ -3506,15 +3509,15 @@ SKIPTABLE_S:
 
     //{
     //  FILE *handle = std::fopen("debug.s", "wb");
-    //  std::fwrite(membuf_get(&src), membuf_memlen(&src), 1, handle);
+    //  std::fwrite(buf_get(&src), buf_memlen(&src), 1, handle);
     //  std::fclose(handle);
     //}
 
     // Assemble; on error fail in a rude way (the parser does so too)
     if (assemble(&src, &dest)) exit(1);
 
-    packeddata = (unsigned char*)membuf_get(&dest);
-    packedsize = membuf_memlen(&dest);
+    packeddata = (unsigned char*)buf_data(&dest);
+    packedsize = buf_size(&dest);
     playersize = packedsize - songtblsize - songdatasize - patttblsize - pattdatasize - instrsize - wavetblsize - pulsetblsize - filttblsize - speedtblsize;
 
     // Copy author info
@@ -3791,8 +3794,9 @@ SKIPTABLE_S:
     std::fclose(songhandle);
 
 PRCLEANUP_S:
-    membuf_free(&src);
-    membuf_free(&dest);
+    buf_free(&src);
+    buf_free(&dest);
+    parse_free();
 
     if (pattwork) std::free(pattwork);
     if (songwork) std::free(songwork);

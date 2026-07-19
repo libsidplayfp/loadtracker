@@ -1,5 +1,5 @@
-#ifndef ALREADY_INCLUDED_EXPR
-#define ALREADY_INCLUDED_EXPR
+#ifndef NAMED_BUFFER_INCLUDED
+#define NAMED_BUFFER_INCLUDED
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,31 +27,24 @@ extern "C" {
  *
  */
 
-#include "int.h"
-#include "asm.tab.h"
+#include "buf.h"
+#include "chunkpool.h"
+#include "map.h"
 
-union expr_type
-{
-    i32 number;
-    const char *symref;
-    struct expr *arg1;
+struct named_buffer {
+    struct map map;
+    struct chunkpool buf;
 };
 
-struct expr
-{
-    union expr_type type;
-    struct expr *expr_arg2;
-    i16 expr_op;
-};
+void named_buffer_init(struct named_buffer *nb);
+void named_buffer_free(struct named_buffer *nb);
+void named_buffer_clear(struct named_buffer *nb);
 
-void expr_init(void);
-void expr_free(void);
+void named_buffer_copy(struct named_buffer *nb,
+                       const struct named_buffer *source);
 
-struct expr *new_expr_op1(i16 op, struct expr *arg);
-struct expr *new_expr_op2(i16 op, struct expr *arg1, struct expr *arg2);
-struct expr *new_expr_symref(const char *symbol);
-struct expr *new_expr_number(i32 number);
-void expr_dump(int level, struct expr *e);
+struct buf *new_named_buffer(struct named_buffer *nb, const char *name);
+struct buf *get_named_buffer(struct named_buffer *nb, const char *name);
 
 #ifdef __cplusplus
 }
