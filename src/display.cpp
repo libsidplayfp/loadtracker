@@ -95,7 +95,7 @@ void initcolorscheme(bool dark)
   colors.CTITLE   = CWHITE |(colors.CBKGND<<4);
 
   colors.CHDRBG   = dark ? CDBLUE : CLBLUE;
-  colors.CHDRFG   = dark ? CWHITE : CDBLUE;
+  colors.CHDRFG   = CCYAN;
 
   colors.CHEADER  = colors.CHDRFG|(colors.CHDRBG<<4);
 }
@@ -156,17 +156,19 @@ void printstatus()
     textbuffer[49] = 0;
     printtext(dpos.statusTopX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
 
-    if ((numsids == 2) && monomode)
-      printtext(dpos.statusTopFvX-2, dpos.statusTopY, colors.CHEADER, "M");
+    int color;
 
-    if (usefinevib)
-      printtext(dpos.statusTopFvX, dpos.statusTopY, colors.CHEADER, "FV");
+    color = ((numsids == 2) && !monomode) ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    printtext(dpos.statusTopFvX-3, dpos.statusTopY, color, "ST");
 
-    if (optimizepulse)
-      printtext(dpos.statusTopFvX+3, dpos.statusTopY, colors.CHEADER, "PO");
+    color = usefinevib ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    printtext(dpos.statusTopFvX, dpos.statusTopY, color, "FV");
 
-    if (optimizerealtime)
-      printtext(dpos.statusTopFvX+6, dpos.statusTopY, colors.CHEADER, "RO");
+    color = optimizepulse ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    printtext(dpos.statusTopFvX+3, dpos.statusTopY, color, "PO");
+
+    color = optimizerealtime ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    printtext(dpos.statusTopFvX+6, dpos.statusTopY, color, "RO");
 
     const char *clk = ntsc ? "NTSC" : "PAL";
     printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, clk);

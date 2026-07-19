@@ -58,7 +58,7 @@ int eacolumn = 0;
 int eamode = 0;
 int ebmode = 0;
 
-bool monomode = false;
+bool monomode = true;
 bool writer = false;
 
 char loadedsongfilename[MAX_FILENAME];
@@ -783,6 +783,10 @@ void mousecommands()
   {
     if ((mousey == dpos.statusTopY) && (!prevmouseb) && (mouseb == MOUSEB_LEFT))
     {
+      if ((mousex >= dpos.statusTopFvX-3) && (mousex <= dpos.statusTopFvX-2) && (numsids == 2))
+      {
+        monomode = !monomode;
+      }
       if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
       {
         usefinevib = !usefinevib;
