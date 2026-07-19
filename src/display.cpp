@@ -223,7 +223,7 @@ void printstatus()
 
       if (chn[c].advance)
       {
-        eseditpos = newpos;
+        if (c == eschn) eseditpos = newpos;
         if (newpos - esview[c] < 0)
         {
           esview[c] = newpos;
@@ -306,7 +306,7 @@ void printstatus()
       {
         int markstart = epmark.start;
         int markend = epmark.end;
-        if (epmark.start > epmark.end)
+        if (markstart > markend)
         {
             std::swap(markstart, markend);
         }
