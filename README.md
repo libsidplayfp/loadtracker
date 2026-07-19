@@ -49,7 +49,7 @@ _You should have received a copy of the GNU General Public License
   https://github.com/thestk/rtmidi  
   distributed under MIT license
 
-* Exomizer 2.0.11  
+* Exomizer 3.1.2  
   https://bitbucket.org/magli143/exomizer/  
   distributed under ZLIB license
 

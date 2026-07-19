@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -18,10 +18,6 @@
  *   be misrepresented as being the original software.
  *
  *   3. This notice may not be removed or altered from any distribution.
- *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
  *
  */
 
@@ -59,13 +55,13 @@ void map_free(struct map *m)
 
 void *map_put(struct map *m, const char *key, void *value)
 {
-    struct map_entry e[1];
+    struct map_entry e;
     int pos;
     void *prev_value = NULL;
 
-    e->key = key;
-    e->value = value;
-    pos = vec_find(&m->vec, map_entry_cmp, e);
+    e.key = key;
+    e.value = value;
+    pos = vec_find(&m->vec, map_entry_cmp, &e);
     if(pos == -1)
     {
         /* error, find failed */
@@ -78,24 +74,24 @@ void *map_put(struct map *m, const char *key, void *value)
         struct map_entry *prev_e;
         prev_e = vec_get(&m->vec, pos);
         prev_value = prev_e->value;
-        vec_set(&m->vec, pos, e);
+        vec_set(&m->vec, pos, &e);
     }
     else
     {
         /* no value exists, insert */
-        vec_insert(&m->vec, -(pos + 2), e);
+        vec_insert(&m->vec, -(pos + 2), &e);
     }
     return prev_value;
 }
 
 static struct map_entry *get(const struct map *m, const char *key)
 {
-    struct map_entry e[1];
+    struct map_entry e;
     int pos;
     struct map_entry *out = NULL;
 
-    e->key = key;
-    pos = vec_find(&m->vec, map_entry_cmp, e);
+    e.key = key;
+    pos = vec_find(&m->vec, map_entry_cmp, &e);
     if(pos == -1)
     {
         /* error, find failed */
@@ -127,9 +123,9 @@ void *map_get(const struct map *m, const char *key)
 
 void map_put_all(struct map *m, const struct map *source)
 {
-    struct map_iterator i[1];
+    struct map_iterator i;
     const struct map_entry *e;
-    for(map_get_iterator(source, i); (e = map_iterator_next(i)) != NULL;)
+    for(map_get_iterator(source, &i); (e = map_iterator_next(&i)) != NULL;)
     {
         map_put(m, e->key, e->value);
     }
@@ -137,10 +133,10 @@ void map_put_all(struct map *m, const struct map *source)
 
 int map_contains(const struct map *m1, const struct map *m2, cb_cmp *f)
 {
-    struct map_iterator i[1];
+    struct map_iterator i;
     const struct map_entry *e;
 
-    for(map_get_iterator(m2, i); (e = map_iterator_next(i)) != NULL;)
+    for(map_get_iterator(m2, &i); (e = map_iterator_next(&i)) != NULL;)
     {
         int pos;
         pos = vec_find(&m1->vec, map_entry_cmp, e);

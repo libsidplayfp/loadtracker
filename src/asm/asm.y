@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -19,17 +19,13 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
 %{
 #include "int.h"
 #include "parse.h"
 #include "vec.h"
-#include "membuf.h"
+#include "buf.h"
 #include "log.h"
 #include <stdio.h>
 #define YYERROR_VERBOSE
@@ -58,6 +54,7 @@ void yyerror(const char *s);
 %token RES
 %token WORD
 %token BYTE
+%token TEXT
 
 %token LDA
 %token LDX
@@ -90,6 +87,9 @@ void yyerror(const char *s);
 %token CLC
 %token SEC
 %token RTS
+%token CLV
+%token CLD
+%token SED
 
 %token JSR
 %token JMP
@@ -197,7 +197,8 @@ atom:	op { $$ = $1; } |
         RES LPAREN expr COMMA expr RPAREN { $$ = new_res($3, $5); } |
         WORD LPAREN exprs RPAREN { $$ = exprs_to_word_exprs($3); } |
         BYTE LPAREN exprs RPAREN { $$ = exprs_to_byte_exprs($3); } |
-	INCBIN LPAREN STRING RPAREN {
+        TEXT LPAREN STRING RPAREN { $$ = text_to_byte_exprs($3); } |
+        INCBIN LPAREN STRING RPAREN {
             $$ = new_incbin($3, NULL, NULL); } |
         INCBIN LPAREN STRING COMMA expr RPAREN {
             $$ = new_incbin($3, $5, NULL); } |
@@ -320,7 +321,10 @@ op:	TXS { $$ = new_op0(0x9A); } |
 	TAX { $$ = new_op0(0xaa); } |
 	CLC { $$ = new_op0(0x18); } |
 	SEC { $$ = new_op0(0x38); } |
-	RTS { $$ = new_op0(0x60); };
+	RTS { $$ = new_op0(0x60); } |
+	CLV { $$ = new_op0(0xb8); } |
+	CLD { $$ = new_op0(0xd8); } |
+	SED { $$ = new_op0(0xf0); };
 
 op:	JSR am_a   { $$ = new_op(0x20, ATOM_TYPE_OP_ARG_U16, $2); } |
 	JMP am_a   { $$ = new_op(0x4c, ATOM_TYPE_OP_ARG_U16, $2); } |
@@ -416,9 +420,9 @@ void yyerror (const char *s)
     fprintf (stderr, "line %d, %s\n", num_lines, s);
 }
 
-void asm_set_source(struct membuf *buffer);
+void asm_set_source(struct buf *buffer);
 
-int assembleSinglePass(struct membuf *source, struct membuf *dest)
+int assembleSinglePass(struct buf *source, struct buf *dest)
 {
     int val;
 

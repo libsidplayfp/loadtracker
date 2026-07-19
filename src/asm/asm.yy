@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -19,10 +19,6 @@
  *
  *   3. This notice may not be removed or altered from any distribution.
  *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
  */
 
 /* scanner for a simple assembler */
@@ -30,10 +26,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "int.h"
-#include "membuf.h"
+#include "buf.h"
 #include "parse.h"
 #include "asm.tab.h"
 
+#define YY_EXIT_FAILURE 1
 #define MAX_SRC_BUFFER_DEPTH 10
 static YY_BUFFER_STATE src_buffers[MAX_SRC_BUFFER_DEPTH];
 static int src_buffer_depth = 0;
@@ -83,6 +80,7 @@ struct vec strdupped[1];
 \.res		return RES;
 \.word		return WORD;
 \.byte		return BYTE;
+\.text		return TEXT;
 
 \"		BEGIN(QUOTED_STRING);
 \;		BEGIN(SKIP_LINE);
@@ -118,6 +116,9 @@ tax		return TAX;
 clc		return CLC;
 sec		return SEC;
 rts		return RTS;
+clv		return CLV;
+cld		return CLD;
+sed		return SED;
 
 jsr		return JSR;
 jmp		return JMP;
@@ -128,7 +129,7 @@ bcs		return BCS;
 bpl		return BPL;
 bmi		return BMI;
 bvc		return BVC;
-bvs		return BCS;
+bvs		return BVS;
 inx		return INX;
 dex		return DEX;
 iny		return INY;
@@ -232,7 +233,7 @@ void scanner_init(void)
     vec_init(strdupped, sizeof(char*));
 }
 
-void asm_src_buffer_push(struct membuf *buffer)
+void asm_src_buffer_push(struct buf *buffer)
 {
     if(src_buffer_depth == MAX_SRC_BUFFER_DEPTH)
     {
@@ -240,7 +241,7 @@ void asm_src_buffer_push(struct membuf *buffer)
 	exit(1);
     }
     src_buffers[src_buffer_depth++] = YY_CURRENT_BUFFER;
-    yy_scan_bytes(membuf_get(buffer), membuf_memlen(buffer));
+    yy_scan_bytes(buf_data(buffer), buf_size(buffer));
 }
 
 static char *strdupped_get(char *text)

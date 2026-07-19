@@ -5,9 +5,9 @@
  * In no event will the authors be held liable for any damages arising from
  * the use of this software.
  *
- * Permission is granted to anyone to use this software, alter it and re-
- * distribute it freely for any non-commercial, non-profit purpose subject to
- * the following restrictions:
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
  *   1. The origin of this software must not be misrepresented; you must not
  *   claim that you wrote the original software. If you use this software in a
@@ -18,10 +18,6 @@
  *   be misrepresented as being the original software.
  *
  *   3. This notice may not be removed or altered from any distribution.
- *
- *   4. The names of this software and/or it's copyright holders may not be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
  *
  */
 
@@ -37,20 +33,20 @@
 
 struct parse {
     /* pools */
-    struct chunkpool atom_pool[1];
-    struct chunkpool vec_pool[1];
+    struct chunkpool atom_pool;
+    struct chunkpool vec_pool;
     /* one pass data only */
-    struct map sym_table[1];
-    struct named_buffer named_buffer[1];
+    struct map sym_table;
+    struct named_buffer named_buffer;
     const char *macro_name;
     /* history of the multi pass */
     struct map *guesses;
     /* initial arguments */
-    struct map initial_symbols[1];
-    struct named_buffer initial_named_buffer[1];
+    struct map initial_symbols;
+    struct named_buffer initial_named_buffer;
 };
 
-static struct parse s[1];
+static struct parse s;
 
 void scanner_init(void);
 void scanner_free(void);
@@ -59,19 +55,19 @@ void parse_init(void)
 {
     expr_init();
     scanner_init();
-    chunkpool_init(s->atom_pool, sizeof(struct atom));
-    chunkpool_init(s->vec_pool, sizeof(struct vec));
-    map_init(s->sym_table);
-    named_buffer_init(s->named_buffer);
+    chunkpool_init(&s.atom_pool, sizeof(struct atom));
+    chunkpool_init(&s.vec_pool, sizeof(struct vec));
+    map_init(&s.sym_table);
+    named_buffer_init(&s.named_buffer);
 
-    map_init(s->initial_symbols);
-    named_buffer_init(s->initial_named_buffer);
+    map_init(&s.initial_symbols);
+    named_buffer_init(&s.initial_named_buffer);
 }
 
 static void parse_reset(void)
 {
-    map_clear(s->sym_table);
-    named_buffer_clear(s->named_buffer);
+    map_clear(&s.sym_table);
+    named_buffer_clear(&s.named_buffer);
 }
 
 static void free_vec_pool(struct vec *v)
@@ -81,14 +77,14 @@ static void free_vec_pool(struct vec *v)
 
 void parse_free(void)
 {
-    named_buffer_free(s->initial_named_buffer);
-    map_free(s->initial_symbols);
+    named_buffer_free(&s.initial_named_buffer);
+    map_free(&s.initial_symbols);
 
-    named_buffer_free(s->named_buffer);
-    chunkpool_free(s->atom_pool);
-    chunkpool_free2(s->vec_pool, (cb_free*)free_vec_pool);
-    named_buffer_free(s->named_buffer);
-    map_free(s->sym_table);
+    named_buffer_free(&s.named_buffer);
+    chunkpool_free(&s.atom_pool);
+    chunkpool_free2(&s.vec_pool, (cb_free*)free_vec_pool);
+    named_buffer_free(&s.named_buffer);
+    map_free(&s.sym_table);
     scanner_free();
     expr_free();
 }
@@ -120,13 +116,13 @@ int is_valid_ui16(i32 value)
 
 struct expr *new_is_defined(const char *symbol)
 {
-    int expr_val = (map_get(s->sym_table, symbol) != NULL);
+    int expr_val = (map_get(&s.sym_table, symbol) != NULL);
     return new_expr_number(expr_val);
 }
 
 void new_symbol_expr(const char *symbol, struct expr *arg)
 {
-    if(map_put(s->sym_table, symbol, arg) != NULL)
+    if(map_put(&s.sym_table, symbol, arg) != NULL)
     {
         /* error, symbol redefinition not allowed */
         LOG(LOG_ERROR, ("not allowed to redefine symbol %s\n", symbol));
@@ -137,9 +133,9 @@ void new_symbol_expr(const char *symbol, struct expr *arg)
 void new_symbol_expr_guess(const char *symbol, struct expr *arg)
 {
     /* Set a soft symbol only if it is not set */
-    if(map_get(s->guesses, symbol) == NULL)
+    if(map_get(s.guesses, symbol) == NULL)
     {
-        map_put(s->guesses, symbol, arg);
+        map_put(s.guesses, symbol, arg);
     }
 }
 
@@ -151,13 +147,13 @@ const char *find_symref(const char *symbol,
 
     exp = NULL;
     p = NULL;
-    if(s->guesses != NULL)
+    if(s.guesses != NULL)
     {
-        exp = map_get(s->guesses, symbol);
+        exp = map_get(s.guesses, symbol);
     }
     if(exp == NULL)
     {
-        exp = map_get(s->sym_table, symbol);
+        exp = map_get(&s.sym_table, symbol);
         if(exp == NULL)
         {
             static char buf[1024];
@@ -185,10 +181,10 @@ void new_label(const char *label)
 
 static void dump_sym_table(int level, struct map *m)
 {
-    struct map_iterator i[1];
+    struct map_iterator i;
     const struct map_entry *e;
 
-    for(map_get_iterator(m, i); (e = map_iterator_next(i)) != NULL;)
+    for(map_get_iterator(m, &i); (e = map_iterator_next(&i)) != NULL;)
     {
         LOG(level, ("sym_table: %s ", e->key));
         expr_dump(level, e->value);
@@ -198,21 +194,21 @@ static void dump_sym_table(int level, struct map *m)
 void set_initial_symbol(const char *symbol, i32 value)
 {
     struct expr *e = new_expr_number(value);
-    map_put(s->initial_symbols, symbol, e);
+    map_put(&s.initial_symbols, symbol, e);
 }
 
 void set_initial_symbol_soft(const char *symbol, i32 value)
 {
-    if (!map_contains_key(s->initial_symbols, symbol))
+    if (!map_contains_key(&s.initial_symbols, symbol))
     {
         struct expr *e = new_expr_number(value);
-        map_put(s->initial_symbols, symbol, e);
+        map_put(&s.initial_symbols, symbol, e);
     }
 }
 
-struct membuf *new_initial_named_buffer(const char *name)
+struct buf *new_initial_named_buffer(const char *name)
 {
-    return new_named_buffer(s->initial_named_buffer, name);
+    return new_named_buffer(&s.initial_named_buffer, name);
 }
 
 static const char *resolve_expr2(struct expr *e, i32 *valp)
@@ -244,12 +240,8 @@ static const char *resolve_expr2(struct expr *e, i32 *valp)
         value = !value;
         break;
     case SYMBOL:
-        p = NULL;
         e2 = NULL;
-        if(s != NULL)
-        {
-            p = find_symref(e->type.symref, &e2);
-        }
+        p = find_symref(e->type.symref, &e2);
         if(p != NULL) break;
         if(e2 == NULL)
         {
@@ -357,11 +349,11 @@ static i32 resolve_expr(struct expr *e)
 struct expr *new_expr_inclen(const char *name)
 {
     long length;
-    struct membuf *in;
+    struct buf *in;
     struct expr *expr;
 
-    in = get_named_buffer(s->named_buffer, name);
-    length = membuf_memlen(in);
+    in = get_named_buffer(&s.named_buffer, name);
+    length = buf_size(in);
 
     expr = new_expr_number((i32)length);
     return expr;
@@ -373,13 +365,13 @@ struct expr *new_expr_incword(const char *name,
     i32 word;
     i32 offset;
     long length;
-    struct membuf *in;
+    struct buf *in;
     struct expr *expr;
     unsigned char *p;
 
     offset = resolve_expr(skip);
-    in = get_named_buffer(s->named_buffer, name);
-    length = membuf_memlen(in);
+    in = get_named_buffer(&s.named_buffer, name);
+    length = buf_size(in);
     if(offset < 0)
     {
         offset += length;
@@ -391,7 +383,7 @@ struct expr *new_expr_incword(const char *name,
              offset, name));
         exit(1);
     }
-    p = membuf_get(in);
+    p = buf_data(in);
     p += offset;
     word = *p++;
     word |= *p++ << 8;
@@ -410,19 +402,19 @@ void set_org(struct expr *arg)
 
 void push_macro_state(const char *name)
 {
-    s->macro_name = name;
+    s.macro_name = name;
     push_state_macro = 1;
-    new_named_buffer(s->named_buffer, name);
+    new_named_buffer(&s.named_buffer, name);
 }
 
 void macro_append(const char *text)
 {
-    struct membuf *mb;
+    struct buf *mb;
 
     LOG(LOG_DEBUG, ("appending >>%s<< to macro\n", text));
 
-    mb = get_named_buffer(s->named_buffer, s->macro_name);
-    membuf_append(mb, text, strlen(text));
+    mb = get_named_buffer(&s.named_buffer, s.macro_name);
+    buf_append(mb, text, strlen(text));
 }
 
 void push_if_state(struct expr *arg)
@@ -446,7 +438,7 @@ struct atom *new_op(u8 op_code, u8 atom_op_type,
 {
     struct atom *atom;
 
-    atom = chunkpool_malloc(s->atom_pool);
+    atom = chunkpool_malloc(&s.atom_pool);
     atom->type = atom_op_type;
     atom->u.op.code = op_code;
     atom->u.op.arg = op_arg;
@@ -489,9 +481,9 @@ struct atom *new_exprs(struct expr *arg)
 {
     struct atom *atom;
 
-    atom = chunkpool_malloc(s->atom_pool);
+    atom = chunkpool_malloc(&s.atom_pool);
     atom->type = ATOM_TYPE_EXPRS;
-    atom->u.exprs = chunkpool_malloc(s->vec_pool);
+    atom->u.exprs = chunkpool_malloc(&s.vec_pool);
     vec_init(atom->u.exprs, sizeof(struct expr*));
     exprs_add(atom, arg);
     return atom;
@@ -518,7 +510,7 @@ struct atom *exprs_to_byte_exprs(struct atom *atom)
     }
     atom->type = ATOM_TYPE_BYTE_EXPRS;
 
-    pc_add(vec_count(atom->u.exprs));
+    pc_add(vec_size(atom->u.exprs));
     return atom;
 }
 
@@ -532,7 +524,27 @@ struct atom *exprs_to_word_exprs(struct atom *atom)
     }
     atom->type = ATOM_TYPE_WORD_EXPRS;
 
-    pc_add(vec_count(atom->u.exprs) * 2);
+    pc_add(vec_size(atom->u.exprs) * 2);
+    return atom;
+}
+
+struct atom *text_to_byte_exprs(const char *text)
+{
+    struct atom *atom;
+    int c;
+
+    atom = chunkpool_malloc(&s.atom_pool);
+    atom->type = ATOM_TYPE_BYTE_EXPRS;
+    atom->u.exprs = chunkpool_malloc(&s.vec_pool);
+    vec_init(atom->u.exprs, sizeof(struct expr*));
+
+    while ((c = *text++) != '\0')
+    {
+        struct expr *expr = new_expr_number(c & 255);
+        vec_push(atom->u.exprs, &expr);
+    }
+
+    pc_add(vec_size(atom->u.exprs));
     return atom;
 }
 
@@ -540,7 +552,7 @@ struct atom *new_res(struct expr *len, struct expr *value)
 {
     struct atom *atom;
 
-    atom = chunkpool_malloc(s->atom_pool);
+    atom = chunkpool_malloc(&s.atom_pool);
     atom->type = ATOM_TYPE_RES;
     atom->u.res.length = len;
     atom->u.res.value = value;
@@ -556,11 +568,11 @@ struct atom *new_incbin(const char *name,
     long length;
     i32 len32;
     i32 skip32;
-    struct membuf *in;
+    struct buf *in;
 
     /* find out how long the file is */
-    in = get_named_buffer(s->named_buffer, name);
-    length = membuf_memlen(in);
+    in = get_named_buffer(&s.named_buffer, name);
+    length = buf_size(in);
 
     skip32 = 0;
     if(skip != NULL)
@@ -596,7 +608,7 @@ struct atom *new_incbin(const char *name,
         exit(1);
     }
 
-    atom = chunkpool_malloc(s->atom_pool);
+    atom = chunkpool_malloc(&s.atom_pool);
     atom->type = ATOM_TYPE_BUFFER;
     atom->u.buffer.name = name;
     atom->u.buffer.length = len32;
@@ -609,7 +621,6 @@ struct atom *new_incbin(const char *name,
     return atom;
 }
 
-
 void asm_error(const char *msg)
 {
     LOG(LOG_ERROR, ("Error: %s\n", msg));
@@ -618,22 +629,22 @@ void asm_error(const char *msg)
 
 void asm_echo(const char *msg, struct atom *atom)
 {
-    struct vec_iterator i[1];
+    struct vec_iterator i;
     struct expr **exprp;
     int count = 0;
     i32 e[10];
 
     if(atom != NULL)
     {
-        if(atom->type != ATOM_TYPE_EXPRS || vec_count(atom->u.exprs) > 10)
+        if(atom->type != ATOM_TYPE_EXPRS || vec_size(atom->u.exprs) > 10)
         {
             LOG(LOG_ERROR, ("echo arguments must be a string followed by none "
                             "or at most ten expressions.\n"));
             exit(1);
         }
 
-        vec_get_iterator(atom->u.exprs, i);
-        while((exprp = vec_iterator_next(i)) != NULL)
+        vec_get_iterator(atom->u.exprs, &i);
+        while((exprp = vec_iterator_next(&i)) != NULL)
         {
             e[count++] = resolve_expr(*exprp);
         }
@@ -649,9 +660,9 @@ void asm_echo(const char *msg, struct atom *atom)
 
 void asm_include(const char *msg)
 {
-    struct membuf *src;
+    struct buf *src;
 
-    src = get_named_buffer(s->named_buffer, msg);
+    src = get_named_buffer(&s.named_buffer, msg);
     asm_src_buffer_push(src);
 }
 
@@ -660,7 +671,7 @@ void initial_symbol_dump(int level, const char *symbol)
     i32 value;
     struct expr *expr;
 
-    expr = map_get(s->initial_symbols, symbol);
+    expr = map_get(&s.initial_symbols, symbol);
     if(expr != NULL)
     {
         value = resolve_expr(expr);
@@ -669,7 +680,7 @@ void initial_symbol_dump(int level, const char *symbol)
     }
     else
     {
-        if(map_contains_key(s->initial_symbols, symbol))
+        if(map_contains_key(&s.initial_symbols, symbol))
         {
             LOG(level, ("symbol \"%s\" defined but has no value\n", symbol));
         }
@@ -736,23 +747,23 @@ void symbol_dump_resolved(int level, const char *symbol)
     }
 }
 
-void output_atoms(struct membuf *out, struct vec *atoms)
+void output_atoms(struct buf *out, struct vec *atoms)
 {
-    struct vec_iterator i[1];
-    struct vec_iterator i2[1];
+    struct vec_iterator i;
+    struct vec_iterator i2;
     struct atom **atomp;
     struct atom *atom;
     struct expr **exprp;
     struct expr *expr;
-    struct membuf *in;
+    struct buf *in;
     const char *p;
     i32 value;
     i32 value2;
 
-    dump_sym_table(LOG_DEBUG, s->sym_table);
+    dump_sym_table(LOG_DEBUG, &s.sym_table);
 
-    vec_get_iterator(atoms, i);
-    while((atomp = vec_iterator_next(i)) != NULL)
+    vec_get_iterator(atoms, &i);
+    while((atomp = vec_iterator_next(&i)) != NULL)
     {
         atom = *atomp;
 
@@ -762,7 +773,7 @@ void output_atoms(struct membuf *out, struct vec *atoms)
         {
         case ATOM_TYPE_OP_ARG_NONE:
             LOG(LOG_DEBUG, ("output: $%02X\n", atom->u.op.code));
-            membuf_append_char(out, atom->u.op.code);
+            buf_append_char(out, atom->u.op.code);
             break;
         case ATOM_TYPE_OP_ARG_U8:
             /* op with argument */
@@ -775,8 +786,8 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             }
             LOG(LOG_DEBUG, ("output: $%02X $%02X\n",
                             atom->u.op.code, value & 255));
-            membuf_append_char(out, atom->u.op.code);
-            membuf_append_char(out, value);
+            buf_append_char(out, atom->u.op.code);
+            buf_append_char(out, value);
             break;
         case ATOM_TYPE_OP_ARG_I8:
             /* op with argument */
@@ -789,8 +800,8 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             }
             LOG(LOG_DEBUG, ("output: $%02X $%02X\n",
                             atom->u.op.code, value & 255));
-            membuf_append_char(out, atom->u.op.code);
-            membuf_append_char(out, value);
+            buf_append_char(out, atom->u.op.code);
+            buf_append_char(out, value);
             break;
         case ATOM_TYPE_OP_ARG_UI8:
             /* op with argument */
@@ -803,8 +814,8 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             }
             LOG(LOG_DEBUG, ("output: $%02X $%02X\n",
                             atom->u.op.code, value & 255));
-            membuf_append_char(out, atom->u.op.code);
-            membuf_append_char(out, value);
+            buf_append_char(out, atom->u.op.code);
+            buf_append_char(out, value);
             break;
         case ATOM_TYPE_OP_ARG_U16:
             /* op with argument */
@@ -820,9 +831,9 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             LOG(LOG_DEBUG, ("output: $%02X $%02X $%02X\n",
                             atom->u.op.code,
                             value, value2));
-            membuf_append_char(out, atom->u.op.code);
-            membuf_append_char(out, value);
-            membuf_append_char(out, value2);
+            buf_append_char(out, atom->u.op.code);
+            buf_append_char(out, value);
+            buf_append_char(out, value2);
             break;
         case ATOM_TYPE_RES:
             /* reserve memory statement */
@@ -843,7 +854,7 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             LOG(LOG_DEBUG, ("output: .RES %d, %d\n", value, value2));
             while(--value >= 0)
             {
-                membuf_append_char(out, value2);
+                buf_append_char(out, value2);
             }
             break;
         case ATOM_TYPE_BUFFER:
@@ -864,17 +875,17 @@ void output_atoms(struct membuf *out, struct vec *atoms)
             }
             LOG(LOG_DEBUG, ("output: .INCBIN \"%s\", %d, %d\n",
                             atom->u.buffer.name, value, value2));
-            in = get_named_buffer(s->named_buffer, atom->u.buffer.name);
-            p = membuf_get(in);
+            in = get_named_buffer(&s.named_buffer, atom->u.buffer.name);
+            p = buf_data(in);
             p += value;
             while(--value2 >= 0)
             {
-                membuf_append_char(out, *p++);
+                buf_append_char(out, *p++);
             }
             break;
         case ATOM_TYPE_WORD_EXPRS:
-            vec_get_iterator(atom->u.exprs, i2);
-            while((exprp = vec_iterator_next(i2)) != NULL)
+            vec_get_iterator(atom->u.exprs, &i2);
+            while((exprp = vec_iterator_next(&i2)) != NULL)
             {
                 expr = *exprp;
                 value = resolve_expr(expr);
@@ -885,14 +896,14 @@ void output_atoms(struct membuf *out, struct vec *atoms)
                 }
                 value2 = value / 256;
                 value = value % 256;
-                membuf_append_char(out, value);
-                membuf_append_char(out, value2);
+                buf_append_char(out, value);
+                buf_append_char(out, value2);
             }
-            LOG(LOG_DEBUG, ("output: %d words\n", vec_count(atom->u.exprs)));
+            LOG(LOG_DEBUG, ("output: %d words\n", vec_size(atom->u.exprs)));
             break;
         case ATOM_TYPE_BYTE_EXPRS:
-            vec_get_iterator(atom->u.exprs, i2);
-            while((exprp = vec_iterator_next(i2)) != NULL)
+            vec_get_iterator(atom->u.exprs, &i2);
+            while((exprp = vec_iterator_next(&i2)) != NULL)
             {
                 expr = *exprp;
                 value = resolve_expr(expr);
@@ -901,9 +912,9 @@ void output_atoms(struct membuf *out, struct vec *atoms)
                     LOG(LOG_ERROR, ("value %d for .byte(value, ...) "
                                     "is out of range\n", value));
                 }
-                membuf_append_char(out, value);
+                buf_append_char(out, value);
             }
-            LOG(LOG_DEBUG, ("output: %d bytes\n", vec_count(atom->u.exprs)));
+            LOG(LOG_DEBUG, ("output: %d bytes\n", vec_size(atom->u.exprs)));
             break;
         default:
             LOG(LOG_ERROR, ("invalid atom_type %d @%p\n",
@@ -933,12 +944,12 @@ static int expr_cmp_cb(const void *a, const void *b)
 static int loopDetect(struct vec *guesses_history)
 {
     int result = 0;
-    struct vec_iterator i[1];
+    struct vec_iterator i;
     struct map *m;
-    for(vec_get_iterator(guesses_history, i);
-        (m = vec_iterator_next(i)) != NULL;)
+    for(vec_get_iterator(guesses_history, &i);
+        (m = vec_iterator_next(&i)) != NULL;)
     {
-        if(map_equals(m, s->guesses, expr_cmp_cb))
+        if(map_equals(m, s.guesses, expr_cmp_cb))
         {
             result = 1;
             break;
@@ -950,17 +961,17 @@ static int loopDetect(struct vec *guesses_history)
 static int wasFinalPass(void)
 {
     int result = 1;
-    struct map_iterator i[1];
+    struct map_iterator i;
     struct map_entry *me;
-    for(map_get_iterator(s->guesses, i);
-        (me = (struct map_entry*)map_iterator_next(i)) != NULL;)
+    for(map_get_iterator(s.guesses, &i);
+        (me = (struct map_entry*)map_iterator_next(&i)) != NULL;)
     {
         struct expr *guess_expr;
         struct expr *sym_expr;
 
         LOG(LOG_VERBOSE, ("Checking guessed symbol %s: ", me->key));
         /* Was this guessed symbol used in this pass? */
-        if((sym_expr = map_get(s->sym_table, me->key)) == NULL)
+        if((sym_expr = map_get(&s.sym_table, me->key)) == NULL)
         {
             /* No, skip it */
             continue;
@@ -981,31 +992,31 @@ static int wasFinalPass(void)
     return result;
 }
 
-int assemble(struct membuf *source, struct membuf *dest)
+int assemble(struct buf *source, struct buf *dest)
 {
-    struct vec guesses_history[1];
-    struct map guesses_storage[1];
+    struct vec guesses_history;
+    struct map guesses_storage;
     int dest_pos;
     int result;
 
-    dump_sym_table(LOG_DEBUG, s->initial_symbols);
+    dump_sym_table(LOG_DEBUG, &s.initial_symbols);
 
-    vec_init(guesses_history, sizeof(struct map));
-    s->guesses = NULL;
-    dest_pos = membuf_memlen(dest);
+    vec_init(&guesses_history, sizeof(struct map));
+    s.guesses = NULL;
+    dest_pos = buf_size(dest);
     for(;;)
     {
 
-        map_put_all(s->sym_table, s->initial_symbols);
-        named_buffer_copy(s->named_buffer, s->initial_named_buffer);
-        map_init(guesses_storage);
+        map_put_all(&s.sym_table, &s.initial_symbols);
+        named_buffer_copy(&s.named_buffer, &s.initial_named_buffer);
+        map_init(&guesses_storage);
 
-        if(s->guesses != NULL)
+        if(s.guesses != NULL)
         {
             /* copy updated guesses from latest pass */
-            map_put_all(guesses_storage, s->guesses);
+            map_put_all(&guesses_storage, s.guesses);
         }
-        s->guesses = guesses_storage;
+        s.guesses = &guesses_storage;
 
         result = assembleSinglePass(source, dest);
         if(result != 0)
@@ -1022,7 +1033,7 @@ int assemble(struct membuf *source, struct membuf *dest)
              * we're done */
             break;
         }
-        if(loopDetect(guesses_history))
+        if(loopDetect(&guesses_history))
         {
             /* More passes would only get us into a loop */
             LOG(LOG_VERBOSE, ("Aborting due to loop.\n"));
@@ -1033,13 +1044,13 @@ int assemble(struct membuf *source, struct membuf *dest)
         LOG(LOG_VERBOSE, ("Trying another pass.\n"));
 
         /* allocate storage for the guesses in the history vector */
-        s->guesses = vec_push(guesses_history, s->guesses);
+        s.guesses = vec_push(&guesses_history, s.guesses);
 
         parse_reset();
-        membuf_truncate(dest, dest_pos);
+        buf_remove(dest, dest_pos, -1);
     }
-    map_free(guesses_storage);
-    vec_free(guesses_history, (cb_free*)map_free);
-    s->guesses = NULL;
+    map_free(&guesses_storage);
+    vec_free(&guesses_history, (cb_free*)map_free);
+    s.guesses = NULL;
     return result;
 }

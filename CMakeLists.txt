@@ -39,8 +39,8 @@ set(LOADTRK_SOURCES
     src/asm/lex.yy.c
     src/asm/log.c
     src/asm/map.c
-    src/asm/membuf.c
-    src/asm/membuf_io.c
+    src/asm/buf.c
+    src/asm/buf_io.c
     src/asm/named_buffer.c
     src/asm/parse.c
     src/asm/pc.c
