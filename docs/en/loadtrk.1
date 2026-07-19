@@ -1,0 +1,118 @@
+.TH LoadTracker "Jul 19, 2026"
+.SH NAME
+loadtracker \- C64 music editor
+.SH SYNOPSIS
+.B loadtrk
+.RI [ songname ]
+.RI [ options ]
+.SH DESCRIPTION
+This manual page documents briefly the
+.B loadtrk
+command.
+.PP
+\fBloadtracker\fP is a C64 music tracker derived from goattracker.
+It supports emulated output via the software reSIDfp engine or the exSID
+soundcard, and produces songs in its gt2 format (*.SNG).
+The program can also export tunes in SID format, BIN format,
+or Commodore PRG format for inclusion on a floppy you can stick into
+a 1541/1571/1581 drive.
+
+Like most tracker programs, the program is able to import instrument files,
+create and modify track patterns, set the order of playback of patterns and
+change details of the song such as the title and author. If you are familiar
+with tracker\-like programs, then LoadTracker will feel like a simple version
+of those, though with differences attributable to the hardware. People new to
+composing in general should look up other information on composing on the
+C64.
+.TP
+\fB-A\fIxx\fR
+Set ADSR parameter for hardrestart in hex. DEFAULT=0F00
+.TP
+\fB-D\fIxx\fR
+Pattern row display (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)
+.TP
+\fB-E\fIxx\fR
+Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=6581
+.TP
+\fB-F\fIxx\fR
+Set custom SID clock cycles per second (0 = use PAL/NTSC default)
+.TP
+\fB-G\fIxx\fR
+Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)
+.TP
+\fB-I\fIxx\fR
+Set reSIDfp resampling mode (0 = interpolation, 1 = resampling) DEFAULT=1
+.TP
+\fB-J\fIxx\fR
+Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)
+.TP
+\fB-K\fIxx\fR
+Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker
+.TP
+\fB-L\fIxx\fR
+SID memory location in hex. DEFAULT=D400
+.TP
+\fB-M\fIxx\fR
+Set sound mixing rate DEFAULT=48000
+.TP
+\fB-O\fIxx\fR
+Set pulseoptimization/skipping (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-Q\fIxx\fR
+Set equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)
+.TP
+\fB-R\fIxx\fR
+Set realtime-effect optimization/skipping (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-S\fIxx\fR
+Set speed multiplier (0 for 25Hz, 1 for 1x, 2 for 2x etc.)
+.TP
+\fB-V\fIxx\fR
+Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-\fIXxx\fR
+Set window type (0 = window, 1 = fullscreen) DEFAULT=window
+.TP
+\fB-Y\fIxx\fR
+Path to a Scala tuning file .scl
+.TP
+\fB-Z\fIxx\fR
+Set random SID write delay in cycles (0 = off) DEFAULT=off
+.TP
+\fB-b\fIxx\fR
+Set filter curve (0.0 (dark) to 1.0 (bright))
+.TP
+\fB-c\fIxx\fR
+Set combined waveforms strength (0 weak, 1 average, 2 strong) DEFAULT=average
+.TP
+\fB-x\fIxx\fR
+Use exdSID (0 = off, 1 = on)
+.TP
+\fB-N\fR
+Use NTSC timing
+.TP
+\fB-P\fR
+Use PAL timing (DEFAULT)
+.TP
+\fB-W\fR
+Write sound output to a file SIDAUDIO.RAW
+.TP
+\fB-?\fR
+Show help
+.TP
+\fB-??\fR
+Standalone online help window
+.TP
+\fB--dark\fR
+Use original dark colorscheme
+.SH SEE ALSO
+.BR ocp (1),
+.BR protracker (1),
+.BR milkytracker (1),
+.BR schism (1)
+.br
+.SH AUTHOR
+loadtracker was written by Lasse \[:O]\[:o]rni, Jan Wassermann, Leandro Nini.
+.PP
+This manual page was written by G\[:u]rkan Seng\[:u]n <gurkan@phys.ethz.ch>,
+for the Debian project (but may be used by others).

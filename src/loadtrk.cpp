@@ -94,7 +94,7 @@ const char* usage[] = {
     "-Exx Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=8580",
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
     "-Gxx Set pitch of A-4 in Hz (0 = use default frequency table, close to 440Hz)",
-    "-Ixx Set reSIDfp resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
+    "-Ixx Set reSIDfp resampling mode (0 = interpolation, 1 = resampling) DEFAULT=1",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
     "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
     "-Lxx SID memory location in hex. DEFAULT=D400",
@@ -106,7 +106,7 @@ const char* usage[] = {
     "-Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on",
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
-    "-Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off",
+    "-Zxx Set random SID write delay in cycles (0 = off) DEFAULT=off",
     "-bxx Set filter curve (0.0 (dark) to 1.0 (bright))",
     "-cxx Set combined waveforms strength (0 weak, 1 average, 2 strong) DEFAULT=average"
     "-xxx Use exdSID (0 = off, 1 = on)",
