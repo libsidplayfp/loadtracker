@@ -524,23 +524,30 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     if (!gfx_chars)
         return false;
 
-    if ((gfx_chars->w != 8) || (gfx_chars->h != 4096))
+    if ((gfx_chars->w != 144) || (gfx_chars->h != 272))
         return false;
 
     if (gfx_chars->format != SDL_PIXELFORMAT_INDEX8)
         return false;
 
-    int i = 0, j = 0;
-    for (int y=0; y<4096; y++)
+    unsigned char*p = (unsigned char*)gfx_chars->pixels;
+    int j = 0;
+    for (int c=0; c<256; c++)
     {
-        chardata[j] = 0;
-        for (int x=7; x>=0; x--)
+        int col = (c%16)*9;
+        int row = (c/16)*17;
+        for (int y=0; y<16; y++)
         {
-            if (((unsigned char*)gfx_chars->pixels)[i])
-                chardata[j] |= (1u << x);
-            i++;
+            unsigned char ch = 0;
+            for (int x=0; x<8; x++)
+            {
+                int i = (row+y)*144 + col+x;
+                if (p[i]==0)
+                    ch |= (1u << (7-x));
+            }
+            chardata[j] = ch;
+            j++;
         }
-        j++;
     }
     SDL_DestroySurface(gfx_chars);
 

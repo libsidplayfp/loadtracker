@@ -49,9 +49,13 @@ _You should have received a copy of the GNU General Public License
   https://github.com/thestk/rtmidi  
   distributed under MIT license
 
-* Exomizer
-  https://bitbucket.org/magli143/exomizer/
+* Exomizer  
+  https://bitbucket.org/magli143/exomizer/  
   distributed under ZLIB license
+
+* Epto font ISO88591-8x16.png  
+  https://github.com/epto/epto-fonts/  
+  distributed under GPLv2 license
 
 ---
 

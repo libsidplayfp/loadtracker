@@ -58,7 +58,7 @@ int mouseheld = 0;
 int region[MAX_ROWS];
 
 constexpr int fontwidth = 8;
-constexpr int fontheight = 14;
+constexpr int fontheight = 16;
 constexpr int mousesizex = 19;
 constexpr int mousesizey = 24;
 
@@ -115,7 +115,8 @@ bool initscreen()
   std::memset(region, 0, sizeof region);
 
   chardata = new unsigned char[4096];
-  gfx_loadcharset("font.png", chardata);
+  if (!gfx_loadcharset("ISO88591-8x16.png", chardata))
+      return false;
 
   loadexternalpalette();
   gfx_setpalette();
@@ -394,11 +395,9 @@ void fliptoscreen()
           unsigned char bgcolor = (*sptr) >> 20;
           unsigned char fgcolor = ((*sptr) >> 16) & 0xf;
 
-          unsigned char e = *chptr++;
-
           for (int c = 0; c < fontheight; c++)
           {
-            e = *chptr++;
+            unsigned char e = *chptr++;
 
             if (e & 128) *dptr++ = fgcolor;
             else *dptr++ = bgcolor;
