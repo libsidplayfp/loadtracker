@@ -343,7 +343,7 @@ void printstatus()
   std::sprintf(textbuffer, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
   const char *olhdr = (numsids == 1) ? "                                      " : "            ";
-  std::sprintf(textbuffer, olhdr);
+  std::sprintf(textbuffer, "%s", olhdr);
   printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
   for (int c = 0; c < maxChns; c++)
