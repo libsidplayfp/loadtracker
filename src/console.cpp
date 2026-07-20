@@ -115,7 +115,7 @@ bool initscreen()
   std::memset(region, 0, sizeof region);
 
   chardata = new unsigned char[4096];
-  if (!gfx_loadcharset("ISO88591-8x16.png", chardata))
+  if (!gfx_loadcharset("font.png", chardata))
       return false;
 
   loadexternalpalette();
