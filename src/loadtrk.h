@@ -31,6 +31,13 @@ enum
   EDIT_NAMES        = 4
 };
 
+enum class EditHdr
+{
+  NONE    = 0,
+  ADSR    = 1,
+  BPM     = 2
+};
+
 #define VISIBLEPATTROWS 34
 #define VISIBLETABLEROWS 15
 #define VISIBLEFILES 28
@@ -45,8 +52,7 @@ extern bool followplay;
 extern int hexnybble;
 extern bool exitprogram;
 extern int eacolumn;
-extern int eamode;
-extern int ebmode;
+extern EditHdr ehmode;
 
 extern bool monomode;
 extern char loadedsongfilename[MAX_FILENAME];

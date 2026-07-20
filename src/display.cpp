@@ -135,7 +135,7 @@ void printstatus()
   int visibleOrderlist = getVisibleOrderlist();
   int maxChns = getMaxChannels();
 
-  menu = (mouseb > MOUSEB_LEFT) && (mousey <= 1) && (!eamode);
+  menu = (mouseb > MOUSEB_LEFT) && (mousey <= 1) && (ehmode == EditHdr::NONE);
 
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
 
@@ -178,7 +178,7 @@ void printstatus()
 
     std::sprintf(textbuffer, "HR:%04X", adparam);
     printtext(dpos.statusTopFvX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
-    if (eamode && !ebmode) printbg(dpos.statusTopFvX+22+eacolumn, dpos.statusTopY, cc, 1);
+    if (ehmode == EditHdr::ADSR) printbg(dpos.statusTopFvX+22+eacolumn, dpos.statusTopY, cc, 1);
 
     if (multiplier)
     {
@@ -192,7 +192,7 @@ void printstatus()
       std::sprintf(textbuffer, "%03dBPM", snd_bpmtempo);
       printtext(dpos.statusTopFvX+31, dpos.statusTopY, colors.CHEADER, textbuffer);
 
-      if (eamode && ebmode) printbg(dpos.statusTopFvX+31+eacolumn, dpos.statusTopY, cc, 1);
+      if (ehmode == EditHdr::BPM) printbg(dpos.statusTopFvX+31+eacolumn, dpos.statusTopY, cc, 1);
     }
 
     printtext(dpos.statusTopEndX-8, dpos.statusTopY, colors.CHEADER, "F12=HELP");
@@ -320,11 +320,11 @@ void printstatus()
         switch(epcolumn)
         {
           case 0:
-          if (!eamode) printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, cc, 3);
+          if (ehmode == EditHdr::NONE) printbg(dpos.patternsX+c*13+3, dpos.patternsY+1+d, cc, 3);
           break;
 
           default:
-          if (!eamode) printbg(dpos.patternsX+c*13+6+epcolumn, dpos.patternsY+1+d, cc, 1);
+          if (ehmode == EditHdr::NONE) printbg(dpos.patternsX+c*13+6+epcolumn, dpos.patternsY+1+d, cc, 1);
           break;
         }
       }
@@ -424,7 +424,7 @@ void printstatus()
       }
       if ((p == eseditpos) && (editmode == EDIT_ORDERLIST) && (eschn == c))
       {
-        if (!eamode) printbg(dpos.orderlistX+4+d*3+escolumn, dpos.orderlistY+1+c, cc, 1);
+        if (ehmode == EditHdr::NONE) printbg(dpos.orderlistX+4+d*3+escolumn, dpos.orderlistY+1+c, cc, 1);
       }
     }
   }
@@ -459,12 +459,12 @@ void printstatus()
     if (eipos < 9)
     {
       // Instr param
-      if (!eamode) printbg(dpos.instrumentsX+20+3*eipos+eicolumn, dpos.instrumentsY+1+selpos, cc, 1);
+      if (ehmode == EditHdr::NONE) printbg(dpos.instrumentsX+20+3*eipos+eicolumn, dpos.instrumentsY+1+selpos, cc, 1);
     }
     else
     {
       // Instr name
-      if (!eamode) printbg(dpos.instrumentsX+3+std::strlen(song.instr[einum].name), dpos.instrumentsY+1+selpos, cc, 1);
+      if (ehmode == EditHdr::NONE) printbg(dpos.instrumentsX+3+std::strlen(song.instr[einum].name), dpos.instrumentsY+1+selpos, cc, 1);
     }
   }
 
@@ -521,7 +521,7 @@ void printstatus()
 
   if (editmode == EDIT_TABLES)
   {
-    if (!eamode) printbg(dpos.instrumentsX+3+tables.num()*12+tables.column(), dpos.instrumentsY+8+tables.pos()-tables.curview(), cc, 1);
+    if (ehmode == EditHdr::NONE) printbg(dpos.instrumentsX+3+tables.num()*12+tables.column(), dpos.instrumentsY+8+tables.pos()-tables.curview(), cc, 1);
   }
 
   // Info view
@@ -537,7 +537,7 @@ void printstatus()
   std::sprintf(textbuffer, "%-32s", song.released);
   printtext(dpos.instrumentsX+9, dpos.instrumentsY+8+VISIBLETABLEROWS+3, colors.CEDIT, textbuffer);
 
-  if ((editmode == EDIT_NAMES) && (!eamode))
+  if ((editmode == EDIT_NAMES) && (ehmode == EditHdr::NONE))
   {
     switch(enpos)
     {

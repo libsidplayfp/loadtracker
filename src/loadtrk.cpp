@@ -55,8 +55,7 @@ bool followplay = false;
 int hexnybble = -1;
 bool exitprogram = false;
 int eacolumn = 0;
-int eamode = 0;
-int ebmode = 0;
+EditHdr ehmode = EditHdr::NONE;
 
 bool monomode = true;
 bool writer = false;
@@ -130,8 +129,8 @@ void quit();
 void clear();
 void prevmultiplier();
 void nextmultiplier();
-void editadsr();
-void editbpm();
+void editadsr(int col);
+void editbpm(int col);
 void readscalatuningfile();
 void setspecialnotenames();
 void calculatefreqtable();
@@ -839,13 +838,13 @@ void mousecommands()
         sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+22) &&
-          (mousex <= dpos.statusTopFvX+25)) editadsr();
+          (mousex <= dpos.statusTopFvX+25)) editadsr(mousex - (dpos.statusTopFvX+22));
       if ((mousex >= dpos.statusTopFvX+27) &&
           (mousex <= dpos.statusTopFvX+28)) prevmultiplier();
       if ((mousex >= dpos.statusTopFvX+29) &&
           (mousex <= dpos.statusTopFvX+30)) nextmultiplier();
       if ((mousex >= dpos.statusTopFvX+31) &&
-          (mousex <= dpos.statusTopFvX+33)) editbpm();
+          (mousex <= dpos.statusTopFvX+33)) editbpm(mousex - (dpos.statusTopFvX+31));
       if ((mousex >= dpos.statusTopEndX-8) &&
           (mousex <= dpos.statusTopEndX-1)) onlinehelp(0,0);
     }
@@ -1074,7 +1073,7 @@ void generalcommands()
       else
         editmode = EDIT_INSTRUMENT;
     }
-    else editadsr();
+    else editadsr(0);
     break;
 
     case KEY_F8:
@@ -1313,10 +1312,10 @@ void clear()
   rawkey = 0;
 }
 
-void editadsr()
+void editadsr(int col)
 {
-  eamode = 1;
-  eacolumn = 0;
+  ehmode = EditHdr::ADSR;
+  eacolumn = col;
 
   for (;;)
   {
@@ -1328,6 +1327,14 @@ void editadsr()
       key = 0;
       rawkey = 0;
       return;
+    }
+
+    if ((mousey == dpos.statusTopY) && (!prevmouseb) && (mouseb == MOUSEB_LEFT) &&
+          (mousex >= dpos.statusTopFvX+22) &&
+          (mousex <= dpos.statusTopFvX+25))
+    {
+        eacolumn = mousex - (dpos.statusTopFvX+22);
+        continue;
     }
 
     if (hexnybble >= 0)
@@ -1365,7 +1372,7 @@ void editadsr()
       case KEY_ESC:
       case KEY_ENTER:
       case KEY_TAB:
-      eamode = 0;
+      ehmode = EditHdr::NONE;
       key = 0;
       rawkey = 0;
       return;
@@ -1384,17 +1391,16 @@ void editadsr()
 
     if ((mouseb) && (!prevmouseb))
     {
-      eamode = 0;
+      ehmode = EditHdr::NONE;
       return;
     }
   }
 }
 
-void editbpm()
+void editbpm(int col)
 {
-    eamode = 1;
-    ebmode = 1;
-    eacolumn = 0;
+    ehmode = EditHdr::BPM;
+    eacolumn = col;
 
     for (;;)
     {
@@ -1406,6 +1412,14 @@ void editbpm()
             key = 0;
             rawkey = 0;
             return;
+        }
+
+        if ((mousey == dpos.statusTopY) && (!prevmouseb) && (mouseb == MOUSEB_LEFT) &&
+            (mousex >= dpos.statusTopFvX+31) &&
+            (mousex <= dpos.statusTopFvX+33))
+        {
+            eacolumn = mousex - (dpos.statusTopFvX+31);
+            continue;
         }
 
         if (key >= 48 && key <= 58)
@@ -1437,8 +1451,7 @@ void editbpm()
         case KEY_ESC:
         case KEY_ENTER:
         case KEY_TAB:
-            eamode = 0;
-            ebmode = 0;
+            ehmode = EditHdr::NONE;
             key = 0;
             rawkey = 0;
             return;
@@ -1458,8 +1471,7 @@ void editbpm()
 
         if ((mouseb) && (!prevmouseb))
         {
-            eamode = 0;
-            ebmode = 0;
+            ehmode = EditHdr::NONE;
             return;
         }
     }
