@@ -20,31 +20,69 @@
 // logging functions
 // =============================================================================
 
+#include <SDL3/SDL.h>
+
 #include <iostream>
+#include <string>
+
+enum class MsgType
+{
+    INFO,
+    WARNING,
+    ERROR
+};
 
 namespace ltlog
 {
 
-void log(const char *type, const char *msg)
+void log(MsgType type, const char *msg, const char *detail)
 {
-    std::cerr << type << ": " << msg << std::endl;
+    SDL_MessageBoxFlags flags;
+    const char *pfx;
+    switch (type)
+    {
+        case MsgType::INFO:
+            flags = SDL_MESSAGEBOX_INFORMATION;
+            pfx = "INFO";
+            break;
+        case MsgType::WARNING:
+            flags = SDL_MESSAGEBOX_WARNING;
+            pfx = "WARNING";
+            break;
+        case MsgType::ERROR:
+            flags = SDL_MESSAGEBOX_ERROR;
+            pfx = "ERROR";
+            break;
+    }
+
+    std::string m(msg);
+    if (detail)
+    {
+        m.append(": ").append(detail);
+    }
+
+    if (type == MsgType::ERROR)
+    {
+        if (SDL_ShowSimpleMessageBox(flags, "Load Tracker", m.c_str(), NULL))
+            return;
+    }
+
+    std::cerr << pfx << "| " << m.c_str() << std::endl;
 }
 
-void info(const char *msg)
+void info(const char *msg, const char *detail)
 {
-    log("INFO", msg);
+    log(MsgType::INFO, msg, detail);
 }
 
-void warning(const char *msg)
+void warning(const char *msg, const char *detail)
 {
-    log("WARNING", msg);
+    log(MsgType::WARNING, msg, detail);
 }
 
-void error(const char *msg)
+void error(const char *msg, const char *detail)
 {
-    log("ERROR", msg);
+    log(MsgType::ERROR, msg, detail);
 }
 
-
 }
-

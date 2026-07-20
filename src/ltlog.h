@@ -22,9 +22,9 @@
 namespace ltlog
 {
 
-void info(const char *msg);
-void warning(const char *msg);
-void error(const char *msg);
+void info(const char *msg, const char *detail=nullptr);
+void warning(const char *msg, const char *detail=nullptr);
+void error(const char *msg, const char *detail=nullptr);
 
 }
 

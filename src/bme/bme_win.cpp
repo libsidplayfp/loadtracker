@@ -119,7 +119,7 @@ bool win_openwindow(const char *appname)
     {
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
         {
-            ltlog::error("Cannot initialize SDL");
+            ltlog::error("Cannot initialize SDL", SDL_GetError());
             return false;
         }
         std::atexit(SDL_Quit);
@@ -143,7 +143,7 @@ bool win_openwindow(const char *appname)
     SDL_DestroyProperties(props);
     if (!win_window)
     {
-        ltlog::error("Cannot create SDL window");
+        ltlog::error("Cannot create SDL window", SDL_GetError());
         return false;
     }
     SDL_StartTextInput(win_window);
@@ -367,7 +367,7 @@ bool gfx_init(unsigned xsize, unsigned ysize)
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     if (!gfx_screen)
     {
-        ltlog::error("Cannot create SDL surface");
+        ltlog::error("Cannot create SDL surface", SDL_GetError());
         return false;
     }
 
@@ -500,7 +500,7 @@ bool gfx_loadcursor(const char *name)
     gfx_cursor = SDL_LoadPNG_IO(rw, true);
     if (!gfx_cursor)
     {
-        ltlog::error("Cannot load cursor image");
+        ltlog::error("Cannot load cursor image", SDL_GetError());
         return false;
     }
 
@@ -541,7 +541,7 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     SDL_Surface *gfx_chars = SDL_LoadPNG_IO(rw, true);
     if (!gfx_chars)
     {
-        ltlog::error("Cannot load font image");
+        ltlog::error("Cannot load font image", SDL_GetError());
         return false;
     }
 
