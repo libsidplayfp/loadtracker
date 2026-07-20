@@ -497,35 +497,57 @@ void tooltips()
       if ((mousex >= dpos.statusTopFvX-3) && (mousex <= dpos.statusTopFvX-2) && (numsids == 2))
       {
         settooltip("Stereo mode");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
       {
         settooltip("Fine vibrato");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX+3) && (mousex <= dpos.statusTopFvX+4))
       {
         settooltip("Optimize pulse");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX+6) && (mousex <= dpos.statusTopFvX+7))
       {
         settooltip("Optimize realtime");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         settooltip("Video frequency");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
       {
         settooltip("SID model");
+        return;
       }
       if ((mousex >= dpos.statusTopFvX+22) &&
-          (mousex <= dpos.statusTopFvX+25)) settooltip("Hard restart ADSR");
+          (mousex <= dpos.statusTopFvX+25))
+      {
+        settooltip("Hard restart ADSR");
+        return;
+      }
       if ((mousex >= dpos.statusTopFvX+27) &&
-          (mousex <= dpos.statusTopFvX+30)) settooltip("Speed multiplier");
+          (mousex <= dpos.statusTopFvX+30))
+      {
+        settooltip("Speed multiplier");
+        return;
+      }
       if ((mousex >= dpos.statusTopFvX+31) &&
-          (mousex <= dpos.statusTopFvX+33)) settooltip("BPM");
+          (mousex <= dpos.statusTopFvX+33))
+      {
+        settooltip("BPM");
+        return;
+      }
       if ((mousex >= dpos.statusTopEndX-8) &&
-          (mousex <= dpos.statusTopEndX-1)) settooltip("Online help");
+          (mousex <= dpos.statusTopEndX-1))
+      {
+        settooltip("Online help");
+        return;
+      }
     }
   }
 
@@ -534,31 +556,58 @@ void tooltips()
   {
     if ((mousex >= (dpos.instrumentsX+20)) &&
         (mousex <= (dpos.instrumentsX+21)))
-      settooltip("Attack/Decay");
+      {
+        settooltip("Attack/Decay");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+23)) &&
         (mousex <= (dpos.instrumentsX+24)))
-      settooltip("Sustain/Release");
+      {
+        settooltip("Sustain/Release");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+26)) &&
         (mousex <= (dpos.instrumentsX+27)))
-      settooltip("Wave table position");
+      {
+        settooltip("Wave table position");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+29)) &&
         (mousex <= (dpos.instrumentsX+30)))
-      settooltip("Pulse table position");
+      {
+        settooltip("Pulse table position");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+32)) &&
         (mousex <= (dpos.instrumentsX+33)))
-      settooltip("Filter table position");
+      {
+        settooltip("Filter table position");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+35)) &&
         (mousex <= (dpos.instrumentsX+36)))
-      settooltip("Speed table position (vibrato)");
+      {
+        settooltip("Speed table position (vibrato)");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+38)) &&
         (mousex <= (dpos.instrumentsX+39)))
-      settooltip("Vibrato delay");
+      {
+        settooltip("Vibrato delay");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+41)) &&
         (mousex <= (dpos.instrumentsX+42)))
-      settooltip("Gate timer");
+      {
+        settooltip("Gate timer");
+        return;
+      }
     if ((mousex >= (dpos.instrumentsX+44)) &&
         (mousex <= (dpos.instrumentsX+45)))
-      settooltip("First wave");
+      {
+        settooltip("First wave");
+        return;
+      }
   }
 }
 

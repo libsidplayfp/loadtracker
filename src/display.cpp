@@ -84,7 +84,7 @@ unsigned timeframe = 0;
 int cursorflash = 0;
 int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
 
-std::string tooltip = "test";
+std::string tooltip;
 
 void initcolorscheme(bool dark)
 {
@@ -657,5 +657,4 @@ void incrementtime()
 void settooltip(const char *msg)
 {
     tooltip = msg;
-    // TODO timeout
 }
