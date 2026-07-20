@@ -62,7 +62,7 @@ unsigned char freqtblhi[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
-CHN chn[MAX_CHN];
+Chn chn[MAX_CHN];
 unsigned char filterctrl = 0;
 unsigned char filtertype = 0;
 unsigned char filtercutoff = 0;
@@ -80,13 +80,13 @@ int songinit = PLAY_STOPPED;
 int lastsonginit = 0;
 int startpattpos = 0;
 
-void sequencer(int c, CHN *cptr);
-void sequencer_stereo(int c, CHN *cptr);
+void sequencer(int c, Chn *cptr);
+void sequencer_stereo(int c, Chn *cptr);
 
 void initchannels()
 {
   int maxChns = getMaxChannels();
-  CHN *cptr = &chn[0];
+  Chn *cptr = &chn[0];
 
   std::memset(chn, 0, sizeof chn);
 
@@ -196,8 +196,8 @@ bool isplaying()
 
 void playroutine()
 {
-  INSTR *iptr;
-  CHN *cptr = &chn[0];
+  Instr *iptr;
+  Chn *cptr = &chn[0];
 
   if (songinit == PLAY_STOP)
     followplay = false;
@@ -992,7 +992,7 @@ NEXTCHN:
   if (songinit != PLAY_STOPPED) incrementtime();
 }
 
-void sequencer(int c, CHN *cptr)
+void sequencer(int c, Chn *cptr)
 {
   if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
   {
@@ -1048,8 +1048,8 @@ SEQDONE: {}
 
 void playroutine_stereo()
 {
-    INSTR *iptr;
-    CHN *cptr = &chn[0];
+    Instr *iptr;
+    Chn *cptr = &chn[0];
 
     if (songinit == PLAY_STOP)
         followplay = false;
@@ -2006,7 +2006,7 @@ NEXTCHN_S:
     if (songinit != PLAY_STOPPED) incrementtime();
 }
 
-void sequencer_stereo(int c, CHN *cptr)
+void sequencer_stereo(int c, Chn *cptr)
 {
     if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
     {

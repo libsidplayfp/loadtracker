@@ -19,7 +19,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-typedef struct
+struct Positions
 {
     int channelsX;
     int channelsY;
@@ -39,7 +39,7 @@ typedef struct
     int statusTopFvX;
     int statusTopX;
     int statusTopY;
-} POSITIONS;
+};
 
 
 bool initscreen();
@@ -62,7 +62,7 @@ extern int key, rawkey, cursorflashdelay;
 extern int mouseb, prevmouseb;
 extern int mouseheld;
 extern int mousex, mousey;
-extern POSITIONS dpos;
+extern Positions dpos;
 #endif
 
 #endif

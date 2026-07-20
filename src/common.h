@@ -85,7 +85,7 @@ enum
 #define WAVECMD 0xf0
 #define WAVELASTCMD 0xfe
 
-typedef struct
+struct Colors
 {
   unsigned char CBKGND;
   unsigned char CNORMAL;
@@ -97,9 +97,9 @@ typedef struct
   unsigned char CHDRBG;
   unsigned char CHDRFG;
   unsigned char CHEADER;
-} COLORS;
+};
 
-typedef struct
+struct Instr
 {
   unsigned char ad;
   unsigned char sr;
@@ -108,13 +108,13 @@ typedef struct
   unsigned char gatetimer;
   unsigned char firstwave;
   char name[MAX_INSTRNAMELEN];
-} INSTR;
+};
 
-typedef struct
+struct Selection
 {
     int chn = -1;
     int start;
     int end;
-} Selection;
+};
 
 #endif

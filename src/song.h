@@ -23,7 +23,7 @@
 
 struct Song
 {
-    INSTR instr[MAX_INSTR];
+    Instr instr[MAX_INSTR];
     unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
     unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
     unsigned char order[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];

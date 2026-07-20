@@ -23,7 +23,7 @@ int main(int argc, char **argv)
   int prevwave = 0xff;
   int currwave = 0;
   int fileok = 0;
-  INSTR instr;
+  Instr instr;
   int wavelen,pulselen,filtlen;  
   unsigned char ident[4] = {0};
   unsigned char wavetable[MAX_TABLELEN*2];

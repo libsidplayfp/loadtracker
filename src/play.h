@@ -31,7 +31,7 @@ enum
   PLAY_STOPPED    = 0x80
 };
 
-typedef struct
+struct Chn
 {
   unsigned char trans;
   unsigned char instr;
@@ -60,10 +60,10 @@ typedef struct
   unsigned char mute;
   unsigned char advance;
   unsigned char gatetimer;
-} CHN;
+};
 
 #ifndef PLAY_C
-extern CHN chn[MAX_CHN];
+extern Chn chn[MAX_CHN];
 extern unsigned char masterfader;
 extern unsigned char freqtbllo[];
 extern unsigned char freqtblhi[];

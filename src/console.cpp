@@ -62,7 +62,7 @@ constexpr int fontheight = 16;
 constexpr int mousesizex = 19;
 constexpr int mousesizey = 24;
 
-POSITIONS dpos =
+Positions dpos =
 {
     MAX_COLUMNS-21,             // channelsX
     MAX_ROWS-2,                 // channelsY

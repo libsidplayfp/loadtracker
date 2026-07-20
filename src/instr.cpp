@@ -36,7 +36,7 @@
 
 #include <cstring>
 
-INSTR instrcopybuffer;
+Instr instrcopybuffer;
 int cutinstr = -1;
 
 int einum;
@@ -61,7 +61,7 @@ void instrumentcommands()
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = einum;
-      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(Instr));
       clearinstr(einum);
     }
     break;
@@ -70,14 +70,14 @@ void instrumentcommands()
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
       cutinstr = -1;
-      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(INSTR));
+      std::memcpy(&instrcopybuffer, &song.instr[einum], sizeof(Instr));
     }
     break;
 
     case KEY_S:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(Instr));
       if (cutinstr != -1)
       {
         for (int c = 0; c < MAX_PATT; c++)
@@ -92,7 +92,7 @@ void instrumentcommands()
     case KEY_V:
     if ((einum) && (shiftpressed) && (eipos < 9))
     {
-      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(INSTR));
+      std::memcpy(&song.instr[einum], &instrcopybuffer, sizeof(Instr));
     }
     break;
 
@@ -239,7 +239,7 @@ void instrumentcommands()
 
 void clearinstr(int num)
 {
-  std::memset(&song.instr[num], 0, sizeof(INSTR));
+  std::memset(&song.instr[num], 0, sizeof(Instr));
   if (num)
   {
     if (multiplier)
@@ -255,7 +255,7 @@ void clearinstr()
 {
     for (int c = 0; c < MAX_INSTR; c++)
       clearinstr(c);
-    std::memset(&instrcopybuffer, 0, sizeof(INSTR));
+    std::memset(&instrcopybuffer, 0, sizeof(Instr));
     eipos = 0;
     eicolumn = 0;
     eirow = 1;

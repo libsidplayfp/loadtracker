@@ -49,13 +49,13 @@
 #define MAX_DIRFILES 16384
 #define DOUBLECLICKDELAY 15
 
-typedef struct
+struct Direntry
 {
   char *name;
   int attribute;
-} DIRENTRY;
+};
 
-DIRENTRY direntry[MAX_DIRFILES];
+Direntry direntry[MAX_DIRFILES];
 
 int cmpname(char *string1, char *string2);
 
@@ -201,7 +201,7 @@ NEWPATH:
     }
     if (lowest != c)
     {
-      DIRENTRY swaptemp = direntry[c];
+      Direntry swaptemp = direntry[c];
       direntry[c] = direntry[lowest];
       direntry[lowest] = swaptemp;
     }

@@ -83,7 +83,7 @@ unsigned char hexkeytbl[] = {'0', '1', '2', '3', '4', '5', '6', '7',
 
 extern unsigned char datafile[]; // from ltrkdata.cpp
 
-COLORS colors;
+Colors colors;
 
 const char* usage[] = {
     "Usage: loadtrk [songname] [options]",
@@ -1726,7 +1726,7 @@ void optimizeeverything()
 
       if (c < MAX_INSTR-2)
       {
-        std::memmove(&song.instr[c], &song.instr[c+1], (MAX_INSTR-2-c) * sizeof(INSTR));
+        std::memmove(&song.instr[c], &song.instr[c+1], (MAX_INSTR-2-c) * sizeof(Instr));
         clearinstr(MAX_INSTR-2);
         for (int d = 0; d < MAX_PATT; d++)
         {

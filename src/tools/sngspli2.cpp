@@ -12,7 +12,7 @@
 
 #define MAX_SPLITS 16
 
-INSTR instr[MAX_INSTR];
+Instr instr[MAX_INSTR];
 char ident[4];
 unsigned char ltable[4][MAX_TABLELEN*2];
 unsigned char rtable[4][MAX_TABLELEN*2];
@@ -517,7 +517,7 @@ void clearsong(void)
   }
   for (int c = 0; c < MAX_INSTR; c++)
   {
-    std::memset(&instr[c], 0, sizeof(INSTR));
+    std::memset(&instr[c], 0, sizeof(Instr));
   }
   std::memset(ltable, 0, sizeof ltable);
   std::memset(rtable, 0, sizeof rtable);
