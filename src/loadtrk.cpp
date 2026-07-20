@@ -547,6 +547,28 @@ void mousecommands()
         else if (win_mouseywheel < 0.f)
           tables.tabledown(shiftpressed);
     }
+    // Scroll tempo
+    if (mousey == dpos.statusTopY)
+    {
+        if ((mousex >= dpos.statusTopFvX+27) &&
+            (mousex <= dpos.statusTopFvX+31))
+        {
+            if (win_mouseywheel > 0.f)
+                nextmultiplier();
+            else if (win_mouseywheel < 0.f)
+                prevmultiplier();
+        }
+        else
+        if ((multiplier == 1) &&
+            (mousex >= dpos.statusTopFvX+31) &&
+            (mousex <= dpos.statusTopFvX+37))
+        {
+            if (win_mouseywheel > 0.f)
+                snd_bpmtempo++;
+            else if (win_mouseywheel < 0.f)
+                snd_bpmtempo--;
+        }
+    }
   }
 
   if (!mouseb) return;
@@ -752,6 +774,13 @@ void mousecommands()
   if ((!prevmouseb) && (mousex <= dpos.octaveX+7) && (mousey == dpos.octaveY+1))
   {
     recordmode = !recordmode;
+  }
+  if ((!prevmouseb) &&
+      (mousex >= dpos.channelsX-5) &&
+      (mousex <= dpos.channelsX-2) &&
+      (mousey == dpos.channelsY+1))
+  {
+    tables.fliplock();
   }
   for (int c = 0; c < maxChns; c++)
   {

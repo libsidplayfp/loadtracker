@@ -95,7 +95,7 @@ void initcolorscheme(bool dark)
   colors.CTITLE   = CWHITE |(colors.CBKGND<<4);
 
   colors.CHDRBG   = dark ? CDBLUE : CLBLUE;
-  colors.CHDRFG   = CCYAN;
+  colors.CHDRFG   = CYELLOW;
 
   colors.CHEADER  = colors.CHDRFG|(colors.CHDRBG<<4);
 }
@@ -143,11 +143,11 @@ void printstatus()
   if (!menu)
   {
     short cblue = (colors.CHDRBG == CDBLUE) ? CLBLUE : CDBLUE;
-    printtext(dpos.statusTopX+1,  dpos.statusTopY,  cblue|(colors.CHDRBG<<4), " \"\"\"");
-    printtext(dpos.statusTopX+5,  dpos.statusTopY, CDGREEN|(colors.CHDRBG<<4), "\"\"\"");
-    printtext(dpos.statusTopX+8,  dpos.statusTopY, CYELLOW|(colors.CHDRBG<<4), "\"\"\"");
-    printtext(dpos.statusTopX+11, dpos.statusTopY, CLBROWN|(colors.CHDRBG<<4), "\"\"\"");
-    printtext(dpos.statusTopX+14, dpos.statusTopY,   CDRED|(colors.CHDRBG<<4), "\"\"\" ");
+    printtext(dpos.statusTopX+1,  dpos.statusTopY,  cblue|(colors.CHDRBG<<4), " \x9b\x9b\x9b");
+    printtext(dpos.statusTopX+5,  dpos.statusTopY, CDGREEN|(colors.CHDRBG<<4), "\x9b\x9b\x9b");
+    printtext(dpos.statusTopX+8,  dpos.statusTopY, CYELLOW|(colors.CHDRBG<<4), "\x9b\x9b\x9b");
+    printtext(dpos.statusTopX+11, dpos.statusTopY, CLBROWN|(colors.CHDRBG<<4), "\x9b\x9b\x9b");
+    printtext(dpos.statusTopX+14, dpos.statusTopY,   CDRED|(colors.CHDRBG<<4), "\x9b\x9b\x9b ");
 
     if (!std::strlen(loadedsongfilename))
       std::sprintf(textbuffer, "%s", programname);
@@ -615,8 +615,8 @@ void printstatus()
     printtext(dpos.channelsX+7*c, dpos.channelsY+1, chn[c].mute ? colors.CMUTE : colors.CEDIT, textbuffer);
   }
 
-  const char *lock = tables.islocked() ? "Lck" : "   ";
-  printtext(dpos.channelsX-4, dpos.channelsY+1, colors.CTITLE, lock);
+  color = tables.islocked() ? colors.CTITLE : colors.CMUTE;
+  printtext(dpos.channelsX-5, dpos.channelsY+1, color, "Lck");
 }
 
 
