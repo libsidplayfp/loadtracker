@@ -27,5 +27,6 @@ void resettime();
 void incrementtime();
 void flashCursor();
 int getCursorColor();
+void settooltip(const char *msg);
 
 #endif

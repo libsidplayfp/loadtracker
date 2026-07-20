@@ -139,6 +139,7 @@ void calculatefreqtable();
 void switchMode();
 void optimizeeverything();
 void findduplicatepatterns();
+void tooltips();
 
 int main(int argc, char **argv)
 {
@@ -394,6 +395,7 @@ void waitkeymouse()
   for (;;)
   {
     displayupdate();
+    tooltips();
     getkey();
     if ((rawkey) || (key)) break;
     if (win_quitted) break;
@@ -481,6 +483,83 @@ void docommand()
 
   // General commands
   generalcommands();
+}
+
+void tooltips()
+{
+  settooltip("");
+
+  // Titlebar
+  if (!menu)
+  {
+    if (mousey == dpos.statusTopY)
+    {
+      if ((mousex >= dpos.statusTopFvX-3) && (mousex <= dpos.statusTopFvX-2) && (numsids == 2))
+      {
+        settooltip("Stereo mode");
+      }
+      if ((mousex >= dpos.statusTopFvX) && (mousex <= dpos.statusTopFvX+1))
+      {
+        settooltip("Fine vibrato");
+      }
+      if ((mousex >= dpos.statusTopFvX+3) && (mousex <= dpos.statusTopFvX+4))
+      {
+        settooltip("Optimize pulse");
+      }
+      if ((mousex >= dpos.statusTopFvX+6) && (mousex <= dpos.statusTopFvX+7))
+      {
+        settooltip("Optimize realtime");
+      }
+      if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
+      {
+        settooltip("Video frequency");
+      }
+      if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
+      {
+        settooltip("SID model");
+      }
+      if ((mousex >= dpos.statusTopFvX+22) &&
+          (mousex <= dpos.statusTopFvX+25)) settooltip("Hard restart ADSR");
+      if ((mousex >= dpos.statusTopFvX+27) &&
+          (mousex <= dpos.statusTopFvX+30)) settooltip("Speed multiplier");
+      if ((mousex >= dpos.statusTopFvX+31) &&
+          (mousex <= dpos.statusTopFvX+33)) settooltip("BPM");
+      if ((mousex >= dpos.statusTopEndX-8) &&
+          (mousex <= dpos.statusTopEndX-1)) settooltip("Online help");
+    }
+  }
+
+  // Instruments
+  if (mousey == dpos.instrumentsY)
+  {
+    if ((mousex >= (dpos.instrumentsX+20)) &&
+        (mousex <= (dpos.instrumentsX+21)))
+      settooltip("Attack/Decay");
+    if ((mousex >= (dpos.instrumentsX+23)) &&
+        (mousex <= (dpos.instrumentsX+24)))
+      settooltip("Sustain/Release");
+    if ((mousex >= (dpos.instrumentsX+26)) &&
+        (mousex <= (dpos.instrumentsX+27)))
+      settooltip("Wave table position");
+    if ((mousex >= (dpos.instrumentsX+29)) &&
+        (mousex <= (dpos.instrumentsX+30)))
+      settooltip("Pulse table position");
+    if ((mousex >= (dpos.instrumentsX+32)) &&
+        (mousex <= (dpos.instrumentsX+33)))
+      settooltip("Filter table position");
+    if ((mousex >= (dpos.instrumentsX+35)) &&
+        (mousex <= (dpos.instrumentsX+36)))
+      settooltip("Speed table position (vibrato)");
+    if ((mousex >= (dpos.instrumentsX+38)) &&
+        (mousex <= (dpos.instrumentsX+39)))
+      settooltip("Vibrato delay");
+    if ((mousex >= (dpos.instrumentsX+41)) &&
+        (mousex <= (dpos.instrumentsX+42)))
+      settooltip("Gate timer");
+    if ((mousex >= (dpos.instrumentsX+44)) &&
+        (mousex <= (dpos.instrumentsX+45)))
+      settooltip("First wave");
+  }
 }
 
 void mousecommands()
@@ -652,7 +731,6 @@ void mousecommands()
         (mousex >= dpos.orderlistX))
   {
     int newcolumn = (mousex-(dpos.orderlistX+4)) % 3;
-    //int newchn = mousey - 3;
     int newchn = mousey - (dpos.orderlistY+1);
     int newpos = esview[newchn] + (mousex-(dpos.orderlistX+4)) / 3;
     if (newcolumn < 0) newcolumn = 0;

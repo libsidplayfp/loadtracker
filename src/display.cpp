@@ -40,6 +40,7 @@
 #include "bme_win.h"
 
 #include <utility>
+#include <string>
 
 #include <cstdio>
 #include <cstring>
@@ -82,6 +83,8 @@ unsigned timeframe = 0;
 
 int cursorflash = 0;
 int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
+
+std::string tooltip = "test";
 
 void initcolorscheme(bool dark)
 {
@@ -617,6 +620,10 @@ void printstatus()
 
   color = tables.islocked() ? colors.CTITLE : colors.CMUTE;
   printtext(dpos.channelsX-5, dpos.channelsY+1, color, "Lck");
+
+  // pad with spaces
+  tooltip.append(35 - tooltip.length(), ' ');
+  printtext(dpos.octaveX+35, dpos.octaveY+1, CLBLUE, tooltip.c_str());
 }
 
 
@@ -647,3 +654,8 @@ void incrementtime()
   }
 }
 
+void settooltip(const char *msg)
+{
+    tooltip = msg;
+    // TODO timeout
+}
