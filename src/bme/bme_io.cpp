@@ -5,6 +5,7 @@
 #include "bme_io.h"
 
 #include "bme_main.h"
+#include "ltlog.h"
 
 #include <SDL3/SDL.h>
 
@@ -54,6 +55,7 @@ bool io_openlinkeddatafile(unsigned char *ptr)
     linkedread(ident, 4);
     if (std::memcmp(ident, idstring, 4))
     {
+        ltlog::error("Invalid datafile");
         return false;
     }
 
@@ -61,6 +63,7 @@ bool io_openlinkeddatafile(unsigned char *ptr)
     fileheaders = new (std::nothrow) HEADER[files];
     if (!fileheaders)
     {
+        ltlog::error("Out of memory");
         return false;
     }
     for (unsigned index = 0; index < files; index++)

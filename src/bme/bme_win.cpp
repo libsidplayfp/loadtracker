@@ -6,6 +6,7 @@
 
 #include "bme_main.h"
 #include "bme_io.h"
+#include "ltlog.h"
 
 #include <SDL3/SDL.h>
 
@@ -118,6 +119,7 @@ bool win_openwindow(const char *appname)
     {
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
         {
+            ltlog::error("Cannot initialize SDL");
             return false;
         }
         std::atexit(SDL_Quit);
@@ -141,6 +143,7 @@ bool win_openwindow(const char *appname)
     SDL_DestroyProperties(props);
     if (!win_window)
     {
+        ltlog::error("Cannot create SDL window");
         return false;
     }
     SDL_StartTextInput(win_window);
@@ -363,7 +366,10 @@ bool gfx_init(unsigned xsize, unsigned ysize)
 
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     if (!gfx_screen)
+    {
+        ltlog::error("Cannot create SDL surface");
         return false;
+    }
 
     gfx_renderer = SDL_CreateRenderer(win_window, nullptr);
     sdlTexture = SDL_CreateTexture(gfx_renderer,
@@ -478,7 +484,11 @@ bool gfx_loadcursor(const char *name)
     gfx_freecursor();
 
     int handle = io_open(name);
-    if (handle == -1) return false;
+    if (handle == -1)
+    {
+        ltlog::error("Cannot open cursor image file");
+        return false;
+    }
 
     int size = io_lseek(handle, 0, SEEK_END);
     io_lseek(handle, 0, SEEK_SET);
@@ -489,7 +499,10 @@ bool gfx_loadcursor(const char *name)
     SDL_IOStream *rw = SDL_IOFromMem(iconbuffer, size);
     gfx_cursor = SDL_LoadPNG_IO(rw, true);
     if (!gfx_cursor)
+    {
+        ltlog::error("Cannot load cursor image");
         return false;
+    }
 
     return true;
 }
@@ -506,13 +519,18 @@ void gfx_freecursor()
 bool gfx_loadcharset(const char *name, unsigned char *chardata)
 {
     int handle = io_open(name);
-    if (handle == -1) return false;
+    if (handle == -1)
+    {
+        ltlog::error("Cannot open font image file");
+        return false;
+    }
 
     int size = io_lseek(handle, 0, SEEK_END);
     char *charbuffer = new (std::nothrow) char[size];
     if (!charbuffer)
     {
         io_close(handle);
+        ltlog::error("Out of memory");
         return false;
     }
     io_lseek(handle, 0, SEEK_SET);
@@ -522,13 +540,22 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     SDL_IOStream *rw = SDL_IOFromMem(charbuffer, size);
     SDL_Surface *gfx_chars = SDL_LoadPNG_IO(rw, true);
     if (!gfx_chars)
+    {
+        ltlog::error("Cannot load font image");
         return false;
+    }
 
     if ((gfx_chars->w != 144) || (gfx_chars->h != 272))
+    {
+        ltlog::error("Invalid cursor image size");
         return false;
+    }
 
     if (gfx_chars->format != SDL_PIXELFORMAT_INDEX8)
+    {
+        ltlog::error("Invalid cursor image format");
         return false;
+    }
 
     unsigned char*p = (unsigned char*)gfx_chars->pixels;
     int j = 0;

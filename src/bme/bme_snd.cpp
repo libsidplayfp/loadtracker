@@ -7,6 +7,7 @@
 #include "bme_main.h"
 #include "bme_win.h"
 #include "bme_io.h"
+#include "ltlog.h"
 
 #ifdef USE_JACK
 #  include <jack/jack.h>
@@ -113,7 +114,7 @@ bool snd_init_jack()
     client = jack_client_open("goattracker2", JackNoStartServer, &status);
     if (client == 0)
     {
-        std::fprintf(stderr, "failed to create jack client\n");
+        ltlog::error("Failed to create jack client");
         return false;
     }
 
@@ -147,14 +148,14 @@ bool snd_init_jack()
 
         if (!output_port)
         {
-            std::fprintf(stderr, "failed to register port\n");
+            ltlog::error("Failed to register midi port");
             return false;
         }
     }
 
     if (jack_activate(client))
     {
-        std::fprintf(stderr, "failed to activate\n");
+        ltlog::error("Failed to activate jack client");
         return false;
     }
 
@@ -222,7 +223,7 @@ bool snd_init_midi()
     unsigned int ports = rtmidi_get_port_count(midi_device);
     if (!ports)
     {
-        std::fprintf(stderr, "no available ports\n");
+        ltlog::error("No available MIDI ports");
         return false;
     }
 
