@@ -43,6 +43,8 @@ extern "C" {
 #include "parse.h"
 }
 
+#include <new>
+
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -716,7 +718,7 @@ void relocator()
 
   // Allocate memory for song-orderlists
   songtblsize = songs*6;
-  songwork = (unsigned char*)std::malloc(songdatasize);
+  songwork = new (std::nothrow) unsigned char[songdatasize];
   if (!songwork)
   {
     clearscreen();
@@ -807,7 +809,7 @@ void relocator()
   }
 
   patttblsize = patterns*2;
-  pattwork = (unsigned char*)std::malloc(pattdatasize);
+  pattwork = new (std::nothrow) unsigned char[pattdatasize];
   if (!pattwork)
   {
     clearscreen();
@@ -832,7 +834,7 @@ void relocator()
 
   // Then process instruments
   instrsize = instruments*9;
-  instrwork = (unsigned char*)std::malloc(instrsize);
+  instrwork = new (std::nothrow) unsigned char[instrsize];
   if (!instrwork)
   {
     clearscreen();
@@ -1759,9 +1761,9 @@ PRCLEANUP:
   buf_free(&dest);
   parse_free();
 
-  if (pattwork) std::free(pattwork);
-  if (songwork) std::free(songwork);
-  if (instrwork) std::free(instrwork);
+  if (pattwork) delete [] pattwork;
+  if (songwork) delete [] songwork;
+  if (instrwork) delete [] instrwork;
   printmainscreen();
   key = 0;
   rawkey = 0;
@@ -2768,7 +2770,7 @@ TABLETYPE_S:
 
     // Allocate memory for song-orderlists
     songtblsize = songs*6;
-    songwork = (unsigned char*)std::malloc(songdatasize);
+    songwork = new (std::nothrow) unsigned char[songdatasize];
     if (!songwork)
     {
         clearscreen();
@@ -2859,7 +2861,7 @@ TABLETYPE_S:
     }
 
     patttblsize = patterns*2;
-    pattwork = (unsigned char*)std::malloc(pattdatasize);
+    pattwork = new (std::nothrow) unsigned char[pattdatasize];
     if (!pattwork)
     {
         clearscreen();
@@ -2884,7 +2886,7 @@ TABLETYPE_S:
 
     // Then process instruments
     instrsize = instruments*9;
-    instrwork = (unsigned char*)std::malloc(instrsize);
+    instrwork = new (std::nothrow) unsigned char[instrsize];
     if (!instrwork)
     {
         clearscreen();
@@ -3798,9 +3800,9 @@ PRCLEANUP_S:
     buf_free(&dest);
     parse_free();
 
-    if (pattwork) std::free(pattwork);
-    if (songwork) std::free(songwork);
-    if (instrwork) std::free(instrwork);
+    if (pattwork) delete [] pattwork;
+    if (songwork) delete [] songwork;
+    if (instrwork) delete [] instrwork;
     printmainscreen();
     key = 0;
     rawkey = 0;

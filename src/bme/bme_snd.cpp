@@ -413,7 +413,7 @@ static bool snd_initmixer()
         bufSize *= 2;
     }
 
-    snd_clipbuffer = (Sint32*)std::malloc(bufSize);
+    snd_clipbuffer = new (std::nothrow) Sint32[bufSize];
     if (!snd_clipbuffer) return false;
 
     return true;
@@ -423,7 +423,7 @@ static void snd_uninitmixer()
 {
     if (snd_clipbuffer)
     {
-        std::free(snd_clipbuffer);
+        delete [] snd_clipbuffer;
         snd_clipbuffer = nullptr;
     }
 }
