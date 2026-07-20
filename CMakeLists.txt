@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(loadtracker VERSION 1.99.0 HOMEPAGE_URL https://github.com/libsidplayfp/loadtracker)
+project(loadtracker VERSION 1.99.1 HOMEPAGE_URL https://github.com/libsidplayfp/loadtracker)
 
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_C_STANDARD 99)
@@ -80,6 +80,7 @@ set(DATAFILE_SOURCES
 set(DAT2INC_SOURCES
     src/tools/dat2inc.cpp)
 
+include_directories(${CMAKE_BINARY_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
 include_directories(${CMAKE_SOURCE_DIR}/src/asm)
@@ -208,3 +209,10 @@ INSTALL(FILES loadtrk.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 INSTALL(FILES loadtrk.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons)
 INSTALL(FILES doc/en/loadtrk.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 INSTALL(DIRECTORY examples DESTINATION ${CMAKE_INSTALL_DATADIR}/loadtrk FILES_MATCHING REGEX ".*\.(sng|ins)")
+
+set(PACKAGE_NAME "${PROJECT_NAME}")
+set(PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
+set(PACKAGE_STRING "${PROJECT_NAME} ${CMAKE_PROJECT_VERSION}")
+set(PACKAGE_URL "${PROJECT_HOMEPAGE_URL}")
+
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/config.h.in ${CMAKE_BINARY_DIR}/src/config.h @ONLY)

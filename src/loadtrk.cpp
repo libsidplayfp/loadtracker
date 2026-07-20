@@ -20,6 +20,8 @@
 
 #include "loadtrk.h"
 
+#include "config.h"
+
 #include "configfile.h"
 #include "console.h"
 #include "display.h"
@@ -74,7 +76,7 @@ double tuning[96];
 char tuningname[64];
 
 extern char *notename[];
-const char *programname = "LoadTracker v1.99";
+const char *programname = "LoadTracker " PACKAGE_VERSION;
 
 char textbuffer[MAX_PATHNAME];
 
