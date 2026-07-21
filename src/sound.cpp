@@ -52,7 +52,6 @@
 // General / reSID output
 bool initted = false;
 unsigned framerate = PALFRAMERATE;
-Sint16 *buffer = nullptr;
 Sint16 *lbuffer = nullptr;
 Sint16 *rbuffer = nullptr;
 FILE *writehandle = nullptr;
@@ -65,6 +64,7 @@ unsigned exsidDelay = 0;
 #endif
 
 void sound_playrout();
+
 void sound_mixer(Sint32 *dest, unsigned samples);
 Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
@@ -141,9 +141,8 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
     (void)exsid;
 #endif
 
-  if (!buffer) buffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
-  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
-  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE * sizeof(Sint16)];
+  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
+  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
 
   if (writer)
     writehandle = std::fopen("sidaudio.raw", "wb");
@@ -195,12 +194,6 @@ void sound_uninit()
   {
     std::fclose(writehandle);
     writehandle = nullptr;
-  }
-
-  if (buffer)
-  {
-    delete [] buffer;
-    buffer = nullptr;
   }
 
   if (lbuffer)
@@ -273,16 +266,16 @@ void sound_mixer(Sint32 *dest, unsigned samples)
 
   if (numsids == 1)
   {
-    if (!buffer) return;
-    sid_fillbuffer(buffer, samples);
+    if (!lbuffer) return;
+    sid_fillbuffer(lbuffer, samples);
     if (writehandle)
     {
-      std::fwrite(buffer, samples * sizeof(Uint16), 1, writehandle);
+      std::fwrite(lbuffer, samples * sizeof(Sint16), 1, writehandle);
     }
 
     for (unsigned c = 0; c < samples; c++)
     {
-      dest[c] = buffer[c];
+      dest[c] = lbuffer[c];
     }
   }
   else if (numsids == 2)
@@ -292,6 +285,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     {
       for (unsigned c = 0; c < samples; c++)
       {
+        // FIXME should be interleaved?
         std::fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
         std::fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
       }
@@ -300,16 +294,19 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     {
       for (unsigned c = 0; c < samples; c++)
       {
-        dest[c*2] = lbuffer[c] / 2 + rbuffer[c] / 2;
-        dest[c*2+1] = dest[c*2];
+        Sint32 sample = (lbuffer[c] + rbuffer[c]) / 2; // FIXME limit insted of halving
+        dest[c*2] = sample;
+        dest[c*2+1] = sample;
       }
     }
     else
     {
       for (unsigned c = 0; c < samples; c++)
       {
-        dest[c*2] = lbuffer[c] * panning + rbuffer[c] * (1-panning);
-        dest[c*2+1] = rbuffer[c] * panning + lbuffer[c] * (1-panning);
+        Sint32 ls = lbuffer[c];
+        Sint32 rs = rbuffer[c];
+        dest[c*2] = (ls-rs) * panning + rs;
+        dest[c*2+1] = (rs-ls) * panning + ls;
       }
     }
   }

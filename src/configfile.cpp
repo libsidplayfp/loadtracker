@@ -366,8 +366,8 @@ void validateconfig()
   if (customclockrate < 100) customclockrate = 0;
   if (defaultpatternlength < 1) defaultpatternlength = 1;
   if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
-  if (panning < 0) panning = 0;
-  if (panning > 1) panning = 1;
+  if (panning < 0.f) panning = 0.f;
+  if (panning > 1.f) panning = 1.f;
   if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   if (filterbias > 1.0) filterbias = 1.0;
