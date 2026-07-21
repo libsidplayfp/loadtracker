@@ -38,10 +38,6 @@ enum class EditHdr
   BPM     = 2
 };
 
-#define VISIBLEPATTROWS 34
-#define VISIBLETABLEROWS 15
-#define VISIBLEFILES 28
-
 #define PGUPDNREPEAT 8
 
 #ifndef LOADTRK_C

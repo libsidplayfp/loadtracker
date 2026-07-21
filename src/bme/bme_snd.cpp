@@ -14,15 +14,10 @@
 #  include <jack/transport.h>
 #endif
 
-#ifdef USE_MIDI_INPUT
-#  include <rtmidi/rtmidi_c.h>
-#endif
-
 #include <SDL3/SDL.h>
 
 #include <new>
 
-#include <cstdlib>
 #include <cstring>
 #include <cstdio>
 
@@ -69,7 +64,6 @@ static void (*snd_custommixer)(Sint32 *dest, unsigned samples) = nullptr;
 static unsigned snd_buffersize;
 static unsigned snd_framesize;
 static unsigned snd_previouschannels = 0xffffffff;
-static bool snd_atexit_registered = false;
 static Sint32 *snd_clipbuffer = nullptr;
 SDL_AudioStream *stream = nullptr;
 static SDL_AudioSpec spec;
@@ -82,21 +76,10 @@ static jack_client_t* client;
 static jack_port_t* output_port;
 #endif
 
-#ifdef USE_MIDI_INPUT
-RtMidiInPtr midi_device = nullptr;
-#endif
-
-void playtestnote(int note, int ins, int chnnum);
-void insertnote(int newnote);
-
-#define VISIBLEPATTROWS 34
-
 extern int einum;
 extern int epchn;
 extern int epview[];
 extern int eppos;
-
-int current_note_on = -1;
 
 #ifdef USE_JACK
 int snd_jack_process(jack_nframes_t nframes, void *)
@@ -165,97 +148,11 @@ bool snd_init_jack()
 }
 #endif
 
-#ifdef USE_MIDI_INPUT
-void noteOn(unsigned char note)
-{
-    current_note_on = note;
-    insertnote(note + 72);
-    epview[epchn] = eppos-VISIBLEPATTROWS/2;
-}
-
-void noteOff(unsigned char note)
-{
-    if (note == current_note_on)
-    {
-        playtestnote(190, einum, epchn); // off note
-        current_note_on = -1;
-    }
-}
-
-void snd_midi_process(double, const unsigned char *message, size_t messageSize, void*)
-{
-    for (size_t i = 0; i < messageSize; i++)
-    {
-         //printf("size: %u: %02X %u %u\n", messageSize,
-         //    *message, *(message+1), *(message+2));
-
-        unsigned char midi_cmd = message[i++];
-        if ((midi_cmd & 0xf0) == 0x90)
-        {
-            // note on
-            unsigned char note = message[i++];
-            unsigned char velocity = message[i];
-            if (velocity != 0)
-            {
-                noteOn(note);
-            }
-            else
-            {
-                noteOff(note);
-            }
-        }
-        else if ((midi_cmd & 0xf0) == 0x80)
-        {
-            // note off
-            unsigned char note = message[i++];
-            noteOff(note);
-        }
-    }
-}
-
-bool snd_init_midi()
-{
-    RtMidiInPtr midi_device = rtmidi_in_create(RTMIDI_API_UNSPECIFIED, "loadtracker", 100);
-    if (!midi_device->ok)
-    {
-        ltlog::warning("failed to activate midi: %s\n", midi_device->msg);
-        return false;
-    }
-
-    unsigned int ports = rtmidi_get_port_count(midi_device);
-    if (!ports)
-    {
-        ltlog::warning("No available MIDI ports");
-        return false;
-    }
-
-    rtmidi_open_port(midi_device, 0, "midi_in");
-    if (!midi_device->ok)
-    {
-        ltlog::warning("failed to open port", midi_device->msg);
-        return false;
-    }
-
-    rtmidi_in_set_callback(midi_device, snd_midi_process, nullptr);
-    if (!midi_device->ok)
-    {
-        ltlog::warning("failed to set midi callback", midi_device->msg);
-        return false;
-    }
-
-    return true;
-}
-#endif
-
 bool snd_init(unsigned mixrate, unsigned mixmode)
 {
     // If user wants to re-initialize, shutdown first
 
     snd_uninit();
-
-#ifdef USE_MIDI_INPUT
-    snd_init_midi();
-#endif
 
 #ifdef USE_JACK
     if (use_jack) {
@@ -264,12 +161,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     }
 #endif
     // Register snd_uninit as an atexit function
-
-    if (!snd_atexit_registered)
-    {
-        std::atexit(snd_uninit);
-        snd_atexit_registered = true;
-    }
 
     // Check for illegal config
 
@@ -398,10 +289,6 @@ void snd_uninit()
         snd_sndinitted = false;
     }
     snd_uninitmixer();
-#ifdef USE_MIDI_INPUT
-    if (midi_device != nullptr)
-        rtmidi_in_free(midi_device);
-#endif
 }
 
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples))

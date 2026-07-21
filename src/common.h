@@ -85,6 +85,10 @@ enum
 #define WAVECMD 0xf0
 #define WAVELASTCMD 0xfe
 
+#define VISIBLEPATTROWS 34
+#define VISIBLETABLEROWS 15
+#define VISIBLEFILES 28
+
 struct Colors
 {
   unsigned char CBKGND;

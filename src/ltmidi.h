@@ -16,35 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PATTERN_H
-#define PATTERN_H
+#ifndef LTMIDI_H
+#define LTMIDI_H
 
-#include "common.h"
-
-enum
-{
-  KEY_TRACKER   = 0,
-  KEY_DMC       = 1,
-  KEY_JANKO     = 2
-};
-
-#ifndef PATTERN_C
-extern int epnum[MAX_CHN];
-extern int eppos;
-extern int epview[MAX_CHN];
-extern int epcolumn;
-extern int epchn;
-extern int epoctave;
-extern int autoadvance;
-extern Selection epmark;
-#endif
-
-void patterncommands();
-void nextpattern();
-void prevpattern();
-void patternup();
-void patterndown();
-
-void insertnote(int newnote);
+bool midi_init();
+void midi_uninit();
 
 #endif

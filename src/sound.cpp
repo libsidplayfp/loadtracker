@@ -26,6 +26,7 @@
 
 #include "configfile.h"
 #include "loadtrk.h"
+#include "ltmidi.h"
 #include "play.h"
 #include "sid.h"
 
@@ -156,6 +157,9 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   {
     return false;
   }
+
+  midi_init();
+
   playspeed = snd_mixrate;
   sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
 
@@ -177,6 +181,9 @@ void sound_uninit()
   // Apparently a delay is needed to make sure the sound timer thread is
   // not mixing stuff anymore, and we can safely delete related structures
   SDL_Delay(50);
+
+  snd_uninit();
+  midi_uninit();
 
 #ifdef USE_EXSID
   if (useexsid)

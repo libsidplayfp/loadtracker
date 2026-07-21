@@ -34,6 +34,7 @@ set(LOADTRK_SOURCES
     src/console.cpp
     src/sid.cpp
     src/ltlog.cpp
+    src/ltmidi.cpp
     src/asm/asm.tab.c
     src/asm/chunkpool.c
     src/asm/expr.c
