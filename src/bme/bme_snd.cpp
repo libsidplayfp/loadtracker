@@ -26,11 +26,13 @@
 #include <cstring>
 #include <cstdio>
 
-#define VM_OFF 0
-#define VM_ON 1
-#define VM_ONESHOT 0
-#define VM_LOOP 2
-#define VM_16BIT 4
+enum
+{
+  VM_OFF    = 0,
+  VM_ON     = 1,
+  VM_LOOP   = 2,
+  VM_16BIT  = 4
+};
 
 #ifdef USE_JACK
 typedef jack_default_audio_sample_t sample_t;
@@ -67,7 +69,7 @@ static void (*snd_custommixer)(Sint32 *dest, unsigned samples) = nullptr;
 static unsigned snd_buffersize;
 static unsigned snd_framesize;
 static unsigned snd_previouschannels = 0xffffffff;
-static int snd_atexit_registered = 0;
+static bool snd_atexit_registered = false;
 static Sint32 *snd_clipbuffer = nullptr;
 SDL_AudioStream *stream = nullptr;
 static SDL_AudioSpec spec;
@@ -266,7 +268,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     if (!snd_atexit_registered)
     {
         std::atexit(snd_uninit);
-        snd_atexit_registered = 1;
+        snd_atexit_registered = true;
     }
 
     // Check for illegal config
@@ -540,7 +542,7 @@ static void snd_mixchannels(Sint32 *dest, unsigned samples)
 
 static void snd_clearclipbuffer(Sint32 *clipbuffer, unsigned clipsamples)
 {
-    memset(clipbuffer, 0, clipsamples*sizeof(Sint32));
+    std::memset(clipbuffer, 0, clipsamples*sizeof(Sint32));
 }
 
 #ifdef USE_JACK
