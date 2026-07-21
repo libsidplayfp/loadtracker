@@ -7,12 +7,15 @@
 
 #include <SDL3/SDL.h>
 
+using CustomMixer = void (*)(Sint32 *dest, unsigned samples);
+using Player = void (*)();
+
 bool snd_init(unsigned mixrate, unsigned mixmode);
 void snd_uninit();
-void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
+void snd_setcustommixer(CustomMixer custommixer);
+void snd_setplayer(Player player);
+unsigned getmixrate();
 
-extern void (*snd_player)();
 extern int snd_bpmtempo;
-extern unsigned snd_mixrate;
 
 #endif

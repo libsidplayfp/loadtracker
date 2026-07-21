@@ -37,13 +37,10 @@ static bool snd_initchannels(unsigned channels);
 static bool snd_initmixer();
 static void snd_uninitmixer();
 static void snd_mixdata(Uint8 *dest, unsigned bytes);
-static void snd_mixchannels(Sint32 *dest, unsigned samples);
 static void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount);
 
 
 // Lowlevel mixing functions
-static void snd_clearclipbuffer(Sint32 *clipbuffer, unsigned clipsamples);
-static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples);
 #ifdef USE_JACK
 static void snd_jack_postprocess(Sint32 *src, sample_t* dest, unsigned samples);
 #endif
@@ -51,7 +48,7 @@ static void snd_float_postprocess(Sint32 *src, float* dest, unsigned samples);
 static void snd_16bit_postprocess(Sint32 *src, Sint16 *dest, unsigned samples);
 static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples);
 
-void (*snd_player)() = nullptr;
+Player snd_player = nullptr;
 CHANNEL *snd_channel = nullptr;
 int snd_channels = 0;
 bool snd_sndinitted = false;
@@ -60,13 +57,12 @@ int snd_bpmtempo = 125;
 unsigned snd_mixmode;
 unsigned snd_mixrate;
 
-static void (*snd_custommixer)(Sint32 *dest, unsigned samples) = nullptr;
+static CustomMixer snd_custommixer = nullptr;
 static unsigned snd_buffersize;
 static unsigned snd_framesize;
 static unsigned snd_previouschannels = 0xffffffff;
 static Sint32 *snd_clipbuffer = nullptr;
 SDL_AudioStream *stream = nullptr;
-static SDL_AudioSpec spec;
 
 #ifdef USE_JACK
 static bool use_jack = true;
@@ -75,11 +71,6 @@ static bool use_jack_audio = false;
 static jack_client_t* client;
 static jack_port_t* output_port;
 #endif
-
-extern int einum;
-extern int epchn;
-extern int epview[];
-extern int eppos;
 
 #ifdef USE_JACK
 int snd_jack_process(jack_nframes_t nframes, void *)
@@ -171,6 +162,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
         return false;
     }
 
+    SDL_AudioSpec spec;
     spec.freq = mixrate;
     spec.format = (mixmode & SIXTEENBIT) ? SDL_AUDIO_S16 : SDL_AUDIO_U8;
     spec.channels = (mixmode & STEREO) ? 2 : 1;
@@ -241,8 +233,8 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     return true;
 }
 
-bool snd_initchannels(unsigned channels) {
-
+bool snd_initchannels(unsigned channels)
+{
     if (snd_previouschannels != channels)
     {
         if (snd_channel)
@@ -276,7 +268,6 @@ bool snd_initchannels(unsigned channels) {
     return true;
 }
 
-
 void snd_uninit()
 {
     if (snd_sndinitted
@@ -291,9 +282,14 @@ void snd_uninit()
     snd_uninitmixer();
 }
 
-void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples))
+void snd_setcustommixer(CustomMixer custommixer)
 {
     snd_custommixer = custommixer;
+}
+
+void snd_setplayer(Player player)
+{
+    snd_player = player;
 }
 
 static bool snd_initmixer()
@@ -342,6 +338,11 @@ void snd_mixer_callback(void*, SDL_AudioStream *stream, int additional_amount, i
 
 static void snd_mixdata(Uint8 *dest, unsigned bytes)
 {
+    if (!snd_custommixer)
+    {
+        std::memset(dest, 0, bytes*sizeof(Uint8));
+        return;
+    }
     unsigned mixsamples = bytes / snd_framesize;
     unsigned clipsamples = mixsamples;
     if (snd_mixmode & STEREO) clipsamples <<= 1;
@@ -352,7 +353,7 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
         mixsamples = clipsamples;
     }
 #endif
-    snd_clearclipbuffer(snd_clipbuffer, clipsamples);
+    std::memset(snd_clipbuffer, 0, clipsamples*sizeof(Sint32));
 
     if (snd_player) // Must the player be called?
     {
@@ -369,14 +370,7 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
             int musicsamples = mixsamples;
             if (musicsamples > snd_bpmcount) musicsamples = snd_bpmcount;
             snd_bpmcount -= musicsamples;
-            if (!snd_custommixer)
-            {
-                snd_mixchannels(clipptr, musicsamples);
-            }
-            else
-            {
-                snd_custommixer(clipptr, musicsamples);
-            }
+            snd_custommixer(clipptr, musicsamples);
             if (snd_mixmode & STEREO) clipptr += musicsamples * 2;
             else clipptr += musicsamples;
             mixsamples -= musicsamples;
@@ -384,14 +378,7 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
     }
     else
     {
-        if (!snd_custommixer)
-        {
-            snd_mixchannels(clipptr, mixsamples);
-        }
-        else
-        {
-            snd_custommixer(clipptr, mixsamples);
-        }
+        snd_custommixer(clipptr, mixsamples);
     }
 
     clipptr = (Sint32 *)snd_clipbuffer;
@@ -416,29 +403,18 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
     }
 }
 
-static void snd_mixchannels(Sint32 *dest, unsigned samples)
+int clip(int sample)
 {
-    CHANNEL *chptr = &snd_channel[0];
-
-    for (int c = snd_channels; c; c--)
-    {
-        snd_mixchannel(chptr, dest, samples);
-        chptr++;
-    }
-}
-
-static void snd_clearclipbuffer(Sint32 *clipbuffer, unsigned clipsamples)
-{
-    std::memset(clipbuffer, 0, clipsamples*sizeof(Sint32));
+    if (sample > 32767) sample = 32767;
+    if (sample < -32768) sample = -32768;
+    return sample;
 }
 
 #ifdef USE_JACK
 static void snd_jack_postprocess(Sint32* src, sample_t* dest, unsigned samples) {
     while (samples--)
     {
-        int sample = *src++;
-        if (sample > 32767) sample = 32767;
-        if (sample < -32768) sample = -32768;
+        int sample = clip(*src++);
         *dest++ = sample / 32768.0;
     }
 }
@@ -447,9 +423,7 @@ static void snd_jack_postprocess(Sint32* src, sample_t* dest, unsigned samples) 
 static void snd_float_postprocess(Sint32* src, float* dest, unsigned samples) {
     while (samples--)
     {
-        int sample = *src++;
-        if (sample > 32767) sample = 32767;
-        if (sample < -32768) sample = -32768;
+        int sample = clip(*src++);
         *dest++ = sample / 32768.0f;
     }
 }
@@ -458,9 +432,7 @@ static void snd_16bit_postprocess(Sint32 *src, Sint16 *dest, unsigned samples)
 {
     while (samples--)
     {
-        int sample = *src++;
-        if (sample > 32767) sample = 32767;
-        if (sample < -32768) sample = -32768;
+        int sample = clip(*src++);
         *dest++ = sample;
     }
 }
@@ -469,222 +441,12 @@ static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples)
 {
     while (samples--)
     {
-          int sample = *src++;
-          if (sample > 32767) sample = 32767;
-          if (sample < -32768) sample = -32768;
-          *dest++ = (sample >> 8) + 128;
+        int sample = clip(*src++);
+        *dest++ = (sample >> 8) + 128;
     }
 }
 
-static void snd_mixchannel(CHANNEL *chptr, Sint32 *dest, unsigned samples)
+unsigned getmixrate()
 {
-    if (chptr->voicemode & VM_ON)
-    {
-          unsigned freq = chptr->freq;
-          if (freq > 535232) freq = 535232;
-          unsigned intadd = freq / snd_mixrate;
-          unsigned fractadd = (((freq % snd_mixrate) << 16) / snd_mixrate) & 65535;
-
-          if (snd_mixmode & STEREO)
-          {
-                int leftvol = (((chptr->vol * chptr->mastervol) >> 6) * (255-chptr->panning)) >> 7;
-                int rightvol = (((chptr->vol * chptr->mastervol) >> 6) * (chptr->panning)) >> 7;
-                if (leftvol < 0) leftvol = 0;
-                if (leftvol > 255) leftvol = 255;
-                if (rightvol < 0) rightvol = 0;
-                if (rightvol > 255) rightvol = 255;
-
-                if (chptr->voicemode & VM_16BIT)
-                {
-                    Sint16 *pos = (Sint16 *)chptr->pos;
-                    Sint16 *end = (Sint16 *)chptr->end;
-                    Sint16 *repeat = (Sint16 *)chptr->repeat;
-
-                    if (chptr->voicemode & VM_LOOP)
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + ((*pos * leftvol) >> 8);
-                                dest++;
-                                *dest = *dest + ((*pos * rightvol) >> 8);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                while (pos >= end) pos -= (end - repeat);
-                          }
-                    }
-                    else
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + ((*pos * leftvol) >> 8);
-                                dest++;
-                                *dest = *dest + ((*pos * rightvol) >> 8);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                if (pos >= end)
-                                {
-                                    chptr->voicemode &= ~VM_ON;
-                                    break;
-                                }
-                          }
-                    }
-                    chptr->pos = (Sint8 *)pos;
-                }
-                else
-                {
-                    Sint8 *pos = (Sint8 *)chptr->pos;
-                    Sint8 *end = chptr->end;
-                    Sint8 *repeat = chptr->repeat;
-
-                    if (chptr->voicemode & VM_LOOP)
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + (*pos * leftvol);
-                                dest++;
-                                *dest = *dest + (*pos * rightvol);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                while (pos >= end) pos -= (end - repeat);
-                          }
-                    }
-                    else
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + (*pos * leftvol);
-                                dest++;
-                                *dest = *dest + (*pos * rightvol);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                if (pos >= end)
-                                {
-                                    chptr->voicemode &= ~VM_ON;
-                                    break;
-                                }
-                          }
-                    }
-                    chptr->pos = (Sint8 *)pos;
-                }
-          }
-          else
-          {
-                int vol = ((chptr->vol * chptr->mastervol) >> 6);
-                if (vol < 0) vol = 0;
-                if (vol > 255) vol = 255;
-
-                if (chptr->voicemode & VM_16BIT)
-                {
-                    Sint16 *pos = (Sint16 *)chptr->pos;
-                    Sint16 *end = (Sint16 *)chptr->end;
-                    Sint16 *repeat = (Sint16 *)chptr->repeat;
-
-                    if (chptr->voicemode & VM_LOOP)
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + ((*pos * vol) >> 8);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                while (pos >= end) pos -= (end - repeat);
-                          }
-                    }
-                    else
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + ((*pos * vol) >> 8);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                if (pos >= end)
-                                {
-                                    chptr->voicemode &= ~VM_ON;
-                                    break;
-                                }
-                          }
-                    }
-                    chptr->pos = (Sint8 *)pos;
-                }
-                else
-                {
-                    Sint8 *pos = (Sint8 *)chptr->pos;
-                    Sint8 *end = chptr->end;
-                    Sint8 *repeat = chptr->repeat;
-
-                    if (chptr->voicemode & VM_LOOP)
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + (*pos * vol);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                while (pos >= end) pos -= (end - repeat);
-                          }
-                    }
-                    else
-                    {
-                          while (samples--)
-                          {
-                                *dest = *dest + (*pos * vol);
-                                dest++;
-                                chptr->fractpos += fractadd;
-                                if (chptr->fractpos > 65535)
-                                {
-                                    chptr->fractpos &= 65535;
-                                    pos++;
-                                }
-                                pos += intadd;
-                                if (pos >= end)
-                                {
-                                    chptr->voicemode &= ~VM_ON;
-                                    break;
-                                }
-                          }
-                    }
-                    chptr->pos = (Sint8 *)pos;
-                }
-          }
-    }
+    return snd_mixrate;
 }

@@ -142,12 +142,6 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
     (void)exsid;
 #endif
 
-  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
-  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
-
-  if (writer)
-    writehandle = std::fopen("sidaudio.raw", "wb");
-
   int playspeed = mr;
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
@@ -160,10 +154,16 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
 
   midi_init();
 
-  playspeed = snd_mixrate;
+  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
+  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
+
+  if (writer)
+    writehandle = std::fopen("sidaudio.raw", "wb");
+
+  playspeed = getmixrate();
   sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
 
-  snd_player = &sound_playrout;
+  snd_setplayer(&sound_playrout);
   snd_setcustommixer(sound_mixer);
 
 #ifdef USE_EXSID
@@ -182,9 +182,6 @@ void sound_uninit()
   // not mixing stuff anymore, and we can safely delete related structures
   SDL_Delay(50);
 
-  snd_uninit();
-  midi_uninit();
-
 #ifdef USE_EXSID
   if (useexsid)
   {
@@ -194,7 +191,7 @@ void sound_uninit()
 #endif
   {
     snd_setcustommixer(nullptr);
-    snd_player = nullptr;
+    snd_setplayer(nullptr);
   }
 
   if (writehandle)
@@ -233,6 +230,9 @@ void sound_uninit()
     exsidfd = nullptr;
   }
 #endif
+
+  snd_uninit();
+  midi_uninit();
 }
 
 Uint32 sound_timer(void*, SDL_TimerID, Uint32 interval)
