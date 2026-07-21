@@ -349,7 +349,7 @@ int main(int argc, char **argv)
   // Init sound
   if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
   {
-    printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
+    printtextc(MAX_ROWS/2-1, 15, "Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
   }
 

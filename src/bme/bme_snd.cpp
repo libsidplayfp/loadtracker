@@ -274,6 +274,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     if (!mixrate)
     {
         snd_uninit();
+        ltlog::warning("Sampling rate not specified");
         return false;
     }
 
@@ -290,6 +291,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     if (!stream)
     {
         snd_uninit();
+        ltlog::warning("Cannot open sound device", SDL_GetError());
         return false;
     }
     snd_sndinitted = true;
@@ -325,6 +327,7 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     else
     {
         snd_uninit();
+        ltlog::warning("Invalid sound format");
         return false;
     }
 
@@ -338,7 +341,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     if (!snd_initmixer())
     {
-        snd_uninit();
         return false;
     }
 
@@ -361,6 +363,7 @@ bool snd_initchannels(unsigned channels) {
         if (!snd_channel)
         {
             snd_uninit();
+            ltlog::error("Out of memory");
             return false;
         }
         CHANNEL *chptr = &snd_channel[0];
@@ -415,7 +418,12 @@ static bool snd_initmixer()
     }
 
     snd_clipbuffer = new (std::nothrow) Sint32[bufSize];
-    if (!snd_clipbuffer) return false;
+    if (!snd_clipbuffer)
+    {
+        snd_uninit();
+        ltlog::error("Out of memory");
+        return false;
+    }
 
     return true;
 }
