@@ -120,7 +120,6 @@ void initsong(int num, int mode)
 
 void initsongpos(int num, int mode, int pattpos)
 {
-  songinit = PLAY_STOPPED;
   psnum = num;
   songinit = mode;
   startpattpos = pattpos;
@@ -270,10 +269,7 @@ void playroutine()
       }
       cptr++;
     }
-    if (songinit != PLAY_STOP)
-      songinit = PLAY_PLAYING;
-    else
-      songinit = PLAY_STOPPED;
+    songinit = (songinit != PLAY_STOP) ? PLAY_PLAYING : PLAY_STOPPED;
     if ((!song.len[psnum][0]) || (!song.len[psnum][1]) || (!song.len[psnum][2]))
       songinit = PLAY_STOPPED; // Zero length song
 
@@ -1126,10 +1122,7 @@ void playroutine_stereo()
             }
             cptr++;
         }
-        if (songinit != PLAY_STOP)
-            songinit = PLAY_PLAYING;
-        else
-            songinit = PLAY_STOPPED;
+        songinit = (songinit != PLAY_STOP) ? PLAY_PLAYING : PLAY_STOPPED;
         if ((!song.len[psnum][0]) || (!song.len[psnum][1]) || (!song.len[psnum][2]) ||
                 (!song.len[psnum][3]) || (!song.len[psnum][4]) || (!song.len[psnum][5]))
             songinit = PLAY_STOPPED; // Zero length song
