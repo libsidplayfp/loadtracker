@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 {
   if (argc < 3)
   {
-    printf("Usage: SNGSPLI2 <source> <destination> [length]\n\n"
+    std::printf("Usage: SNGSPLI2 <source> <destination> [length]\n\n"
            "Splits patterns of the song into smaller patterns with [length] rows,\n"
            "searching for possible duplicates and probably making the song take less\n"
            "memory. For safety reasons source & destination cannot be same, because\n"
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
   }
   if (!std::strcmp(argv[1], argv[2]))
   {
-    printf("ERROR: Source and destination are not allowed to be the same.");
+    std::printf("ERROR: Source and destination are not allowed to be the same.");
     return EXIT_FAILURE;
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
   if (!loadsong(argv[1]))
   {
-    printf("ERROR: Couldn't load source song.");
+    std::printf("ERROR: Couldn't load source song.");
     return EXIT_FAILURE;
   }
   if (!processsong())
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   }
   if (!savesong(argv[2]))
   {
-    printf("ERROR: Couldn't save destination song.");
+    std::printf("ERROR: Couldn't save destination song.");
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
@@ -127,7 +127,7 @@ int processsong(void)
         // If less than 2 splits left, do in one part
         if (remain < splitsize * 2)
         {
-          memcpy(destpattern[dp], &pattern[c][d*4], remain*4);
+          std::memcpy(destpattern[dp], &pattern[c][d*4], remain*4);
           destpattern[dp][remain*4] = ENDPATT;
           destpattern[dp][remain*4+1] = 0;
           destpattern[dp][remain*4+2] = 0;
@@ -140,7 +140,7 @@ int processsong(void)
         }
         else
         {
-          memcpy(destpattern[dp], &pattern[c][d*4], splitsize*4);
+          std::memcpy(destpattern[dp], &pattern[c][d*4], splitsize*4);
           destpattern[dp][splitsize*4] = ENDPATT;
           destpattern[dp][splitsize*4+1] = 0;
           destpattern[dp][splitsize*4+2] = 0;
@@ -155,13 +155,13 @@ int processsong(void)
       // This should never happen 
       if (destpattsplits[c] >= MAX_SPLITS)
       {
-        printf("ERROR: Internal error, too many splits!");
+        std::printf("ERROR: Internal error, too many splits!");
         return 0;
       }
       // This might happen :-) 
       if (dp > MAX_PATT)
       {
-        printf("ERROR: 255 patterns exceeded!");
+        std::printf("ERROR: 255 patterns exceeded!");
         return 0;
       }
     }
@@ -201,7 +201,7 @@ int processsong(void)
               dsl++;
               if (dsl > MAX_SONGLEN)
               {
-                printf("ERROR: Orderlist-length of 254 exceeded!");
+                std::printf("ERROR: Orderlist-length of 254 exceeded!");
                 return 0;
               }
             }
@@ -212,7 +212,7 @@ int processsong(void)
             dsl++;
             if (dsl > MAX_SONGLEN)
             {
-              printf("ERROR: Orderlist-length of 254 exceeded!");
+              std::printf("ERROR: Orderlist-length of 254 exceeded!");
               return 0;
             }
           }
@@ -260,7 +260,7 @@ int processsong(void)
       destpatt += destpattlen[c]*4 + 4;
       destpatttbl += 2;
     }
-    printf("Processing complete. Results:\n\n"
+    std::printf("Processing complete. Results:\n\n"
            "       Songdata Patterns Patt.Tbl Total\n"
            "Before %-8d %-8d %-8d %-8d\n"
            "After  %-8d %-8d %-8d %-8d\n",
@@ -272,14 +272,14 @@ int processsong(void)
 
 int loadsong(char *name)
 {
-  FILE *srchandle = fopen(name, "rb");
+  FILE *srchandle = std::fopen(name, "rb");
   if (srchandle)
   {
     fread(ident, 4, 1, srchandle);
-    if (!memcmp(ident, "GTS2", 4)) tables = 3;
-    if (!memcmp(ident, "GTS3", 4)) tables = 4;
-    if (!memcmp(ident, "GTS4", 4)) tables = 4;
-    if (!memcmp(ident, "GTS5", 4)) tables = 4;
+    if (!std::memcmp(ident, "GTS2", 4)) tables = 3;
+    if (!std::memcmp(ident, "GTS3", 4)) tables = 4;
+    if (!std::memcmp(ident, "GTS4", 4)) tables = 4;
+    if (!std::memcmp(ident, "GTS5", 4)) tables = 4;
 
     if (tables)
     {
@@ -289,9 +289,9 @@ int loadsong(char *name)
       clearsong();
 
       // Read infotexts
-      fread(songname, sizeof songname, 1, srchandle);
-      fread(authorname, sizeof authorname, 1, srchandle);
-      fread(copyrightname, sizeof copyrightname, 1, srchandle);
+      std::fread(songname, sizeof songname, 1, srchandle);
+      std::fread(authorname, sizeof authorname, 1, srchandle);
+      std::fread(copyrightname, sizeof copyrightname, 1, srchandle);
 
       // Read songorderlists
       amount = fread8(srchandle);
@@ -302,7 +302,7 @@ int loadsong(char *name)
           length = fread8(srchandle);
           loadbytes = length;
           loadbytes++;
-          fread(songorder[d][c], loadbytes, 1, srchandle);
+          std::fread(songorder[d][c], loadbytes, 1, srchandle);
         }
       }
       // Read instruments
@@ -318,49 +318,47 @@ int loadsong(char *name)
         instr[c].vibdelay = fread8(srchandle);
         instr[c].gatetimer = fread8(srchandle);
         instr[c].firstwave = fread8(srchandle);
-        fread(&instr[c].name, MAX_INSTRNAMELEN, 1, srchandle);
+        std::fread(&instr[c].name, MAX_INSTRNAMELEN, 1, srchandle);
       }
       // Read tables
       for (int c = 0; c < tables; c++)
       {
         loadbytes = fread8(srchandle);
-        fread(ltable[c], loadbytes, 1, srchandle);
-        fread(rtable[c], loadbytes, 1, srchandle);
+        std::fread(ltable[c], loadbytes, 1, srchandle);
+        std::fread(rtable[c], loadbytes, 1, srchandle);
       }
       // Read patterns
       amount = fread8(srchandle);
       for (int c = 0; c < amount; c++)
       {
         length = fread8(srchandle);
-        fread(pattern[c], length*4, 1, srchandle);
+        std::fread(pattern[c], length*4, 1, srchandle);
       }
       countpatternlengths();
-      fclose(srchandle);
+      std::fclose(srchandle);
       return 1;
     }
-    fclose(srchandle);
+    std::fclose(srchandle);
   }
   return 0;
 }
 
 int savesong(char *name)
 {
-  FILE *handle;
-
-  handle = fopen(name, "wb");
+  FILE *handle = std::fopen(name, "wb");
   if (handle)
   {
     unsigned char length;
     unsigned char amount;
     int writebytes;
-    fwrite(ident, 4, 1, handle);
+    std::fwrite(ident, 4, 1, handle);
 
     countdestpatternlengths();
 
     // Write infotexts
-    fwrite(songname, sizeof songname, 1, handle);
-    fwrite(authorname, sizeof authorname, 1, handle);
-    fwrite(copyrightname, sizeof copyrightname, 1, handle);
+    std::fwrite(songname, sizeof songname, 1, handle);
+    std::fwrite(authorname, sizeof authorname, 1, handle);
+    std::fwrite(copyrightname, sizeof copyrightname, 1, handle);
 
     // Determine amount of songs to be saved
     int c = 0;
@@ -384,7 +382,7 @@ int savesong(char *name)
         fwrite8(handle, length);
         writebytes = length;
         writebytes++;
-        fwrite(destsongorder[d][c], writebytes, 1, handle);
+        std::fwrite(destsongorder[d][c], writebytes, 1, handle);
       }
     }
     // Write instruments
@@ -400,15 +398,15 @@ int savesong(char *name)
       fwrite8(handle, instr[c].vibdelay);
       fwrite8(handle, instr[c].gatetimer);
       fwrite8(handle, instr[c].firstwave);
-      fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
+      std::fwrite(&instr[c].name, MAX_INSTRNAMELEN, 1, handle);
     }
     // Write tables
     for (c = 0; c < tables; c++)
     {
       writebytes = gettablelen(c);
       fwrite8(handle, writebytes);
-      fwrite(ltable[c], writebytes, 1, handle);
-      fwrite(rtable[c], writebytes, 1, handle);
+      std::fwrite(ltable[c], writebytes, 1, handle);
+      std::fwrite(rtable[c], writebytes, 1, handle);
     }
     // Write patterns
     amount = dp;
@@ -417,10 +415,10 @@ int savesong(char *name)
     {
       length = destpattlen[c]+1;
       fwrite8(handle, length);
-      fwrite(destpattern[c], length*4, 1, handle);
+      std::fwrite(destpattern[c], length*4, 1, handle);
     }
 
-    fclose(handle);
+    std::fclose(handle);
     return 1;
   }
   return 0;

@@ -5,10 +5,17 @@
 
 #include <SDL3/SDL.h>
 
-#define MAX_COLORS 16
+constexpr int MAX_COLORS = 16;
 
-#define MAX_COLUMNS 128
-#define MAX_ROWS 40
+constexpr int MAX_COLUMNS = 128;
+constexpr int MAX_ROWS    =  40;
+
+enum
+{
+  MOUSEB_LEFT   = 1,
+  MOUSEB_RIGHT  = 2,
+  MOUSEB_MIDDLE = 4
+};
 
 bool win_openwindow(const char *appname);
 void win_closewindow();
@@ -34,8 +41,8 @@ unsigned mou_getbuttons();
 
 extern bool win_quitted;
 extern int win_fullscreen;
-extern unsigned char win_keytable[SDL_SCANCODE_COUNT];
-extern unsigned char win_keystate[SDL_SCANCODE_COUNT];
+extern bool win_keytable[SDL_SCANCODE_COUNT];
+extern bool win_keystate[SDL_SCANCODE_COUNT];
 extern unsigned char win_asciikey;
 extern float win_mouseywheel;
 extern SDL_Window *win_window;

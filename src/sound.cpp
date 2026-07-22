@@ -146,8 +146,7 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
 
-  unsigned mixmode = SIXTEENBIT | ((numsids == 1) ? MONO : STEREO);
-  if (!snd_init(playspeed, mixmode))
+  if (!snd_init(playspeed, numsids))
   {
     return false;
   }

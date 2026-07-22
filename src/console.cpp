@@ -220,7 +220,7 @@ void clearscreen()
 
   for (int c = 0; c < MAX_ROWS * MAX_COLUMNS; c++)
   {
-    setcharcolor(dptr, 0x20, 0x7);
+    setcharcolor(dptr, 0x20, 0x0);
     dptr++;
   }
 }
@@ -242,9 +242,7 @@ void printtext(int x, int y, int color, const char *text)
 
 void printtextc(int y, int color, const char *text)
 {
-  int x = (MAX_COLUMNS - std::strlen(text)) / 2;
-
-  printtext(x, y, color, text);
+  printtextcp(MAX_COLUMNS/2, y, color, text);
 }
 
 void printtextcp(int cp, int y, int color, const char *text)
@@ -257,16 +255,7 @@ void printtextcp(int cp, int y, int color, const char *text)
 
 void printblank(int x, int y, int length)
 {
-  if (!gfxinitted) return;
-  if ((y < 0) | (y >= MAX_ROWS)) return;
-
-  unsigned *dptr = scrbuffer + (x + y * MAX_COLUMNS);
-
-  while (length--)
-  {
-    setcharcolor(dptr, 0x20, 0x7);
-    dptr++;
-  }
+  printblankc(x, y, 0, length);
 }
 
 void printblankc(int x, int y, int color, int length)
@@ -398,23 +387,9 @@ void fliptoscreen()
           for (int c = 0; c < fontheight; c++)
           {
             unsigned char e = *chptr++;
+            for (unsigned char m = 0x80; m; m >>=1)
+                *dptr++ = (e & m) ? fgcolor : bgcolor;
 
-            if (e & 128) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 64) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 32) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 16) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 8) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 4) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 2) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
-            if (e & 1) *dptr++ = fgcolor;
-            else *dptr++ = bgcolor;
             dptr += gfx_screen->pitch - fontwidth;
           }
         }
@@ -468,7 +443,7 @@ void editstring(char *buffer, int maxlength)
 void getkey()
 {
   win_asciikey = 0;
-  cursorflashdelay += win_getspeed(50);
+  cursorflashdelay += win_getspeed(50); // Updates win_asciikey
 
   prevmouseb = mouseb;
 
@@ -490,7 +465,7 @@ void getkey()
           (c != SDL_SCANCODE_LCTRL) && (c != SDL_SCANCODE_RCTRL))
       {
         rawkey = c;
-        win_keytable[c] = 0;
+        win_keytable[c] = false;
         break;
       }
     }
@@ -508,16 +483,19 @@ void getkey()
     rawkey = SDL_SCANCODE_RETURN;
   }
 
-  if (rawkey == SDL_SCANCODE_KP_0) key = '0';
-  if (rawkey == SDL_SCANCODE_KP_1) key = '1';
-  if (rawkey == SDL_SCANCODE_KP_2) key = '2';
-  if (rawkey == SDL_SCANCODE_KP_3) key = '3';
-  if (rawkey == SDL_SCANCODE_KP_4) key = '4';
-  if (rawkey == SDL_SCANCODE_KP_5) key = '5';
-  if (rawkey == SDL_SCANCODE_KP_6) key = '6';
-  if (rawkey == SDL_SCANCODE_KP_7) key = '7';
-  if (rawkey == SDL_SCANCODE_KP_8) key = '8';
-  if (rawkey == SDL_SCANCODE_KP_9) key = '9';
+  switch (rawkey)
+  {
+    case SDL_SCANCODE_KP_0: key = '0'; break;
+    case SDL_SCANCODE_KP_1: key = '1'; break;
+    case SDL_SCANCODE_KP_2: key = '2'; break;
+    case SDL_SCANCODE_KP_3: key = '3'; break;
+    case SDL_SCANCODE_KP_4: key = '4'; break;
+    case SDL_SCANCODE_KP_5: key = '5'; break;
+    case SDL_SCANCODE_KP_6: key = '6'; break;
+    case SDL_SCANCODE_KP_7: key = '7'; break;
+    case SDL_SCANCODE_KP_8: key = '8'; break;
+    case SDL_SCANCODE_KP_9: key = '9'; break;
+  }
 }
 
 void initDisplayPositions()

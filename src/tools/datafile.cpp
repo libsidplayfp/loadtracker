@@ -12,21 +12,21 @@
 #include <cstring>
 #include <cctype>
 
-#define MAXFILES 16384
-#define MAXFILENAME 64
+constexpr int MAXFILES = 16384;
+constexpr int MAXFILENAME = 64;
 
-typedef struct
+struct Header
 {
     uint32_t offset;
     uint32_t length;
     char name[13];
-} HEADER;
+};
 
-static HEADER header[MAXFILES];
+static Header header[MAXFILES];
 static char fullname[MAXFILES][MAXFILENAME];
 static int files;
 
-bool addfile(HEADER *header, FILE *dest, char *name);
+bool addfile(Header *header, FILE *dest, char *name);
 
 int main(int argc, char **argv)
 {
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         std::fclose(listfile);
         return EXIT_FAILURE;
     }
-    std::memset(&header[0], 0, MAXFILES * sizeof(HEADER));
+    std::memset(&header[0], 0, MAXFILES * sizeof(Header));
     // Get names from list
     for (;;)
     {
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
             int d = 0;
             while (fullname[files][c])
             {
-                header[files].name[d] = toupper(fullname[files][c]);
+                header[files].name[d] = std::toupper(fullname[files][c]);
                 c++;
                 d++;
             }
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
-bool addfile(HEADER *header, FILE *dest, char *name)
+bool addfile(Header *header, FILE *dest, char *name)
 {
     FILE *src = std::fopen(name, "rb");
     if (!src)

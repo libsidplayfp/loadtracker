@@ -5,16 +5,6 @@
 
 #include <SDL3/SDL.h>
 
-#define MOUSEB_LEFT 1
-#define MOUSEB_RIGHT 2
-#define MOUSEB_MIDDLE 4
-
-#define MONO 0
-#define STEREO 1
-#define EIGHTBIT 0
-#define SIXTEENBIT 2
-#define FLOAT32BIT 4
-
 #define KEY_BACKSPACE    SDL_SCANCODE_BACKSPACE
 #define KEY_CAPSLOCK     SDL_SCANCODE_CAPSLOCK
 #define KEY_ENTER        SDL_SCANCODE_RETURN
@@ -126,65 +116,5 @@
 #define KEY_KPENTER      SDL_SCANCODE_KP_ENTER
 #define KEY_KPEQUALS     SDL_SCANCODE_KP_EQUALS
 #define KEY_KPPERIOD     SDL_SCANCODE_KP_PERIOD
-
-
-typedef struct
-{
-  Sint8 *start;
-  Sint8 *repeat;
-  Sint8 *end;
-  unsigned char voicemode;
-} SAMPLE;
-
-typedef struct
-{
-  volatile Sint8 *pos;
-  Sint8 *repeat;
-  Sint8 *end;
-  SAMPLE *smp;
-  unsigned freq;
-  volatile unsigned fractpos;
-  int vol;
-  int mastervol;
-  unsigned panning;
-  volatile unsigned voicemode;
-} CHANNEL;
-
-typedef struct
-{
-  int rawcode;
-  char *name;
-} KEY;
-
-typedef struct
-{
-  Sint16 xsize;
-  Sint16 ysize;
-  Sint16 xhot;
-  Sint16 yhot;
-  Uint32 offset;
-} SPRITEHEADER;
-
-typedef struct
-{
-  Uint32 type;
-  Uint32 offset;
-} BLOCKHEADER;
-
-typedef struct
-{
-  Uint8 blocksname[13];
-  Uint8 palettename[13];
-} MAPHEADER;
-
-typedef struct
-{
-  Sint32 xsize;
-  Sint32 ysize;
-  Uint8 xdivisor;
-  Uint8 ydivisor;
-  Uint8 xwrap;
-  Uint8 ywrap;
-} LAYERHEADER;
 
 #endif

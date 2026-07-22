@@ -10,7 +10,7 @@
 using CustomMixer = void (*)(Sint32 *dest, unsigned samples);
 using Player = void (*)();
 
-bool snd_init(unsigned mixrate, unsigned mixmode);
+bool snd_init(unsigned mixrate, unsigned numsids);
 void snd_uninit();
 void snd_setcustommixer(CustomMixer custommixer);
 void snd_setplayer(Player player);

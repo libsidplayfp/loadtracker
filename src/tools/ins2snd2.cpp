@@ -13,28 +13,16 @@
 unsigned char swapnybbles(unsigned char n);
 void outputbyte(unsigned char c);
 
-int covert = 0;
-int binary = 0;
+bool covert = false;
+bool binary = false;
 int bytecount = 0;
 FILE *out;
 
 int main(int argc, char **argv)
 {
-  int prevwave = 0xff;
-  int currwave = 0;
-  int fileok = 0;
-  Instr instr;
-  int wavelen,pulselen,filtlen;  
-  unsigned char ident[4] = {0};
-  unsigned char wavetable[MAX_TABLELEN*2];
-  unsigned char pulsetable[MAX_TABLELEN*2];
-  unsigned char filttable[MAX_TABLELEN*2];
-  unsigned char pulse = 0;
-
-
   if (argc < 3)
   {
-    printf("Usage: INS2SND2 <instrumentfile> <sourcecodefile> <options>\n"
+    std::printf("Usage: INS2SND2 <instrumentfile> <sourcecodefile> <options>\n"
            "-b Produce binary output\n"
            "-c Produce output in CovertScript format (deprecated)\n\n"
            "Takes a GoatTracker V1.xx or V2 instrument and outputs the corresponding sound\n"
@@ -55,17 +43,17 @@ int main(int argc, char **argv)
   {
     for (int c = 3; c < argc; c++)
     {
-      if (((argv[c][0] == '-') || (argv[c][0] == '/')) && (strlen(argv[c]) > 1))
+      if (((argv[c][0] == '-') || (argv[c][0] == '/')) && (std::strlen(argv[c]) > 1))
       {
         int ch = std::tolower(argv[c][1]);
         switch(ch)
         {
           case 'b':
-          binary = 1;
+          binary = true;
           break;
 
           case 'c':
-          covert = 1;
+          covert = true;
           break;
         }
       }
@@ -76,9 +64,20 @@ int main(int argc, char **argv)
   FILE *handle = std::fopen(argv[1], "rb");
   if (!handle)
   {
-    printf("ERROR: Can't open instrumentfile\n");
+    std::printf("ERROR: Can't open instrumentfile\n");
     return EXIT_FAILURE;
   }
+
+  int prevwave = 0xff;
+  int currwave = 0;
+  bool fileok = false;
+  Instr instr;
+  int wavelen,pulselen,filtlen;  
+  unsigned char ident[4] = {0};
+  unsigned char wavetable[MAX_TABLELEN*2];
+  unsigned char pulsetable[MAX_TABLELEN*2];
+  unsigned char filttable[MAX_TABLELEN*2];
+  unsigned char pulse = 0;
 
   std::memset(wavetable, 0, MAX_TABLELEN*2);
   std::memset(pulsetable, 0, MAX_TABLELEN*2);
@@ -87,7 +86,7 @@ int main(int argc, char **argv)
   std::fread(ident, 4, 1, handle);
   if (!std::memcmp(ident, "GTI!", 4))
   {
-    fileok = 1;
+    fileok = true;
     instr.ad = fread8(handle);
     instr.sr = fread8(handle);
     pulse = fread8(handle) & 0xfe;
@@ -101,7 +100,7 @@ int main(int argc, char **argv)
   }
   if (!std::memcmp(ident, "GTI2", 4))
   {
-    fileok = 1;
+    fileok = true;
     instr.ad = fread8(handle);
     instr.sr = fread8(handle);
     instr.ptr[0] = fread8(handle);
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
     instr.ptr[3] = fread8(handle);
     instr.gatetimer = fread8(handle);
     instr.firstwave = fread8(handle);
-    fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
+    std::fread(&instr.name, MAX_INSTRNAMELEN, 1, handle);
     wavelen = fread8(handle);
     for (int c = 0; c < wavelen; c++)
       wavetable[c*2] = fread8(handle);
@@ -131,7 +130,7 @@ int main(int argc, char **argv)
   }
   if ((!std::memcmp(ident, "GTI3", 4)) || (!std::memcmp(ident, "GTI4", 4) || (!std::memcmp(ident, "GTI5", 4))))
   {
-    fileok = 1;
+    fileok = true;
     instr.ad = fread8(handle);
     instr.sr = fread8(handle);
     instr.ptr[0] = fread8(handle);
@@ -238,30 +237,30 @@ void outputbyte(unsigned char c)
     {
       if (!bytecount)
       {
-        fprintf(out, "        dc.b ");
+        std::fprintf(out, "        dc.b ");
       }
-      else fprintf(out, ",");
-      fprintf(out, "$%02X", c);
+      else std::fprintf(out, ",");
+      std::fprintf(out, "$%02X", c);
       bytecount++;
       if (bytecount == 16)
       {
         bytecount = 0;
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
       }
     }
     else
     {
       if (bytecount)
       {
-        fprintf(out,",");
+        std::fprintf(out,",");
       }
       if (bytecount == 16)
       {
-        fprintf(out,"\n");
+        std::fprintf(out,"\n");
         bytecount = 0;
       }
       bytecount++;
-      fprintf(out, "0x%02x", c);
+      std::fprintf(out, "0x%02x", c);
     }
   }
 }

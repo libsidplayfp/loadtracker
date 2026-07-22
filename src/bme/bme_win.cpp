@@ -19,38 +19,22 @@
 // Colodore palette
 unsigned char gfx_palette[MAX_COLORS * 3] =
 {
-    // Black
-    0x00, 0x00, 0x00,
-    // White
-    0xFF, 0xFF, 0xFF,
-    // Red
-    0x96, 0x28, 0x2e,
-    // Cyan
-    0x5b, 0xd6, 0xce,
-    // Purple
-    0x9f, 0x2d, 0xad,
-    // Green
-    0x41, 0xb9, 0x36,
-    // Blue
-    0x27, 0x24, 0xc4,
-    // Yellow
-    0xef, 0xf3, 0x47,
-    // Orange
-    0x9f, 0x48, 0x15,
-    // Brown
-    0x5e, 0x35, 0x00,
-    // Light Red
-    0xda, 0x5f, 0x66,
-    // Dark Gray
-    0x47, 0x47, 0x47,
-    // Medium Gray
-    0x78, 0x78, 0x78,
-    // Light Green
-    0x91, 0xff, 0x84,
-    // Light Blue
-    0x68, 0x64, 0xff,
-    // Light Gray
-    0xae, 0xae, 0xae
+    0x00, 0x00, 0x00,   // Black
+    0xFF, 0xFF, 0xFF,   // White
+    0x96, 0x28, 0x2e,   // Red
+    0x5b, 0xd6, 0xce,   // Cyan
+    0x9f, 0x2d, 0xad,   // Purple
+    0x41, 0xb9, 0x36,   // Green
+    0x27, 0x24, 0xc4,   // Blue
+    0xef, 0xf3, 0x47,   // Yellow
+    0x9f, 0x48, 0x15,   // Orange
+    0x5e, 0x35, 0x00,   // Brown
+    0xda, 0x5f, 0x66,   // Light Red
+    0x47, 0x47, 0x47,   // Dark Gray
+    0x78, 0x78, 0x78,   // Medium Gray
+    0x91, 0xff, 0x84,   // Light Green
+    0x68, 0x64, 0xff,   // Light Blue
+    0xae, 0xae, 0xae    // Light Gray
 };
 
 SDL_Window *win_window = nullptr;
@@ -65,7 +49,8 @@ void gfx_uninit();
 int win_fullscreen = 0; // By default windowed
 bool win_windowinitted = false;
 bool win_quitted = false;
-unsigned char win_keytable[SDL_SCANCODE_COUNT] = {0};
+bool win_keytable[SDL_SCANCODE_COUNT] = {false};
+bool win_keystate[SDL_SCANCODE_COUNT] = {false};
 unsigned char win_asciikey = 0;
 unsigned win_mousexpos = 0;
 unsigned win_mouseypos = 0;
@@ -73,7 +58,6 @@ unsigned win_mousexrel = 0;
 unsigned win_mouseyrel = 0;
 unsigned win_mousebuttons = 0;
 float win_mouseywheel = 0.f;
-unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
 
 bool gfx_initted = false;
 bool gfx_redraw = false;
@@ -81,8 +65,8 @@ unsigned gfx_virtualxsize;
 unsigned gfx_virtualysize;
 unsigned gfx_windowxsize;
 unsigned gfx_windowysize;
-int spr_xsize = 0;
-int spr_ysize = 0;
+int cur_xsize = 0;
+int cur_ysize = 0;
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
 
@@ -94,10 +78,8 @@ unsigned ysize = MAX_ROWS * 16;
 
 // Static variables
 
-static Uint64 win_lasttime = 0;
 static Uint64 win_currenttime = 0;
 static int win_framecounter = 0;
-static int win_activateclick = 0;
 
 static bool gfx_initexec = false;
 static unsigned gfx_last_xsize;
@@ -185,7 +167,7 @@ int win_getspeed(int framerate)
     {
         win_checkmessages();
 
-        win_lasttime = win_currenttime;
+        Uint64 win_lasttime = win_currenttime;
         win_currenttime = SDL_GetTicks();
 
         win_framecounter += (win_currenttime - win_lasttime)*10;
@@ -210,7 +192,6 @@ void win_checkmessages()
     SDL_Event event;
     unsigned keynum;
 
-    win_activateclick = 0;
     win_mouseywheel = 0.f;
 
     SDL_PumpEvents();
@@ -309,8 +290,8 @@ void win_checkmessages()
                     gfx_reinit();
                     break;
                 }
-                win_keytable[keynum] = 1;
-                win_keystate[keynum] = 1;
+                win_keytable[keynum] = true;
+                win_keystate[keynum] = true;
             }
             break;
 
@@ -318,8 +299,8 @@ void win_checkmessages()
             keynum = event.key.scancode;
             if (keynum < SDL_SCANCODE_COUNT)
             {
-                win_keytable[keynum] = 0;
-                win_keystate[keynum] = 0;
+                win_keytable[keynum] = false;
+                win_keystate[keynum] = false;
             }
             break;
 
@@ -587,18 +568,18 @@ void gfx_drawcursor(int x, int y)
 
     if (!gfx_cursor)
     {
-        spr_xsize = 0;
-        spr_ysize = 0;
+        cur_xsize = 0;
+        cur_ysize = 0;
         return;
     }
 
-    spr_xsize = gfx_cursor->w;
-    spr_ysize = gfx_cursor->h;
+    cur_xsize = gfx_cursor->w;
+    cur_ysize = gfx_cursor->h;
 
     if (x >= gfx_clipright) return;
     if (y >= gfx_clipbottom) return;
-    if (x + spr_xsize <= gfx_clipleft) return;
-    if (y + spr_ysize <= gfx_cliptop) return;
+    if (x + cur_xsize <= gfx_clipleft) return;
+    if (y + cur_ysize <= gfx_cliptop) return;
 
     SDL_Rect dstrect;
     dstrect.x = x;

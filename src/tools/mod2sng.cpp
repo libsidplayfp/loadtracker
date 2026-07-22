@@ -9,20 +9,20 @@
 #include <cstring>
 #include <cstdlib>
 
-typedef struct
+struct Note
 {
   unsigned char note;
   unsigned char instr;
   unsigned char command;
   unsigned char data;
-} NOTE;
+};
 
-typedef struct
+struct Goatnote
 {
   unsigned char note;
   unsigned char command;
   unsigned char data;
-} GOATNOTE;
+};
 
 
 unsigned short periodtable[16][12] =
@@ -47,10 +47,10 @@ unsigned short periodtable[16][12] =
 
 unsigned char modheader[1084];
 unsigned char modpatterns[64*64*4*4];
-NOTE modnotes[64*64*4];
-GOATNOTE goatnotes[208][65];
+Note modnotes[64*64*4];
+Goatnote goatnotes[208][65];
 unsigned char orderlist[3][256];
-GOATNOTE tempnotes[65];
+Goatnote tempnotes[65];
 
 char ident[] = {'G', 'T', 'S', '!'};
 
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
   // Convert patterns into easier-to-read format
 
-  NOTE *destptr = modnotes;
+  Note *destptr = modnotes;
   unsigned char *srcptr = modpatterns;
   for (int c = 0; c < maxpatt * 256; c++)
   {
@@ -135,12 +135,11 @@ int main(int argc, char **argv)
     unsigned char note = 0, instrument, command;
     if (period)
     {
-      int findnote;
       int offset = 0x7fffffff;
 
-      for (findnote = 0; findnote < 96; findnote++)
+      for (int findnote = 0; findnote < 96; findnote++)
       {
-        if (abs(period - (periodtable[0][findnote % 12] >> (findnote / 12))) < offset)
+        if (std::abs(period - (periodtable[0][findnote % 12] >> (findnote / 12))) < offset)
         {
           note = findnote + 1;
           offset = abs(period - (periodtable[0][findnote % 12] >> (findnote / 12)));
@@ -167,10 +166,10 @@ int main(int argc, char **argv)
         int patt = modheader[952+d];
         int e = 0;
         int o = patt*256+c;
-        int breakflag = 0;
+        bool breakflag = false;
         unsigned char prevgoatdata = 0;
 
-        memset(tempnotes, 0, sizeof tempnotes);
+        std::memset(tempnotes, 0, sizeof tempnotes);
         for (;;)
         {
           unsigned char goatcommand = 0;
@@ -215,7 +214,7 @@ int main(int argc, char **argv)
 
             case 0xb:
             case 0xd:
-            breakflag = 1;
+            breakflag = true;
             break;
 
             default:

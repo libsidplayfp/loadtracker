@@ -19,26 +19,26 @@
 // Up to 16 simultaneous files open from the datafile
 constexpr int MAX_HANDLES = 16;
 
-typedef struct
+struct Header
 {
     Uint32 offset;
     Sint32 length;
     char name[13];
-} HEADER;
+};
 
-typedef struct
+struct Handle
 {
-    HEADER *currentheader;
+    Header *currentheader;
     int filepos;
     bool open;
-} HANDLE;
+};
 
 static const char *idstring = "DAT!";
 
 static bool io_datafileopen = false;
-static HEADER *fileheaders;
+static Header *fileheaders;
 static unsigned files;
-static HANDLE handle[MAX_HANDLES];
+static Handle handle[MAX_HANDLES];
 static unsigned char *datafileptr;
 static unsigned char *datafilestart;
 
@@ -60,7 +60,7 @@ bool io_openlinkeddatafile(unsigned char *ptr)
     }
 
     files = linkedreadle32();
-    fileheaders = new (std::nothrow) HEADER[files];
+    fileheaders = new (std::nothrow) Header[files];
     if (!fileheaders)
     {
         ltlog::error("Out of memory");
@@ -103,7 +103,7 @@ int io_open(const char *name)
     {
         if (!handle[index].open)
         {
-            int count = files;
+            unsigned count = files;
             handle[index].currentheader = fileheaders;
 
             while (count)

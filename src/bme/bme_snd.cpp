@@ -23,6 +23,13 @@
 
 enum
 {
+  STEREO        = 1,
+  SIXTEENBIT    = 2,
+  FLOAT32BIT    = 4
+};
+
+enum
+{
   VM_OFF    = 0,
   VM_ON     = 1,
   VM_LOOP   = 2,
@@ -30,10 +37,9 @@ enum
 };
 
 #ifdef USE_JACK
-typedef jack_default_audio_sample_t sample_t;
+using sample_t =  jack_default_audio_sample_t;
 #endif
 
-static bool snd_initchannels(unsigned channels);
 static bool snd_initmixer();
 static void snd_uninitmixer();
 static void snd_mixdata(Uint8 *dest, unsigned bytes);
@@ -49,8 +55,6 @@ static void snd_16bit_postprocess(Sint32 *src, Sint16 *dest, unsigned samples);
 static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples);
 
 Player snd_player = nullptr;
-CHANNEL *snd_channel = nullptr;
-int snd_channels = 0;
 bool snd_sndinitted = false;
 int snd_bpmcount;
 int snd_bpmtempo = 125;
@@ -60,7 +64,6 @@ unsigned snd_mixrate;
 static CustomMixer snd_custommixer = nullptr;
 static unsigned snd_buffersize;
 static unsigned snd_framesize;
-static unsigned snd_previouschannels = 0xffffffff;
 static Sint32 *snd_clipbuffer = nullptr;
 SDL_AudioStream *stream = nullptr;
 
@@ -139,7 +142,7 @@ bool snd_init_jack()
 }
 #endif
 
-bool snd_init(unsigned mixrate, unsigned mixmode)
+bool snd_init(unsigned mixrate, unsigned numsids)
 {
     // If user wants to re-initialize, shutdown first
 
@@ -164,8 +167,8 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
 
     SDL_AudioSpec spec;
     spec.freq = mixrate;
-    spec.format = (mixmode & SIXTEENBIT) ? SDL_AUDIO_S16 : SDL_AUDIO_U8;
-    spec.channels = (mixmode & STEREO) ? 2 : 1;
+    spec.format = SDL_AUDIO_S16;
+    spec.channels = numsids;
 
     // Init tempo count
 
@@ -188,11 +191,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     {
         snd_mixmode |= STEREO;
         snd_framesize <<= 1;
-    }
-
-    // (Re)allocate channels if necessary
-    if (!snd_initchannels(spec.channels)) {
-        return false;
     }
 
     if ((SDL_AUDIO_BITSIZE(spec.format) == 16) &&
@@ -230,41 +228,6 @@ bool snd_init(unsigned mixrate, unsigned mixmode)
     }
 
     SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
-    return true;
-}
-
-bool snd_initchannels(unsigned channels)
-{
-    if (snd_previouschannels != channels)
-    {
-        if (snd_channel)
-        {
-            delete [] snd_channel;
-            snd_channel = nullptr;
-            snd_channels = 0;
-        }
-
-        snd_channel = new (std::nothrow) CHANNEL[channels];
-        if (!snd_channel)
-        {
-            snd_uninit();
-            ltlog::error("Out of memory");
-            return false;
-        }
-        CHANNEL *chptr = &snd_channel[0];
-        snd_channels = channels;
-        snd_previouschannels = channels;
-
-        // Init all channels (no sound played, no sample, mastervolume 64)
-        for (int c = snd_channels; c > 0; c--)
-        {
-            chptr->voicemode = VM_OFF;
-            chptr->smp = nullptr;
-            chptr->mastervol = 64;
-            chptr++;
-        }
-    }
-
     return true;
 }
 
@@ -357,9 +320,9 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
 
     if (snd_player) // Must the player be called?
     {
-        while(mixsamples)
+        while (mixsamples)
         {
-            if ((!snd_bpmcount) && (snd_player)) // Player still active?
+            if (!snd_bpmcount)
             {
                 // Call player
                 snd_player();

@@ -135,8 +135,6 @@ void displayupdate()
 void printstatus()
 {
   int cc = getCursorColor();
-  int visibleOrderlist = getVisibleOrderlist();
-  int maxChns = getMaxChannels();
 
   menu = (mouseb > MOUSEB_LEFT) && (mousey <= 1) && (ehmode == EditHdr::NONE);
 
@@ -204,6 +202,9 @@ void printstatus()
   {
     printtext(0, dpos.statusTopY, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
   }
+
+  int visibleOrderlist = getVisibleOrderlist();
+  int maxChns = getMaxChannels();
 
   if (followplay && isplaying())
   {
@@ -439,7 +440,7 @@ void printstatus()
   for (int i=0; i<5; i++)
   {
     int insnum = eirow + i;
-    int color = insnum == einum ? colors.CEDIT : colors.CNORMAL;
+    int color = (insnum == einum) ? colors.CEDIT : colors.CNORMAL;
     std::sprintf(textbuffer, "%2d %-16s %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                 insnum,
                 song.instr[insnum].name,

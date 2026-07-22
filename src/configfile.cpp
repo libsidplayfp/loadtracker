@@ -371,4 +371,6 @@ void validateconfig()
   if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   if (filterbias > 1.0) filterbias = 1.0;
+  if (numsids < 1) numsids = 1;
+  if (numsids > 2) numsids = 2;
 }
