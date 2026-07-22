@@ -1792,15 +1792,10 @@ void switchMode()
     printtextcp(
         dpos.statusBottomX+29,
         dpos.statusBottomY,
-        colors.CTITLE,
+        15,
         textbuffer
     );
-    printtextcp(
-        dpos.statusBottomX+29,
-        dpos.statusBottomY+1,
-        colors.CEDIT,
-        "!!! SONGDATA WILL BE LOST !!!"
-    );
+    settooltip("Warning: All Songdata Will Be Lost!!!");
 
     waitkey();
 

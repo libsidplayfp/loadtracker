@@ -624,7 +624,7 @@ void printstatus()
   printtext(dpos.channelsX-5, dpos.channelsY+1, color, "Lck");
 
   // pad with spaces
-  tooltip.append(35 - tooltip.length(), ' ');
+  tooltip.append(40 - tooltip.length(), ' ');
   printtext(dpos.octaveX+35, dpos.octaveY+1, CLBLUE, tooltip.c_str());
 }
 
