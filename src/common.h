@@ -47,7 +47,6 @@ enum
   STBL  = 3
 };
 
-#define MAX_FILT 64
 #define MAX_STR 32
 #define MAX_INSTR 64
 #define MAX_CHN 6
@@ -75,8 +74,8 @@ enum
 #define REST 0xbd
 #define KEYOFF 0xbe
 #define KEYON 0xbf
-#define OLDKEYOFF 0x5e
-#define OLDREST 0x5f
+//#define OLDKEYOFF 0x5e
+//#define OLDREST 0x5f
 
 #define WAVEDELAY 0x1
 #define WAVELASTDELAY 0xf
@@ -87,7 +86,6 @@ enum
 
 #define VISIBLEPATTROWS 34
 #define VISIBLETABLEROWS 15
-#define VISIBLEFILES 28
 
 struct Colors
 {

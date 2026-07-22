@@ -49,6 +49,8 @@
 #define MAX_DIRFILES 16384
 #define DOUBLECLICKDELAY 15
 
+#define VISIBLEFILES 28
+
 struct Direntry
 {
   char *name;

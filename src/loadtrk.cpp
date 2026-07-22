@@ -609,6 +609,13 @@ void tooltips()
         return;
       }
   }
+  if ((mousey == dpos.channelsY+1) &&
+      (mousex >= dpos.channelsX-5) &&
+      (mousex <= dpos.channelsX-2))
+    {
+    settooltip("Lock/unlock tables");
+    return;
+    }
 }
 
 void mousecommands()

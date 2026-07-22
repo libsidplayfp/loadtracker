@@ -37,7 +37,7 @@ enum
 };
 
 #ifdef USE_JACK
-using sample_t =  jack_default_audio_sample_t;
+using sample_t = jack_default_audio_sample_t;
 #endif
 
 static bool snd_initmixer();
@@ -227,7 +227,7 @@ bool snd_init(unsigned mixrate, unsigned numsids)
         return false;
     }
 
-    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
+    SDL_ResumeAudioStreamDevice(stream);
     return true;
 }
 
