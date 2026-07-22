@@ -317,7 +317,6 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
         mixsamples = clipsamples;
     }
 #endif
-    std::memset(snd_clipbuffer, 0, clipsamples*sizeof(Sint32));
 
     if (snd_player) // Must the player be called?
     {
