@@ -150,19 +150,19 @@ void tablecommands()
     break;
 
     case KEY_HOME:
-    while (tables.pos() != 0) tables.tableup(shiftpressed);
+    tables.tableup(shiftpressed, tables.pos());
     break;
 
     case KEY_END:
-    while (tables.pos() != MAX_TABLELEN-1) tables.tabledown(shiftpressed);
+    tables.tabledown(shiftpressed, MAX_TABLELEN-1-tables.pos());
     break;
 
     case KEY_PGUP:
-    for (int c = 0; c < PGUPDNREPEAT; c++) tables.tableup(shiftpressed);
+    tables.tableup(shiftpressed, PGUPDNREPEAT);
     break;
 
     case KEY_PGDN:
-    for (int c = 0; c < PGUPDNREPEAT; c++) tables.tabledown(shiftpressed);
+    tables.tabledown(shiftpressed, PGUPDNREPEAT);
     break;
 
     case KEY_UP:
@@ -1024,7 +1024,7 @@ void Tables::validatetableview()
   }
 }
 
-void Tables::tableup(bool shiftpressed)
+void Tables::tableup(bool shiftpressed, int n)
 {
   if (shiftpressed)
   {
@@ -1035,14 +1035,14 @@ void Tables::tableup(bool shiftpressed)
       m_mark.end = m_pos;
     }
   }
-  m_pos--;
+  m_pos-=n;
   if (m_pos < 0) m_pos = 0;
   if (shiftpressed) m_mark.end = m_pos;
 
   validatetableview();
 }
 
-void Tables::tabledown(bool shiftpressed)
+void Tables::tabledown(bool shiftpressed, int n)
 {
   if (shiftpressed)
   {
@@ -1053,7 +1053,7 @@ void Tables::tabledown(bool shiftpressed)
       m_mark.end = m_pos;
     }
   }
-  m_pos++;
+  m_pos+=n;
   if (m_pos >= MAX_TABLELEN) m_pos = MAX_TABLELEN-1;
   if (shiftpressed) m_mark.end = m_pos;
 

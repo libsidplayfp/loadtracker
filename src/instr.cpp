@@ -123,21 +123,19 @@ void instrumentcommands()
     break;
 
     case KEY_PGUP:
-    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
-      previnstr();
+    previnstr(PGUPDNREPEAT);
     break;
 
     case KEY_PGDN:
-    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
-      nextinstr();
+    nextinstr(PGUPDNREPEAT);
     break;
 
     case KEY_HOME:
-    while (einum > 1) previnstr();
+    previnstr(einum-1);
     break;
 
     case KEY_END:
-    while (einum != MAX_INSTR-1) nextinstr();
+    nextinstr(MAX_INSTR-1-einum);
     break;
 
     case KEY_N:
@@ -272,19 +270,19 @@ void gotoinstr(int i)
   editmode = EDIT_INSTRUMENT;
 }
 
-void nextinstr()
+void nextinstr(int n)
 {
-  einum++;
+  einum+=n;
   if (einum >= MAX_INSTR) einum = MAX_INSTR - 1;
-  if ((einum - eirow) >= 5) eirow++;
+  while ((einum - eirow) >= 5) eirow++;
   showinstrtable();
 }
 
-void previnstr()
+void previnstr(int n)
 {
-  einum--;
+  einum-=n;
   if (einum < 1) einum = 1;
-  if ((einum - eirow) < 0) eirow--;
+  while ((einum - eirow) < 0) eirow--;
   showinstrtable();
 }
 

@@ -31,8 +31,8 @@ extern int eicolumn;
 #endif
 
 void instrumentcommands();
-void nextinstr();
-void previnstr();
+void nextinstr(int n=1);
+void previnstr(int n=1);
 void clearinstr();
 void clearinstr(int num);
 void gotoinstr(int i);

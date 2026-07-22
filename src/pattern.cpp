@@ -76,26 +76,26 @@ void updateview();
 
 void insertnote(int newnote)
 {
-    if (recordmode && (eppos < getPattlen(epnum[epchn])))
-    {
-        song.pattern[epnum[epchn]][eppos*4] = newnote;
-        if (newnote < REST)
-        {
-            song.pattern[epnum[epchn]][eppos*4+1] = einum;
-        }
-        else
-        {
-            song.pattern[epnum[epchn]][eppos*4+1] = 0;
-        }
-        if ((shiftpressed) && (newnote == REST))
-        {
-            song.pattern[epnum[epchn]][eppos*4+2] = 0;
-            song.pattern[epnum[epchn]][eppos*4+3] = 0;
-        }
-    }
-
     if (recordmode)
     {
+        if (eppos < getPattlen(epnum[epchn]))
+        {
+            song.pattern[epnum[epchn]][eppos*4] = newnote;
+            if (newnote < REST)
+            {
+                song.pattern[epnum[epchn]][eppos*4+1] = einum;
+            }
+            else
+            {
+                song.pattern[epnum[epchn]][eppos*4+1] = 0;
+            }
+            if ((shiftpressed) && (newnote == REST))
+            {
+                song.pattern[epnum[epchn]][eppos*4+2] = 0;
+                song.pattern[epnum[epchn]][eppos*4+3] = 0;
+            }
+        }
+
         if (autoadvance < 2)
         {
             eppos++;
@@ -401,30 +401,21 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start < epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          int d = 0;
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            cmdcopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
-            cmdcopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
-            d++;
-          }
-          cmdcopyrows = d;
+            std::swap(markstart, markend);
         }
-        else
+        int d = 0;
+        for (int c = markstart; c <= markend; c++)
         {
-          int d = 0;
-          for (int c = epmark.end; c <= epmark.start; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            cmdcopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
-            cmdcopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
-            d++;
-          }
-          cmdcopyrows = d;
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          cmdcopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
+          cmdcopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
+          d++;
         }
+        cmdcopyrows = d;
         epmark.chn = -1;
       }
       else
@@ -457,33 +448,22 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          int e = epmark.end;
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            for (int d = 0; d < 4; d++)
-            {
-              std::swap(song.pattern[epnum[epmark.chn]][c*4+d], song.pattern[epnum[epmark.chn]][e*4+d]);
-            }
-            e--;
-            if (e < c) break;
-          }
+            std::swap(markstart, markend);
         }
-        else
+        int e = markend;
+        for (int c = markstart; c <= markend; c++)
         {
-          int e = epmark.start;
-          for (int c = epmark.end; c <= epmark.start; c++)
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          for (int d = 0; d < 4; d++)
           {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            for (int d = 0; d < 4; d++)
-            {
-              std::swap(song.pattern[epnum[epmark.chn]][c*4+d], song.pattern[epnum[epmark.chn]][e*4+d]);
-            }
-            e--;
-            if (e < c) break;
+            std::swap(song.pattern[epnum[epmark.chn]][c*4+d], song.pattern[epnum[epmark.chn]][e*4+d]);
           }
+          e--;
+          if (e < c) break;
         }
       }
       else
@@ -507,25 +487,18 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] < LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-              song.pattern[epnum[epmark.chn]][c*4]++;
-          }
+            std::swap(markstart, markend);
         }
-        else
+        for (int c = markstart; c <= markend; c++)
         {
-          for (int c = epmark.end; c <= epmark.start; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] < LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-              song.pattern[epnum[epmark.chn]][c*4]++;
-          }
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          if ((song.pattern[epnum[epmark.chn]][c*4] < LASTNOTE) &&
+              (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
+            song.pattern[epnum[epmark.chn]][c*4]++;
         }
       }
       else
@@ -545,25 +518,18 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] > FIRSTNOTE))
-              song.pattern[epnum[epmark.chn]][c*4]--;
-          }
+            std::swap(markstart, markend);
         }
-        else
+        for (int c = markstart; c <= markend; c++)
         {
-          for (int c = epmark.end; c <= epmark.start; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] > FIRSTNOTE))
-              song.pattern[epnum[epmark.chn]][c*4]--;
-          }
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epmark.chn]][c*4] > FIRSTNOTE))
+            song.pattern[epnum[epmark.chn]][c*4]--;
         }
       }
       else
@@ -583,32 +549,21 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-            {
-              song.pattern[epnum[epmark.chn]][c*4] += 12;
-              if (song.pattern[epnum[epmark.chn]][c*4] > LASTNOTE)
-                song.pattern[epnum[epmark.chn]][c*4] = LASTNOTE;
-            }
-          }
+            std::swap(markstart, markend);
         }
-        else
+        for (int c = markstart; c <= markend; c++)
         {
-          for (int c = epmark.end; c <= epmark.start; c++)
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
           {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-            {
-              song.pattern[epnum[epmark.chn]][c*4] += 12;
-              if (song.pattern[epnum[epmark.chn]][c*4] > LASTNOTE)
-                song.pattern[epnum[epmark.chn]][c*4] = LASTNOTE;
-            }
+            song.pattern[epnum[epmark.chn]][c*4] += 12;
+            if (song.pattern[epnum[epmark.chn]][c*4] > LASTNOTE)
+              song.pattern[epnum[epmark.chn]][c*4] = LASTNOTE;
           }
         }
       }
@@ -633,32 +588,21 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-            {
-              song.pattern[epnum[epmark.chn]][c*4] -= 12;
-              if (song.pattern[epnum[epmark.chn]][c*4] < FIRSTNOTE)
-                song.pattern[epnum[epmark.chn]][c*4] = FIRSTNOTE;
-            }
-          }
+            std::swap(markstart, markend);
         }
-        else
+        for (int c = markstart; c <= markend; c++)
         {
-          for (int c = epmark.end; c <= epmark.start; c++)
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
+              (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
           {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            if ((song.pattern[epnum[epmark.chn]][c*4] <= LASTNOTE) &&
-                (song.pattern[epnum[epmark.chn]][c*4] >= FIRSTNOTE))
-            {
-              song.pattern[epnum[epmark.chn]][c*4] -= 12;
-              if (song.pattern[epnum[epmark.chn]][c*4] < FIRSTNOTE)
-                song.pattern[epnum[epmark.chn]][c*4] = FIRSTNOTE;
-            }
+            song.pattern[epnum[epmark.chn]][c*4] -= 12;
+            if (song.pattern[epnum[epmark.chn]][c*4] < FIRSTNOTE)
+              song.pattern[epnum[epmark.chn]][c*4] = FIRSTNOTE;
           }
         }
       }
@@ -758,48 +702,30 @@ void patterncommands()
     {
       if (epmark.chn != -1)
       {
-        if (epmark.start <= epmark.end)
+        int markstart = epmark.start;
+        int markend = epmark.end;
+        if (markstart > markend)
         {
-          int d = 0;
-          for (int c = epmark.start; c <= epmark.end; c++)
-          {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            patterncopybuffer[d*4] = song.pattern[epnum[epmark.chn]][c*4];
-            patterncopybuffer[d*4+1] = song.pattern[epnum[epmark.chn]][c*4+1];
-            patterncopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
-            patterncopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
-            if (rawkey == KEY_X)
-            {
-              song.pattern[epnum[epmark.chn]][c*4] = REST;
-              song.pattern[epnum[epmark.chn]][c*4+1] = 0;
-              song.pattern[epnum[epmark.chn]][c*4+2] = 0;
-              song.pattern[epnum[epmark.chn]][c*4+3] = 0;
-            }
-            d++;
-          }
-          patterncopyrows = d;
+            std::swap(markstart, markend);
         }
-        else
+        int d = 0;
+        for (int c = markstart; c <= markend; c++)
         {
-          int d = 0;
-          for (int c = epmark.end; c <= epmark.start; c++)
+          if (c >= getPattlen(epnum[epmark.chn])) break;
+          patterncopybuffer[d*4] = song.pattern[epnum[epmark.chn]][c*4];
+          patterncopybuffer[d*4+1] = song.pattern[epnum[epmark.chn]][c*4+1];
+          patterncopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
+          patterncopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
+          if (rawkey == KEY_X)
           {
-            if (c >= getPattlen(epnum[epmark.chn])) break;
-            patterncopybuffer[d*4] = song.pattern[epnum[epmark.chn]][c*4];
-            patterncopybuffer[d*4+1] = song.pattern[epnum[epmark.chn]][c*4+1];
-            patterncopybuffer[d*4+2] = song.pattern[epnum[epmark.chn]][c*4+2];
-            patterncopybuffer[d*4+3] = song.pattern[epnum[epmark.chn]][c*4+3];
-            if (rawkey == KEY_X)
-            {
-              song.pattern[epnum[epmark.chn]][c*4] = REST;
-              song.pattern[epnum[epmark.chn]][c*4+1] = 0;
-              song.pattern[epnum[epmark.chn]][c*4+2] = 0;
-              song.pattern[epnum[epmark.chn]][c*4+3] = 0;
-            }
-            d++;
+            song.pattern[epnum[epmark.chn]][c*4] = REST;
+            song.pattern[epnum[epmark.chn]][c*4+1] = 0;
+            song.pattern[epnum[epmark.chn]][c*4+2] = 0;
+            song.pattern[epnum[epmark.chn]][c*4+3] = 0;
           }
-          patterncopyrows = d;
+          d++;
         }
+        patterncopyrows = d;
         epmark.chn = -1;
       }
       else
@@ -854,17 +780,14 @@ void patterncommands()
     }
     else
     {
-      if (eppos == getPattlen(epnum[epchn]))
+      if ((eppos > 1) && (eppos == getPattlen(epnum[epchn])))
       {
-        if (getPattlen(epnum[epchn]) > 1)
-        {
-          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = ENDPATT;
-          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
-          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
-          song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
-          countthispattern();
-          eppos = getPattlen(epnum[epchn]);
-        }
+        song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-4] = ENDPATT;
+        song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-3] = 0x00;
+        song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-2] = 0x00;
+        song.pattern[epnum[epchn]][getPattlen(epnum[epchn])*4-1] = 0x00;
+        countthispattern();
+        eppos = getPattlen(epnum[epchn]);
       }
     }
     break;
@@ -883,21 +806,18 @@ void patterncommands()
     }
     else
     {
-      if (eppos == getPattlen(epnum[epchn]))
+      if ((eppos < MAX_PATTROWS) && (eppos == getPattlen(epnum[epchn])))
       {
-        if (getPattlen(epnum[epchn]) < MAX_PATTROWS)
-        {
-          song.pattern[epnum[epchn]][eppos*4] = REST;
-          song.pattern[epnum[epchn]][eppos*4+1] = 0x00;
-          song.pattern[epnum[epchn]][eppos*4+2] = 0x00;
-          song.pattern[epnum[epchn]][eppos*4+3] = 0x00;
-          song.pattern[epnum[epchn]][eppos*4+4] = ENDPATT;
-          song.pattern[epnum[epchn]][eppos*4+5] = 0x00;
-          song.pattern[epnum[epchn]][eppos*4+6] = 0x00;
-          song.pattern[epnum[epchn]][eppos*4+7] = 0x00;
-          countthispattern();
-          eppos = getPattlen(epnum[epchn]);
-        }
+        song.pattern[epnum[epchn]][eppos*4] = REST;
+        song.pattern[epnum[epchn]][eppos*4+1] = 0x00;
+        song.pattern[epnum[epchn]][eppos*4+2] = 0x00;
+        song.pattern[epnum[epchn]][eppos*4+3] = 0x00;
+        song.pattern[epnum[epchn]][eppos*4+4] = ENDPATT;
+        song.pattern[epnum[epchn]][eppos*4+5] = 0x00;
+        song.pattern[epnum[epchn]][eppos*4+6] = 0x00;
+        song.pattern[epnum[epchn]][eppos*4+7] = 0x00;
+        countthispattern();
+        eppos = getPattlen(epnum[epchn]);
       }
     }
     break;
@@ -971,21 +891,19 @@ void patterncommands()
     break;
 
     case KEY_HOME:
-    while (eppos != 0) patternup();
+    patternup(eppos);
     break;
 
     case KEY_END:
-    while (eppos != getPattlen(epnum[epchn])) patterndown();
+    patterndown(getPattlen(epnum[epchn]) - eppos);
     break;
 
     case KEY_PGUP:
-    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
-      patternup();
+    patternup(PGUPDNREPEAT);
     break;
 
     case KEY_PGDN:
-    for (int scrrep = PGUPDNREPEAT; scrrep; scrrep--)
-      patterndown();
+    patterndown(PGUPDNREPEAT);
     break;
 
     case KEY_UP:
@@ -1032,12 +950,11 @@ void patterncommands()
     epoctave = hexnybble;
     if ((oldbyte >= FIRSTNOTE) && (oldbyte <= LASTNOTE))
     {
-      int newbyte;
-      int oldnote = (oldbyte - FIRSTNOTE) %12;
 
       if (recordmode)
       {
-        newbyte = oldnote+epoctave*12 + FIRSTNOTE;
+        int oldnote = (oldbyte - FIRSTNOTE) %12;
+        int newbyte = oldnote+epoctave*12 + FIRSTNOTE;
         if (newbyte <= LASTNOTE)
         {
           song.pattern[epnum[epchn]][eppos*4] = newbyte;
@@ -1105,7 +1022,7 @@ void patterncommands()
   updateview();
 }
 
-void patterndown()
+void patterndown(int n)
 {
   if (shiftpressed)
   {
@@ -1115,7 +1032,7 @@ void patterndown()
       epmark.start = epmark.end = eppos;
     }
   }
-  eppos++;
+  eppos+=n;
   if (eppos > getPattlen(epnum[epchn]))
   {
     eppos = 0;
@@ -1124,7 +1041,7 @@ void patterndown()
   updateview();
 }
 
-void patternup()
+void patternup(int n)
 {
   if (shiftpressed)
   {
@@ -1134,7 +1051,7 @@ void patternup()
       epmark.start = epmark.end = eppos;
     }
   }
-  eppos--;
+  eppos-=n;
   if (eppos < 0)
   {
     eppos = getPattlen(epnum[epchn]);

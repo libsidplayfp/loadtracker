@@ -42,8 +42,8 @@ extern Selection epmark;
 void patterncommands();
 void nextpattern();
 void prevpattern();
-void patternup();
-void patterndown();
+void patternup(int n=1);
+void patterndown(int n=1);
 
 void insertnote(int newnote);
 

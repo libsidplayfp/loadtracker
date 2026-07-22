@@ -70,8 +70,8 @@ public:
     void clear();
 
     void validatetableview();
-    void tableup(bool shiftpressed);
-    void tabledown(bool shiftpressed);
+    void tableup(bool shiftpressed, int n=1);
+    void tabledown(bool shiftpressed, int n=1);
     void settableview(int num, int pos);
     void settableviewfirst(int num, int pos);
 };
