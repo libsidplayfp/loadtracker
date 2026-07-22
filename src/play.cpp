@@ -115,10 +115,7 @@ void initchannels()
 
 void initsong(int num, int mode)
 {
-  songinit = PLAY_STOPPED;
-  psnum = num;
-  songinit = mode;
-  startpattpos = 0;
+  initsongpos(num, mode, 0);
 }
 
 void initsongpos(int num, int mode, int pattpos)
@@ -196,7 +193,6 @@ bool isplaying()
 
 void playroutine()
 {
-  Instr *iptr;
   Chn *cptr = &chn[0];
 
   if (songinit == PLAY_STOP)
@@ -338,7 +334,7 @@ FILTERSTOP:
 
     for (int c = 0; c < MAX_CHN_MONO; c++)
     {
-      iptr = &song.instr[cptr->instr];
+      Instr *iptr = &song.instr[cptr->instr];
 
       // Reset tempo in jammode
       if ((songinit == PLAY_STOPPED) && (cptr->tempo < 2))
@@ -372,7 +368,7 @@ FILTERSTOP:
       goto WAVEEXEC;
 
       // Tick 0
-      TICK0:
+TICK0:
       // Advance in sequencer
       sequencer(c, cptr);
 
@@ -1048,7 +1044,6 @@ SEQDONE: {}
 
 void playroutine_stereo()
 {
-    Instr *iptr;
     Chn *cptr = &chn[0];
 
     if (songinit == PLAY_STOP)
@@ -1248,7 +1243,7 @@ FILTER2STOP_S:
 
         for (int c = 0; c < MAX_CHN; c++)
         {
-            iptr = &song.instr[cptr->instr];
+            Instr *iptr = &song.instr[cptr->instr];
 
             // Reset tempo in jammode
             if ((songinit == PLAY_STOPPED) && (cptr->tempo < 2))

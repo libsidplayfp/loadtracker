@@ -117,7 +117,6 @@ bool snd_init_jack()
         }
     }
 
-
     jack_set_process_callback(client, snd_jack_process, 0);
 
     if (use_jack_audio)
@@ -154,10 +153,8 @@ bool snd_init(unsigned mixrate, unsigned numsids)
         if (use_jack_audio) return true;
     }
 #endif
-    // Register snd_uninit as an atexit function
 
     // Check for illegal config
-
     if (!mixrate)
     {
         snd_uninit();
@@ -215,13 +212,17 @@ bool snd_init(unsigned mixrate, unsigned numsids)
     }
 
     int sample_frames;
-    SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(stream), &spec, &sample_frames);
+    if (!SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(stream), &spec, &sample_frames))
+    {
+        snd_uninit();
+        ltlog::warning("Cannot get device format", SDL_GetError());
+        return false;
+    }
 
     snd_buffersize = sample_frames;
     snd_mixrate = spec.freq;
 
     // Allocate mixer tables
-
     if (!snd_initmixer())
     {
         return false;
@@ -309,7 +310,7 @@ static void snd_mixdata(Uint8 *dest, unsigned bytes)
     unsigned mixsamples = bytes / snd_framesize;
     unsigned clipsamples = mixsamples;
     if (snd_mixmode & STEREO) clipsamples <<= 1;
-    Sint32 *clipptr = (Sint32 *)snd_clipbuffer;
+    Sint32 *clipptr = snd_clipbuffer;
 #ifdef USE_JACK
     if (use_jack_audio) {
         clipsamples = bytes / sizeof(sample_t);
