@@ -252,6 +252,7 @@ void printstatus()
     {
       int p = epview[c]+d;
       int color = colors.CNORMAL;
+      if ((p == eppos) && !(followplay && isplaying())) color = colors.CEDIT;
       if ((epnum[c] == chn[c].pattnum) && (isplaying()))
       {
         int chnrow = chn[c].pattptr / 4;
@@ -260,7 +261,7 @@ void printstatus()
       }
 
       if (chn[c].mute) color = colors.CMUTE;
-      if (p == eppos) color = colors.CEDIT;
+
       if ((p < 0) || (p > getPattlen(epnum[c])))
       {
         std::sprintf(textbuffer, "             ");
