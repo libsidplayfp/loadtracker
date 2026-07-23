@@ -7,7 +7,7 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 * ported to SDL3
 * scrollwheel support
 * dual SID support, merged from [SpiderJ's fork](https://github.com/jansalleine/gt2fork) (Switch with Alt+m)
-* new instrument view based on Daniel Langner's fork of GTUltra
+* new instrument view based on Daniel Langner's [fork of GTUltra](https://github.com/2bt/GTUltra)
 * proper ISO-8859-1 input support
 * improved pattern and orderlist views during playback
 * dots display extended to tables and enabled by default (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
