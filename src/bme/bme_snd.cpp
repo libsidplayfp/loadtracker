@@ -415,6 +415,7 @@ unsigned getmixrate()
 
 void snd_play()
 {
+    //SDL_ClearAudioStream(stream);
     SDL_ResumeAudioStreamDevice(stream);
 }
 

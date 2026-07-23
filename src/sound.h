@@ -32,6 +32,6 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
 void sound_uninit();
 
 void sound_start();
-void sound_stop();
+void sound_stop(bool immediate);
 
 #endif

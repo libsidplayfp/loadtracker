@@ -133,7 +133,7 @@ void stopsong()
   {
     songinit = PLAY_STOP;
   }
-  sound_stop();
+  sound_stop(true);
 }
 
 void rewindsong()
@@ -182,7 +182,7 @@ void playtestnote(int note, int ins, int chnnum)
 void releasenote(int chnnum)
 {
   chn[chnnum].gate = 0xfe;
-  sound_stop(); // FIXME
+  sound_stop(false);
 }
 
 void mutechannel(int chnnum)

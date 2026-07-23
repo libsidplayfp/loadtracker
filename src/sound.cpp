@@ -56,6 +56,7 @@ unsigned framerate = PALFRAMERATE;
 Sint16 *lbuffer = nullptr;
 Sint16 *rbuffer = nullptr;
 FILE *writehandle = nullptr;
+SDL_TimerID stop_timer = 0;
 
 #ifdef USE_EXSID
 bool useexsid = false;
@@ -68,6 +69,7 @@ void sound_playrout();
 
 void sound_mixer(Sint32 *dest, unsigned samples);
 Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
+Uint32 sound_stop_callback(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
 bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
                unsigned multiplier, unsigned interpolate, unsigned customclockrate,
@@ -321,10 +323,24 @@ void sound_mixer(Sint32 *dest, unsigned samples)
 
 void sound_start()
 {
+    if (stop_timer)
+    {
+        SDL_RemoveTimer(stop_timer);
+        stop_timer = 0;
+    }
     snd_play();
 }
 
-void sound_stop()
+void sound_stop(bool immediate)
+{
+    if (immediate)
+        snd_stop();
+    else
+        stop_timer = SDL_AddTimer(30000, sound_stop_callback, NULL);
+}
+
+Uint32 sound_stop_callback(void *, SDL_TimerID, Uint32)
 {
     snd_stop();
+    return 0;
 }
