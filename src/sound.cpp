@@ -300,7 +300,8 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     {
       for (unsigned c = 0; c < samples; c++)
       {
-        Sint32 sample = (lbuffer[c] + rbuffer[c]) / 2; // FIXME limit insted of halving
+        constexpr double SQRT_2 = 1.41421356237;
+        Sint32 sample = (lbuffer[c] + rbuffer[c]) / SQRT_2; // FIXME limit insted of scaling
         dest[c*2] = sample;
         dest[c*2+1] = sample;
       }
