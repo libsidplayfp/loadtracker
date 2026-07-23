@@ -148,6 +148,7 @@ add_custom_command(
 
 add_custom_target(ltrkdata DEPENDS ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp)
 add_dependencies(loadtrk ltrkdata)
+add_dependencies(ltreloc ltrkdata)
 
 if(MINGW)
     set(LIB_MINGW mingw32)
