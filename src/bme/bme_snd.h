@@ -16,6 +16,9 @@ void snd_setcustommixer(CustomMixer custommixer);
 void snd_setplayer(Player player);
 unsigned getmixrate();
 
+void snd_play();
+void snd_stop();
+
 extern int snd_bpmtempo;
 
 #endif

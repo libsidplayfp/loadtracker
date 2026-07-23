@@ -318,3 +318,13 @@ void sound_mixer(Sint32 *dest, unsigned samples)
     }
   }
 }
+
+void sound_start()
+{
+    snd_play();
+}
+
+void sound_stop()
+{
+    snd_stop();
+}

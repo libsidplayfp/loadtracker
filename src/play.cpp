@@ -31,6 +31,7 @@
 #include "pattern.h"
 #include "sid.h"
 #include "song.h"
+#include "sound.h"
 
 #include <cstring>
 
@@ -123,6 +124,7 @@ void initsongpos(int num, int mode, int pattpos)
   psnum = num;
   songinit = mode;
   startpattpos = pattpos;
+  sound_start();
 }
 
 void stopsong()
@@ -131,6 +133,7 @@ void stopsong()
   {
     songinit = PLAY_STOP;
   }
+  sound_stop();
 }
 
 void rewindsong()
@@ -173,11 +176,13 @@ void playtestnote(int note, int ins, int chnnum)
     chn[chnnum].tick = (song.instr[ins].gatetimer & 0x3f)+1;
     chn[chnnum].gatetimer = song.instr[ins].gatetimer & 0x3f;
   }
+  sound_start();
 }
 
 void releasenote(int chnnum)
 {
   chn[chnnum].gate = 0xfe;
+  sound_stop(); // FIXME
 }
 
 void mutechannel(int chnnum)

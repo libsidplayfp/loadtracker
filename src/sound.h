@@ -31,4 +31,7 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
                unsigned exsid, float filterbias, unsigned combwaves);
 void sound_uninit();
 
+void sound_start();
+void sound_stop();
+
 #endif

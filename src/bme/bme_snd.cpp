@@ -228,7 +228,6 @@ bool snd_init(unsigned mixrate, unsigned numsids)
         return false;
     }
 
-    SDL_ResumeAudioStreamDevice(stream);
     return true;
 }
 
@@ -412,4 +411,14 @@ static void snd_8bit_postprocess(Sint32 *src, Uint8 *dest, unsigned samples)
 unsigned getmixrate()
 {
     return snd_mixrate;
+}
+
+void snd_play()
+{
+    SDL_ResumeAudioStreamDevice(stream);
+}
+
+void snd_stop()
+{
+    SDL_PauseAudioStreamDevice(stream);
 }
