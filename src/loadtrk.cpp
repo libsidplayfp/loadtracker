@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include "colors.h"
 #include "configfile.h"
 #include "console.h"
 #include "display.h"
@@ -84,8 +85,6 @@ unsigned char hexkeytbl[] = {'0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 extern unsigned char datafile[]; // from ltrkdata.cpp
-
-Colors colors;
 
 const char* usage[] = {
     "Usage: loadtrk [songname] [options]",

@@ -87,20 +87,6 @@ enum
 #define VISIBLEPATTROWS 34
 #define VISIBLETABLEROWS 15
 
-struct Colors
-{
-  unsigned char CBKGND;
-  unsigned char CNORMAL;
-  unsigned char CMUTE;
-  unsigned char CEDIT;
-  unsigned char CPLAYING;
-  unsigned char CCOMMAND;
-  unsigned char CTITLE;
-  unsigned char CHDRBG;
-  unsigned char CHDRFG;
-  unsigned char CHEADER;
-};
-
 struct Instr
 {
   unsigned char ad;

@@ -62,7 +62,6 @@ extern char packedpath[MAX_PATHNAME];
 extern const char *programname;
 extern const char *notename[];
 extern char textbuffer[MAX_PATHNAME];
-extern Colors colors;
 #endif
 
 void waitkey();

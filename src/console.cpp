@@ -24,6 +24,7 @@
 
 #include "console.h"
 
+#include "colors.h"
 #include "configfile.h"
 #include "loadtrk.h"
 

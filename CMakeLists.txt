@@ -32,6 +32,7 @@ set(LOADTRK_SOURCES
     src/help.cpp
     src/sound.cpp
     src/console.cpp
+    src/colors.cpp
     src/sid.cpp
     src/ltlog.cpp
     src/ltmidi.cpp
@@ -94,6 +95,7 @@ set(LTRELOC_SOURCES
     src/file.cpp
     src/reloc.cpp
     src/console.cpp
+    src/colors.cpp
     src/ltlog.cpp
     src/asm/asm.tab.c
     src/asm/chunkpool.c

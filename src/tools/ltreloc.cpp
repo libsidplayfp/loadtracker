@@ -26,13 +26,13 @@
 
 #include "config.h"
 
+#include "colors.h"
 #include "console.h"
 #include "pattern.h"
 #include "reloc.h"
 #include "sound.h"
 #include "file.h"
 #include "play.h"
-#include "display.h"
 #include "song.h"
 
 #include "bme_io.h"
@@ -55,17 +55,8 @@ enum class EditHdr
   BPM     = 2
 };
 
-enum
-{
-  EDIT_PATTERN      = 0,
-  EDIT_ORDERLIST    = 1,
-  EDIT_INSTRUMENT   = 2,
-  EDIT_TABLES       = 3,
-  EDIT_NAMES        = 4
-};
-
 bool menu = false;
-int editmode = EDIT_PATTERN;
+int editmode = 0;
 bool recordmode = true;
 bool followplay = false;
 int hexnybble = -1;
@@ -122,7 +113,6 @@ const char *programname = "LTReloc v" PACKAGE_VERSION;
 char textbuffer[MAX_PATHNAME];
 
 extern unsigned char datafile[];
-Colors colors;
 
 void calculatefreqtable();
 int getMaxChannels();
@@ -136,7 +126,7 @@ FILE *STDOUT, *STDERR;
 #  define STDERR stderr
 #endif
 
-void usage(void)
+void usage()
 {
     std::fprintf(STDOUT, "Usage: ltreloc <songname> <outfile> [options]\n");
     std::fprintf(STDOUT, "Options:\n");

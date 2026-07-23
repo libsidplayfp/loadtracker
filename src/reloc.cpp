@@ -24,6 +24,7 @@
 
 #include "reloc.h"
 
+#include "colors.h"
 #include "configfile.h"
 #include "console.h"
 #include "display.h"
