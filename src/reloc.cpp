@@ -38,6 +38,10 @@
 #include "bme_io.h"
 #include "bme_snd.h"
 
+#ifdef GT2RELOC
+#  include "tools/gt2reloc.h"
+#endif
+
 extern "C" {
 #include "buf.h"
 #include "parse.h"
@@ -48,14 +52,6 @@ extern "C" {
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-
-#define PLAYER_BUFFERED 8
-#define PLAYER_SOUNDEFFECTS 16
-#define PLAYER_VOLUME 32
-#define PLAYER_AUTHORINFO 64
-#define PLAYER_ZPGHOSTREGS 128
-#define PLAYER_NOOPTIMIZATION 256
-#define PLAYER_FULLBUFFERED 512
 
 #define MAX_OPTIONS 7
 
@@ -580,6 +576,7 @@ void relocator()
     findtableduplicates(c);
 
   // Select playroutine options
+#ifndef GT2RELOC
   clearscreen();
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
   if (!std::strlen(loadedsongfilename))
@@ -666,7 +663,7 @@ void relocator()
     }
   }
   if (selectdone == -1) goto PRCLEANUP;
-
+#endif
   // Disable optimizations if necessary
   if (playerversion & PLAYER_NOOPTIMIZATION)
   {
@@ -1014,6 +1011,10 @@ void relocator()
   if (nopulse) pulsetblsize = 0;
   if (nofilter) filttblsize = 0;
 
+#ifdef GT2RELOC
+  std::fprintf(STDOUT, "Player address:   $%04X\n", playeradr);
+  std::fprintf(STDOUT, "Zeropage address: $%04X\n", zeropageadr);
+#else
   std::sprintf(textbuffer, "SELECT START ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
   printtext(1, 11, colors.CTITLE, textbuffer);
 
@@ -1139,7 +1140,7 @@ void relocator()
   }
 
   if (selectdone == -1) goto PRCLEANUP;
-
+#endif
   // Validate frequencytable parameters
   if (lastnote < firstnote)
     lastnote = firstnote;
@@ -1496,6 +1497,25 @@ void relocator()
   }
 
   // Print results
+#ifdef GT2RELOC
+  std::fprintf(STDOUT, "packing results:\n");
+  std::fprintf(STDOUT, "Playroutine:     %d bytes\n", playersize);
+  std::fprintf(STDOUT, "Songtable:       %d bytes\n", songtblsize);
+  std::fprintf(STDOUT, "Song-orderlists: %d bytes\n", songdatasize);
+  std::fprintf(STDOUT, "Patterntable:    %d bytes\n", patttblsize);
+  std::fprintf(STDOUT, "Patterns:        %d bytes\n", pattdatasize);
+  std::fprintf(STDOUT, "Instruments:     %d bytes\n", instrsize);
+  std::fprintf(STDOUT, "Tables:          %d bytes\n", wavetblsize+pulsetblsize+filttblsize+speedtblsize);
+  std::fprintf(STDOUT, "Total size:      %d bytes\n", packedsize);
+
+  songhandle = std::fopen(packedsongname, "wb");
+  if (!songhandle) 
+  {
+      std::fprintf(STDERR, "error: could not open output file '%s'.\n", packedsongname);
+      goto PRCLEANUP;
+  }
+
+#else
   clearscreen();
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
   if (!std::strlen(loadedsongfilename))
@@ -1641,6 +1661,7 @@ void relocator()
     }
     songhandle = std::fopen(packedsongname, "wb");
   }
+#endif
 
   if (fileformat == FORMAT_PRG)
   {

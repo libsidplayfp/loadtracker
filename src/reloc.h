@@ -35,6 +35,17 @@ enum
   TYPE_JUMP     = 2
 };
 
+enum
+{
+  PLAYER_BUFFERED       =   8,
+  PLAYER_SOUNDEFFECTS   =  16,
+  PLAYER_VOLUME         =  32,
+  PLAYER_AUTHORINFO     =  64,
+  PLAYER_ZPGHOSTREGS    = 128,
+  PLAYER_NOOPTIMIZATION = 256,
+  PLAYER_FULLBUFFERED   = 512
+};
+
 #ifndef RELOC_C
 extern unsigned char pattused[MAX_PATT];
 extern unsigned char instrused[MAX_INSTR];

@@ -81,6 +81,37 @@ set(DATAFILE_SOURCES
 set(DAT2INC_SOURCES
     src/tools/dat2inc.cpp)
 
+set(GT2RELOC_SOURCES
+    ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
+    src/tools/gt2reloc.cpp
+    src/song.cpp
+    src/order.cpp
+    src/pattern.cpp
+    src/instr.cpp
+    src/table.cpp
+    src/play.cpp
+    src/display.cpp
+    src/file.cpp
+    src/reloc.cpp
+    src/help.cpp
+    src/console.cpp
+    src/ltlog.cpp
+    src/asm/asm.tab.c
+    src/asm/chunkpool.c
+    src/asm/expr.c
+    src/asm/lex.yy.c
+    src/asm/log.c
+    src/asm/map.c
+    src/asm/buf.c
+    src/asm/buf_io.c
+    src/asm/named_buffer.c
+    src/asm/parse.c
+    src/asm/pc.c
+    src/asm/vec.c
+    src/bme/bme_win.cpp
+    src/bme/bme_io.cpp
+    src/bme/bme_end.cpp)
+
 include_directories(${CMAKE_BINARY_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
@@ -94,9 +125,9 @@ add_executable(loadtrk ${LOADTRK_SOURCES})
 add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
+add_executable(gt2reloc ${GT2RELOC_SOURCES})
 
-
-target_include_directories(datafile PUBLIC SDL3::Headers)
+target_compile_definitions(gt2reloc PUBLIC GT2RELOC)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -117,10 +148,6 @@ add_custom_command(
 add_custom_target(ltrkdata DEPENDS ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp)
 add_dependencies(loadtrk ltrkdata)
 
-target_include_directories(mod2sng PUBLIC SDL3::Headers)
-target_include_directories(ins2snd2 PUBLIC SDL3::Headers)
-target_include_directories(sngspli2 PUBLIC SDL3::Headers)
-
 if(MINGW)
     set(LIB_MINGW mingw32)
 endif()
@@ -129,8 +156,10 @@ OPTION(BUILD_STATIC "Static build" OFF)
 IF(BUILD_STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     target_link_libraries(loadtrk SDL3::SDL3-static)
+    target_link_libraries(gt2reloc SDL3::SDL3-static)
 ELSE()
     target_link_libraries(loadtrk SDL3::SDL3)
+    target_link_libraries(gt2reloc SDL3::SDL3)
 ENDIF()
 
 find_package(Jack)
