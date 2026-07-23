@@ -38,8 +38,8 @@
 #include "bme_io.h"
 #include "bme_snd.h"
 
-#ifdef GT2RELOC
-#  include "tools/gt2reloc.h"
+#ifdef LTRELOC
+#  include "tools/ltreloc.h"
 #endif
 
 extern "C" {
@@ -198,7 +198,7 @@ void relocator()
   int packedsize = 0;
 
   FILE *songhandle = nullptr;
-#ifndef GT2RELOC
+#ifndef LTRELOC
   int selectdone;
   int opt = 0;
 #endif
@@ -576,7 +576,7 @@ void relocator()
     findtableduplicates(c);
 
   // Select playroutine options
-#ifndef GT2RELOC
+#ifndef LTRELOC
   clearscreen();
   printblankc(0, 0, colors.CHEADER, MAX_COLUMNS);
   if (!std::strlen(loadedsongfilename))
@@ -1011,7 +1011,7 @@ void relocator()
   if (nopulse) pulsetblsize = 0;
   if (nofilter) filttblsize = 0;
 
-#ifdef GT2RELOC
+#ifdef LTRELOC
   std::fprintf(STDOUT, "Player address:   $%04X\n", playeradr);
   std::fprintf(STDOUT, "Zeropage address: $%04X\n", zeropageadr);
 #else
@@ -1497,7 +1497,7 @@ void relocator()
   }
 
   // Print results
-#ifdef GT2RELOC
+#ifdef LTRELOC
   std::fprintf(STDOUT, "packing results:\n");
   std::fprintf(STDOUT, "Playroutine:     %d bytes\n", playersize);
   std::fprintf(STDOUT, "Songtable:       %d bytes\n", songtblsize);

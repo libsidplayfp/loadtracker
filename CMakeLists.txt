@@ -81,9 +81,9 @@ set(DATAFILE_SOURCES
 set(DAT2INC_SOURCES
     src/tools/dat2inc.cpp)
 
-set(GT2RELOC_SOURCES
+set(LTRELOC_SOURCES
     ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
-    src/tools/gt2reloc.cpp
+    src/tools/ltreloc.cpp
     src/song.cpp
     src/order.cpp
     src/pattern.cpp
@@ -93,7 +93,6 @@ set(GT2RELOC_SOURCES
     src/display.cpp
     src/file.cpp
     src/reloc.cpp
-    src/help.cpp
     src/console.cpp
     src/ltlog.cpp
     src/asm/asm.tab.c
@@ -125,9 +124,9 @@ add_executable(loadtrk ${LOADTRK_SOURCES})
 add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
-add_executable(gt2reloc ${GT2RELOC_SOURCES})
+add_executable(ltreloc ${LTRELOC_SOURCES})
 
-target_compile_definitions(gt2reloc PUBLIC GT2RELOC)
+target_compile_definitions(ltreloc PUBLIC LTRELOC)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -156,10 +155,10 @@ OPTION(BUILD_STATIC "Static build" OFF)
 IF(BUILD_STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     target_link_libraries(loadtrk SDL3::SDL3-static)
-    target_link_libraries(gt2reloc SDL3::SDL3-static)
+    target_link_libraries(ltreloc SDL3::SDL3-static)
 ELSE()
     target_link_libraries(loadtrk SDL3::SDL3)
-    target_link_libraries(gt2reloc SDL3::SDL3)
+    target_link_libraries(ltreloc SDL3::SDL3)
 ENDIF()
 
 find_package(Jack)
@@ -234,7 +233,7 @@ endif()
 
 include(GNUInstallDirs)
 
-INSTALL(TARGETS loadtrk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS loadtrk ltreloc mod2sng ins2snd2 sngspli2 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 INSTALL(FILES loadtrk.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 INSTALL(FILES loadtrk.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons)
 INSTALL(FILES doc/en/loadtrk.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)

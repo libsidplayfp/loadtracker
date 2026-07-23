@@ -1,24 +1,30 @@
-//
-// GOATTRACKER v2.73 - gt2reloc (commandline relocator/packer)
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
+/*
+ * LTReloc
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#define GT2RELOC_C
+// =============================================================================
+// commandline relocator/packer
+// =============================================================================
 
-#include "gt2reloc.h"
+#define LTRELOC_C
+
+#include "ltreloc.h"
+
+#include "config.h"
 
 #include "console.h"
 #include "pattern.h"
@@ -111,7 +117,7 @@ char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 char packedsongname[MAX_PATHNAME];
 
-const char *programname = "GoatTracker v2.77";
+const char *programname = "LTReloc v" PACKAGE_VERSION;
 
 char textbuffer[MAX_PATHNAME];
 
@@ -132,7 +138,7 @@ FILE *STDOUT, *STDERR;
 
 void usage(void)
 {
-    std::fprintf(STDOUT, "Usage: GT2RELOC <songname> <outfile> [options]\n");
+    std::fprintf(STDOUT, "Usage: ltreloc <songname> <outfile> [options]\n");
     std::fprintf(STDOUT, "Options:\n");
     std::fprintf(STDOUT, "-Axx Set ADSR parameter for hardrestart in hex. DEFAULT=0F00\n");
     std::fprintf(STDOUT, "-Bx  enable/disable buffered SID writes. DEFAULT=disabled\n");
