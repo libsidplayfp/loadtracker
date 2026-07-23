@@ -102,9 +102,9 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
     }
   }
 
-#ifdef USE_EXSID
   if (exsid)
   {
+#ifdef USE_EXSID
     exsidfd = exSID_new();
     if (!exsidfd)
       return false;
@@ -136,38 +136,36 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
 
     useexsid = true;
     timer = SDL_AddTimer(1000 / framerate, sound_timer, nullptr);
-    goto SOUNDOK;
-  }
 #else
-    (void)exsid;
-#endif
-
-  int playspeed = mr;
-  if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
-  if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
-
-  if (!snd_init(playspeed, numsids))
-  {
     return false;
+#endif
+  }
+  else
+  {
+    int playspeed = mr;
+    if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
+    if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
+
+    if (!snd_init(playspeed, numsids))
+    {
+      return false;
+    }
+
+    midi_init();
+
+    if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
+    if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
+
+    if (writer)
+      writehandle = std::fopen("sidaudio.raw", "wb");
+
+    playspeed = getmixrate();
+    sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
+
+    snd_setplayer(&sound_playrout);
+    snd_setcustommixer(sound_mixer);
   }
 
-  midi_init();
-
-  if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
-  if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
-
-  if (writer)
-    writehandle = std::fopen("sidaudio.raw", "wb");
-
-  playspeed = getmixrate();
-  sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
-
-  snd_setplayer(&sound_playrout);
-  snd_setcustommixer(sound_mixer);
-
-#ifdef USE_EXSID
-SOUNDOK:
-#endif
   initted = true;
   return true;
 }
