@@ -1,0 +1,83 @@
+.TH LTReloc "Jul 22, 2026"
+.SH NAME
+ltreloc \- commandline relocator/packer
+.SH SYNOPSIS
+.B ltreloc
+.RI [ songname ]
+.RI [ outfile ]
+.RI [ options ]
+.SH DESCRIPTION
+This manual page documents briefly the
+.B loadtrk
+command.
+.PP
+\fBltreloc\fP is a commandline relocator/packer based on goattracker's gt2reloc.
+
+.TP
+\fB-A\fIxx\fR
+Set ADSR parameter for hardrestart in hex. DEFAULT=0F00
+.TP
+\fB-B\fIx\fR
+Enable/disable buffered SID writes. DEFAULT=disabled
+.TP
+\fB-C\fIx\fR
+Enable/disable zeropage ghost registers. DEFAULT=disabled
+.TP
+\fB-D\fIx\fR
+Enable/disable sound effect support. DEFAULT=disabled
+.TP
+\fB-E\fIx\fR
+Enable/disable volume change support. DEFAULT=disabled
+.TP
+\fB-F\fIxx\fR
+Set custom SID clock cycles per second (0 = use PAL/NTSC default)
+.TP
+\fB-G\fIxx\fR
+Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)
+.TP
+\fB-H\fIx\fR
+Enable/disable storing of author info. DEFAULT=disabled
+.TP
+\fB-I\fIx\fR
+Enable/disable optimizations. DEFAULT=enabled
+.TP
+\fB-J\fIx\fR
+Enable/disable full buffering. DEFAULT=disabled
+.TP
+\fB-L\fIxx\fR
+SID memory location in hex. DEFAULT=D400
+.TP
+\fB-O\fIxx\fR
+Set pulseoptimization/skipping (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-R\fIxx\fR
+Set realtime-effect optimization/skipping (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-S\fIxx\fR
+Set speed multiplier (0 for 25Hz, 1 for 1x, 2 for 2x etc.) DEFAULT=1
+.TP
+\fB-V\fIxx\fR
+Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on
+.TP
+\fB-W\fIXxx\fR
+Player memory location highbyte in hex. DEFAULT=1000
+.TP
+\fB-Z\fIxx\fR
+Zeropage memory location in hex. DEFAULT=FC
+.TP
+\fB-N\fR
+Use NTSC timing
+.TP
+\fB-P\fR
+Use PAL timing (DEFAULT)
+.TP
+\fB-?\fR
+Show help
+.SH SEE ALSO
+.BR loadtrk (1)
+.br
+.SH AUTHOR
+ltreloc was written by Lasse \[:O]\[:o]rni, Leandro Nini.
+.PP
+This manual page was written by G\[:u]rkan Seng\[:u]n <gurkan@phys.ethz.ch>,
+for the Debian project (but may be used by others).

@@ -24,6 +24,7 @@
 
 #include "display.h"
 
+#include "colors.h"
 #include "configfile.h"
 #include "console.h"
 #include "instr.h"
@@ -45,26 +46,6 @@
 #include <cstdio>
 #include <cstring>
 
-enum
-{
-  CBLACK  = 0x0,
-  CWHITE  = 0x1,
-  CDRED   = 0x2,
-  CCYAN   = 0x3,
-  CPURPLE = 0x4,
-  CDGREEN = 0x5,
-  CDBLUE  = 0x6,
-  CYELLOW = 0x7,
-  CLBROWN = 0x8,
-  CDBROWN = 0x9,
-  CLRED   = 0xA,
-  CDGREY  = 0xB,
-  CGREY   = 0xC,
-  CLGREEN = 0xD,
-  CLBLUE  = 0xE,
-  CLGREY  = 0xF
-};
-
 const char *notename[] =
  {"C-0", "C#0", "D-0", "D#0", "E-0", "F-0", "F#0", "G-0", "G#0", "A-0", "A#0", "B-0",
   "C-1", "C#1", "D-1", "D#1", "E-1", "F-1", "F#1", "G-1", "G#1", "A-1", "A#1", "B-1",
@@ -85,23 +66,6 @@ int cursorflash = 0;
 int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
 
 std::string tooltip;
-
-void initcolorscheme(bool dark)
-{
-  colors.CBKGND   = dark ? CBLACK : CDBLUE;
-
-  colors.CNORMAL  = (dark ? CGREY : CLBLUE)|(colors.CBKGND<<4);
-  colors.CMUTE    = CDGREY |(colors.CBKGND<<4);
-  colors.CEDIT    = CLGREEN|(colors.CBKGND<<4);
-  colors.CPLAYING = CLRED  |(colors.CBKGND<<4);
-  colors.CCOMMAND = CLGREY |(colors.CBKGND<<4);
-  colors.CTITLE   = CWHITE |(colors.CBKGND<<4);
-
-  colors.CHDRBG   = dark ? CDBLUE : CLBLUE;
-  colors.CHDRFG   = CYELLOW;
-
-  colors.CHEADER  = colors.CHDRFG|(colors.CHDRBG<<4);
-}
 
 void printmainscreen()
 {

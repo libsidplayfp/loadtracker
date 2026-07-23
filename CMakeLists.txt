@@ -32,6 +32,7 @@ set(LOADTRK_SOURCES
     src/help.cpp
     src/sound.cpp
     src/console.cpp
+    src/colors.cpp
     src/sid.cpp
     src/ltlog.cpp
     src/ltmidi.cpp
@@ -81,6 +82,37 @@ set(DATAFILE_SOURCES
 set(DAT2INC_SOURCES
     src/tools/dat2inc.cpp)
 
+set(LTRELOC_SOURCES
+    ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp
+    src/tools/ltreloc.cpp
+    src/song.cpp
+    src/order.cpp
+    src/pattern.cpp
+    src/instr.cpp
+    src/table.cpp
+    src/play.cpp
+    src/display.cpp
+    src/file.cpp
+    src/reloc.cpp
+    src/console.cpp
+    src/colors.cpp
+    src/ltlog.cpp
+    src/asm/asm.tab.c
+    src/asm/chunkpool.c
+    src/asm/expr.c
+    src/asm/lex.yy.c
+    src/asm/log.c
+    src/asm/map.c
+    src/asm/buf.c
+    src/asm/buf_io.c
+    src/asm/named_buffer.c
+    src/asm/parse.c
+    src/asm/pc.c
+    src/asm/vec.c
+    src/bme/bme_win.cpp
+    src/bme/bme_io.cpp
+    src/bme/bme_end.cpp)
+
 include_directories(${CMAKE_BINARY_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
@@ -94,9 +126,9 @@ add_executable(loadtrk ${LOADTRK_SOURCES})
 add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
+add_executable(ltreloc ${LTRELOC_SOURCES})
 
-
-target_include_directories(datafile PUBLIC SDL3::Headers)
+target_compile_definitions(ltreloc PUBLIC LTRELOC)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -116,10 +148,7 @@ add_custom_command(
 
 add_custom_target(ltrkdata DEPENDS ${CMAKE_BINARY_DIR}/src/ltrkdata.cpp)
 add_dependencies(loadtrk ltrkdata)
-
-target_include_directories(mod2sng PUBLIC SDL3::Headers)
-target_include_directories(ins2snd2 PUBLIC SDL3::Headers)
-target_include_directories(sngspli2 PUBLIC SDL3::Headers)
+add_dependencies(ltreloc ltrkdata)
 
 if(MINGW)
     set(LIB_MINGW mingw32)
@@ -129,8 +158,10 @@ OPTION(BUILD_STATIC "Static build" OFF)
 IF(BUILD_STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     target_link_libraries(loadtrk SDL3::SDL3-static)
+    target_link_libraries(ltreloc SDL3::SDL3-static)
 ELSE()
     target_link_libraries(loadtrk SDL3::SDL3)
+    target_link_libraries(ltreloc SDL3::SDL3)
 ENDIF()
 
 find_package(Jack)
@@ -205,10 +236,10 @@ endif()
 
 include(GNUInstallDirs)
 
-INSTALL(TARGETS loadtrk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS loadtrk ltreloc mod2sng ins2snd2 sngspli2 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 INSTALL(FILES loadtrk.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 INSTALL(FILES loadtrk.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons)
-INSTALL(FILES doc/en/loadtrk.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+INSTALL(FILES doc/en/loadtrk.1 doc/en/ltreloc.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 INSTALL(DIRECTORY examples DESTINATION ${CMAKE_INSTALL_DATADIR}/loadtrk FILES_MATCHING REGEX ".*\.(sng|ins)")
 
 set(PACKAGE_NAME "${PROJECT_NAME}")

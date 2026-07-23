@@ -20,6 +20,7 @@
 // online help
 // =============================================================================
 
+#include "colors.h"
 #include "console.h"
 #include "display.h"
 #include "loadtrk.h"
