@@ -166,7 +166,6 @@ void insertaddrhi(const char *name);
 void relocator()
 {
   char packedsongname[MAX_FILENAME];
-  char packedfilter[MAX_FILENAME];
 
   unsigned char *packeddata = nullptr;
   const char *playername = "player.s";
@@ -1553,6 +1552,7 @@ void relocator()
 
   selectdone = 0;
 
+  char packedfilter[MAX_FILENAME];
   while (!selectdone)
   {
     switch(fileformat)
@@ -2267,7 +2267,6 @@ void calcspeedtest(unsigned char pos)
 void relocator_stereo()
 {
     char packedsongname[MAX_FILENAME];
-    char packedfilter[MAX_FILENAME];
     unsigned char *packeddata = nullptr;
     const char *playername = "player_s.s";
 
@@ -3592,6 +3591,7 @@ SKIPTABLE_S:
 
     selectdone = 0;
 
+    char packedfilter[MAX_FILENAME];
     while (!selectdone)
     {
         switch(fileformat)
