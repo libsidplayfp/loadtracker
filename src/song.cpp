@@ -26,6 +26,7 @@
 
 #include "common.h"
 #include "configfile.h"
+#include "file.h"
 #include "instr.h"
 #include "loadtrk.h"
 #include "order.h"

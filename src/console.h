@@ -55,10 +55,12 @@ void printbg(int x, int y, int color, int length);
 void editstring(char *buffer, int maxlength);
 void getkey();
 void initDisplayPositions();
+void flashCursor();
+int getCursorColor();
 
 #ifndef CONSOLE_C
 extern bool shiftpressed, altpressed;
-extern int key, rawkey, cursorflashdelay;
+extern int key, rawkey;
 extern int mouseb, prevmouseb;
 extern int mouseheld;
 extern int mousex, mousey;

@@ -33,7 +33,6 @@
 #include "pattern.h"
 #include "play.h"
 #include "song.h"
-#include "sound.h"
 #include "table.h"
 
 #include "bme_main.h"
@@ -56,14 +55,7 @@ const char *notename[] =
   "C-6", "C#6", "D-6", "D#6", "E-6", "F-6", "F#6", "G-6", "G#6", "A-6", "A#6", "B-6",
   "C-7", "C#7", "D-7", "D#7", "E-7", "F-7", "F#7", "G-7", "G#7", "...", "---", "+++"};
 
-char timechar[] = {':', ' '};
-
-int timemin = 0;
-int timesec = 0;
-unsigned timeframe = 0;
-
-int cursorflash = 0;
-int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
+char textbuffer[MAX_PATHNAME];
 
 std::string tooltip;
 
@@ -72,21 +64,6 @@ void printmainscreen()
   clearscreen();
   printstatus();
   fliptoscreen();
-}
-
-void flashCursor()
-{
-    if (cursorflashdelay >= 6)
-    {
-      cursorflashdelay %= 6;
-      cursorflash++;
-      cursorflash &= 3;
-    }
-}
-
-int getCursorColor()
-{
-    return cursorcolortable[cursorflash];
 }
 
 void displayupdate()
@@ -547,17 +524,8 @@ void printstatus()
 
   const char *playmode = isplaying() ? "PLAYING" : "STOPPED";
   printtext(dpos.octaveX+10, dpos.octaveY, colors.CTITLE, playmode);
-  int idx;
-  if (multiplier)
-  {
-    idx = (ntsc ? 30 : 25) * multiplier;
-  }
-  else
-  {
-    idx = ntsc ? 15 : 13;
-  }
-  std::sprintf(textbuffer, " %02d%c%02d ", timemin, timechar[(timeframe/idx) & 1], timesec);
 
+  gettime(textbuffer);
   color = isplaying() ? colors.CEDIT : colors.CMUTE;
   printtext(dpos.octaveX+10, dpos.octaveY+1, color, textbuffer);
 
@@ -590,34 +558,6 @@ void printstatus()
   // pad with spaces
   tooltip.append(40 - tooltip.length(), ' ');
   printtext(dpos.octaveX+35, dpos.octaveY+1, CLBLUE, tooltip.c_str());
-}
-
-
-void resettime()
-{
-  timemin = 0;
-  timesec = 0;
-  timeframe = 0;
-}
-
-void incrementtime()
-{
-  {
-    timeframe++;
-    unsigned framerate = ntsc ? NTSCFRAMERATE : PALFRAMERATE;
-    if (((multiplier) && (timeframe >= framerate*multiplier))
-        || ((!multiplier) && (timeframe >= framerate/2)))
-    {
-      timeframe = 0;
-      timesec++;
-    }
-    if (timesec == 60)
-    {
-      timesec = 0;
-      timemin++;
-      timemin %= 60;
-    }
-  }
 }
 
 void settooltip(const char *msg)

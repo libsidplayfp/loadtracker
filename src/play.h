@@ -82,4 +82,6 @@ bool isplaying();
 void playroutine();
 void playroutine_stereo();
 
+void gettime(char *buf);
+
 #endif

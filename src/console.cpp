@@ -58,6 +58,9 @@ unsigned oldmousepixely = 0xffffffff;
 int mouseheld = 0;
 int region[MAX_ROWS];
 
+int cursorflash = 0;
+int cursorcolortable[] = { CWHITE, CLGREY, CGREY, CLGREY };
+
 constexpr int fontwidth = 8;
 constexpr int fontheight = 16;
 constexpr int mousesizex = 19;
@@ -88,6 +91,21 @@ Positions dpos =
 void closescreen();
 void loadexternalpalette();
 void initicon();
+
+void flashCursor()
+{
+    if (cursorflashdelay >= 6)
+    {
+      cursorflashdelay %= 6;
+      cursorflash++;
+      cursorflash &= 3;
+    }
+}
+
+int getCursorColor()
+{
+    return cursorcolortable[cursorflash];
+}
 
 static inline void setcharcolor(unsigned *dptr, unsigned char ch, unsigned char color)
 {

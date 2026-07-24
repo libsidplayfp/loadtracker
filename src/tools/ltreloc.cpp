@@ -110,8 +110,6 @@ char packedsongname[MAX_PATHNAME];
 
 const char *programname = "LTReloc v" PACKAGE_VERSION;
 
-char textbuffer[MAX_PATHNAME];
-
 extern unsigned char datafile[];
 
 void calculatefreqtable();

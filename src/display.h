@@ -19,14 +19,15 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-void initcolorscheme(bool dark);
+#include "file.h"
+
+#ifndef DISPLAY_C
+extern char textbuffer[MAX_PATHNAME];
+#endif
+
 void printmainscreen();
 void displayupdate();
 void printstatus();
-void resettime();
-void incrementtime();
-void flashCursor();
-int getCursorColor();
 void settooltip(const char *msg);
 
 #endif
