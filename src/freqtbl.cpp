@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <cmath>
+
 unsigned char freqtbllo[] =
 {
   0x17,0x27,0x39,0x4b,0x5f,0x74,0x8a,0xa1,0xba,0xd4,0xf0,0x0e,
@@ -47,3 +49,19 @@ unsigned char freqtblhi[] =
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
+
+void calculatefreqtable(double basepitch, double equaldivisionsperoctave)
+{
+  double basefreq = basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
+
+  for (int c = 0; c < 8*12 ; c++)
+  {
+    double note = c;
+    double freq = basefreq * std::pow(2.0, note/equaldivisionsperoctave);
+    int intfreq = freq + 0.5;
+    if (intfreq > 0xffff)
+        intfreq = 0xffff;
+    freqtbllo[c] = intfreq & 0xff;
+    freqtblhi[c] = intfreq >> 8;
+  }
+}

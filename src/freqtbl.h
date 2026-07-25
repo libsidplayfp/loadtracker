@@ -24,4 +24,6 @@ extern unsigned char freqtbllo[];
 extern unsigned char freqtblhi[];
 #endif
 
+void calculatefreqtable(double basepitch, double equaldivisionsperoctave);
+
 #endif

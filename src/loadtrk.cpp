@@ -1627,10 +1627,9 @@ void nextmultiplier()
 
 void calculatefreqtable()
 {
-  double basefreq = (double)basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
-
   if (tuningcount)
   {
+    double basefreq = (double)basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
     double cyclebasefreq = basefreq;
     double freq = basefreq;
     int c = 0;
@@ -1654,16 +1653,7 @@ void calculatefreqtable()
   }
   else
   {
-    for (int c = 0; c < 8*12 ; c++)
-    {
-      double note = c;
-      double freq = basefreq * std::pow(2.0, note/(double)equaldivisionsperoctave);
-      int intfreq = static_cast<int>(freq + 0.5);
-      if (intfreq > 0xffff)
-          intfreq = 0xffff;
-      freqtbllo[c] = intfreq & 0xff;
-      freqtblhi[c] = intfreq >> 8;
-    }
+    calculatefreqtable(basepitch, equaldivisionsperoctave);
   }
 }
 
