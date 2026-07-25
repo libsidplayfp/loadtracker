@@ -27,6 +27,7 @@
 #include "configfile.h"
 #include "console.h"
 #include "display.h"
+#include "freqtbl.h"
 #include "instr.h"
 #include "order.h"
 #include "pattern.h"
@@ -1627,11 +1628,11 @@ void nextmultiplier()
 void calculatefreqtable()
 {
   double basefreq = (double)basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
-  double cyclebasefreq = basefreq;
-  double freq = basefreq;
 
   if (tuningcount)
   {
+    double cyclebasefreq = basefreq;
+    double freq = basefreq;
     int c = 0;
     while (c < 96)
     {
@@ -1639,7 +1640,7 @@ void calculatefreqtable()
       {
         if (c < 96)
         {
-          int intfreq = freq + 0.5;
+          int intfreq = static_cast<int>(freq + 0.5);
           if (intfreq > 0xffff)
               intfreq = 0xffff;
           freqtbllo[c] = intfreq & 0xff;
@@ -1657,7 +1658,7 @@ void calculatefreqtable()
     {
       double note = c;
       double freq = basefreq * std::pow(2.0, note/(double)equaldivisionsperoctave);
-      int intfreq = freq + 0.5;
+      int intfreq = static_cast<int>(freq + 0.5);
       if (intfreq > 0xffff)
           intfreq = 0xffff;
       freqtbllo[c] = intfreq & 0xff;

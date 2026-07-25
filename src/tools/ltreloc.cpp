@@ -29,9 +29,9 @@
 #include "channels.h"
 #include "colors.h"
 #include "console.h"
+#include "freqtbl.h"
 #include "pattern.h"
 #include "reloc.h"
-#include "play.h"
 #include "song.h"
 
 #include "bme_io.h"
@@ -397,6 +397,7 @@ void calculatefreqtable()
   }
 }
 
+// FIXME remove
 int getMaxChannels()
 {
     return (numsids == 1) ? MAX_CHN_MONO : MAX_CHN;

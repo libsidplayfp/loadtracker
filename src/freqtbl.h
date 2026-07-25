@@ -1,5 +1,5 @@
 /*
- * LTReloc
+ * LoadTracker
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,37 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LTRELOC_H
-#define LTRELOC_H
+#ifndef FREQTBL_H
+#define FREQTBL_H
 
-#include "common.h"
-
-#ifndef LTRELOC_C
-#  ifdef _WIN32
-#    include <cstdio>
-     extern FILE *STDOUT, *STDERR;
-#  else
-#    define STDOUT stdout
-#    define STDERR stderr
-#  endif
-extern const char *programname;
-extern bool exitprogram;
-extern bool followplay;
-extern bool menu;
-extern bool monomode;
-
-extern bool recordmode;
-extern int editmode;
-extern int hexnybble;
-extern int eacolumn;
-extern EditHdr ehmode;
-
-extern char loadedsongfilename[MAX_FILENAME];
-extern char songfilename[MAX_FILENAME];
-extern char instrfilename[MAX_FILENAME];
+#ifndef FREQTBL_C
+extern unsigned char freqtbllo[];
+extern unsigned char freqtblhi[];
 #endif
-
-void waitkeymousenoupdate();
-void waitkeynoupdate();
 
 #endif

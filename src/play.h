@@ -33,8 +33,6 @@ enum
 
 #ifndef PLAY_C
 extern unsigned char masterfader;
-extern unsigned char freqtbllo[];
-extern unsigned char freqtblhi[];
 extern int lastsonginit;
 #endif
 

@@ -24,6 +24,7 @@
 
 #include "configfile.h"
 #include "console.h"
+#include "freqtbl.h"
 #include "instr.h"
 #include "order.h"
 #include "pattern.h"

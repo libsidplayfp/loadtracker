@@ -28,6 +28,7 @@
 #include "configfile.h"
 #include "console.h"
 #include "display.h"
+#include "freqtbl.h"
 #include "play.h"
 #include "song.h"
 #include "table.h"

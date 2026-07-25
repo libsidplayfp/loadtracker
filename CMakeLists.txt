@@ -50,6 +50,7 @@ set(LOADTRK_SOURCES
     src/console.cpp
     src/colors.cpp
     src/channels.cpp
+    src/freqtbl.cpp
     src/sid.cpp
     src/ltlog.cpp
     src/ltmidi.cpp
@@ -102,6 +103,7 @@ set(LTRELOC_SOURCES
     src/console.cpp
     src/colors.cpp
     src/channels.cpp
+    src/freqtbl.cpp
     src/ltlog.cpp
     src/bme/bme_win.cpp
     src/bme/bme_io.cpp
