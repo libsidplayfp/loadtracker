@@ -41,10 +41,10 @@ int wavelen = 0, pulselen = 0, filtlen = 0;
 
 int loadsong(char *name);
 int savesong(char *name);
-int processsong(void);
-void countpatternlengths(void);
-void countdestpatternlengths(void);
-void clearsong(void);
+int processsong();
+void countpatternlengths();
+void countdestpatternlengths();
+void clearsong();
 int gettablelen(int num);
 
 int main(int argc, char **argv)
@@ -424,7 +424,7 @@ int savesong(char *name)
   return 0;
 }
 
-void countpatternlengths(void)
+void countpatternlengths()
 {
   highestusedpattern = 0;
   for (int c = 0; c < MAX_PATT; c++)
@@ -455,7 +455,7 @@ void countpatternlengths(void)
   }
 }
 
-void countdestpatternlengths(void)
+void countdestpatternlengths()
 {
   for (int c = 0; c < MAX_PATT; c++)
   {
@@ -480,7 +480,7 @@ void countdestpatternlengths(void)
   }
 }
 
-void clearsong(void)
+void clearsong()
 {
   for (int c = 0; c < MAX_CHN; c++)
   {
