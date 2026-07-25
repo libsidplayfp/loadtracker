@@ -16,39 +16,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PLAY_H
-#define PLAY_H
+#include "channels.h"
 
-#include "common.h"
+#include "configfile.h"
 
-enum
+#include <cstring>
+
+Chn chn[MAX_CHN];
+unsigned char funktable[2];
+
+void initchannels()
 {
-  PLAY_PLAYING    = 0x00,
-  PLAY_BEGINNING  = 0x01,
-  PLAY_POS        = 0x02,
-  PLAY_PATTERN    = 0x03,
-  PLAY_STOP       = 0x04,
-  PLAY_STOPPED    = 0x80
-};
+  int maxChns = getMaxChannels();
+  Chn *cptr = &chn[0];
 
-#ifndef PLAY_C
-extern unsigned char masterfader;
-extern unsigned char freqtbllo[];
-extern unsigned char freqtblhi[];
-extern int lastsonginit;
-#endif
+  std::memset(chn, 0, sizeof chn);
 
-void initsong(int num, int playmode);
-void initsongpos(int num, int playmode, int pattpos);
-void stopsong();
-void rewindsong();
-void playtestnote(int note, int ins, int chnnum);
-void releasenote(int chnnum);
-void mutechannel(int chnnum);
-bool isplaying();
-void playroutine();
-void playroutine_stereo();
+  for (int c = 0; c < maxChns; c++)
+  {
+    chn[c].trans = 0;
+    chn[c].instr = 1;
+    if (multiplier)
+      cptr->tempo = 6*multiplier-1;
+    else
+      cptr->tempo = 6-1;
+    cptr++;
+  }
 
-void gettime(char *buf);
-
-#endif
+  if (multiplier)
+  {
+    funktable[0] = 9*multiplier-1;
+    funktable[1] = 6*multiplier-1;
+  }
+  else
+  {
+    funktable[0] = 9-1;
+    funktable[1] = 6-1;
+  }
+}

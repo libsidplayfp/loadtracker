@@ -25,6 +25,7 @@
 #include "display.h"
 
 #include "common.h"
+#include "channels.h"
 #include "colors.h"
 #include "configfile.h"
 #include "console.h"

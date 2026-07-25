@@ -26,6 +26,7 @@
 
 #include "config.h"
 
+#include "channels.h"
 #include "colors.h"
 #include "console.h"
 #include "pattern.h"

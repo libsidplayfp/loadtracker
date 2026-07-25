@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include "channels.h"
 #include "colors.h"
 #include "configfile.h"
 #include "console.h"
