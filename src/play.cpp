@@ -66,7 +66,6 @@ int timesec = 0;
 unsigned timeframe = 0;
 
 void sequencer(int c, Chn *cptr);
-void sequencer_stereo(int c, Chn *cptr);
 void resettime();
 void incrementtime();
 
@@ -941,58 +940,6 @@ NEXTCHN:
   if (songinit != PLAY_STOPPED) incrementtime();
 }
 
-void sequencer(int c, Chn *cptr)
-{
-  if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
-  {
-    cptr->pattptr = startpattpos * 4;
-    if (!cptr->advance) goto SEQDONE;
-    // Song loop
-    if (song.order[psnum][c][cptr->songptr] == LOOPSONG)
-    {
-      cptr->songptr = song.order[psnum][c][cptr->songptr+1];
-      if (cptr->songptr >= song.len[psnum][c])
-      {
-        stopsong();
-        cptr->songptr = 0;
-        goto SEQDONE;
-      }
-    }
-    // Transpose
-    if ((song.order[psnum][c][cptr->songptr] >= TRANSDOWN) && (song.order[psnum][c][cptr->songptr] < LOOPSONG))
-    {
-      cptr->trans = song.order[psnum][c][cptr->songptr]-TRANSUP;
-      cptr->songptr++;
-    }
-    // Repeat
-    if ((song.order[psnum][c][cptr->songptr] >= REPEAT) && (song.order[psnum][c][cptr->songptr] < TRANSDOWN))
-    {
-      cptr->repeat = song.order[psnum][c][cptr->songptr]-REPEAT;
-      cptr->songptr++;
-    }
-    // Pattern number
-    cptr->pattnum = song.order[psnum][c][cptr->songptr];
-    if (cptr->repeat)
-      cptr->repeat--;
-    else
-      cptr->songptr++;
-
-    // Check for illegal pattern now
-    if (cptr->pattnum >= MAX_PATT)
-    {
-      stopsong();
-      cptr->pattnum = 0;
-    }
-    if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
-      cptr->pattptr = 0;
-
-    // Check for playback endpos
-    if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < song.len[psnum][c]))
-      cptr->songptr = espos[c];
-  }
-SEQDONE: {}
-}
-
 /* ========================================================================== */
 
 void playroutine_stereo()
@@ -1061,7 +1008,7 @@ void playroutine_stereo()
                     cptr->tempo = song.instr[MAX_INSTR-1].ad - 1;
                 cptr->trans = 0;
                 cptr->instr = 1;
-                sequencer_stereo(c, cptr);
+                sequencer(c, cptr);
                 break;
 
             case PLAY_PATTERN:
@@ -1074,7 +1021,7 @@ void playroutine_stereo()
 
             case PLAY_POS:
                 cptr->songptr = espos[c];
-                sequencer_stereo(c, cptr);
+                sequencer(c, cptr);
                 break;
             }
             cptr++;
@@ -1229,7 +1176,7 @@ FILTER2STOP_S:
             // Tick 0
 TICK0_S:
             // Advance in sequencer
-            sequencer_stereo(c, cptr);
+            sequencer(c, cptr);
 
             // Get gatetimer compare-value
             cptr->gatetimer = iptr->gatetimer & 0x3f;
@@ -1951,57 +1898,57 @@ NEXTCHN_S:
     if (songinit != PLAY_STOPPED) incrementtime();
 }
 
-void sequencer_stereo(int c, Chn *cptr)
+void sequencer(int c, Chn *cptr)
 {
-    if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
+  if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
+  {
+    cptr->pattptr = startpattpos * 4;
+    if (!cptr->advance) goto SEQDONE;
+    // Song loop
+    if (song.order[psnum][c][cptr->songptr] == LOOPSONG)
     {
-        cptr->pattptr = startpattpos * 4;
-        if (!cptr->advance) goto SEQDONE_S;
-        // Song loop
-        if (song.order[psnum][c][cptr->songptr] == LOOPSONG)
-        {
-            cptr->songptr = song.order[psnum][c][cptr->songptr+1];
-            if (cptr->songptr >= song.len[psnum][c])
-            {
-                stopsong();
-                cptr->songptr = 0;
-                goto SEQDONE_S;
-            }
-        }
-        // Transpose
-        if ((song.order[psnum][c][cptr->songptr] >= TRANSDOWN) && (song.order[psnum][c][cptr->songptr] < LOOPSONG))
-        {
-            cptr->trans = song.order[psnum][c][cptr->songptr]-TRANSUP;
-            cptr->songptr++;
-        }
-        // Repeat
-        if ((song.order[psnum][c][cptr->songptr] >= REPEAT) && (song.order[psnum][c][cptr->songptr] < TRANSDOWN))
-        {
-            cptr->repeat = song.order[psnum][c][cptr->songptr]-REPEAT;
-            cptr->songptr++;
-        }
-        // Pattern number
-        cptr->pattnum = song.order[psnum][c][cptr->songptr];
-        if (cptr->repeat)
-            cptr->repeat--;
-        else
-            cptr->songptr++;
-
-        // Check for illegal pattern now
-        if (cptr->pattnum >= MAX_PATT)
-        {
-            stopsong();
-            cptr->pattnum = 0;
-        }
-        if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
-            cptr->pattptr = 0;
-
-        // Check for playback endpos
-        if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < song.len[psnum][c]))
-            cptr->songptr = espos[c];
+      cptr->songptr = song.order[psnum][c][cptr->songptr+1];
+      if (cptr->songptr >= song.len[psnum][c])
+      {
+        stopsong();
+        cptr->songptr = 0;
+        goto SEQDONE;
+      }
     }
-SEQDONE_S:
-    {}
+    // Transpose
+    if ((song.order[psnum][c][cptr->songptr] >= TRANSDOWN) && (song.order[psnum][c][cptr->songptr] < LOOPSONG))
+    {
+      cptr->trans = song.order[psnum][c][cptr->songptr]-TRANSUP;
+      cptr->songptr++;
+    }
+    // Repeat
+    if ((song.order[psnum][c][cptr->songptr] >= REPEAT) && (song.order[psnum][c][cptr->songptr] < TRANSDOWN))
+    {
+      cptr->repeat = song.order[psnum][c][cptr->songptr]-REPEAT;
+      cptr->songptr++;
+    }
+    // Pattern number
+    cptr->pattnum = song.order[psnum][c][cptr->songptr];
+    if (cptr->repeat)
+      cptr->repeat--;
+    else
+      cptr->songptr++;
+
+    // Check for illegal pattern now
+    if (cptr->pattnum >= MAX_PATT)
+    {
+      stopsong();
+      cptr->pattnum = 0;
+    }
+    if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
+      cptr->pattptr = 0;
+
+    // Check for playback endpos
+    if ((lastsonginit != PLAY_BEGINNING) && (esend[c] > 0) && (esend[c] > espos[c]) && (cptr->songptr > esend[c]) && (espos[c] < song.len[psnum][c]))
+      cptr->songptr = espos[c];
+  }
+SEQDONE:
+  {}
 }
 
 void resettime()
