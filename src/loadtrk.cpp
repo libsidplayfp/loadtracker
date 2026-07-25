@@ -36,6 +36,7 @@
 #include "song.h"
 #include "sound.h"
 #include "table.h"
+#include "timer.h"
 
 #include "bme_main.h"
 #include "bme_win.h"
@@ -339,6 +340,9 @@ int main(int argc, char **argv)
   // Reset channels/song
   initchannels();
   clearsong(true, true, true, true, true);
+
+  timer.setfreq(ntsc);
+  timer.setmult(multiplier);
 
   // Init sound
   if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
@@ -960,6 +964,7 @@ void mousecommands()
       if ((mousex >= dpos.statusTopFvX+9) && (mousex <= dpos.statusTopFvX+12))
       {
         ntsc ^= 1;
+        timer.setfreq(ntsc);
         sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= dpos.statusTopFvX+14) && (mousex <= dpos.statusTopFvX+17))
@@ -1612,6 +1617,7 @@ void prevmultiplier()
   if (multiplier > 0)
   {
     multiplier--;
+    timer.setmult(multiplier);
     sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
@@ -1621,6 +1627,7 @@ void nextmultiplier()
   if (multiplier < 16)
   {
     multiplier++;
+    timer.setmult(multiplier);
     sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }

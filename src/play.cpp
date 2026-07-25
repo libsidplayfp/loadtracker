@@ -33,6 +33,7 @@
 #include "sid.h"
 #include "song.h"
 #include "sound.h"
+#include "timer.h"
 
 #ifdef LTRELOC
 #  include "tools/ltreloc.h"
@@ -59,15 +60,7 @@ int songinit = PLAY_STOPPED;
 int lastsonginit = 0;
 int startpattpos = 0;
 
-char timechar[] = {':', ' '};
-
-int timemin = 0;
-int timesec = 0;
-unsigned timeframe = 0;
-
 void sequencer(int c, Chn *cptr);
-void resettime();
-void incrementtime();
 
 void initsong(int num, int mode)
 {
@@ -160,7 +153,7 @@ void playroutine()
     filterctrl = 0;
     filterptr = 0;
 
-    resettime();
+    timer.reset();
 
     if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
     {
@@ -937,7 +930,7 @@ NEXTCHN:
       cptr++;
     }
   }
-  if (songinit != PLAY_STOPPED) incrementtime();
+  if (songinit != PLAY_STOPPED) timer.increment();
 }
 
 /* ========================================================================== */
@@ -958,7 +951,7 @@ void playroutine_stereo()
         filter2ctrl = 0;
         filter2ptr = 0;
 
-        resettime();
+        timer.reset();
 
         if ((songinit == PLAY_POS) || (songinit == PLAY_PATTERN))
         {
@@ -1895,7 +1888,7 @@ NEXTCHN_S:
             cptr++;
         }
     }
-    if (songinit != PLAY_STOPPED) incrementtime();
+    if (songinit != PLAY_STOPPED) timer.increment();
 }
 
 void sequencer(int c, Chn *cptr)
@@ -1950,44 +1943,3 @@ void sequencer(int c, Chn *cptr)
 SEQDONE:
   {}
 }
-
-void resettime()
-{
-    timemin = 0;
-    timesec = 0;
-    timeframe = 0;
-}
-
-void incrementtime()
-{
-    timeframe++;
-    unsigned framerate = ntsc ? NTSCFRAMERATE : PALFRAMERATE;
-    if (((multiplier) && (timeframe >= framerate*multiplier))
-        || ((!multiplier) && (timeframe >= framerate/2)))
-    {
-      timeframe = 0;
-      timesec++;
-    }
-    if (timesec == 60)
-    {
-      timesec = 0;
-      timemin++;
-      timemin %= 60;
-    }
-}
-
-void gettime(char *buf)
-{
-  int idx;
-  if (multiplier)
-  {
-    idx = (ntsc ? 30 : 25) * multiplier;
-  }
-  else
-  {
-    idx = ntsc ? 15 : 13;
-  }
-
-  std::sprintf(buf, " %02d%c%02d ", timemin, timechar[(timeframe/idx) & 1], timesec);
-}
-
