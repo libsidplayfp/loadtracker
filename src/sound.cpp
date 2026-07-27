@@ -315,8 +315,8 @@ void sound_mixer(Sint32 *dest, unsigned samples)
       {
         Sint32 ls = lbuffer[c];
         Sint32 rs = rbuffer[c];
-        dest[c*2] = (ls-rs) * panning + rs;
-        dest[c*2+1] = (rs-ls) * panning + ls;
+        dest[c*2] = (ls-rs) * config.panning + rs;
+        dest[c*2+1] = (rs-ls) * config.panning + ls;
       }
     }
   }

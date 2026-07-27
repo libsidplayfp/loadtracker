@@ -192,7 +192,7 @@ int main(int argc, char **argv)
         break;
 
         case 'G':
-        std::sscanf(&argv[c][2], "%f", &basepitch);
+        std::sscanf(&argv[c][2], "%f", &config.basepitch);
         break;
 
         case 'L':
@@ -218,16 +218,16 @@ int main(int argc, char **argv)
         // NTSC timing
         case 'N':
         config.ntsc = 1;
-        customclockrate = 0;
+        config.customclockrate = 0;
         break;
         // PAL timing
         case 'P':
         config.ntsc = 0;
-        customclockrate = 0;
+        config.customclockrate = 0;
         break;
         // custom clock rate
         case 'F':
-        std::sscanf(&argv[c][2], "%u", &customclockrate);
+        std::sscanf(&argv[c][2], "%u", &config.customclockrate);
         break;
 
         // player options (first menu)
@@ -319,17 +319,17 @@ int main(int argc, char **argv)
   config.sidaddress &= 0xffff;
 
   if (config.multiplier > 16) config.multiplier = 16;
-  if ((config.finevibrato == 1) && (config.multiplier < 2)) usefinevib = true;
-  if (config.finevibrato > 1) usefinevib = true;
+  if ((config.finevibrato == 1) && (config.multiplier < 2)) config.usefinevib = true;
+  if (config.finevibrato > 1) config.usefinevib = true;
   if (config.optimizepulse > 1) config.optimizepulse = 1;
   if (config.optimizerealtime > 1) config.optimizerealtime = 1;
-  if (customclockrate < 100) customclockrate = 0;
+  if (config.customclockrate < 100) config.customclockrate = 0;
 
   // Calculate frequencytable if necessary
-  if (basepitch < 0.0f)
-    basepitch = 0.0f;
-  if (basepitch > 0.0f)
-    calculatefreqtable(basepitch, 12.);
+  if (config.basepitch < 0.0f)
+    config.basepitch = 0.0f;
+  if (config.basepitch > 0.0f)
+    calculatefreqtable(config.basepitch, 12.);
 
   // perform relocation
   relocator(packedsongname);

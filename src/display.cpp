@@ -122,7 +122,7 @@ void printstatus()
     color = ((config.numsids == 2) && !monomode) ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX-3, dpos.statusTopY, color, "ST");
 
-    color = usefinevib ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    color = config.usefinevib ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX, dpos.statusTopY, color, "FV");
 
     color = config.optimizepulse ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);

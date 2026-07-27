@@ -135,7 +135,7 @@ int main(int argc, char **argv)
   // Init pathnames
   initpaths();
 
-  bool dark = darkmode != 0;
+  bool dark = config.darkmode != 0;
 
   // Scan command line
   for (int c = 1; c < argc; c++)
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
 
         case 'Z':
-        std::sscanf(&argv[c][2], "%u", &residdelay);
+        std::sscanf(&argv[c][2], "%u", &config.residdelay);
         break;
 
         case 'A':
@@ -211,16 +211,16 @@ int main(int argc, char **argv)
 
         case 'N':
         config.ntsc = 1;
-        customclockrate = 0;
+        config.customclockrate = 0;
         break;
 
         case 'P':
         config.ntsc = 0;
-        customclockrate = 0;
+        config.customclockrate = 0;
         break;
 
         case 'F':
-        std::sscanf(&argv[c][2], "%u", &customclockrate);
+        std::sscanf(&argv[c][2], "%u", &config.customclockrate);
         break;
 
         case 'M':
@@ -248,19 +248,19 @@ int main(int argc, char **argv)
         break;
 
         case 'G':
-        std::sscanf(&argv[c][2], "%f", &basepitch);
+        std::sscanf(&argv[c][2], "%f", &config.basepitch);
         break;
 
         case 'b':
-        std::sscanf(&argv[c][2], "%f", &filterbias);
+        std::sscanf(&argv[c][2], "%f", &config.filterbias);
         break;
 
         case 'c':
-        std::sscanf(&argv[c][2], "%u", &combwaves);
+        std::sscanf(&argv[c][2], "%u", &config.combwaves);
         break;
 
         case 'Q':
-        std::sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
+        std::sscanf(&argv[c][2], "%f", &config.equaldivisionsperoctave);
         break;
 
         case 'J':
@@ -272,7 +272,7 @@ int main(int argc, char **argv)
         break;
 
         case 'x':
-        std::sscanf(&argv[c][2], "%u", &exsid);
+        std::sscanf(&argv[c][2], "%u", &config.exsid);
         break;
       }
     }
@@ -310,10 +310,10 @@ int main(int argc, char **argv)
   }
 
   // Calculate frequencytable if necessary
-  if (basepitch < 0.0f)
-    basepitch = 0.0f;
-  if (basepitch > 0.0f)
-    calculatefreqtable(basepitch, equaldivisionsperoctave);
+  if (config.basepitch < 0.0f)
+    config.basepitch = 0.0f;
+  if (config.basepitch > 0.0f)
+    calculatefreqtable(config.basepitch, config.equaldivisionsperoctave);
 
   // Set special note names
   if (specialnotenames[1] != '\0')
@@ -333,7 +333,7 @@ int main(int argc, char **argv)
   timer.setmult(config.multiplier);
 
   // Init sound
-  if (!sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves))
+  if (!sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves))
   {
     printtextc(MAX_ROWS/2-1, colors.CMESSAGE, "Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -943,7 +943,7 @@ void mousecommands()
       }
       if ((input.mousex >= dpos.statusTopFvX) && (input.mousex <= dpos.statusTopFvX+1))
       {
-        usefinevib = !usefinevib;
+        config.usefinevib = !config.usefinevib;
       }
       if ((input.mousex >= dpos.statusTopFvX+3) && (input.mousex <= dpos.statusTopFvX+4))
       {
@@ -957,12 +957,12 @@ void mousecommands()
       {
         config.ntsc ^= 1;
         timer.setfreq(config.ntsc);
-        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
       }
       if ((input.mousex >= dpos.statusTopFvX+14) && (input.mousex <= dpos.statusTopFvX+17))
       {
         config.sidmodel ^= 1;
-        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
+        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
       }
       if ((input.mousex >= dpos.statusTopFvX+22) &&
           (input.mousex <= dpos.statusTopFvX+25)) editadsr(input.mousex - (dpos.statusTopFvX+22));
@@ -1209,7 +1209,7 @@ void generalcommands()
     else
     {
       config.sidmodel ^= 1;
-      sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
+      sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
     }
     break;
 
@@ -1601,7 +1601,7 @@ void prevmultiplier()
   {
     config.multiplier--;
     timer.setmult(config.multiplier);
-    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
   }
 }
 
@@ -1611,7 +1611,7 @@ void nextmultiplier()
   {
     config.multiplier++;
     timer.setmult(config.multiplier);
-    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
+    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
   }
 }
 
@@ -1676,7 +1676,7 @@ void switchMode()
             config.ntsc,
             config.multiplier,
             config.interpolate,
-            customclockrate, exsid, filterbias, combwaves
+            config.customclockrate, config.exsid, config.filterbias, config.combwaves
         );
         initDisplayPositions();
         printmainscreen();

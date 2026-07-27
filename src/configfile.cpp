@@ -100,21 +100,21 @@ void loadconfig()
         getparam(configfile, &config.patterndispmode);
         getparam(configfile, &config.sidaddress);
         getparam(configfile, &config.sid2address);
-        getfloatparam(configfile, &panning);
+        getfloatparam(configfile, &config.panning);
         getparam(configfile, &config.finevibrato);
         getparam(configfile, &config.optimizepulse);
         getparam(configfile, &config.optimizerealtime);
-        getparam(configfile, &residdelay);
-        getparam(configfile, &customclockrate);
+        getparam(configfile, &config.residdelay);
+        getparam(configfile, &config.customclockrate);
         getparam(configfile, (unsigned*)&win_fullscreen);
-        getfloatparam(configfile, &basepitch);
-        getfloatparam(configfile, &filterbias);
-        getparam(configfile, &combwaves);
-        getfloatparam(configfile, &equaldivisionsperoctave);
+        getfloatparam(configfile, &config.basepitch);
+        getfloatparam(configfile, &config.filterbias);
+        getparam(configfile, &config.combwaves);
+        getfloatparam(configfile, &config.equaldivisionsperoctave);
         getstringparam(configfile, specialnotenames);
         getstringparam(configfile, scalatuningfilepath);
-        getparam(configfile, &exsid);
-        getparam(configfile, &darkmode);
+        getparam(configfile, &config.exsid);
+        getparam(configfile, &config.darkmode);
         getparam(configfile, &xpos);
         getparam(configfile, &ypos);
         getparam(configfile, &xsize);
@@ -145,14 +145,14 @@ void saveconfig()
                  ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
                  ";Number of SIDs (1, 2, default 1)\n%d\n\n"
                  ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
-                 ";Packer/relocator config.fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
+                 ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
                  ";Packer/relocator player address\n$%04x\n\n"
                  ";Packer/relocator zeropage baseaddress\n$%02x\n\n"
                  ";Packer/relocator player type (0 = standard ... 3 = minimal)\n%d\n\n"
                  ";Key entry mode (0 = Protracker, 1 = DMC, 2 = Janko)\n%d\n\n"
                  ";Pattern default size (default = 32 / $20)\n%d\n\n"
                  ";Pattern highlight step size\n%d\n\n"
-                 ";Speed config.multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
+                 ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                  ";Hardrestart ADSR parameter\n$%04x\n\n"
                  ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
                  ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
@@ -195,21 +195,21 @@ void saveconfig()
         config.patterndispmode,
         config.sidaddress,
         config.sid2address,
-        panning,
+        config.panning,
         config.finevibrato,
         config.optimizepulse,
         config.optimizerealtime,
-        residdelay,
-        customclockrate,
+        config.residdelay,
+        config.customclockrate,
         win_fullscreen,
-        basepitch,
-        filterbias,
-        combwaves,
-        equaldivisionsperoctave,
+        config.basepitch,
+        config.filterbias,
+        config.combwaves,
+        config.equaldivisionsperoctave,
         specialnotenames,
         scalatuningfilepath,
-        exsid,
-        darkmode,
+        config.exsid,
+        config.darkmode,
         xpos,
         ypos,
         xsize,
@@ -321,19 +321,19 @@ void validateconfig()
   if (!config.stepsize) config.stepsize = 4;
   if (config.multiplier > 16) config.multiplier = 16;
   if (config.keypreset > 2) config.keypreset = 0;
-  if ((config.finevibrato == 1) && (config.multiplier < 2)) usefinevib = true;
-  if (config.finevibrato > 1) usefinevib = true;
+  if ((config.finevibrato == 1) && (config.multiplier < 2)) config.usefinevib = true;
+  if (config.finevibrato > 1) config.usefinevib = true;
   if (config.optimizepulse > 1) config.optimizepulse = 1;
   if (config.optimizerealtime > 1) config.optimizerealtime = 1;
-  if (residdelay > 63) residdelay = 63;
-  if (customclockrate < 100) customclockrate = 0;
+  if (config.residdelay > 63) config.residdelay = 63;
+  if (config.customclockrate < 100) config.customclockrate = 0;
   if (config.defaultpatternlength < 1) config.defaultpatternlength = 1;
   if (config.defaultpatternlength > MAX_PATTROWS) config.defaultpatternlength = MAX_PATTROWS;
-  if (panning < 0.f) panning = 0.f;
-  if (panning > 1.f) panning = 1.f;
-  if (combwaves > 2) combwaves = 2;
-  if (filterbias < 0.0) filterbias = 0.0;
-  if (filterbias > 1.0) filterbias = 1.0;
+  if (config.panning < 0.f) config.panning = 0.f;
+  if (config.panning > 1.f) config.panning = 1.f;
+  if (config.combwaves > 2) config.combwaves = 2;
+  if (config.filterbias < 0.0) config.filterbias = 0.0;
+  if (config.filterbias > 1.0) config.filterbias = 1.0;
   if (config.numsids < 1) config.numsids = 1;
   if (config.numsids > 2) config.numsids = 2;
 }

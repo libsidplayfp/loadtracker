@@ -24,19 +24,9 @@ constexpr int CFG_VERSION = 2;
 
 #ifndef SETTINGS_C
 // config FIXME
-extern unsigned residdelay;
-extern unsigned customclockrate;
-extern unsigned combwaves;
-extern float panning;
-extern float basepitch;
-extern float filterbias;
-extern float equaldivisionsperoctave;
 extern char specialnotenames[];
 extern char scalatuningfilepath[];
-extern unsigned exsid;
-extern unsigned darkmode;
 
-extern bool usefinevib;
 #endif
 
 struct Settings
@@ -61,6 +51,17 @@ struct Settings
     unsigned finevibrato;
     unsigned optimizepulse;
     unsigned optimizerealtime;
+    unsigned residdelay;
+    unsigned customclockrate;
+    unsigned combwaves;
+    unsigned exsid;
+    unsigned darkmode;
+    float panning;
+    float basepitch;
+    float filterbias;
+    float equaldivisionsperoctave;
+
+    bool usefinevib;
 
     Settings();
     int getMaxChannels();

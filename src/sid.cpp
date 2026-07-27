@@ -37,6 +37,7 @@ int clockrate;
 int samplerate;
 unsigned char sidreg[NUMSIDREGS];
 unsigned char sidreg2[NUMSIDREGS];
+
 unsigned char sidorder[] =
 {
     0x15,0x16,0x18,0x17,
@@ -55,9 +56,6 @@ unsigned char altsidorder[] =
 
 reSIDfp::residfp *sid = nullptr;
 reSIDfp::residfp *sid2 = nullptr;
-
-extern unsigned residdelay;
-extern unsigned adparam;
 
 void sid_init(int speed, unsigned m,
               unsigned ntsc, unsigned interpolate,
@@ -161,14 +159,14 @@ int sid_fillbuffer(short *ptr, int samples)
     unsigned char o = sid_getorder(c);
 
     // Possible random badline delay once per writing
-    if ((badline == c) && (residdelay))
+    if ((badline == c) && (config.residdelay))
     {
-      tdelta2 = residdelay;
+      tdelta2 = config.residdelay;
       result = sid->clock(tdelta2, ptr);
       total += result;
       ptr += result;
       samples -= result;
-      tdelta -= residdelay;
+      tdelta -= config.residdelay;
     }
 
     sid->write(o, sidreg[o]);
@@ -237,17 +235,17 @@ int sid_fillbuffer_stereo(short *lptr, short *rptr, int samples)
     }
 
     // Possible random badline delay once per writing
-    if ((badline == c) && (residdelay))
+    if ((badline == c) && (config.residdelay))
     {
-      tdelta2 = residdelay;
+      tdelta2 = config.residdelay;
       result = sid->clock(tdelta2, lptr);
-      tdelta2 = residdelay;
+      tdelta2 = config.residdelay;
       result = sid2->clock(tdelta2, rptr);
       total += result;
       lptr += result;
       rptr += result;
       samples -= result;
-      tdelta -= residdelay;
+      tdelta -= config.residdelay;
     }
 
     sid->write(o, sidreg[o]);

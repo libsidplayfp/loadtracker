@@ -26,19 +26,9 @@
 Settings config;
 
 // config
-float panning = 1.0f;
-unsigned residdelay = 0;
-unsigned customclockrate = 0;
-float basepitch = 0.0f;
-float filterbias = 0.5f;
-unsigned combwaves = 1;
-float equaldivisionsperoctave = 12.0f;
 char specialnotenames[186];
 char scalatuningfilepath[MAX_PATHNAME];
-unsigned exsid = 0;
-unsigned darkmode = 0;
 
-bool usefinevib = false;
 
 int Settings::getMaxChannels()
 {
@@ -70,5 +60,15 @@ Settings::Settings() :
     sid2address(0xd500),
     finevibrato(1),
     optimizepulse(1),
-    optimizerealtime(1)
+    optimizerealtime(1),
+    residdelay(0),
+    customclockrate(0),
+    combwaves(1),
+    exsid(0),
+    darkmode(0),
+    panning(1.0f),
+    basepitch(0.0f),
+    filterbias(0.5f),
+    equaldivisionsperoctave(12.0f),
+    usefinevib(false)
 {}
