@@ -57,22 +57,19 @@ unsigned char altsidorder[] =
 reSIDfp::residfp *sid = nullptr;
 reSIDfp::residfp *sid2 = nullptr;
 
-void sid_init(int speed, unsigned m,
-              unsigned ntsc, unsigned interpolate,
-              unsigned customclockrate, unsigned numsids,
-              float filterbias, unsigned combwaves)
+void sid_init(int speed, const Settings &cfg)
 {
-  if (customclockrate)
-    clockrate = customclockrate;
+  if (cfg.customclockrate)
+    clockrate = cfg.customclockrate;
   else
-    clockrate = ntsc ? NTSCCLOCKRATE : PALCLOCKRATE;
+    clockrate = cfg.ntsc ? NTSCCLOCKRATE : PALCLOCKRATE;
 
   samplerate = speed;
 
   if (!sid) sid = new reSIDfp::residfp;
-  if (numsids == 2 && !sid2) sid2 = new reSIDfp::residfp;
+  if (cfg.numsids == 2 && !sid2) sid2 = new reSIDfp::residfp;
 
-  switch(interpolate)
+  switch(cfg.interpolate)
   {
     case 0:
         sid->setSamplingParameters(clockrate, reSIDfp::DECIMATE, speed);
@@ -87,15 +84,15 @@ void sid_init(int speed, unsigned m,
   }
 
   sid->reset();
-  sid->setFilter6581Curve(filterbias);
-  sid->setFilter8580Curve(filterbias);
+  sid->setFilter6581Curve(cfg.filterbias);
+  sid->setFilter8580Curve(cfg.filterbias);
   if (sid2)
   {
     sid2->reset();
-    sid2->setFilter6581Curve(filterbias);
-    sid2->setFilter8580Curve(filterbias);
+    sid2->setFilter6581Curve(cfg.filterbias);
+    sid2->setFilter8580Curve(cfg.filterbias);
   }
-  switch(combwaves)
+  switch(cfg.combwaves)
   {
     case 0:
         sid->setCombinedWaveforms(reSIDfp::WEAK);
@@ -120,7 +117,7 @@ void sid_init(int speed, unsigned m,
     sidreg[c] = 0x00;
     sidreg2[c] = 0x00;
   }
-  if (m == 1)
+  if (cfg.sidmodel == 1)
   {
     sid->setChipModel(reSIDfp::CSG8580);
     if (sid2) sid2->setChipModel(reSIDfp::CSG8580);

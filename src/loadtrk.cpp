@@ -333,7 +333,7 @@ int main(int argc, char **argv)
   timer.setmult(config.multiplier);
 
   // Init sound
-  if (!sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves))
+  if (!sound_init(writer, config))
   {
     printtextc(MAX_ROWS/2-1, colors.CMESSAGE, "Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -957,12 +957,12 @@ void mousecommands()
       {
         config.ntsc ^= 1;
         timer.setfreq(config.ntsc);
-        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
+        sound_init(writer, config);
       }
       if ((input.mousex >= dpos.statusTopFvX+14) && (input.mousex <= dpos.statusTopFvX+17))
       {
         config.sidmodel ^= 1;
-        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
+        sound_init(writer, config);
       }
       if ((input.mousex >= dpos.statusTopFvX+22) &&
           (input.mousex <= dpos.statusTopFvX+25)) editadsr(input.mousex - (dpos.statusTopFvX+22));
@@ -1209,7 +1209,7 @@ void generalcommands()
     else
     {
       config.sidmodel ^= 1;
-      sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
+      sound_init(writer, config);
     }
     break;
 
@@ -1601,7 +1601,7 @@ void prevmultiplier()
   {
     config.multiplier--;
     timer.setmult(config.multiplier);
-    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
+    sound_init(writer, config);
   }
 }
 
@@ -1611,7 +1611,7 @@ void nextmultiplier()
   {
     config.multiplier++;
     timer.setmult(config.multiplier);
-    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, config.customclockrate, config.exsid, config.filterbias, config.combwaves);
+    sound_init(writer, config);
   }
 }
 
@@ -1669,15 +1669,7 @@ void switchMode()
         config.numsids ^= 3;
         clearsong(true, true, true, true, true);
 
-        sound_init(
-            config.mixrate,
-            writer,
-            config.sidmodel,
-            config.ntsc,
-            config.multiplier,
-            config.interpolate,
-            config.customclockrate, config.exsid, config.filterbias, config.combwaves
-        );
+        sound_init(writer, config);
         initDisplayPositions();
         printmainscreen();
     }
