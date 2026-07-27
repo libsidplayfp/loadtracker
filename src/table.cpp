@@ -22,13 +22,13 @@
 
 #define TABLE_C
 
-#include "configfile.h"
 #include "console.h"
 #include "display.h"
 #include "instr.h"
 #include "pattern.h"
 #include "play.h"
 #include "reloc.h"
+#include "settings.h"
 #include "song.h"
 #include "table.h"
 
@@ -417,7 +417,7 @@ void tablecommands()
 
         case WAVECMD + CMD_VIBRATO:
         table = STBL;
-        mstmode = finevibrato;
+        mstmode = config.finevibrato;
         break;
 
         case WAVECMD + CMD_FUNKTEMPO:

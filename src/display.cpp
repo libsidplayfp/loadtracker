@@ -27,12 +27,12 @@
 #include "common.h"
 #include "channels.h"
 #include "colors.h"
-#include "configfile.h"
 #include "console.h"
 #include "instr.h"
 #include "order.h"
 #include "pattern.h"
 #include "play.h"
+#include "settings.h"
 #include "song.h"
 #include "table.h"
 #include "timer.h"
@@ -119,36 +119,36 @@ void printstatus()
 
     int color;
 
-    color = ((numsids == 2) && !monomode) ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    color = ((config.numsids == 2) && !monomode) ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX-3, dpos.statusTopY, color, "ST");
 
     color = usefinevib ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX, dpos.statusTopY, color, "FV");
 
-    color = optimizepulse ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    color = config.optimizepulse ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX+3, dpos.statusTopY, color, "PO");
 
-    color = optimizerealtime ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
+    color = config.optimizerealtime ? colors.CHEADER : colors.CMUTE|(colors.CHDRBG<<4);
     printtext(dpos.statusTopFvX+6, dpos.statusTopY, color, "RO");
 
-    const char *clk = ntsc ? "NTSC" : "PAL";
+    const char *clk = config.ntsc ? "NTSC" : "PAL";
     printtext(dpos.statusTopFvX+9, dpos.statusTopY, colors.CHEADER, clk);
 
-    const char *model = sidmodel ? "8580" : "6581";
+    const char *model = config.sidmodel ? "8580" : "6581";
     printtext(dpos.statusTopFvX+14, dpos.statusTopY, colors.CHEADER, model);
 
-    std::snprintf(textbuffer, MAX_PATHNAME, "HR:%04X", adparam);
+    std::snprintf(textbuffer, MAX_PATHNAME, "HR:%04X", config.adparam);
     printtext(dpos.statusTopFvX+19, dpos.statusTopY, colors.CHEADER, textbuffer);
     if (ehmode == EditHdr::ADSR) printbg(dpos.statusTopFvX+22+eacolumn, dpos.statusTopY, cc, 1);
 
-    if (multiplier)
+    if (config.multiplier)
     {
-      std::snprintf(textbuffer, MAX_PATHNAME, "%2dX", multiplier);
+      std::snprintf(textbuffer, MAX_PATHNAME, "%2dX", config.multiplier);
       printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, textbuffer);
     }
     else printtext(dpos.statusTopFvX+27, dpos.statusTopY, colors.CHEADER, "25Hz");
 
-    if (multiplier == 1)
+    if (config.multiplier == 1)
     {
       std::snprintf(textbuffer, MAX_PATHNAME, "%03dBPM", snd_bpmtempo);
       printtext(dpos.statusTopFvX+31, dpos.statusTopY, colors.CHEADER, textbuffer);
@@ -163,8 +163,8 @@ void printstatus()
     printtext(0, dpos.statusTopY, colors.CHEADER, " PLAY | PLAYPOS | PLAYPATT | STOP | LOAD | SAVE | PACK/RL | HELP | CLEAR | QUIT |");
   }
 
-  int visibleOrderlist = getVisibleOrderlist();
-  int maxChns = getMaxChannels();
+  int visibleOrderlist = config.getVisibleOrderlist();
+  int maxChns = config.getMaxChannels();
 
   if (followplay && isplaying())
   {
@@ -228,7 +228,7 @@ void printstatus()
       }
       else
       {
-        if (!(patterndispmode & 1))
+        if (!(config.patterndispmode & 1))
         {
           if (p < 100)
             std::snprintf(textbuffer, MAX_PATHNAME, " %02d", p);
@@ -250,7 +250,7 @@ void printstatus()
             song.pattern[epnum[c]][p*4+1],
             song.pattern[epnum[c]][p*4+2],
             song.pattern[epnum[c]][p*4+3]);
-          if (patterndispmode & 2)
+          if (config.patterndispmode & 2)
           {
             if (!song.pattern[epnum[c]][p*4+1])
               std::memset(&textbuffer[8], '.', 2);
@@ -261,7 +261,7 @@ void printstatus()
       }
       textbuffer[3] = 0;
 
-      int color2 = (p%stepsize) ? colors.CNORMAL : colors.CCOMMAND;
+      int color2 = (p%config.stepsize) ? colors.CNORMAL : colors.CCOMMAND;
       printtext(dpos.patternsX-1+c*13, dpos.patternsY+1+d, color2, textbuffer);
 
       color2 = (color == colors.CNORMAL) ? colors.CCOMMAND : color;
@@ -307,7 +307,7 @@ void printstatus()
   printtext(dpos.orderlistX+31, dpos.orderlistY, colors.CEDIT|(colors.CHDRBG<<4), textbuffer);
   std::snprintf(textbuffer, MAX_PATHNAME, ")");
   printtext(dpos.orderlistX+33, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
-  const char *olhdr = (numsids == 1) ? "                                      " : "            ";
+  const char *olhdr = (config.numsids == 1) ? "                                      " : "            ";
   std::snprintf(textbuffer, MAX_PATHNAME, "%s", olhdr);
   printtext(dpos.orderlistX+34, dpos.orderlistY, colors.CTITLE|(colors.CHDRBG<<4), textbuffer);
 
@@ -460,7 +460,7 @@ void printstatus()
       }
       if ((p == tables.pos()) && (tables.num() == c)) color = colors.CEDIT;
       std::snprintf(textbuffer, MAX_PATHNAME, "%02X:%02X %02X", p+1, song.ltable[c][p], song.rtable[c][p]);
-      if (patterndispmode & 2)
+      if (config.patterndispmode & 2)
       {
         if (!song.ltable[c][p] && !song.rtable[c][p] && !song.ltable[c][p+1] && !song.rtable[c][p+1])
         {
@@ -535,7 +535,7 @@ void printstatus()
   const char *cmds = isplaying() ? " \x80 " : " \x81 ";
   printtext(dpos.octaveX+20, dpos.octaveY, colors.CTITLE|(colors.CHDRBG<<4), cmds);
 
-  const char *chnls = (numsids == 1) ? " CHN1   CHN2   CHN3 " : " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 ";
+  const char *chnls = (config.numsids == 1) ? " CHN1   CHN2   CHN3 " : " CHN1   CHN2   CHN3   CHN4   CHN5   CHN6 ";
   printtext(dpos.channelsX, dpos.channelsY, colors.CTITLE, chnls);
   for (int c = 0; c < maxChns; c++)
   {

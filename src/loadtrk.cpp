@@ -34,6 +34,7 @@
 #include "reloc.h"
 #include "song.h"
 #include "sound.h"
+#include "settings.h"
 #include "table.h"
 #include "timer.h"
 #include "tuning.h"
@@ -181,40 +182,40 @@ int main(int argc, char **argv)
         break;
 
         case 'A':
-        std::sscanf(&argv[c][2], "%x", &adparam);
+        std::sscanf(&argv[c][2], "%x", &config.adparam);
         break;
 
         case 'S':
-        std::sscanf(&argv[c][2], "%u", &multiplier);
+        std::sscanf(&argv[c][2], "%u", &config.multiplier);
         break;
 
         case 'D':
-        std::sscanf(&argv[c][2], "%u", &patterndispmode);
+        std::sscanf(&argv[c][2], "%u", &config.patterndispmode);
         break;
 
         case 'E':
-        std::sscanf(&argv[c][2], "%u", &sidmodel);
+        std::sscanf(&argv[c][2], "%u", &config.sidmodel);
         break;
 
         case 'I':
-        std::sscanf(&argv[c][2], "%u", &interpolate);
+        std::sscanf(&argv[c][2], "%u", &config.interpolate);
         break;
 
         case 'K':
-        std::sscanf(&argv[c][2], "%u", &keypreset);
+        std::sscanf(&argv[c][2], "%u", &config.keypreset);
         break;
 
         case 'L':
-        std::sscanf(&argv[c][2], "%x", &sidaddress);
+        std::sscanf(&argv[c][2], "%x", &config.sidaddress);
         break;
 
         case 'N':
-        ntsc = 1;
+        config.ntsc = 1;
         customclockrate = 0;
         break;
 
         case 'P':
-        ntsc = 0;
+        config.ntsc = 0;
         customclockrate = 0;
         break;
 
@@ -223,19 +224,19 @@ int main(int argc, char **argv)
         break;
 
         case 'M':
-        std::sscanf(&argv[c][2], "%u", &mr);
+        std::sscanf(&argv[c][2], "%u", &config.mixrate);
         break;
 
         case 'O':
-        std::sscanf(&argv[c][2], "%u", &optimizepulse);
+        std::sscanf(&argv[c][2], "%u", &config.optimizepulse);
         break;
 
         case 'R':
-        std::sscanf(&argv[c][2], "%u", &optimizerealtime);
+        std::sscanf(&argv[c][2], "%u", &config.optimizerealtime);
         break;
 
         case 'V':
-        std::sscanf(&argv[c][2], "%u", &finevibrato);
+        std::sscanf(&argv[c][2], "%u", &config.finevibrato);
         break;
 
         case 'W':
@@ -328,11 +329,11 @@ int main(int argc, char **argv)
   initchannels();
   clearsong(true, true, true, true, true);
 
-  timer.setfreq(ntsc);
-  timer.setmult(multiplier);
+  timer.setfreq(config.ntsc);
+  timer.setmult(config.multiplier);
 
   // Init sound
-  if (!sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves))
+  if (!sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves))
   {
     printtextc(MAX_ROWS/2-1, colors.CMESSAGE, "Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -477,7 +478,7 @@ void tooltips()
   {
     if (input.mousey == dpos.statusTopY)
     {
-      if ((input.mousex >= dpos.statusTopFvX-3) && (input.mousex <= dpos.statusTopFvX-2) && (numsids == 2))
+      if ((input.mousex >= dpos.statusTopFvX-3) && (input.mousex <= dpos.statusTopFvX-2) && (config.numsids == 2))
       {
         settooltip("Stereo mode");
         return;
@@ -603,7 +604,7 @@ void tooltips()
 
 void mousecommands()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   int currentSonglen = song.len[esnum][eschn];
 
@@ -635,7 +636,7 @@ void mousecommands()
     if ((input.mousey >= dpos.orderlistY+1) &&
         (input.mousey <= dpos.orderlistY+1+maxChns) &&
         (input.mousex >= dpos.orderlistX) &&
-        (input.mousex <= dpos.orderlistX+34+((numsids == 2)?13:34)))
+        (input.mousex <= dpos.orderlistX+34+((config.numsids == 2)?13:34)))
     {
       int newchn = input.mousey - (dpos.orderlistY+1);
       if (input.wheel > 0)
@@ -648,7 +649,7 @@ void mousecommands()
       }
       else if (input.wheel < 0)
       {
-        if ((song.len[esnum][newchn]-esview[newchn]) > getVisibleOrderlist()-1)
+        if ((song.len[esnum][newchn]-esview[newchn]) > config.getVisibleOrderlist()-1)
         {
           esview[newchn]++;
           if (newchn == eschn) eseditpos++;
@@ -661,6 +662,12 @@ void mousecommands()
         (input.mousex >= dpos.instrumentsX) &&
         (input.mousex <= dpos.instrumentsX+7+(MAX_TABLES-1)*12))
     {
+        for (int c = 0; c < MAX_TABLES; c++)
+        {
+            if ((input.mousex >= dpos.instrumentsX+3+c*12) &&
+                    (input.mousex <= dpos.instrumentsX+7+c*12))
+            tables.m_num = c;
+        }
         if (input.wheel > 0)
           tables.tableup(input.shiftpressed);
         else if (input.wheel < 0)
@@ -678,7 +685,7 @@ void mousecommands()
                 prevmultiplier();
         }
         else
-        if ((multiplier == 1) &&
+        if ((config.multiplier == 1) &&
             (input.mousex >= dpos.statusTopFvX+31) &&
             (input.mousex <= dpos.statusTopFvX+37))
         {
@@ -930,7 +937,7 @@ void mousecommands()
   {
     if ((input.mousey == dpos.statusTopY) && (!input.prevmouseb) && (input.mouseb == MOUSEB_LEFT))
     {
-      if ((input.mousex >= dpos.statusTopFvX-3) && (input.mousex <= dpos.statusTopFvX-2) && (numsids == 2))
+      if ((input.mousex >= dpos.statusTopFvX-3) && (input.mousex <= dpos.statusTopFvX-2) && (config.numsids == 2))
       {
         monomode = !monomode;
       }
@@ -940,22 +947,22 @@ void mousecommands()
       }
       if ((input.mousex >= dpos.statusTopFvX+3) && (input.mousex <= dpos.statusTopFvX+4))
       {
-        optimizepulse ^= 1;
+        config.optimizepulse ^= 1;
       }
       if ((input.mousex >= dpos.statusTopFvX+6) && (input.mousex <= dpos.statusTopFvX+7))
       {
-        optimizerealtime ^= 1;
+        config.optimizerealtime ^= 1;
       }
       if ((input.mousex >= dpos.statusTopFvX+9) && (input.mousex <= dpos.statusTopFvX+12))
       {
-        ntsc ^= 1;
-        timer.setfreq(ntsc);
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+        config.ntsc ^= 1;
+        timer.setfreq(config.ntsc);
+        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((input.mousex >= dpos.statusTopFvX+14) && (input.mousex <= dpos.statusTopFvX+17))
       {
-        sidmodel ^= 1;
-        sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+        config.sidmodel ^= 1;
+        sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((input.mousex >= dpos.statusTopFvX+22) &&
           (input.mousex <= dpos.statusTopFvX+25)) editadsr(input.mousex - (dpos.statusTopFvX+22));
@@ -996,11 +1003,11 @@ void mousecommands()
         save();
       if ((input.mousex >= 49) && (input.mousex <= 57))
       {
-        if (numsids == 1)
+        if (config.numsids == 1)
         {
           relocator(loadedsongfilename);
         }
-        else if (numsids == 2)
+        else if (config.numsids == 2)
         {
           relocator_stereo(loadedsongfilename);
         }
@@ -1017,8 +1024,8 @@ void mousecommands()
 
 void generalcommands()
 {
-  int maxChns = getMaxChannels();
-  int visibleOrderlist = getVisibleOrderlist();
+  int maxChns = config.getMaxChannels();
+  int visibleOrderlist = config.getVisibleOrderlist();
   int currentSonglen = 0;
 
   switch(input.key)
@@ -1201,24 +1208,24 @@ void generalcommands()
       editmode = EDIT_NAMES;
     else
     {
-      sidmodel ^= 1;
-      sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+      config.sidmodel ^= 1;
+      sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
     }
     break;
 
     case KEY_F9:
     if (!input.shiftpressed)
     {
-        if (numsids == 1)
+        if (config.numsids == 1)
         {
           relocator(loadedsongfilename);
         }
-        else if (numsids == 2)
+        else if (config.numsids == 2)
         {
           relocator_stereo(loadedsongfilename);
         }
     }
-    else if (input.shiftpressed && (numsids == 2))
+    else if (input.shiftpressed && (config.numsids == 2))
     {
         monomode = !monomode;
     }
@@ -1374,41 +1381,41 @@ void clear()
   if (cp)
   {
     bool selectdone = false;
-    unsigned olddpl = defaultpatternlength;
+    unsigned olddpl = config.defaultpatternlength;
 
     printtext(dpos.statusBottomX+20, dpos.statusBottomY, colors.CMESSAGE, "Pattern length:");
     while (!selectdone)
     {
-        if (patterndispmode)
+        if (config.patterndispmode)
         {
-            std::sprintf(textbuffer, "%02X ", defaultpatternlength);
+            std::sprintf(textbuffer, "%02X ", config.defaultpatternlength);
         }
         else
         {
-            std::sprintf(textbuffer, "%02d ", defaultpatternlength);
+            std::sprintf(textbuffer, "%02d ", config.defaultpatternlength);
         }
         printtext(dpos.statusBottomX+35, dpos.statusBottomY, colors.CTITLE, textbuffer);
       waitkey();
       switch(input.rawkey)
       {
         case KEY_LEFT:
-        defaultpatternlength -= 7;
+        config.defaultpatternlength -= 7;
         /* fall through */
         case KEY_DOWN:
-        defaultpatternlength--;
-        if (defaultpatternlength < 1) defaultpatternlength = 1;
+        config.defaultpatternlength--;
+        if (config.defaultpatternlength < 1) config.defaultpatternlength = 1;
         break;
 
         case KEY_RIGHT:
-        defaultpatternlength += 7;
+        config.defaultpatternlength += 7;
         /* fall through */
         case KEY_UP:
-        defaultpatternlength++;
-        if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
+        config.defaultpatternlength++;
+        if (config.defaultpatternlength > MAX_PATTROWS) config.defaultpatternlength = MAX_PATTROWS;
         break;
 
         case KEY_ESC:
-        defaultpatternlength = olddpl;
+        config.defaultpatternlength = olddpl;
         selectdone = true;
         break;
 
@@ -1456,23 +1463,23 @@ void editadsr(int col)
       switch(eacolumn)
       {
         case 0:
-        adparam &= 0x0fff;
-        adparam |= hexnybble << 12;
+        config.adparam &= 0x0fff;
+        config.adparam |= hexnybble << 12;
         break;
 
         case 1:
-        adparam &= 0xf0ff;
-        adparam |= hexnybble << 8;
+        config.adparam &= 0xf0ff;
+        config.adparam |= hexnybble << 8;
         break;
 
         case 2:
-        adparam &= 0xff0f;
-        adparam |= hexnybble << 4;
+        config.adparam &= 0xff0f;
+        config.adparam |= hexnybble << 4;
         break;
 
         case 3:
-        adparam &= 0xfff0;
-        adparam |= hexnybble;
+        config.adparam &= 0xfff0;
+        config.adparam |= hexnybble;
         break;
       }
       eacolumn++;
@@ -1590,21 +1597,21 @@ void editbpm(int col)
 
 void prevmultiplier()
 {
-  if (multiplier > 0)
+  if (config.multiplier > 0)
   {
-    multiplier--;
-    timer.setmult(multiplier);
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+    config.multiplier--;
+    timer.setmult(config.multiplier);
+    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
 void nextmultiplier()
 {
-  if (multiplier < 16)
+  if (config.multiplier < 16)
   {
-    multiplier++;
-    timer.setmult(multiplier);
-    sound_init(mr, writer, sidmodel, ntsc, multiplier, interpolate, customclockrate, exsid, filterbias, combwaves);
+    config.multiplier++;
+    timer.setmult(config.multiplier);
+    sound_init(config.mixrate, writer, config.sidmodel, config.ntsc, config.multiplier, config.interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
@@ -1637,7 +1644,7 @@ void setspecialnotenames()
 void switchMode()
 {
     char nextMode[7];
-    std::strcpy(nextMode, (numsids == 1) ? "STEREO" : "MONO");
+    std::strcpy(nextMode, (config.numsids == 1) ? "STEREO" : "MONO");
 
     char textbuffer[80];
     std::sprintf(textbuffer, "Switch to %s Mode (y/n) ?", nextMode);
@@ -1659,16 +1666,16 @@ void switchMode()
     {
         std::memset(songfilename, 0, sizeof songfilename);
 
-        numsids ^= 3;
+        config.numsids ^= 3;
         clearsong(true, true, true, true, true);
 
         sound_init(
-            mr,
+            config.mixrate,
             writer,
-            sidmodel,
-            ntsc,
-            multiplier,
-            interpolate,
+            config.sidmodel,
+            config.ntsc,
+            config.multiplier,
+            config.interpolate,
             customclockrate, exsid, filterbias, combwaves
         );
         initDisplayPositions();
@@ -1728,7 +1735,7 @@ void optimizeeverything()
 
 void findduplicatepatterns()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   findusedpatterns();
 

@@ -24,9 +24,9 @@
 
 #include "sound.h"
 
-#include "configfile.h"
 #include "ltmidi.h"
 #include "play.h"
+#include "settings.h"
 #include "sid.h"
 
 #include "bme_snd.h"
@@ -151,7 +151,7 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
     if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
     if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
 
-    if (!snd_init(playspeed, numsids))
+    if (!snd_init(playspeed, config.numsids))
     {
       return false;
     }
@@ -165,7 +165,7 @@ bool sound_init(unsigned mr, bool writer, unsigned m, unsigned ntsc,
       writehandle = std::fopen("sidaudio.raw", "wb");
 
     playspeed = getmixrate();
-    sid_init(playspeed, m, ntsc, interpolate, customclockrate, numsids, filterbias, combwaves);
+    sid_init(playspeed, m, ntsc, interpolate, customclockrate, config.numsids, filterbias, combwaves);
 
     snd_setplayer(&sound_playrout);
     snd_setcustommixer(sound_mixer);
@@ -246,11 +246,11 @@ Uint32 sound_timer(void*, SDL_TimerID, Uint32 interval)
 
 void sound_playrout()
 {
-  if (numsids == 1)
+  if (config.numsids == 1)
   {
     playroutine();
   }
-  else if (numsids == 2)
+  else if (config.numsids == 2)
   {
     playroutine_stereo();
   }
@@ -273,7 +273,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
   if (!initted) return;
   if (samples > MIXBUFFERSIZE) return;
 
-  if (numsids == 1)
+  if (config.numsids == 1)
   {
     if (!lbuffer) return;
     sid_fillbuffer(lbuffer, samples);
@@ -287,7 +287,7 @@ void sound_mixer(Sint32 *dest, unsigned samples)
       dest[c] = lbuffer[c];
     }
   }
-  else if (numsids == 2)
+  else if (config.numsids == 2)
   {
     sid_fillbuffer_stereo(lbuffer, rbuffer, samples);
     if (writehandle)

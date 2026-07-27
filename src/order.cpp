@@ -25,11 +25,11 @@
 #include "order.h"
 
 #include "common.h"
-#include "configfile.h"
 #include "console.h"
 #include "display.h"
 #include "pattern.h"
 #include "play.h"
+#include "settings.h"
 #include "song.h"
 
 #include "bme_main.h"
@@ -59,7 +59,7 @@ void orderright();
 
 void orderlistcommands()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   if (hexnybble >= 0)
   {
@@ -433,7 +433,7 @@ void orderlistcommands()
   {
     esview[eschn] = eseditpos;
   }
-  int visibleOrderlist = getVisibleOrderlist();
+  int visibleOrderlist = config.getVisibleOrderlist();
   if (eseditpos - esview[eschn] >= visibleOrderlist)
   {
     esview[eschn] = eseditpos - visibleOrderlist + 1;
@@ -614,7 +614,7 @@ void prevsong()
 
 void songchange()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   int currentSonglen = song.len[esnum][eschn];
 
@@ -641,7 +641,7 @@ void songchange()
 
 void updateviewtopos()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   for (int c = 0; c < maxChns; c++)
   {

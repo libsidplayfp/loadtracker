@@ -31,6 +31,7 @@
 #include "console.h"
 #include "pattern.h"
 #include "reloc.h"
+#include "settings.h"
 #include "song.h"
 #include "tuning.h"
 
@@ -47,33 +48,11 @@
 #include <cstdlib>
 
 #if 1
-int stepsize = 4;
-int defaultpatternlength = 64;
-
 #define NUMSIDREGS 0x19
 unsigned char sidreg[NUMSIDREGS];
 unsigned char sidreg2[NUMSIDREGS];
 #endif
 
-unsigned keypreset = KEY_TRACKER;
-unsigned playerversion = 0;
-int fileformat = FORMAT_PRG;
-int zeropageadr = 0xfc;
-int playeradr = 0x1000;
-unsigned sidmodel = 0;
-unsigned multiplier = 1;
-unsigned adparam = 0x0f00;
-unsigned ntsc = 0;
-unsigned patterndispmode = 0;
-unsigned sidaddress = 0xd400;
-unsigned sid2address = 0xd500;
-unsigned finevibrato = 1;
-unsigned optimizepulse = 1;
-unsigned optimizerealtime = 1;
-unsigned customclockrate = 0;
-bool usefinevib = false;
-float basepitch = 0.0f;
-unsigned numsids = 1;
 bool monomode = true;
 int snd_bpmtempo = 125;
 
@@ -111,8 +90,8 @@ void usage()
     std::fprintf(STDOUT, "-Oxx Set pulseoptimization/skipping (0 = off, 1 = on) DEFAULT=on\n");
     std::fprintf(STDOUT, "-P   Use PAL timing (DEFAULT)\n");
     std::fprintf(STDOUT, "-Rxx Set realtime-effect optimization/skipping (0 = off, 1 = on) DEFAULT=on\n");
-    std::fprintf(STDOUT, "-Sxx Set speed multiplier (0 for 25Hz, 1 for 1x, 2 for 2x etc.) DEFAULT=1\n");
-    std::fprintf(STDOUT, "-Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on\n");
+    std::fprintf(STDOUT, "-Sxx Set speed config.multiplier (0 for 25Hz, 1 for 1x, 2 for 2x etc.) DEFAULT=1\n");
+    std::fprintf(STDOUT, "-Vxx Set config.finevibrato conversion (0 = off, 1 = on) DEFAULT=on\n");
     std::fprintf(STDOUT, "-Wxx player memory location highbyte in hex. DEFAULT=1000\n");
     std::fprintf(STDOUT, "-Zxx zeropage memory location in hex. DEFAULT=FC\n");
     std::fprintf(STDOUT, "-?   Show options\n");
@@ -173,22 +152,22 @@ int main(int argc, char **argv)
   if (packedsongname[c] == '.') c++;
 
   if (!std::strcmp(&packedsongname[c], "sid")) {
-      fileformat = FORMAT_SID;
+      config.fileformat = FORMAT_SID;
   } else if (!std::strcmp(&packedsongname[c], "prg")) {
-      fileformat = FORMAT_PRG;
+      config.fileformat = FORMAT_PRG;
   } else if (!std::strcmp(&packedsongname[c], "bin")) {
-      fileformat = FORMAT_BIN;
+      config.fileformat = FORMAT_BIN;
   } else {
-      fileformat = FORMAT_PRG;
+      config.fileformat = FORMAT_PRG;
   }
 
   std::fprintf(STDOUT, "%s Packer/Relocator\n", programname);
   std::fprintf(STDOUT, "song file:       %s\n", loadedsongfilename);
   std::fprintf(STDOUT, "output file:     %s\n", packedsongname);
   std::fprintf(STDOUT, "output format:   ");
-  if (fileformat == FORMAT_SID) {
+  if (config.fileformat == FORMAT_SID) {
       std::fprintf(STDOUT, "sid\n");
-  } else if (fileformat == FORMAT_BIN) {
+  } else if (config.fileformat == FORMAT_BIN) {
       std::fprintf(STDOUT, "bin\n");
   } else {
       std::fprintf(STDOUT, "prg\n");
@@ -209,7 +188,7 @@ int main(int argc, char **argv)
         return 0;
 
         case 'A':
-        std::sscanf(&argv[c][2], "%x", &adparam);
+        std::sscanf(&argv[c][2], "%x", &config.adparam);
         break;
 
         case 'G':
@@ -217,33 +196,33 @@ int main(int argc, char **argv)
         break;
 
         case 'L':
-        std::sscanf(&argv[c][2], "%x", &sidaddress);
+        std::sscanf(&argv[c][2], "%x", &config.sidaddress);
         break;
 
         case 'O':
-        std::sscanf(&argv[c][2], "%u", &optimizepulse);
+        std::sscanf(&argv[c][2], "%u", &config.optimizepulse);
         break;
 
         case 'R':
-        std::sscanf(&argv[c][2], "%u", &optimizerealtime);
+        std::sscanf(&argv[c][2], "%u", &config.optimizerealtime);
         break;
 
         case 'V':
-        std::sscanf(&argv[c][2], "%u", &finevibrato);
+        std::sscanf(&argv[c][2], "%u", &config.finevibrato);
         break;
 
         case 'S':
-        std::sscanf(&argv[c][2], "%u", &multiplier);
+        std::sscanf(&argv[c][2], "%u", &config.multiplier);
         break;
 
         // NTSC timing
         case 'N':
-        ntsc = 1;
+        config.ntsc = 1;
         customclockrate = 0;
         break;
         // PAL timing
         case 'P':
-        ntsc = 0;
+        config.ntsc = 0;
         customclockrate = 0;
         break;
         // custom clock rate
@@ -255,69 +234,69 @@ int main(int argc, char **argv)
         // 0: Buffered SID-writes
         case 'B':
             if (argv[c][2] == '1') {
-                playerversion |= PLAYER_BUFFERED;
+                config.playerversion |= PLAYER_BUFFERED;
             } else {
-                playerversion &= ~PLAYER_BUFFERED;
+                config.playerversion &= ~PLAYER_BUFFERED;
             }
         break;
         // 1: Sound effect support
         case 'D':
             if (argv[c][2] == '1') {
-                playerversion |= PLAYER_SOUNDEFFECTS;
+                config.playerversion |= PLAYER_SOUNDEFFECTS;
             } else {
-                playerversion &= ~PLAYER_SOUNDEFFECTS;
+                config.playerversion &= ~PLAYER_SOUNDEFFECTS;
             }
         break;
         // 2: Volume change support
         case 'E':
             if (argv[c][2] == '1') {
-                playerversion |= PLAYER_VOLUME;
+                config.playerversion |= PLAYER_VOLUME;
             } else {
-                playerversion &= ~PLAYER_VOLUME;
+                config.playerversion &= ~PLAYER_VOLUME;
             }
         break;
         // 3: Store author-info
         case 'H':
             if (argv[c][2] == '1') {
-                playerversion |= PLAYER_AUTHORINFO;
+                config.playerversion |= PLAYER_AUTHORINFO;
             } else {
-                playerversion &= ~PLAYER_AUTHORINFO;
+                config.playerversion &= ~PLAYER_AUTHORINFO;
             }
         break;
         // 4: Use zeropage ghostregs
         case 'C':
             if (argv[c][2] == '1') {
-                playerversion |= PLAYER_ZPGHOSTREGS;
+                config.playerversion |= PLAYER_ZPGHOSTREGS;
             } else {
-                playerversion &= ~PLAYER_ZPGHOSTREGS;
+                config.playerversion &= ~PLAYER_ZPGHOSTREGS;
             }
         break;
         // 5: Disable optimization
         case 'I':
             if (argv[c][2] == '1') {
-                playerversion &= ~PLAYER_NOOPTIMIZATION;
+                config.playerversion &= ~PLAYER_NOOPTIMIZATION;
             } else {
-                playerversion |= PLAYER_NOOPTIMIZATION;
+                config.playerversion |= PLAYER_NOOPTIMIZATION;
             }
         break;
         // 6: Full buffering
         case 'J':
             if (argv[c][2] == '1') {
-                playerversion &= ~PLAYER_FULLBUFFERED;
+                config.playerversion &= ~PLAYER_FULLBUFFERED;
             } else {
-                playerversion |= PLAYER_FULLBUFFERED;
+                config.playerversion |= PLAYER_FULLBUFFERED;
             }
         break;
 
         // start address (second menu)
         case 'W':
-        std::sscanf(&argv[c][2], "%x", (unsigned *)&playeradr);
-        playeradr<<=8;
+        std::sscanf(&argv[c][2], "%x", (unsigned *)&config.playeradr);
+        config.playeradr<<=8;
         break;
 
         // zeropage address (third menu)
         case 'Z':
-        std::sscanf(&argv[c][2], "%x", (unsigned *)&zeropageadr);
+        std::sscanf(&argv[c][2], "%x", (unsigned *)&config.zeropageadr);
         break;
       }
     }
@@ -333,17 +312,17 @@ int main(int argc, char **argv)
   colors.init(true);
 
   // Validate parameters
-  sidmodel &= 1;
-  adparam &= 0xffff;
-  zeropageadr &= 0xff;
-  playeradr &= 0xff00;
-  sidaddress &= 0xffff;
+  config.sidmodel &= 1;
+  config.adparam &= 0xffff;
+  config.zeropageadr &= 0xff;
+  config.playeradr &= 0xff00;
+  config.sidaddress &= 0xffff;
 
-  if (multiplier > 16) multiplier = 16;
-  if ((finevibrato == 1) && (multiplier < 2)) usefinevib = true;
-  if (finevibrato > 1) usefinevib = true;
-  if (optimizepulse > 1) optimizepulse = 1;
-  if (optimizerealtime > 1) optimizerealtime = 1;
+  if (config.multiplier > 16) config.multiplier = 16;
+  if ((config.finevibrato == 1) && (config.multiplier < 2)) usefinevib = true;
+  if (config.finevibrato > 1) usefinevib = true;
+  if (config.optimizepulse > 1) config.optimizepulse = 1;
+  if (config.optimizerealtime > 1) config.optimizerealtime = 1;
   if (customclockrate < 100) customclockrate = 0;
 
   // Calculate frequencytable if necessary
@@ -366,15 +345,4 @@ void waitkeymousenoupdate()
 
 void waitkeynoupdate()
 {
-}
-
-// FIXME remove
-int getMaxChannels()
-{
-    return (numsids == 1) ? MAX_CHN_MONO : MAX_CHN;
-}
-
-int getVisibleOrderlist()
-{
-    return (numsids == 1) ? 23 : 14;
 }

@@ -419,13 +419,32 @@ void gfx_unlock()
 void gfx_flip()
 {
     SDL_Surface* surf = SDL_ConvertSurface(gfx_screen, SDL_PIXELFORMAT_RGBA32);
+#ifndef NDEBUG
     if (!surf)
-        std::printf("Error: %s\n", SDL_GetError());
-    SDL_UpdateTexture(sdlTexture, nullptr, surf->pixels, surf->pitch);
+        ltlog::error("Cannot convert surface", SDL_GetError());
+#endif
+    bool res;
+    res = SDL_UpdateTexture(sdlTexture, nullptr, surf->pixels, surf->pitch);
+#ifndef NDEBUG
+    if (!res)
+        ltlog::error("Cannot update texture", SDL_GetError());
+#endif
     SDL_DestroySurface(surf);
-    SDL_RenderClear(gfx_renderer);
-    SDL_RenderTexture(gfx_renderer, sdlTexture, nullptr, nullptr);
-    SDL_RenderPresent(gfx_renderer);
+    res = SDL_RenderClear(gfx_renderer);
+#ifndef NDEBUG
+    if (!res)
+        ltlog::error("Cannot clear renderer", SDL_GetError());
+#endif
+    res = SDL_RenderTexture(gfx_renderer, sdlTexture, nullptr, nullptr);
+#ifndef NDEBUG
+    if (!res)
+        ltlog::error("Cannot render texture", SDL_GetError());
+#endif
+    res = SDL_RenderPresent(gfx_renderer);
+#ifndef NDEBUG
+    if (!res)
+        ltlog::error("Cannot present render", SDL_GetError());
+#endif
     gfx_redraw = false;
 }
 

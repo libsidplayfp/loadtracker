@@ -25,7 +25,7 @@
 #include "console.h"
 
 #include "colors.h"
-#include "configfile.h"
+#include "settings.h"
 
 #include "bme_main.h"
 #include "bme_win.h"
@@ -384,6 +384,7 @@ void fliptoscreen()
   // Now redraw text on changed areas
   for (int y = 0; y < MAX_ROWS; y++)
   {
+    unsigned char *rptr = (unsigned char*)gfx_screen->pixels + y*fontheight * gfx_screen->pitch;
     for (int x = 0; x < MAX_COLUMNS; x++)
     {
       // Check if char changed
@@ -393,20 +394,18 @@ void fliptoscreen()
         region[y] = 1;
         regionschanged = true;
 
+        unsigned char *chptr = &chardata[(*sptr & 0xffff)*16];
+        unsigned char *dptr = rptr + x*fontwidth;
+        unsigned char bgcolor = (*sptr) >> 20;
+        unsigned char fgcolor = ((*sptr) >> 16) & 0xf;
+
+        for (int c = 0; c < fontheight; c++)
         {
-          unsigned char *chptr = &chardata[(*sptr & 0xffff)*16];
-          unsigned char *dptr = (unsigned char*)gfx_screen->pixels + y*fontheight * gfx_screen->pitch + x*fontwidth;
-          unsigned char bgcolor = (*sptr) >> 20;
-          unsigned char fgcolor = ((*sptr) >> 16) & 0xf;
+          unsigned char e = *chptr++;
+          for (unsigned char m = 0x80; m; m >>=1)
+              *dptr++ = (e & m) ? fgcolor : bgcolor;
 
-          for (int c = 0; c < fontheight; c++)
-          {
-            unsigned char e = *chptr++;
-            for (unsigned char m = 0x80; m; m >>=1)
-                *dptr++ = (e & m) ? fgcolor : bgcolor;
-
-            dptr += gfx_screen->pitch - fontwidth;
-          }
+          dptr += gfx_screen->pitch - fontwidth;
         }
       }
       sptr++;
@@ -500,13 +499,13 @@ void getkey()
 
 void initDisplayPositions()
 {
-    if (numsids == 1)
+    if (config.numsids == 1)
     {
         dpos.channelsX = MAX_COLUMNS-21;
         dpos.orderlistX = 54;
         dpos.patternsX = 14;
     }
-    else if (numsids == 2)
+    else if (config.numsids == 2)
     {
         dpos.channelsX = MAX_COLUMNS-42;
         dpos.orderlistX = 80;

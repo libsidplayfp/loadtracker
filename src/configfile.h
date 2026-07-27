@@ -19,48 +19,8 @@
 #ifndef CONFIGFILE_H
 #define CONFIGFILE_H
 
-#ifndef CONFIGFILE_C
-// config
-extern unsigned mr;
-extern unsigned sidmodel;
-extern unsigned numsids;
-extern unsigned ntsc;
-extern int fileformat;
-extern int playeradr;
-extern int zeropageadr;
-extern unsigned playerversion;
-extern unsigned keypreset;
-extern int defaultpatternlength;
-extern int stepsize;
-extern unsigned multiplier;
-extern unsigned adparam;
-extern unsigned interpolate;
-extern unsigned patterndispmode;
-extern unsigned sidaddress;
-extern unsigned sid2address;
-extern float panning;
-extern unsigned finevibrato;
-extern unsigned optimizepulse;
-extern unsigned optimizerealtime;
-extern unsigned residdelay;
-extern unsigned customclockrate;
-extern float basepitch;
-extern float filterbias;
-extern unsigned combwaves;
-extern float equaldivisionsperoctave;
-extern char specialnotenames[];
-extern char scalatuningfilepath[];
-extern unsigned exsid;
-extern unsigned darkmode;
-
-extern bool usefinevib;
-#endif
-
 void loadconfig();
 void saveconfig();
 void validateconfig();
-
-int getMaxChannels();
-int getVisibleOrderlist();
 
 #endif

@@ -1,0 +1,72 @@
+/*
+ * LoadTracker
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#ifndef SETTINGS_H
+#define SETTINGS_H
+
+// Increase if configuration has incompatible changes
+constexpr int CFG_VERSION = 2;
+
+#ifndef SETTINGS_C
+// config FIXME
+extern unsigned residdelay;
+extern unsigned customclockrate;
+extern unsigned combwaves;
+extern float panning;
+extern float basepitch;
+extern float filterbias;
+extern float equaldivisionsperoctave;
+extern char specialnotenames[];
+extern char scalatuningfilepath[];
+extern unsigned exsid;
+extern unsigned darkmode;
+
+extern bool usefinevib;
+#endif
+
+struct Settings
+{
+    unsigned mixrate;
+    unsigned sidmodel;
+    unsigned numsids;
+    unsigned ntsc;
+    int fileformat;
+    int playeradr;
+    int zeropageadr;
+    unsigned playerversion;
+    unsigned keypreset;
+    int defaultpatternlength;
+    int stepsize;
+    unsigned multiplier;
+    unsigned adparam;
+    unsigned interpolate;
+    unsigned patterndispmode;
+    unsigned sidaddress;
+    unsigned sid2address;
+    unsigned finevibrato;
+    unsigned optimizepulse;
+    unsigned optimizerealtime;
+
+    Settings();
+    int getMaxChannels();
+    int getVisibleOrderlist();
+};
+
+extern Settings config;
+
+#endif

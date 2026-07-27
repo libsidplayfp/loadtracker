@@ -18,7 +18,7 @@
 
 #include "channels.h"
 
-#include "configfile.h"
+#include "settings.h"
 
 #include <cstring>
 
@@ -27,7 +27,7 @@ unsigned char funktable[2];
 
 void initchannels()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
   Chn *cptr = &chn[0];
 
   std::memset(chn, 0, sizeof chn);
@@ -36,17 +36,17 @@ void initchannels()
   {
     chn[c].trans = 0;
     chn[c].instr = 1;
-    if (multiplier)
-      cptr->tempo = 6*multiplier-1;
+    if (config.multiplier)
+      cptr->tempo = 6*config.multiplier-1;
     else
       cptr->tempo = 6-1;
     cptr++;
   }
 
-  if (multiplier)
+  if (config.multiplier)
   {
-    funktable[0] = 9*multiplier-1;
-    funktable[1] = 6*multiplier-1;
+    funktable[0] = 9*config.multiplier-1;
+    funktable[1] = 6*config.multiplier-1;
   }
   else
   {

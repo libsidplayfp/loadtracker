@@ -24,11 +24,11 @@
 
 #include "instr.h"
 
-#include "configfile.h"
 #include "console.h"
 #include "display.h"
 #include "pattern.h"
 #include "play.h"
+#include "settings.h"
 #include "song.h"
 #include "table.h"
 
@@ -179,7 +179,7 @@ void instrumentcommands()
         {
           if ((eipos == 5) && (input.shiftpressed))
           {
-            song.instr[einum].ptr[STBL] = makespeedtable(song.instr[einum].ptr[STBL], finevibrato, true) + 1;
+            song.instr[einum].ptr[STBL] = makespeedtable(song.instr[einum].ptr[STBL], config.finevibrato, true) + 1;
             break;
           }
           pos = song.instr[einum].ptr[eipos-2] - 1;
@@ -240,8 +240,8 @@ void clearinstr(int num)
   std::memset(&song.instr[num], 0, sizeof(Instr));
   if (num)
   {
-    if (multiplier)
-      song.instr[num].gatetimer = 2 * multiplier;
+    if (config.multiplier)
+      song.instr[num].gatetimer = 2 * config.multiplier;
     else
       song.instr[num].gatetimer = 1;
 

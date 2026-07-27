@@ -26,12 +26,12 @@
 
 #include "common.h"
 #include "channels.h"
-#include "configfile.h"
 #include "instr.h"
 #include "order.h"
 #include "pattern.h"
 #include "play.h"
 #include "reloc.h"
+#include "settings.h"
 #include "table.h"
 
 #ifdef LTRELOC
@@ -335,7 +335,7 @@ bool savesong()
 {
   const char ident[] = {'G', 'T', 'S', '5'};
 
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   if (std::strlen(songfilename) < MAX_FILENAME-4)
   {
@@ -482,7 +482,7 @@ bool saveinstrument()
 
 void loadsong()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
   int channelstoload = maxChns;
 
   char ident[4];
@@ -583,7 +583,7 @@ void loadsong()
         song.instr[c].ptr[PTBL] = fread8(handle);
         song.instr[c].ptr[FTBL] = fread8(handle);
         song.instr[c].vibdelay = fread8(handle);
-        song.instr[c].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
+        song.instr[c].ptr[STBL] = makespeedtable(fread8(handle), config.finevibrato, false) + 1;
         song.instr[c].gatetimer = fread8(handle);
         song.instr[c].firstwave = fread8(handle);
         std::fread(&song.instr[c].name, MAX_INSTRNAMELEN, 1, handle);
@@ -618,7 +618,7 @@ void loadsong()
             break;
 
             case CMD_VIBRATO:
-            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], finevibrato, false) + 1;
+            song.pattern[c][d*4+3] = makespeedtable(song.pattern[c][d*4+3], config.finevibrato, false) + 1;
             break;
           }
         }
@@ -1275,7 +1275,7 @@ void loadinstrument()
       optr[1] = fread8(handle);
       optr[2] = fread8(handle);
       song.instr[einum].vibdelay = fread8(handle);
-      song.instr[einum].ptr[STBL] = makespeedtable(fread8(handle), finevibrato, false) + 1;
+      song.instr[einum].ptr[STBL] = makespeedtable(fread8(handle), config.finevibrato, false) + 1;
       song.instr[einum].gatetimer = fread8(handle);
       song.instr[einum].firstwave = fread8(handle);
       std::fread(&song.instr[einum].name, MAX_INSTRNAMELEN, 1, handle);
@@ -1581,13 +1581,13 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
   tables.clear();
   esmark.chn = -1;
 
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   for (int c = 0; c < maxChns; c++)
   {
     chn[c].mute = 0;
-    if (multiplier)
-      chn[c].tempo = multiplier*6-1;
+    if (config.multiplier)
+      chn[c].tempo = config.multiplier*6-1;
     else
       chn[c].tempo = 6-1;
     chn[c].pattptr = 0;
@@ -1658,7 +1658,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 
 void countpatternlengths()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   highestusedpattern = 0;
   highestusedinstr = 0;
@@ -1719,7 +1719,7 @@ void countthispattern()
 
 int insertpattern(int p)
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   findusedpatterns();
   if (p >= MAX_PATT-2) return 0;
@@ -1757,7 +1757,7 @@ int insertpattern(int p)
 
 void deletepattern(int p)
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   if (p == MAX_PATT-1) return;
 
@@ -1793,13 +1793,13 @@ void deletepattern(int p)
 void clearpattern(int p)
 {
   std::memset(song.pattern[p], 0, MAX_PATTROWS*4);
-  for (int c = 0; c < defaultpatternlength; c++) song.pattern[p][c*4] = REST;
-  for (int c = defaultpatternlength; c <= MAX_PATTROWS; c++) song.pattern[p][c*4] = ENDPATT;
+  for (int c = 0; c < config.defaultpatternlength; c++) song.pattern[p][c*4] = REST;
+  for (int c = config.defaultpatternlength; c <= MAX_PATTROWS; c++) song.pattern[p][c*4] = ENDPATT;
 }
 
 void findusedpatterns()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   countpatternlengths();
   std::memset(pattused, 0, sizeof pattused);

@@ -25,10 +25,10 @@
 #include "reloc.h"
 
 #include "colors.h"
-#include "configfile.h"
 #include "console.h"
 #include "display.h"
 #include "play.h"
+#include "settings.h"
 #include "song.h"
 #include "table.h"
 #include "tuning.h"
@@ -220,7 +220,7 @@ void relocator(const char* filename)
   unsigned char *pattwork = nullptr;
   unsigned char *instrwork = nullptr;
 
-  channels = getMaxChannels();
+  channels = config.getMaxChannels();
   fixedparams = 1;
   simplepulse = 1;
   firstnote = MAX_NOTES-1;
@@ -270,7 +270,7 @@ void relocator(const char* filename)
   buf_free(&src);
   buf_free(&dest);
 
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   // Process song-orderlists
   countpatternlengths();
@@ -605,7 +605,7 @@ TABLETYPE:
   printtext(1, 0, colors.CHEADER, textbuffer);
   printtext(1, 2, colors.CTITLE, "SELECT PLAYROUTINE OPTIONS: (CURSORS=MOVE/CHANGE, ENTER=ACCEPT, ESC=CANCEL)");
 
-  if (multiplier == 1 && snd_bpmtempo != 125)
+  if (config.multiplier == 1 && snd_bpmtempo != 125)
   {
     ciaval = 19566 - ((19655 / 125) * (snd_bpmtempo - 125));
 
@@ -625,7 +625,7 @@ TABLETYPE:
       int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
 
       printtext(1, 3+c, color, playeroptname[c]);
-      if (playerversion & (PLAYER_BUFFERED << c))
+      if (config.playerversion & (PLAYER_BUFFERED << c))
         printtext(24, 3+c, color, "Yes");
       else
         printtext(24, 3+c, color, "No ");
@@ -644,19 +644,19 @@ TABLETYPE:
       case KEY_LEFT:
       case KEY_RIGHT:
       case KEY_SPACE:
-      playerversion ^= (PLAYER_BUFFERED << opt);
+      config.playerversion ^= (PLAYER_BUFFERED << opt);
       if (opt)
       {
-        if ((playerversion & PLAYER_SOUNDEFFECTS) || (playerversion & PLAYER_ZPGHOSTREGS) || (playerversion & PLAYER_FULLBUFFERED))
-          playerversion |= PLAYER_BUFFERED;
+        if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS) || (config.playerversion & PLAYER_FULLBUFFERED))
+          config.playerversion |= PLAYER_BUFFERED;
       }
       else
       {
-        if (!(playerversion & PLAYER_BUFFERED))
+        if (!(config.playerversion & PLAYER_BUFFERED))
         {
-          playerversion &= ~PLAYER_SOUNDEFFECTS;
-          playerversion &= ~PLAYER_ZPGHOSTREGS;
-          playerversion &= ~PLAYER_FULLBUFFERED;
+          config.playerversion &= ~PLAYER_SOUNDEFFECTS;
+          config.playerversion &= ~PLAYER_ZPGHOSTREGS;
+          config.playerversion &= ~PLAYER_FULLBUFFERED;
         }
       }
       break;
@@ -683,7 +683,7 @@ TABLETYPE:
   if (selectdone == -1) goto PRCLEANUP;
 #endif
   // Disable optimizations if necessary
-  if (playerversion & PLAYER_NOOPTIMIZATION)
+  if (config.playerversion & PLAYER_NOOPTIMIZATION)
   {
     fixedparams = 0;
     if (!numlegato) numlegato++;
@@ -724,11 +724,11 @@ TABLETYPE:
   }
 
   // Make sure buffering is used if it is needed
-  if ((playerversion & PLAYER_SOUNDEFFECTS) || (playerversion & PLAYER_ZPGHOSTREGS) || (playerversion & PLAYER_FULLBUFFERED))
-    playerversion |= PLAYER_BUFFERED;
+  if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS) || (config.playerversion & PLAYER_FULLBUFFERED))
+    config.playerversion |= PLAYER_BUFFERED;
 
   // Sound effect or ghostreg players always use full 3 channels
-  if ((playerversion & PLAYER_SOUNDEFFECTS) || (playerversion & PLAYER_FULLBUFFERED) || (playerversion & PLAYER_ZPGHOSTREGS))
+  if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_FULLBUFFERED) || (config.playerversion & PLAYER_ZPGHOSTREGS))
     channels = 3;
 
   // Allocate memory for song-orderlists
@@ -903,7 +903,7 @@ TABLETYPE:
   }
 
   // Disable sameparam optimization for multispeed stability
-  if (multiplier > 1)
+  if (config.multiplier > 1)
   {
     fixedparams = 0;
     numlegato++;
@@ -1030,8 +1030,8 @@ TABLETYPE:
   if (nofilter) filttblsize = 0;
 
 #ifdef LTRELOC
-  std::fprintf(STDOUT, "Player address:   $%04X\n", playeradr);
-  std::fprintf(STDOUT, "Zeropage address: $%04X\n", zeropageadr);
+  std::fprintf(STDOUT, "Player address:   $%04X\n", config.playeradr);
+  std::fprintf(STDOUT, "Zeropage address: $%04X\n", config.zeropageadr);
 #else
   std::snprintf(textbuffer, MAX_PATHNAME, "SELECT START ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
   printtext(1, 11, colors.CTITLE, textbuffer);
@@ -1039,7 +1039,7 @@ TABLETYPE:
   selectdone = 0;
   while (!selectdone)
   {
-    std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", playeradr);
+    std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", config.playeradr);
     printtext(1, 12, colors.CEDIT, textbuffer);
 
     fliptoscreen();
@@ -1054,23 +1054,23 @@ TABLETYPE:
     switch(input.rawkey)
     {
       case KEY_LEFT:
-      playeradr -= 0x0400;
-      playeradr &= 0xff00;
+      config.playeradr -= 0x0400;
+      config.playeradr &= 0xff00;
       break;
 
       case KEY_UP:
-      playeradr += 0x0100;
-      playeradr &= 0xff00;
+      config.playeradr += 0x0100;
+      config.playeradr &= 0xff00;
       break;
 
       case KEY_RIGHT:
-      playeradr += 0x0400;
-      playeradr &= 0xff00;
+      config.playeradr += 0x0400;
+      config.playeradr &= 0xff00;
       break;
 
       case KEY_DOWN:
-      playeradr -= 0x0100;
-      playeradr &= 0xff00;
+      config.playeradr -= 0x0100;
+      config.playeradr &= 0xff00;
       break;
 
       case KEY_ESC:
@@ -1091,31 +1091,31 @@ TABLETYPE:
   selectdone = 0;
   while (!selectdone)
   {
-    if (playerversion & PLAYER_ZPGHOSTREGS)
+    if (config.playerversion & PLAYER_ZPGHOSTREGS)
     {
-      if (zeropageadr < 0x02) zeropageadr = 0xe5;
-      if (zeropageadr > 0xe5) zeropageadr = 0x02;
+      if (config.zeropageadr < 0x02) config.zeropageadr = 0xe5;
+      if (config.zeropageadr > 0xe5) config.zeropageadr = 0x02;
     }
     else
     {
-      if (zeropageadr < 0x02) zeropageadr = 0xfe;
-      if (zeropageadr > 0xfe) zeropageadr = 0x02;
+      if (config.zeropageadr < 0x02) config.zeropageadr = 0xfe;
+      if (config.zeropageadr > 0xfe) config.zeropageadr = 0x02;
     }
 
-    if (!(playerversion & PLAYER_ZPGHOSTREGS))
+    if (!(config.playerversion & PLAYER_ZPGHOSTREGS))
     {
-      if (zeropageadr < 0x90)
-        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by BASIC interpreter)    ", zeropageadr, zeropageadr+1);
-      if ((zeropageadr >= 0x90) && (zeropageadr < 0xfb))
-        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by KERNAL routines)      ", zeropageadr, zeropageadr+1);
-      if ((zeropageadr >= 0xfb) && (zeropageadr < 0xfe))
-        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Unused)                       ", zeropageadr, zeropageadr+1);
-      if (zeropageadr >= 0xfe)
-        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X ($FF used by BASIC interpreter)", zeropageadr, zeropageadr+1);
+      if (config.zeropageadr < 0x90)
+        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by BASIC interpreter)    ", config.zeropageadr, config.zeropageadr+1);
+      if ((config.zeropageadr >= 0x90) && (config.zeropageadr < 0xfb))
+        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by KERNAL routines)      ", config.zeropageadr, config.zeropageadr+1);
+      if ((config.zeropageadr >= 0xfb) && (config.zeropageadr < 0xfe))
+        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Unused)                       ", config.zeropageadr, config.zeropageadr+1);
+      if (config.zeropageadr >= 0xfe)
+        std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X ($FF used by BASIC interpreter)", config.zeropageadr, config.zeropageadr+1);
     }
     else
     {
-      std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", zeropageadr, zeropageadr+26, zeropageadr);
+      std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", config.zeropageadr, config.zeropageadr+26, config.zeropageadr);
     }
 
     printtext(1, 15, colors.CEDIT, textbuffer);
@@ -1132,19 +1132,19 @@ TABLETYPE:
     switch(input.rawkey)
     {
       case KEY_LEFT:
-      zeropageadr -= 0x10;
+      config.zeropageadr -= 0x10;
       break;
 
       case KEY_UP:
-      zeropageadr++;
+      config.zeropageadr++;
       break;
 
       case KEY_RIGHT:
-      zeropageadr += 0x10;
+      config.zeropageadr += 0x10;
       break;
 
       case KEY_DOWN:
-      zeropageadr--;
+      config.zeropageadr--;
       break;
 
       case KEY_ESC:
@@ -1167,28 +1167,28 @@ TABLETYPE:
     lastnote++; // Calculated speeds need the next frequency value
   if (lastnote > MAX_NOTES-1) lastnote = MAX_NOTES-1;
   // For sound effect support, always use the full table
-  if (playerversion & PLAYER_SOUNDEFFECTS)
+  if (config.playerversion & PLAYER_SOUNDEFFECTS)
   {
     firstnote = 0;
     lastnote = MAX_NOTES-1;
   }
 
   // Insert baseaddresses
-  insertdefine("base", playeradr);
-  insertdefine("zpbase", zeropageadr);
-  insertdefine("SIDBASE", sidaddress);
+  insertdefine("base", config.playeradr);
+  insertdefine("zpbase", config.zeropageadr);
+  insertdefine("SIDBASE", config.sidaddress);
 
   // Insert conditionals
-  insertdefine("SOUNDSUPPORT", (playerversion & PLAYER_SOUNDEFFECTS) ? 1 : 0);
-  insertdefine("VOLSUPPORT", (playerversion & PLAYER_VOLUME) ? 1 : 0);
-  insertdefine("BUFFEREDWRITES", (playerversion & PLAYER_BUFFERED) ? 1 : 0);
-  insertdefine("GHOSTREGS", (playerversion & (PLAYER_ZPGHOSTREGS|PLAYER_FULLBUFFERED)) ? 1 : 0);
-  insertdefine("ZPGHOSTREGS", (playerversion & PLAYER_ZPGHOSTREGS) ? 1 : 0);
+  insertdefine("SOUNDSUPPORT", (config.playerversion & PLAYER_SOUNDEFFECTS) ? 1 : 0);
+  insertdefine("VOLSUPPORT", (config.playerversion & PLAYER_VOLUME) ? 1 : 0);
+  insertdefine("BUFFEREDWRITES", (config.playerversion & PLAYER_BUFFERED) ? 1 : 0);
+  insertdefine("GHOSTREGS", (config.playerversion & (PLAYER_ZPGHOSTREGS|PLAYER_FULLBUFFERED)) ? 1 : 0);
+  insertdefine("ZPGHOSTREGS", (config.playerversion & PLAYER_ZPGHOSTREGS) ? 1 : 0);
   insertdefine("FIXEDPARAMS", fixedparams);
   insertdefine("SIMPLEPULSE", simplepulse);
-  insertdefine("PULSEOPTIMIZATION", optimizepulse);
-  insertdefine("REALTIMEOPTIMIZATION", optimizerealtime);
-  insertdefine("NOAUTHORINFO", (playerversion & PLAYER_AUTHORINFO) ? 0 : 1);
+  insertdefine("PULSEOPTIMIZATION", config.optimizepulse);
+  insertdefine("REALTIMEOPTIMIZATION", config.optimizerealtime);
+  insertdefine("NOAUTHORINFO", (config.playerversion & PLAYER_AUTHORINFO) ? 0 : 1);
   insertdefine("NOEFFECTS", noeffects);
   insertdefine("NOGATE", nogate);
   insertdefine("NOFILTER", nofilter);
@@ -1229,14 +1229,14 @@ TABLETYPE:
   insertdefine("NUMHRINSTR", numnormal);
   insertdefine("NUMNOHRINSTR", numnohr);
   insertdefine("NUMLEGATOINSTR", numlegato);
-  insertdefine("ADPARAM", adparam >> 8);
-  insertdefine("SRPARAM", adparam & 0xff);
+  insertdefine("ADPARAM", config.adparam >> 8);
+  insertdefine("SRPARAM", config.adparam & 0xff);
   insertdefine("CIAVALLO", ciaval & 0xff);
   insertdefine("CIAVALHI", ciaval >> 8);
   if ((song.instr[MAX_INSTR-1].ad >= 2) && (!(song.instr[MAX_INSTR-1].ptr[WTBL])))
     insertdefine("DEFAULTTEMPO", song.instr[MAX_INSTR-1].ad - 1);
   else
-    insertdefine("DEFAULTTEMPO", multiplier ? (multiplier*6-1) : 5);
+    insertdefine("DEFAULTTEMPO", config.multiplier ? (config.multiplier*6-1) : 5);
 
   // Fixed firstwave & gatetimer
   if (fixedparams)
@@ -1246,7 +1246,7 @@ TABLETYPE:
   }
 
   // Insert source code of player
-  if (adparam >= 0xf000)
+  if (config.adparam >= 0xf000)
     playername = "altplayer.s";
 
   if (!insertfile(playername))
@@ -1259,7 +1259,7 @@ TABLETYPE:
   }
 
   // Modify ghostregs to not be zeropage if needed
-  if ((playerversion & PLAYER_FULLBUFFERED) && (playerversion & PLAYER_ZPGHOSTREGS) == 0)
+  if ((config.playerversion & PLAYER_FULLBUFFERED) && (config.playerversion & PLAYER_ZPGHOSTREGS) == 0)
   {
     int bufsize = buf_size(&src);
     char* bufdata = (char*)buf_data(&src);
@@ -1504,7 +1504,7 @@ TABLETYPE:
   playersize = packedsize - songtblsize - songdatasize - patttblsize - pattdatasize - instrsize - wavetblsize - pulsetblsize - filttblsize - speedtblsize;
 
   // Copy author info
-  if (playerversion & PLAYER_AUTHORINFO)
+  if (config.playerversion & PLAYER_AUTHORINFO)
   {
     for (int c = 0; c < 32; c++)
     {
@@ -1565,7 +1565,7 @@ TABLETYPE:
   fliptoscreen();
 
 
-  // Now ask for fileformat
+  // Now ask for config.fileformat
   printtext(1, 13, colors.CTITLE, "SELECT FORMAT TO SAVE IN: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
 
   selectdone = 0;
@@ -1573,7 +1573,7 @@ TABLETYPE:
   char packedfilter[MAX_FILENAME];
   while (!selectdone)
   {
-    switch(fileformat)
+    switch(config.fileformat)
     {
       case FORMAT_SID:
       printtext(1, 14, colors.CEDIT, "SID - SIDPlay music file format          ");
@@ -1604,14 +1604,14 @@ TABLETYPE:
     {
       case KEY_LEFT:
       case KEY_DOWN:
-      fileformat--;
-      if (fileformat < FORMAT_SID) fileformat = FORMAT_BIN;
+      config.fileformat--;
+      if (config.fileformat < FORMAT_SID) config.fileformat = FORMAT_BIN;
       break;
 
       case KEY_RIGHT:
       case KEY_UP:
-      fileformat++;
-      if (fileformat > FORMAT_BIN) fileformat = FORMAT_SID;
+      config.fileformat++;
+      if (config.fileformat > FORMAT_BIN) config.fileformat = FORMAT_SID;
       break;
 
       case KEY_ESC:
@@ -1633,7 +1633,7 @@ TABLETYPE:
     if (filename[i] == '.') break;
     packedsongname[i] = filename[i];
   }
-  switch (fileformat)
+  switch (config.fileformat)
   {
     case FORMAT_PRG:
     std::strcat(packedsongname, ".prg");
@@ -1663,7 +1663,7 @@ TABLETYPE:
       }
       if (!extfound)
       {
-        switch (fileformat)
+        switch (config.fileformat)
         {
           case FORMAT_PRG:
           std::strcat(packedsongname, ".prg");
@@ -1683,11 +1683,11 @@ TABLETYPE:
   }
 #endif
 
-  if (fileformat == FORMAT_PRG)
+  if (config.fileformat == FORMAT_PRG)
   {
-    fwritele16(songhandle, playeradr);
+    fwritele16(songhandle, config.playeradr);
   }
-  if (fileformat == FORMAT_SID)
+  if (config.fileformat == FORMAT_SID)
   {
     unsigned char ident[] = {'P', 'S', 'I', 'D', 0x00, 0x02, 0x00, 0x7c};
     unsigned char byte;
@@ -1700,22 +1700,22 @@ TABLETYPE:
     fwrite8(songhandle, byte);
 
     // Init address
-    if ((multiplier > 1) || (!multiplier))
+    if ((config.multiplier > 1) || (!config.multiplier))
     {
       unsigned speedvalue;
-      byte = (playeradr-10) >> 8;
+      byte = (config.playeradr-10) >> 8;
       fwrite8(songhandle, byte);
-      byte = (playeradr-10) & 0xff;
+      byte = (config.playeradr-10) & 0xff;
       fwrite8(songhandle, byte);
 
-      if (multiplier)
+      if (config.multiplier)
       {
-        if (ntsc) speedvalue = 0x42c6/multiplier;
-        else speedvalue = 0x4cc7/multiplier;
+        if (config.ntsc) speedvalue = 0x42c6/config.multiplier;
+        else speedvalue = 0x4cc7/config.multiplier;
       }
       else
       {
-        if (ntsc) speedvalue = 0x42c6*2;
+        if (config.ntsc) speedvalue = 0x42c6*2;
         else speedvalue = 0x4cc7*2;
       }
       speedcode[1] = speedvalue & 0xff;
@@ -1723,16 +1723,16 @@ TABLETYPE:
     }
     else
     {
-      byte = (playeradr) >> 8;
+      byte = (config.playeradr) >> 8;
       fwrite8(songhandle, byte);
-      byte = (playeradr) & 0xff;
+      byte = (config.playeradr) & 0xff;
       fwrite8(songhandle, byte);
     }
 
     // Play address
-    byte = (playeradr+3) >> 8;
+    byte = (config.playeradr+3) >> 8;
     fwrite8(songhandle, byte);
-    byte = (playeradr+3) & 0xff;
+    byte = (config.playeradr+3) & 0xff;
     fwrite8(songhandle, byte);
 
     // Number of subtunes
@@ -1749,7 +1749,7 @@ TABLETYPE:
 
     // Song speed bits
     byte = 0x00;
-    if ((ntsc) || (multiplier > 1) || (!multiplier) || (ciaval)) byte = 0xff;
+    if ((config.ntsc) || (config.multiplier > 1) || (!config.multiplier) || (ciaval)) byte = 0xff;
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
@@ -1763,9 +1763,9 @@ TABLETYPE:
     // Flags
     byte = 0x00;
     fwrite8(songhandle, byte);
-    if (ntsc) byte = 8;
+    if (config.ntsc) byte = 8;
       else byte = 4;
-    if (sidmodel) byte |= 32;
+    if (config.sidmodel) byte |= 32;
       else byte |= 16;
     fwrite8(songhandle, byte);
 
@@ -1777,21 +1777,21 @@ TABLETYPE:
     fwrite8(songhandle, byte);
 
     // Load address
-    if ((multiplier > 1) || (!multiplier))
+    if ((config.multiplier > 1) || (!config.multiplier))
     {
-      byte = (playeradr-10) & 0xff;
+      byte = (config.playeradr-10) & 0xff;
       fwrite8(songhandle, byte);
-      byte = (playeradr-10) >> 8;
+      byte = (config.playeradr-10) >> 8;
       fwrite8(songhandle, byte);
     }
     else
     {
-      byte = (playeradr) & 0xff;
+      byte = (config.playeradr) & 0xff;
       fwrite8(songhandle, byte);
-      byte = (playeradr) >> 8;
+      byte = (config.playeradr) >> 8;
       fwrite8(songhandle, byte);
     }
-    if ((multiplier > 1) || (!multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
+    if ((config.multiplier > 1) || (!config.multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
   }
 
   std::fwrite(packeddata, packedsize, 1, songhandle);
@@ -1902,7 +1902,7 @@ int packpattern(unsigned char *dest, unsigned char *src, int rows)
       case CMD_SETMASTERVOL:
       nosetmastervol = 0;
       // If no authorinfo being saved, erase timingmarks (not supported)
-      if (!(playerversion & PLAYER_AUTHORINFO))
+      if (!(config.playerversion & PLAYER_AUTHORINFO))
       {
         if (temp1[c*4+3] > 0x0f)
         {
@@ -2321,7 +2321,7 @@ void relocator_stereo(const char* filename)
     unsigned char *pattwork = nullptr;
     unsigned char *instrwork = nullptr;
 
-    channels = getMaxChannels();
+    channels = config.getMaxChannels();
     fixedparams = 1;
     simplepulse = 1;
     firstnote = MAX_NOTES-1;
@@ -2371,7 +2371,7 @@ void relocator_stereo(const char* filename)
     buf_free(&src);
     buf_free(&dest);
 
-    int maxChns = getMaxChannels();
+    int maxChns = config.getMaxChannels();
 
     // Process song-orderlists
     countpatternlengths();
@@ -2705,8 +2705,8 @@ TABLETYPE_S:
     printtext(0, 0, colors.CHEADER, textbuffer);
     printtext(1, 2, colors.CTITLE, "SELECT PLAYROUTINE OPTIONS: (CURSORS=MOVE/CHANGE, ENTER=ACCEPT, ESC=CANCEL)");
 
-    playerversion |= PLAYER_BUFFERED;
-    playerversion &= ~PLAYER_ZPGHOSTREGS;
+    config.playerversion |= PLAYER_BUFFERED;
+    config.playerversion &= ~PLAYER_ZPGHOSTREGS;
 
     selectdone = 0;
     while (!selectdone)
@@ -2716,7 +2716,7 @@ TABLETYPE_S:
             int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
 
             printtext(1, 3+c, color, playeroptname[c]);
-            if (playerversion & (PLAYER_BUFFERED << c))
+            if (config.playerversion & (PLAYER_BUFFERED << c))
                 printtext(24, 3+c, color, "Yes");
             else
                 printtext(24, 3+c, color, "No ");
@@ -2735,18 +2735,18 @@ TABLETYPE_S:
         case KEY_LEFT:
         case KEY_RIGHT:
         case KEY_SPACE:
-            playerversion ^= (PLAYER_BUFFERED << opt);
+            config.playerversion ^= (PLAYER_BUFFERED << opt);
             if (opt)
             {
-                if ((playerversion & PLAYER_SOUNDEFFECTS) || (playerversion & PLAYER_ZPGHOSTREGS))
-                    playerversion |= PLAYER_BUFFERED;
+                if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS))
+                    config.playerversion |= PLAYER_BUFFERED;
             }
             else
             {
-                if (!(playerversion & PLAYER_BUFFERED))
+                if (!(config.playerversion & PLAYER_BUFFERED))
                 {
-                    playerversion &= ~PLAYER_SOUNDEFFECTS;
-                    playerversion &= ~PLAYER_ZPGHOSTREGS;
+                    config.playerversion &= ~PLAYER_SOUNDEFFECTS;
+                    config.playerversion &= ~PLAYER_ZPGHOSTREGS;
                 }
             }
             break;
@@ -2770,13 +2770,13 @@ TABLETYPE_S:
             break;
         }
 
-        playerversion |= PLAYER_BUFFERED;
-        playerversion &= ~PLAYER_ZPGHOSTREGS;
+        config.playerversion |= PLAYER_BUFFERED;
+        config.playerversion &= ~PLAYER_ZPGHOSTREGS;
     }
     if (selectdone == -1) goto PRCLEANUP_S;
 
     // Disable optimizations if necessary
-    if (playerversion & PLAYER_NOOPTIMIZATION)
+    if (config.playerversion & PLAYER_NOOPTIMIZATION)
     {
         fixedparams = 0;
         if (!numlegato) numlegato++;
@@ -2817,8 +2817,8 @@ TABLETYPE_S:
     }
 
     // Make sure buffering is used if it is needed
-    if ((playerversion & PLAYER_SOUNDEFFECTS) || (playerversion & PLAYER_ZPGHOSTREGS))
-        playerversion |= PLAYER_BUFFERED;
+    if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS))
+        config.playerversion |= PLAYER_BUFFERED;
 
     // Allocate memory for song-orderlists
     songtblsize = songs*6;
@@ -2992,7 +2992,7 @@ TABLETYPE_S:
     }
 
     // Disable sameparam optimization for multispeed stability
-    if (multiplier > 1)
+    if (config.multiplier > 1)
     {
         fixedparams = 0;
         numlegato++;
@@ -3124,7 +3124,7 @@ TABLETYPE_S:
     selectdone = 0;
     while (!selectdone)
     {
-        std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", playeradr);
+        std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", config.playeradr);
         printtext(1, 11, colors.CEDIT, textbuffer);
 
         fliptoscreen();
@@ -3139,23 +3139,23 @@ TABLETYPE_S:
         switch(input.rawkey)
         {
         case KEY_LEFT:
-            playeradr -= 0x0400;
-            playeradr &= 0xff00;
+            config.playeradr -= 0x0400;
+            config.playeradr &= 0xff00;
             break;
 
         case KEY_UP:
-            playeradr += 0x0100;
-            playeradr &= 0xff00;
+            config.playeradr += 0x0100;
+            config.playeradr &= 0xff00;
             break;
 
         case KEY_RIGHT:
-            playeradr += 0x0400;
-            playeradr &= 0xff00;
+            config.playeradr += 0x0400;
+            config.playeradr &= 0xff00;
             break;
 
         case KEY_DOWN:
-            playeradr -= 0x0100;
-            playeradr &= 0xff00;
+            config.playeradr -= 0x0100;
+            config.playeradr &= 0xff00;
             break;
 
         case KEY_ESC:
@@ -3176,31 +3176,31 @@ TABLETYPE_S:
     selectdone = 0;
     while (!selectdone)
     {
-        if (playerversion & PLAYER_ZPGHOSTREGS)
+        if (config.playerversion & PLAYER_ZPGHOSTREGS)
         {
-            if (zeropageadr < 0x02) zeropageadr = 0xe5;
-            if (zeropageadr > 0xe5) zeropageadr = 0x02;
+            if (config.zeropageadr < 0x02) config.zeropageadr = 0xe5;
+            if (config.zeropageadr > 0xe5) config.zeropageadr = 0x02;
         }
         else
         {
-            if (zeropageadr < 0x02) zeropageadr = 0xfe;
-            if (zeropageadr > 0xfe) zeropageadr = 0x02;
+            if (config.zeropageadr < 0x02) config.zeropageadr = 0xfe;
+            if (config.zeropageadr > 0xfe) config.zeropageadr = 0x02;
         }
 
-        if (!(playerversion & PLAYER_ZPGHOSTREGS))
+        if (!(config.playerversion & PLAYER_ZPGHOSTREGS))
         {
-            if (zeropageadr < 0x90)
-                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by BASIC interpreter)    ", zeropageadr, zeropageadr+1);
-            if ((zeropageadr >= 0x90) && (zeropageadr < 0xfb))
-                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by KERNAL routines)      ", zeropageadr, zeropageadr+1);
-            if ((zeropageadr >= 0xfb) && (zeropageadr < 0xfe))
-                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Unused)                       ", zeropageadr, zeropageadr+1);
-            if (zeropageadr >= 0xfe)
-                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X ($FF used by BASIC interpreter)", zeropageadr, zeropageadr+1);
+            if (config.zeropageadr < 0x90)
+                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by BASIC interpreter)    ", config.zeropageadr, config.zeropageadr+1);
+            if ((config.zeropageadr >= 0x90) && (config.zeropageadr < 0xfb))
+                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Used by KERNAL routines)      ", config.zeropageadr, config.zeropageadr+1);
+            if ((config.zeropageadr >= 0xfb) && (config.zeropageadr < 0xfe))
+                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (Unused)                       ", config.zeropageadr, config.zeropageadr+1);
+            if (config.zeropageadr >= 0xfe)
+                std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X ($FF used by BASIC interpreter)", config.zeropageadr, config.zeropageadr+1);
         }
         else
         {
-            std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", zeropageadr, zeropageadr+26, zeropageadr);
+            std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", config.zeropageadr, config.zeropageadr+26, config.zeropageadr);
         }
 
         printtext(1, 14, colors.CEDIT, textbuffer);
@@ -3217,19 +3217,19 @@ TABLETYPE_S:
         switch(input.rawkey)
         {
         case KEY_LEFT:
-            zeropageadr -= 0x10;
+            config.zeropageadr -= 0x10;
             break;
 
         case KEY_UP:
-            zeropageadr++;
+            config.zeropageadr++;
             break;
 
         case KEY_RIGHT:
-            zeropageadr += 0x10;
+            config.zeropageadr += 0x10;
             break;
 
         case KEY_DOWN:
-            zeropageadr--;
+            config.zeropageadr--;
             break;
 
         case KEY_ESC:
@@ -3252,28 +3252,28 @@ TABLETYPE_S:
         lastnote++; // Calculated speeds need the next frequency value
     if (lastnote > MAX_NOTES-1) lastnote = MAX_NOTES-1;
     // For sound effect support, always use the full table
-    if (playerversion & PLAYER_SOUNDEFFECTS)
+    if (config.playerversion & PLAYER_SOUNDEFFECTS)
     {
         firstnote = 0;
         lastnote = MAX_NOTES-1;
     }
 
     // Insert baseaddresses
-    insertdefine("base", playeradr);
-    insertdefine("zpbase", zeropageadr);
-    insertdefine("SIDBASE", sidaddress);
-    insertdefine("SID2BASE", sid2address);
+    insertdefine("base", config.playeradr);
+    insertdefine("zpbase", config.zeropageadr);
+    insertdefine("SIDBASE", config.sidaddress);
+    insertdefine("SID2BASE", config.sid2address);
 
     // Insert conditionals
-    insertdefine("SOUNDSUPPORT", (playerversion & PLAYER_SOUNDEFFECTS) ? 1 : 0);
-    insertdefine("VOLSUPPORT", (playerversion & PLAYER_VOLUME) ? 1 : 0);
-    insertdefine("BUFFEREDWRITES", (playerversion & PLAYER_BUFFERED) ? 1 : 0);
-    insertdefine("ZPGHOSTREGS", (playerversion & PLAYER_ZPGHOSTREGS) ? 1 : 0);
+    insertdefine("SOUNDSUPPORT", (config.playerversion & PLAYER_SOUNDEFFECTS) ? 1 : 0);
+    insertdefine("VOLSUPPORT", (config.playerversion & PLAYER_VOLUME) ? 1 : 0);
+    insertdefine("BUFFEREDWRITES", (config.playerversion & PLAYER_BUFFERED) ? 1 : 0);
+    insertdefine("ZPGHOSTREGS", (config.playerversion & PLAYER_ZPGHOSTREGS) ? 1 : 0);
     insertdefine("FIXEDPARAMS", fixedparams);
     insertdefine("SIMPLEPULSE", simplepulse);
-    insertdefine("PULSEOPTIMIZATION", optimizepulse);
-    insertdefine("REALTIMEOPTIMIZATION", optimizerealtime);
-    insertdefine("NOAUTHORINFO", (playerversion & PLAYER_AUTHORINFO) ? 0 : 1);
+    insertdefine("PULSEOPTIMIZATION", config.optimizepulse);
+    insertdefine("REALTIMEOPTIMIZATION", config.optimizerealtime);
+    insertdefine("NOAUTHORINFO", (config.playerversion & PLAYER_AUTHORINFO) ? 0 : 1);
     insertdefine("NOEFFECTS", noeffects);
     insertdefine("NOGATE", nogate);
     insertdefine("NOFILTER", nofilter);
@@ -3314,14 +3314,14 @@ TABLETYPE_S:
     insertdefine("NUMHRINSTR", numnormal);
     insertdefine("NUMNOHRINSTR", numnohr);
     insertdefine("NUMLEGATOINSTR", numlegato);
-    insertdefine("ADPARAM", adparam >> 8);
-    insertdefine("SRPARAM", adparam & 0xff);
+    insertdefine("ADPARAM", config.adparam >> 8);
+    insertdefine("SRPARAM", config.adparam & 0xff);
     insertdefine("CIAVALLO", ciaval & 0xff);
     insertdefine("CIAVALHI", ciaval >> 8);
     if ((song.instr[MAX_INSTR-1].ad >= 2) && (!(song.instr[MAX_INSTR-1].ptr[WTBL])))
         insertdefine("DEFAULTTEMPO", song.instr[MAX_INSTR-1].ad - 1);
     else
-        insertdefine("DEFAULTTEMPO", multiplier ? (multiplier*6-1) : 5);
+        insertdefine("DEFAULTTEMPO", config.multiplier ? (config.multiplier*6-1) : 5);
 
     // Fixed firstwave & gatetimer
     if (fixedparams)
@@ -3331,7 +3331,7 @@ TABLETYPE_S:
     }
 
     // Insert source code of player
-    if (adparam >= 0xf000)
+    if (config.adparam >= 0xf000)
         playername = "altplayer_s.s";
 
     if (!insertfile(playername))
@@ -3575,7 +3575,7 @@ SKIPTABLE_S:
     playersize = packedsize - songtblsize - songdatasize - patttblsize - pattdatasize - instrsize - wavetblsize - pulsetblsize - filttblsize - speedtblsize;
 
     // Copy author info
-    if (playerversion & PLAYER_AUTHORINFO)
+    if (config.playerversion & PLAYER_AUTHORINFO)
     {
         for (int c = 0; c < 32; c++)
         {
@@ -3617,7 +3617,7 @@ SKIPTABLE_S:
     fliptoscreen();
 
 
-    // Now ask for fileformat
+    // Now ask for config.fileformat
     printtext(1, 13, colors.CTITLE, "SELECT FORMAT TO SAVE IN: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
 
     selectdone = 0;
@@ -3625,7 +3625,7 @@ SKIPTABLE_S:
     char packedfilter[MAX_FILENAME];
     while (!selectdone)
     {
-        switch(fileformat)
+        switch(config.fileformat)
         {
         case FORMAT_SID:
             printtext(1, 14, colors.CEDIT, "SID - SIDPlay music file format          ");
@@ -3656,14 +3656,14 @@ SKIPTABLE_S:
         {
         case KEY_LEFT:
         case KEY_DOWN:
-            fileformat--;
-            if (fileformat < FORMAT_SID) fileformat = FORMAT_BIN;
+            config.fileformat--;
+            if (config.fileformat < FORMAT_SID) config.fileformat = FORMAT_BIN;
             break;
 
         case KEY_RIGHT:
         case KEY_UP:
-            fileformat++;
-            if (fileformat > FORMAT_BIN) fileformat = FORMAT_SID;
+            config.fileformat++;
+            if (config.fileformat > FORMAT_BIN) config.fileformat = FORMAT_SID;
             break;
 
         case KEY_ESC:
@@ -3685,7 +3685,7 @@ SKIPTABLE_S:
         if (filename[c] == '.') break;
         packedsongname[c] = filename[c];
     }
-    switch (fileformat)
+    switch (config.fileformat)
     {
     case FORMAT_PRG:
         std::strcat(packedsongname, ".prg");
@@ -3715,7 +3715,7 @@ SKIPTABLE_S:
             }
             if (!extfound)
             {
-                switch (fileformat)
+                switch (config.fileformat)
                 {
                 case FORMAT_PRG:
                     std::strcat(packedsongname, ".prg");
@@ -3734,11 +3734,11 @@ SKIPTABLE_S:
         songhandle = std::fopen(packedsongname, "wb");
     }
 
-    if (fileformat == FORMAT_PRG)
+    if (config.fileformat == FORMAT_PRG)
     {
-        fwritele16(songhandle, playeradr);
+        fwritele16(songhandle, config.playeradr);
     }
-    if (fileformat == FORMAT_SID)
+    if (config.fileformat == FORMAT_SID)
     {
         unsigned char ident[] = {'P', 'S', 'I', 'D', 0x00, 0x03, 0x00, 0x7c};
         unsigned char byte;
@@ -3751,22 +3751,22 @@ SKIPTABLE_S:
         fwrite8(songhandle, byte);
 
         // Init address
-        if ((multiplier > 1) || (!multiplier))
+        if ((config.multiplier > 1) || (!config.multiplier))
         {
             unsigned speedvalue;
-            byte = (playeradr-10) >> 8;
+            byte = (config.playeradr-10) >> 8;
             fwrite8(songhandle, byte);
-            byte = (playeradr-10) & 0xff;
+            byte = (config.playeradr-10) & 0xff;
             fwrite8(songhandle, byte);
 
-            if (multiplier)
+            if (config.multiplier)
             {
-                if (ntsc) speedvalue = 0x42c6/multiplier;
-                else speedvalue = 0x4cc7/multiplier;
+                if (config.ntsc) speedvalue = 0x42c6/config.multiplier;
+                else speedvalue = 0x4cc7/config.multiplier;
             }
             else
             {
-                if (ntsc) speedvalue = 0x42c6*2;
+                if (config.ntsc) speedvalue = 0x42c6*2;
                 else speedvalue = 0x4cc7*2;
             }
             speedcode[1] = speedvalue & 0xff;
@@ -3774,16 +3774,16 @@ SKIPTABLE_S:
         }
         else
         {
-            byte = (playeradr) >> 8;
+            byte = (config.playeradr) >> 8;
             fwrite8(songhandle, byte);
-            byte = (playeradr) & 0xff;
+            byte = (config.playeradr) & 0xff;
             fwrite8(songhandle, byte);
         }
 
         // Play address
-        byte = (playeradr+3) >> 8;
+        byte = (config.playeradr+3) >> 8;
         fwrite8(songhandle, byte);
-        byte = (playeradr+3) & 0xff;
+        byte = (config.playeradr+3) & 0xff;
         fwrite8(songhandle, byte);
 
         // Number of subtunes
@@ -3800,7 +3800,7 @@ SKIPTABLE_S:
 
         // Song speed bits
         byte = 0x00;
-        if ((ntsc) || (multiplier > 1) || (!multiplier)) byte = 0xff;
+        if ((config.ntsc) || (config.multiplier > 1) || (!config.multiplier)) byte = 0xff;
         fwrite8(songhandle, byte);
         fwrite8(songhandle, byte);
         fwrite8(songhandle, byte);
@@ -3814,10 +3814,10 @@ SKIPTABLE_S:
         // Flags
         byte = 0x00;
         fwrite8(songhandle, byte);
-        if (ntsc) byte = 8;
+        if (config.ntsc) byte = 8;
         else byte = 4;
         // Set model for both SIDs
-        if (sidmodel) byte |= 32 + 128;
+        if (config.sidmodel) byte |= 32 + 128;
         else byte |= 16 + 64;
         fwrite8(songhandle, byte);
 
@@ -3825,25 +3825,25 @@ SKIPTABLE_S:
         byte = 0x00;
         fwrite8(songhandle, byte);
         fwrite8(songhandle, byte);
-        fwrite8(songhandle, (sid2address & 0x0ff0) >> 4);
+        fwrite8(songhandle, (config.sid2address & 0x0ff0) >> 4);
         fwrite8(songhandle, byte);
 
         // Load address
-        if ((multiplier > 1) || (!multiplier))
+        if ((config.multiplier > 1) || (!config.multiplier))
         {
-            byte = (playeradr-10) & 0xff;
+            byte = (config.playeradr-10) & 0xff;
             fwrite8(songhandle, byte);
-            byte = (playeradr-10) >> 8;
+            byte = (config.playeradr-10) >> 8;
             fwrite8(songhandle, byte);
         }
         else
         {
-            byte = (playeradr) & 0xff;
+            byte = (config.playeradr) & 0xff;
             fwrite8(songhandle, byte);
-            byte = (playeradr) >> 8;
+            byte = (config.playeradr) >> 8;
             fwrite8(songhandle, byte);
         }
-        if ((multiplier > 1) || (!multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
+        if ((config.multiplier > 1) || (!config.multiplier)) std::fwrite(speedcode, 10, 1, songhandle);
     }
 
     std::fwrite(packeddata, packedsize, 1, songhandle);

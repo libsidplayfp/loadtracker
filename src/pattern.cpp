@@ -22,7 +22,6 @@
 
 #define PATTERN_C
 
-#include "configfile.h"
 #include "console.h"
 #include "display.h"
 #include "instr.h"
@@ -30,6 +29,7 @@
 #include "pattern.h"
 #include "play.h"
 #include "reloc.h"
+#include "settings.h"
 #include "song.h"
 #include "table.h"
 #include "tuning.h"
@@ -126,7 +126,7 @@ void insertnote(int newnote)
 
 void patterncommands()
 {
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   switch(input.key)
   {
@@ -146,7 +146,7 @@ void patterncommands()
     int newnote = -1;
     if (input.key)
     {
-      switch (keypreset)
+      switch (config.keypreset)
       {
         case KEY_TRACKER:
         for (int i = 0; i < (int)sizeof(notekeytbl1); i++)
@@ -347,7 +347,7 @@ void patterncommands()
             }
             else
             {
-              int pos = makespeedtable(song.pattern[epnum[epchn]][eppos*4+3], finevibrato, true);
+              int pos = makespeedtable(song.pattern[epnum[epchn]][eppos*4+3], config.finevibrato, true);
               song.pattern[epnum[epchn]][eppos*4+3] = pos + 1;
             }
           }
@@ -405,7 +405,7 @@ void patterncommands()
     {
       autoadvance++;
       if (autoadvance > 2) autoadvance = 0;
-      if (keypreset == KEY_TRACKER)
+      if (config.keypreset == KEY_TRACKER)
       {
         if (autoadvance == 1) autoadvance = 2;
       }
@@ -641,16 +641,16 @@ void patterncommands()
     case KEY_M:
     if (input.shiftpressed)
     {
-      stepsize++;
-      if (stepsize > MAX_PATTROWS) stepsize = MAX_PATTROWS;
+      config.stepsize++;
+      if (config.stepsize > MAX_PATTROWS) config.stepsize = MAX_PATTROWS;
     }
     break;
 
     case KEY_N:
     if (input.shiftpressed)
     {
-      stepsize--;
-      if (stepsize < 2) stepsize = 2;
+      config.stepsize--;
+      if (config.stepsize < 2) config.stepsize = 2;
     }
     break;
 
@@ -954,13 +954,13 @@ void patterncommands()
     case KEY_4:
     case KEY_5:
     case KEY_6:
-    if (input.shiftpressed && (numsids == 2))
+    if (input.shiftpressed && (config.numsids == 2))
     {
         mutechannel(input.rawkey - KEY_1);
     }
     break;
   }
-  if ((keypreset == KEY_DMC) && (hexnybble >= 0) && (hexnybble <= 7) && (!epcolumn))
+  if ((config.keypreset == KEY_DMC) && (hexnybble >= 0) && (hexnybble <= 7) && (!epcolumn))
   {
     int oldbyte = song.pattern[epnum[epchn]][eppos*4];
     epoctave = hexnybble;
@@ -1166,7 +1166,7 @@ void splitpattern()
 {
   int c = epnum[epchn];
   int l = getPattlen(c);
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   if ((eppos == 0) || (eppos == l)) return;
 
@@ -1215,7 +1215,7 @@ void splitpattern()
 void joinpattern()
 {
   int c = epnum[epchn];
-  int maxChns = getMaxChannels();
+  int maxChns = config.getMaxChannels();
 
   if (eschn != epchn) return;
   if (song.order[esnum][epchn][eseditpos] != c) return;

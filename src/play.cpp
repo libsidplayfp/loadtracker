@@ -24,11 +24,11 @@
 
 #include "play.h"
 
-#include "configfile.h"
 #include "channels.h"
 #include "display.h"
 #include "order.h"
 #include "pattern.h"
+#include "settings.h"
 #include "sid.h"
 #include "song.h"
 #include "sound.h"
@@ -108,13 +108,13 @@ void playtestnote(int note, int ins, int chnnum)
     {
       if (chnnum < 3)
       {
-        sidreg[0x5+chnnum*7] = adparam>>8; // Hardrestart
-        sidreg[0x6+chnnum*7] = adparam&0xff;
+        sidreg[0x5+chnnum*7] = config.adparam>>8; // Hardrestart
+        sidreg[0x6+chnnum*7] = config.adparam&0xff;
       }
       else
       {
-        sidreg2[0x5+(chnnum-3)*7] = adparam>>8; // Hardrestart
-        sidreg2[0x6+(chnnum-3)*7] = adparam&0xff;
+        sidreg2[0x5+(chnnum-3)*7] = config.adparam>>8; // Hardrestart
+        sidreg2[0x6+(chnnum-3)*7] = config.adparam&0xff;
       }
     }
   }
@@ -177,8 +177,8 @@ void playroutine()
       cptr->ptr[WTBL] = 0;
       cptr->newnote = 0;
       cptr->repeat = 0;
-      if (multiplier)
-        cptr->tick = 6*multiplier-1;
+      if (config.multiplier)
+        cptr->tick = 6*config.multiplier-1;
       else
         cptr->tick = 6-1;
       cptr->gatetimer = song.instr[1].gatetimer & 0x3f;
@@ -188,11 +188,11 @@ void playroutine()
       switch (songinit)
       {
         case PLAY_BEGINNING:
-        if (multiplier)
+        if (config.multiplier)
         {
-          funktable[0] = 9*multiplier-1;
-          funktable[1] = 6*multiplier-1;
-          cptr->tempo = 6*multiplier-1;
+          funktable[0] = 9*config.multiplier-1;
+          funktable[1] = 6*config.multiplier-1;
+          cptr->tempo = 6*config.multiplier-1;
         }
         else
         {
@@ -288,8 +288,8 @@ FILTERSTOP:
       // Reset tempo in jammode
       if ((songinit == PLAY_STOPPED) && (cptr->tempo < 2))
       {
-        if (multiplier)
-          cptr->tempo = 6*multiplier-1;
+        if (config.multiplier)
+          cptr->tempo = 6*config.multiplier-1;
         else
           cptr->tempo = 6-1;
       }
@@ -708,7 +708,7 @@ TICK0:
 
       // Tick N command
 TICKNEFFECTS:
-      if ((!optimizerealtime) || (cptr->tick))
+      if ((!config.optimizerealtime) || (cptr->tick))
       {
         switch(cptr->command)
         {
@@ -830,7 +830,7 @@ TICKNEFFECTS:
       }
 
 PULSEEXEC:
-      if (optimizepulse)
+      if (config.optimizepulse)
       {
         if ((songinit != PLAY_STOPPED) && (cptr->tick == cptr->gatetimer)) goto GETNEWNOTES;
       }
@@ -838,7 +838,7 @@ PULSEEXEC:
       if (cptr->ptr[PTBL])
       {
         // Skip pulse when sequencer has been executed
-        if (optimizepulse)
+        if (config.optimizepulse)
         {
           if ((!cptr->tick) && (!cptr->pattptr)) goto NEXTCHN;
         }
@@ -913,8 +913,8 @@ GETNEWNOTES:
               cptr->gate = 0xfe;
               if (!(song.instr[cptr->instr].gatetimer & 0x80))
               {
-                sidreg[0x5+7*c] = adparam>>8;
-                sidreg[0x6+7*c] = adparam&0xff;
+                sidreg[0x5+7*c] = config.adparam>>8;
+                sidreg[0x6+7*c] = config.adparam&0xff;
               }
             }
           }
@@ -978,8 +978,8 @@ void playroutine_stereo()
             cptr->ptr[WTBL] = 0;
             cptr->newnote = 0;
             cptr->repeat = 0;
-            if (multiplier)
-                cptr->tick = 6*multiplier-1;
+            if (config.multiplier)
+                cptr->tick = 6*config.multiplier-1;
             else
                 cptr->tick = 6-1;
             cptr->gatetimer = song.instr[1].gatetimer & 0x3f;
@@ -989,11 +989,11 @@ void playroutine_stereo()
             switch (songinit)
             {
             case PLAY_BEGINNING:
-                if (multiplier)
+                if (config.multiplier)
                 {
-                    funktable[0] = 9*multiplier-1;
-                    funktable[1] = 6*multiplier-1;
-                    cptr->tempo = 6*multiplier-1;
+                    funktable[0] = 9*config.multiplier-1;
+                    funktable[1] = 6*config.multiplier-1;
+                    cptr->tempo = 6*config.multiplier-1;
                 }
                 else
                 {
@@ -1142,8 +1142,8 @@ FILTER2STOP_S:
             // Reset tempo in jammode
             if ((songinit == PLAY_STOPPED) && (cptr->tempo < 2))
             {
-                if (multiplier)
-                    cptr->tempo = 6*multiplier-1;
+                if (config.multiplier)
+                    cptr->tempo = 6*config.multiplier-1;
                 else
                     cptr->tempo = 6-1;
             }
@@ -1645,7 +1645,7 @@ WAVEEXEC_S:
 
             // Tick N command
 TICKNEFFECTS_S:
-            if ((!optimizerealtime) || (cptr->tick))
+            if ((!config.optimizerealtime) || (cptr->tick))
             {
                 switch(cptr->command)
                 {
@@ -1764,7 +1764,7 @@ TICKNEFFECTS_S:
             }
 
 PULSEEXEC_S:
-            if (optimizepulse)
+            if (config.optimizepulse)
             {
                 if ((songinit != PLAY_STOPPED) && (cptr->tick == cptr->gatetimer)) goto GETNEWNOTES_S;
             }
@@ -1772,7 +1772,7 @@ PULSEEXEC_S:
             if (cptr->ptr[PTBL])
             {
                 // Skip pulse when sequencer has been executed
-                if (optimizepulse)
+                if (config.optimizepulse)
                 {
                     if ((!cptr->tick) && (!cptr->pattptr)) goto NEXTCHN_S;
                 }
@@ -1849,13 +1849,13 @@ GETNEWNOTES_S:
                             {
                                 if (c < 3)
                                 {
-                                    sidreg[0x5+7*c] = adparam>>8;
-                                    sidreg[0x6+7*c] = adparam&0xff;
+                                    sidreg[0x5+7*c] = config.adparam>>8;
+                                    sidreg[0x6+7*c] = config.adparam&0xff;
                                 }
                                 else
                                 {
-                                    sidreg2[0x5+7*(c-3)] = adparam>>8;
-                                    sidreg2[0x6+7*(c-3)] = adparam&0xff;
+                                    sidreg2[0x5+7*(c-3)] = config.adparam>>8;
+                                    sidreg2[0x6+7*(c-3)] = config.adparam&0xff;
                                 }
                             }
                         }
