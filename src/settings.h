@@ -64,6 +64,7 @@ struct Settings
     bool usefinevib;
 
     Settings();
+    void validate();
     int getMaxChannels();
     int getVisibleOrderlist();
 };

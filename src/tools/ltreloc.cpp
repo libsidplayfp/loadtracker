@@ -312,18 +312,7 @@ int main(int argc, char **argv)
   colors.init(true);
 
   // Validate parameters
-  config.sidmodel &= 1;
-  config.adparam &= 0xffff;
-  config.zeropageadr &= 0xff;
-  config.playeradr &= 0xff00;
-  config.sidaddress &= 0xffff;
-
-  if (config.multiplier > 16) config.multiplier = 16;
-  if ((config.finevibrato == 1) && (config.multiplier < 2)) config.usefinevib = true;
-  if (config.finevibrato > 1) config.usefinevib = true;
-  if (config.optimizepulse > 1) config.optimizepulse = 1;
-  if (config.optimizerealtime > 1) config.optimizerealtime = 1;
-  if (config.customclockrate < 100) config.customclockrate = 0;
+  config.validate();
 
   // Calculate frequencytable if necessary
   if (config.basepitch < 0.0f)

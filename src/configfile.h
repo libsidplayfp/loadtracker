@@ -21,6 +21,5 @@
 
 void loadconfig();
 void saveconfig();
-void validateconfig();
 
 #endif

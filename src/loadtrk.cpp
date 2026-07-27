@@ -299,7 +299,7 @@ int main(int argc, char **argv)
   colors.init(dark);
 
   // Validate parameters
-  validateconfig();
+  config.validate();
 
   initDisplayPositions();
 

@@ -308,32 +308,3 @@ void getstringparam(FILE *handle, char *value)
 }
 
 // TODO getboolparam
-
-void validateconfig()
-{
-  config.sidmodel &= 1;
-  config.ntsc &= 1;
-  config.adparam &= 0xffff;
-  config.zeropageadr &= 0xff;
-  config.playeradr &= 0xff00;
-  config.sidaddress &= 0xffff;
-  config.sid2address &= 0xffff;
-  if (!config.stepsize) config.stepsize = 4;
-  if (config.multiplier > 16) config.multiplier = 16;
-  if (config.keypreset > 2) config.keypreset = 0;
-  if ((config.finevibrato == 1) && (config.multiplier < 2)) config.usefinevib = true;
-  if (config.finevibrato > 1) config.usefinevib = true;
-  if (config.optimizepulse > 1) config.optimizepulse = 1;
-  if (config.optimizerealtime > 1) config.optimizerealtime = 1;
-  if (config.residdelay > 63) config.residdelay = 63;
-  if (config.customclockrate < 100) config.customclockrate = 0;
-  if (config.defaultpatternlength < 1) config.defaultpatternlength = 1;
-  if (config.defaultpatternlength > MAX_PATTROWS) config.defaultpatternlength = MAX_PATTROWS;
-  if (config.panning < 0.f) config.panning = 0.f;
-  if (config.panning > 1.f) config.panning = 1.f;
-  if (config.combwaves > 2) config.combwaves = 2;
-  if (config.filterbias < 0.0) config.filterbias = 0.0;
-  if (config.filterbias > 1.0) config.filterbias = 1.0;
-  if (config.numsids < 1) config.numsids = 1;
-  if (config.numsids > 2) config.numsids = 2;
-}
