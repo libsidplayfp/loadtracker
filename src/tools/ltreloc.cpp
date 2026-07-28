@@ -318,7 +318,7 @@ int main(int argc, char **argv)
   if (config.basepitch < 0.0f)
     config.basepitch = 0.0f;
   if (config.basepitch > 0.0f)
-    calculatefreqtable(config.basepitch, 12.);
+    calculatefreqtable(config);
 
   // perform relocation
   relocator(packedsongname);

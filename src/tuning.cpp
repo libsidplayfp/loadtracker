@@ -17,6 +17,8 @@
  */
 
 #include "common.h"
+#include "settings.h"
+#include "sound.h"
 
 #include <cmath>
 #include <cstdio>
@@ -59,10 +61,10 @@ int tuningcount = 0;
 double tuning[96];
 char tuningname[64];
 
-void calculatefreqtable(double basepitch, double equaldivisionsperoctave)
+void calculatefreqtable(const Settings &cfg)
 {
-  // FIXME this is tailored to PAL frequency
-  double basefreq = basepitch * (16777216.0 / 985248.0) * std::pow(2.0, 0.25) / 32.0;
+  double freq = cfg.ntsc ? NTSCCLOCKRATE : PALCLOCKRATE;
+  double basefreq = cfg.basepitch * (16777216.0 / freq) * std::pow(2.0, 0.25) / 32.0;
 
   if (tuningcount)
   {
@@ -92,7 +94,7 @@ void calculatefreqtable(double basepitch, double equaldivisionsperoctave)
     for (int c = 0; c < 8*12 ; c++)
     {
         double note = c;
-        double freq = basefreq * std::pow(2.0, note/equaldivisionsperoctave);
+        double freq = basefreq * std::pow(2.0, note/cfg.equaldivisionsperoctave);
         int intfreq = freq + 0.5;
         if (intfreq > 0xffff)
             intfreq = 0xffff;

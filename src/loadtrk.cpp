@@ -313,7 +313,7 @@ int main(int argc, char **argv)
   if (config.basepitch < 0.0f)
     config.basepitch = 0.0f;
   if (config.basepitch > 0.0f)
-    calculatefreqtable(config.basepitch, config.equaldivisionsperoctave);
+    calculatefreqtable(config);
 
   // Set special note names
   if (specialnotenames[1] != '\0')

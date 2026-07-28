@@ -24,7 +24,9 @@ extern unsigned char freqtbllo[];
 extern unsigned char freqtblhi[];
 #endif
 
+struct Settings;
+
 void readscalatuningfile(const char *filepath, char *specialnotenames);
-void calculatefreqtable(double basepitch, double equaldivisionsperoctave);
+void calculatefreqtable(const Settings &cfg);
 
 #endif
