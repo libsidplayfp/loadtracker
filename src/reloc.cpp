@@ -148,13 +148,10 @@ int nocalculatedspeed;
 int nonormalspeed;
 int nozerospeed;
 
-int ciaval;
-
 struct buf src = STATIC_BUF_INIT;
 struct buf dest = STATIC_BUF_INIT;
 
-
-int testoverlap(int area1start, int area1size, int area2start, int area2size);
+//int testoverlap(int area1start, int area1size, int area2start, int area2size);
 int packpattern(unsigned char *dest, unsigned char *src, int rows);
 void findtableduplicates(int num);
 int isusedandselfcontained(int num, int start);
@@ -213,6 +210,8 @@ void relocator(const char* filename)
   unsigned char *songwork = nullptr;
   unsigned char *pattwork = nullptr;
   unsigned char *instrwork = nullptr;
+
+  int ciaval = 0;
 
   int channels = config.getMaxChannels();
   int fixedparams = 1;
@@ -605,10 +604,6 @@ TABLETYPE:
 
     std::snprintf(textbuffer, MAX_PATHNAME, "[INFO] CIA timer value for %03d BPM: $%04X", snd_bpmtempo, ciaval);
     printtext(1, 3+MAX_OPTIONS+8, colors.CEDIT, textbuffer);
-  }
-  else
-  {
-    ciaval = 0;
   }
 
   selectdone = 0;
@@ -2031,7 +2026,7 @@ int packpattern(unsigned char *dest, unsigned char *src, int rows)
 
   return destsize;
 }
-
+/*
 int testoverlap(int area1start, int area1size, int area2start, int area2size)
 {
   int area1last = area1start+area1size-1;
@@ -2050,7 +2045,7 @@ int testoverlap(int area1start, int area1size, int area2start, int area2size)
     else return 1;
   }
 }
-
+*/
 unsigned char swapnybbles(unsigned char n)
 {
   unsigned char highnybble = n >> 4;
@@ -2061,11 +2056,10 @@ unsigned char swapnybbles(unsigned char n)
 
 int insertfile(const char *name)
 {
-  int size;
   int handle = io_open(name);
   if (handle == -1) return 0;
 
-  size = io_lseek(handle, 0, SEEK_END);
+  int size = io_lseek(handle, 0, SEEK_END);
   io_lseek(handle, 0, SEEK_SET);
   while (size--)
   {
@@ -2314,6 +2308,8 @@ void relocator_stereo(const char* filename)
     unsigned char *songwork = nullptr;
     unsigned char *pattwork = nullptr;
     unsigned char *instrwork = nullptr;
+
+    int ciaval = 0;
 
     int channels = config.getMaxChannels();
     int fixedparams = 1;

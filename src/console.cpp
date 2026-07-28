@@ -362,8 +362,9 @@ void fliptoscreen()
 
     for (int y = sy; y <= ey; y++)
     {
+      int r = y * MAX_COLUMNS;
       for (int x = sx; x <= ex; x++)
-        prevscrbuffer[y*MAX_COLUMNS+x] = 0xffffffff;
+        prevscrbuffer[r+x] = 0xffffffff;
     }
   }
 

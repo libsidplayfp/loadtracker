@@ -46,7 +46,7 @@ int printrows(int column, int row, int color, const char *strings[] ) {
   return row;
 }
 
-void onlinehelp(int standalone,int context)
+void onlinehelp(int standalone, int context)
 {
   const char *genkeys[] = {
     "F1  Play from beginning",
@@ -291,7 +291,8 @@ void onlinehelp(int standalone,int context)
     int right = hview + 2;
 
     clearscreen();
-    if(!context) {
+    if (!context)
+    {
       printtext(0 + offsetX, left++, color_header, "GENERAL KEYS");
       left = printrows(0 + offsetX,left,color_normal, genkeys);
       left++;
@@ -361,7 +362,6 @@ void onlinehelp(int standalone,int context)
       default:
         break;
       }
-
     }
 
     if(!lastrow) lastrow=left;
@@ -370,7 +370,7 @@ void onlinehelp(int standalone,int context)
     printbg(0, 0, colors.CHDRBG, MAX_COLUMNS);
     std::snprintf(textbuffer, MAX_PATHNAME, "%s Online Help", programname);
     printtext(1, 0, colors.CHEADER, textbuffer);
-    if(standalone) {
+    if (standalone) {
       printtext(84, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, ESC exits");
     } else {
       printtext(61, 0, colors.CHEADER, "Arrows/PgUp/PgDn/Home/End scroll, F12 toggles context, others exit");
@@ -386,7 +386,7 @@ void onlinehelp(int standalone,int context)
       break;
     }
 
-    switch(input.rawkey)
+    switch (input.rawkey)
     {
       case KEY_LEFT:
       case KEY_UP:
@@ -439,7 +439,8 @@ void onlinehelp(int standalone,int context)
     if ((input.mouseb) && (!input.prevmouseb) && (!input.mousey)) break;
   }
 EXITHELP:
-  if(!standalone) {
+  if (!standalone)
+  {
     printmainscreen();
     input.clearkeys();
   }

@@ -58,7 +58,7 @@ int Song::gettablelen(int num)
   int c;
   for (c = MAX_TABLELEN-1; c >= 0; c--)
   {
-    if (ltable[num][c] | rtable[num][c]) break;
+    if (ltable[num][c] || rtable[num][c]) break;
   }
   return c+1;
 }

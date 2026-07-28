@@ -26,6 +26,10 @@
 
 #include <rtmidi/rtmidi_c.h>
 
+#ifndef NDEBUG
+#  include <cstdio>
+#endif
+
 RtMidiInPtr midi_device = nullptr;
 
 int current_note_on = -1;
@@ -50,9 +54,10 @@ void snd_midi_process(double, const unsigned char *message, size_t messageSize, 
 {
     for (size_t i = 0; i < messageSize; i++)
     {
-         //printf("size: %u: %02X %u %u\n", messageSize,
-         //    *message, *(message+1), *(message+2));
-
+#ifndef NDEBUG
+         std::printf("size: %zd: %02X %u %u\n", messageSize,
+             *message, *(message+1), *(message+2));
+#endif
         unsigned char midi_cmd = message[i++];
         if ((midi_cmd & 0xf0) == 0x90)
         {

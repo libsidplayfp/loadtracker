@@ -1295,4 +1295,3 @@ void updateview()
     for (int i=0; i<MAX_CHN; i++)
         epview[i] = eppos-VISIBLEPATTROWS/2;
 }
-

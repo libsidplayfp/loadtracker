@@ -217,13 +217,9 @@ void instrumentcommands()
       case 1:
       *ptr &= 0xf0;
       *ptr |= hexnybble;
-      eicolumn++;
-      if (eicolumn > 1)
-      {
-        eicolumn = 0;
-        eipos++;
-        if (eipos >= 9) eipos = 0;
-      }
+      eicolumn = 0;
+      eipos++;
+      if (eipos >= 9) eipos = 0;
       break;
     }
   }
