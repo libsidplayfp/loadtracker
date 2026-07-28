@@ -92,7 +92,7 @@ int Song::findfreespeedtable()
   return -1;
 }
 
-void Song::inserttable(int num, int pos, int mode)
+void Song::inserttable(int num, int pos, bool mode)
 {
   // Shift tablepointers in instruments
   for (int c = 1; c < MAX_INSTR; c++)
@@ -144,7 +144,6 @@ void Song::inserttable(int num, int pos, int mode)
       }
     }
   }
-
 
   // Shift tablepointers in patterns
   for (int c = 0; c < MAX_PATT; c++)
@@ -337,10 +336,11 @@ bool savesong()
 
   int maxChns = config.getMaxChannels();
 
-  if (std::strlen(songfilename) < MAX_FILENAME-4)
+  size_t sflen = std::strlen(songfilename);
+  if (sflen < MAX_FILENAME-4)
   {
     int extfound = 0;
-    for (int c = (int)std::strlen(songfilename)-1; c >= 0; c--)
+    for (int c = (int)sflen-1; c >= 0; c--)
     {
       if (songfilename[c] == '.') extfound = 1;
     }
@@ -436,10 +436,11 @@ bool saveinstrument()
 {
   const char ident[] = {'G', 'T', 'I', '5'};
 
-  if (std::strlen(instrfilename) < MAX_FILENAME-4)
+  size_t iflen = std::strlen(instrfilename);
+  if (iflen < MAX_FILENAME-4)
   {
     int extfound = 0;
-    for (int c = (int)std::strlen(instrfilename)-1; c >= 0; c--)
+    for (int c = (int)iflen-1; c >= 0; c--)
     {
       if (instrfilename[c] == '.') extfound = 1;
     }
@@ -1658,8 +1659,6 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 
 void countpatternlengths()
 {
-  int maxChns = config.getMaxChannels();
-
   highestusedpattern = 0;
   highestusedinstr = 0;
   for (int c = 0; c < MAX_PATT; c++)
@@ -1674,6 +1673,8 @@ void countpatternlengths()
     }
     pattlen[c] = d;
   }
+
+  int maxChns = config.getMaxChannels();
 
   for (int e = 0; e < MAX_SONGS; e++)
   {
@@ -1719,13 +1720,15 @@ void countthispattern()
 
 int insertpattern(int p)
 {
-  int maxChns = config.getMaxChannels();
+  if (p >= MAX_PATT-2) return 0;
 
   findusedpatterns();
-  if (p >= MAX_PATT-2) return 0;
   if (pattused[MAX_PATT-1]) return 0;
+
   std::memmove(song.pattern[p+2], song.pattern[p+1], (MAX_PATT-p-2)*(MAX_PATTROWS*4+4));  
   countpatternlengths();
+
+  int maxChns = config.getMaxChannels();
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
@@ -1757,13 +1760,13 @@ int insertpattern(int p)
 
 void deletepattern(int p)
 {
-  int maxChns = config.getMaxChannels();
-
   if (p == MAX_PATT-1) return;
 
   std::memmove(song.pattern[p], song.pattern[p+1], (MAX_PATT-p-1)*(MAX_PATTROWS*4+4));
   clearpattern(MAX_PATT-1);
   countpatternlengths();
+
+  int maxChns = config.getMaxChannels();
 
   for (int c = 0; c < MAX_SONGS; c++)
   {

@@ -117,12 +117,6 @@ int songsize[MAX_SONGS][MAX_CHN];
 
 ErrorType tableerror;
 
-int channels;
-int fixedparams;
-int simplepulse;
-int firstnote;
-int lastnote;
-int patternlastnote;
 int nofilter;
 int nofiltermod;
 int nopulse;
@@ -220,12 +214,12 @@ void relocator(const char* filename)
   unsigned char *pattwork = nullptr;
   unsigned char *instrwork = nullptr;
 
-  channels = config.getMaxChannels();
-  fixedparams = 1;
-  simplepulse = 1;
-  firstnote = MAX_NOTES-1;
-  lastnote = 0;
-  patternlastnote = 0;
+  int channels = config.getMaxChannels();
+  int fixedparams = 1;
+  int simplepulse = 1;
+  int firstnote = MAX_NOTES-1;
+  int lastnote = 0;
+  int patternlastnote = 0;
   noeffects = 1;
   nogate = 1;
   nofilter = 1;
@@ -2321,12 +2315,12 @@ void relocator_stereo(const char* filename)
     unsigned char *pattwork = nullptr;
     unsigned char *instrwork = nullptr;
 
-    channels = config.getMaxChannels();
-    fixedparams = 1;
-    simplepulse = 1;
-    firstnote = MAX_NOTES-1;
-    lastnote = 0;
-    patternlastnote = 0;
+    int channels = config.getMaxChannels();
+    int fixedparams = 1;
+    int simplepulse = 1;
+    int firstnote = MAX_NOTES-1;
+    int lastnote = 0;
+    int patternlastnote = 0;
     noeffects = 1;
     nogate = 1;
     nofilter = 1;

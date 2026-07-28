@@ -18,7 +18,6 @@
 
 #include "common.h"
 #include "settings.h"
-#include "sound.h"
 
 #include <cmath>
 #include <cstdio>

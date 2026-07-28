@@ -92,6 +92,11 @@ enum
 
 #define PGUPDNREPEAT 8
 
+#define PALFRAMERATE 50
+#define PALCLOCKRATE 985248
+#define NTSCFRAMERATE 60
+#define NTSCCLOCKRATE 1022727
+
 struct Instr
 {
   unsigned char ad;

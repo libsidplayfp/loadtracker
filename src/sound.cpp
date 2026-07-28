@@ -24,6 +24,7 @@
 
 #include "sound.h"
 
+#include "common.h"
 #include "ltmidi.h"
 #include "play.h"
 #include "settings.h"
@@ -46,6 +47,8 @@
 #ifdef USE_EXSID
 #  include <exSID.h>
 #endif
+
+#include <new>
 
 #include <cstdlib>
 #include <cstdio>
@@ -156,8 +159,9 @@ bool sound_init(bool writer, const Settings &cfg)
 
     midi_init();
 
-    if (!lbuffer) lbuffer = new Sint16[MIXBUFFERSIZE];
-    if (!rbuffer) rbuffer = new Sint16[MIXBUFFERSIZE];
+    if (!lbuffer) lbuffer = new (std::nothrow) Sint16[MIXBUFFERSIZE];
+    if (!rbuffer) rbuffer = new (std::nothrow) Sint16[MIXBUFFERSIZE];
+    if (!lbuffer || !rbuffer) return false;
 
     if (writer)
       writehandle = std::fopen("sidaudio.raw", "wb");
@@ -244,13 +248,11 @@ Uint32 sound_timer(void*, SDL_TimerID, Uint32 interval)
 
 void sound_playrout()
 {
-  if (config.numsids == 1)
+  switch (config.numsids)
   {
-    playroutine();
-  }
-  else if (config.numsids == 2)
-  {
-    playroutine_stereo();
+      case 1: playroutine(); break;
+      case 2: playroutine_stereo(); break;
+      default: /* unreachable */ break;
   }
 
 #ifdef USE_EXSID
@@ -271,51 +273,51 @@ void sound_mixer(Sint32 *dest, unsigned samples)
   if (!initted) return;
   if (samples > MIXBUFFERSIZE) return;
 
-  if (config.numsids == 1)
+  switch (config.numsids)
   {
-    if (!lbuffer) return;
-    sid_fillbuffer(lbuffer, samples);
-    if (writehandle)
-    {
-      std::fwrite(lbuffer, samples * sizeof(Sint16), 1, writehandle);
-    }
+    case 1:
+        sid_fillbuffer(lbuffer, samples);
+        if (writehandle)
+        {
+            std::fwrite(lbuffer, samples * sizeof(Sint16), 1, writehandle);
+        }
 
-    for (unsigned c = 0; c < samples; c++)
-    {
-      dest[c] = lbuffer[c];
+        for (unsigned c = 0; c < samples; c++)
+        {
+            dest[c] = lbuffer[c];
+        }
+        break;
+    case 2:
+        sid_fillbuffer_stereo(lbuffer, rbuffer, samples);
+        if (writehandle)
+        {
+            for (unsigned c = 0; c < samples; c++)
+            {
+                // FIXME should be interleaved?
+                std::fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
+                std::fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
+            }
+        }
+        if (monomode)
+        {
+            for (unsigned c = 0; c < samples; c++)
+            {
+                constexpr double SQRT_2 = 1.41421356237;
+                Sint32 sample = (lbuffer[c] + rbuffer[c]) / SQRT_2; // FIXME limit insted of scaling
+                dest[c*2] = sample;
+                dest[c*2+1] = sample;
+            }
+        }
+        else
+        {
+            for (unsigned c = 0; c < samples; c++)
+            {
+                Sint32 ls = lbuffer[c];
+                Sint32 rs = rbuffer[c];
+                dest[c*2] = (ls-rs) * config.panning + rs;
+                dest[c*2+1] = (rs-ls) * config.panning + ls;
+            }
+        }
+    default: /* unreachable */ break;
     }
-  }
-  else if (config.numsids == 2)
-  {
-    sid_fillbuffer_stereo(lbuffer, rbuffer, samples);
-    if (writehandle)
-    {
-      for (unsigned c = 0; c < samples; c++)
-      {
-        // FIXME should be interleaved?
-        std::fwrite(&lbuffer[c], sizeof(Sint16), 1, writehandle);
-        std::fwrite(&rbuffer[c], sizeof(Sint16), 1, writehandle);
-      }
-    }
-    if (monomode)
-    {
-      for (unsigned c = 0; c < samples; c++)
-      {
-        constexpr double SQRT_2 = 1.41421356237;
-        Sint32 sample = (lbuffer[c] + rbuffer[c]) / SQRT_2; // FIXME limit insted of scaling
-        dest[c*2] = sample;
-        dest[c*2+1] = sample;
-      }
-    }
-    else
-    {
-      for (unsigned c = 0; c < samples; c++)
-      {
-        Sint32 ls = lbuffer[c];
-        Sint32 rs = rbuffer[c];
-        dest[c*2] = (ls-rs) * config.panning + rs;
-        dest[c*2+1] = (rs-ls) * config.panning + ls;
-      }
-    }
-  }
 }

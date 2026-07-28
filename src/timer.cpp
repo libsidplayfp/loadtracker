@@ -18,7 +18,7 @@
 
 #include "timer.h"
 
-#include "sound.h"
+#include "common.h"
 
 #include <cstdio>
 
@@ -42,12 +42,12 @@ void Timer::increment()
     {
       timeframe = 0;
       timesec++;
-    }
-    if (timesec == 60)
-    {
-      timesec = 0;
-      timemin++;
-      timemin %= 60;
+      if (timesec == 60)
+      {
+        timesec = 0;
+        timemin++;
+        timemin %= 60;
+      }
     }
 }
 

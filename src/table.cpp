@@ -299,7 +299,7 @@ void tablecommands()
       if (targetpulse < currentpulse) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) song.inserttable(tables.num(), tables.pos(), 1);
+      for (c = steps; c > 1; c--) song.inserttable(tables.num(), tables.pos(), true);
 
       while (time)
       {
@@ -358,7 +358,7 @@ void tablecommands()
       if (targetfilter < currentfilter) speed = -speed;
 
       // Make room in the table
-      for (c = steps; c > 1; c--) song.inserttable(tables.num(), tables.pos(), 1);
+      for (c = steps; c > 1; c--) song.inserttable(tables.num(), tables.pos(), true);
 
       while (time)
       {
@@ -635,7 +635,7 @@ void Tables::validatetableview()
   if (m_pos - m_view[m_num] >= VISIBLETABLEROWS)
     m_view[m_num] = m_pos - VISIBLETABLEROWS + 1;
 
-  // Table view lock?
+  // Table view is locked?
   if (m_lock)
   {
     for (int c = 0; c < MAX_TABLES; c++) m_view[c] = m_view[m_num];
