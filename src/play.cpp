@@ -135,7 +135,7 @@ void releasenote(int chnnum)
 
 void mutechannel(int chnnum)
 {
-  chn[chnnum].mute ^= 1;
+  chn[chnnum].mute = !chn[chnnum].mute;
 }
 
 bool isplaying()
@@ -172,7 +172,7 @@ void playroutine()
       cptr->cmddata = 0;
       cptr->newcommand = 0;
       cptr->newcmddata = 0;
-      cptr->advance = 1;
+      cptr->advance = true;
       cptr->wave = 0;
       cptr->ptr[WTBL] = 0;
       cptr->newnote = 0;
@@ -208,7 +208,7 @@ void playroutine()
         break;
 
         case PLAY_PATTERN:
-        cptr->advance = 0;
+        cptr->advance = false;
         cptr->pattptr = startpattpos * 4;
         cptr->pattnum = epnum[c];
         if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))
@@ -973,7 +973,7 @@ void playroutine_stereo()
             cptr->cmddata = 0;
             cptr->newcommand = 0;
             cptr->newcmddata = 0;
-            cptr->advance = 1;
+            cptr->advance = true;
             cptr->wave = 0;
             cptr->ptr[WTBL] = 0;
             cptr->newnote = 0;
@@ -1009,7 +1009,7 @@ void playroutine_stereo()
                 break;
 
             case PLAY_PATTERN:
-                cptr->advance = 0;
+                cptr->advance = false;
                 cptr->pattptr = startpattpos * 4;
                 cptr->pattnum = epnum[c];
                 if (cptr->pattptr >= (getPattlen(cptr->pattnum) * 4))

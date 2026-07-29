@@ -115,11 +115,12 @@ int main(int argc, char **argv)
 
   // Reset channels/song
   initchannels();
-  clearsong(true,true,true,true,true);
+  clearsong(true, true, true, true, true);
 
   char packedsongname[MAX_PATHNAME];
   // get input- and output file names
-  if (argc >= 3) {
+  if (argc >= 3)
+  {
       std::strcpy(songfilename, argv[1]);
       std::strcpy(packedsongname, argv[2]);
   } else {
@@ -128,7 +129,8 @@ int main(int argc, char **argv)
   }
 
   // Load song
-  if (std::strlen(songfilename)) {
+  if (std::strlen(songfilename))
+  {
       loadsong();
       if (std::strlen(loadedsongfilename) == 0)
       {
@@ -141,7 +143,8 @@ int main(int argc, char **argv)
   }
 
   int c = (int)std::strlen(packedsongname);
-  if (c <= 0) {
+  if (c <= 0)
+  {
       std::fprintf(STDERR, "error: no output filename given.\n");
       std::exit(EXIT_FAILURE);
   }

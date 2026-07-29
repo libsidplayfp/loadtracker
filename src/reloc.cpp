@@ -285,7 +285,7 @@ void initreloc()
 void relocator(const char* filename)
 {
   unsigned char *packeddata = nullptr;
-  const char *playername = "player.s";
+  const char *playername = (config.adparam < 0xf000) ? "player.s" : "altplayer.s";
 
   TabError taberr;
   int patterns = 0;
@@ -736,7 +736,7 @@ void relocator(const char* filename)
 
   // Sound effect or ghostreg players always use full 3 channels
   if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_FULLBUFFERED) || (config.playerversion & PLAYER_ZPGHOSTREGS))
-    channels = 3;
+    channels = maxChns;
 
   // Allocate memory for song-orderlists
   songtblsize = songs*6;
@@ -1241,9 +1241,6 @@ void relocator(const char* filename)
   }
 
   // Insert source code of player
-  if (config.adparam >= 0xf000)
-    playername = "altplayer.s";
-
   if (!insertfile(playername))
   {
     error("COULD NOT OPEN PLAYROUTINE!");
@@ -1460,7 +1457,8 @@ void relocator(const char* filename)
       }
     }
 
-    SKIPTABLE: ;
+SKIPTABLE:
+    {}
   }
 
   // Insert orderlists
@@ -1489,7 +1487,7 @@ void relocator(const char* filename)
   }
 #endif
   // Assemble; on error fail in a rude way (the parser does so too)
-  if (assemble(&src, &dest)) exit(1);
+  if (assemble(&src, &dest)) std::exit(EXIT_FAILURE);
 
   packeddata = (unsigned char*)buf_data(&dest);
   packedsize = buf_size(&dest);
@@ -2276,7 +2274,7 @@ void calcspeedtest(unsigned char pos)
 void relocator_stereo(const char* filename)
 {
     unsigned char *packeddata = nullptr;
-    const char *playername = "player_s.s";
+    const char *playername = (config.adparam < 0xf000) ? "player_s.s" : "altplayer_s.s";
 
     TabError taberr;
     int patterns = 0;
@@ -3216,9 +3214,6 @@ void relocator_stereo(const char* filename)
     }
 
     // Insert source code of player
-    if (config.adparam >= 0xf000)
-        playername = "altplayer_s.s";
-
     if (!insertfile(playername))
     {
         error("COULD NOT OPEN PLAYROUTINE!");
@@ -3421,7 +3416,7 @@ void relocator_stereo(const char* filename)
         }
 
 SKIPTABLE_S:
-        ;
+        {}
     }
 
     // Insert orderlists
@@ -3450,7 +3445,7 @@ SKIPTABLE_S:
     }
 #endif
     // Assemble; on error fail in a rude way (the parser does so too)
-    if (assemble(&src, &dest)) exit(1);
+    if (assemble(&src, &dest)) std::exit(EXIT_FAILURE);
 
     packeddata = (unsigned char*)buf_data(&dest);
     packedsize = buf_size(&dest);

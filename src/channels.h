@@ -23,19 +23,19 @@
 
 struct Chn
 {
+  int pattptr;
+  unsigned short freq;
+  unsigned short pulse;
   unsigned char trans;
   unsigned char instr;
   unsigned char note;
   unsigned char lastnote;
   unsigned char newnote;
-  int pattptr;
   unsigned char pattnum;
   unsigned char songptr;
   unsigned char repeat;
-  unsigned short freq;
   unsigned char gate;
   unsigned char wave;
-  unsigned short pulse;
   unsigned char ptr[2];
   unsigned char pulsetime;
   unsigned char wavetime;
@@ -47,9 +47,9 @@ struct Chn
   unsigned char newcmddata;
   unsigned char tick;
   unsigned char tempo;
-  unsigned char mute;
-  unsigned char advance;
   unsigned char gatetimer;
+  bool advance;
+  bool mute;
 };
 
 #ifndef CHANNELS_C

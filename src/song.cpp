@@ -1586,7 +1586,7 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
 
   for (int c = 0; c < maxChns; c++)
   {
-    chn[c].mute = 0;
+    chn[c].mute = false;
     if (config.multiplier)
       chn[c].tempo = config.multiplier*6-1;
     else
