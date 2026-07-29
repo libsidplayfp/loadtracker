@@ -73,6 +73,14 @@ enum class ErrorType
   JUMP
 };
 
+struct TabError
+{
+  ErrorType type = ErrorType::NONE;
+  Cause cause = Cause::NONE;
+  int source1 = 0;
+  int source2 = 0;
+};
+
 #define MAX_BYTES_PER_ROW 16
 
 const char *playeroptname[MAX_OPTIONS] =
@@ -175,15 +183,111 @@ void error(const char *msg)
     waitkeynoupdate();
 }
 
+void table_error(TabError terr)
+{
+    clearscreen();
+    switch (terr.type)
+    {
+        case ErrorType::JUMP:
+        std::snprintf(textbuffer, MAX_PATHNAME, "TABLE POINTER POINTS TO A JUMP! ");
+        break;
+
+        case ErrorType::OVERFLOW:
+        std::snprintf(textbuffer, MAX_PATHNAME, "TABLE EXECUTION OVERFLOWS! ");
+        break;
+
+        case ErrorType::NONE:
+        // unreachable
+        break;
+    }
+    switch (terr.cause)
+    {
+        case Cause::PATTERN:
+        std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(PATTERN %02X, ROW %02d)", terr.source1, terr.source2);
+        break;
+
+        case Cause::WAVE_CMD:
+        std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", terr.source1);
+        goto TABLETYPE;
+
+        case Cause::INSTRUMENT:
+        std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(INSTRUMENT %02X, ", terr.source1);
+TABLETYPE:
+        switch (terr.source2)
+        {
+            case WTBL:
+            std::strcat(textbuffer, "WAVE");
+            break;
+
+            case PTBL:
+            std::strcat(textbuffer, "PULSE");
+            break;
+
+            case FTBL:
+            std::strcat(textbuffer, "FILTER");
+            break;
+        }
+        std::strcat(textbuffer, ")");
+        break;
+
+        case Cause::NONE:
+        // unreachable
+        break;
+    }
+    printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
+
+    fliptoscreen();
+    waitkeynoupdate();
+}
+
+void initreloc()
+{
+  noeffects = 1;
+  nogate = 1;
+  nofilter = 1;
+  nofiltermod = 1;
+  nopulse = 1;
+  nopulsemod = 1;
+  nowavedelay = 1;
+  nowavecmd = 1;
+  norepeat = 1;
+  notrans = 1;
+  noportamento = 1;
+  notoneporta = 1;
+  novib = 1;
+  noinsvib = 1;
+  nosetad = 1;
+  nosetsr = 1;
+  nosetwave = 1;
+  nosetwaveptr = 1;
+  nosetpulseptr = 1;
+  nosetfiltptr = 1;
+  nosetfiltcutoff = 1;
+  nosetfiltctrl = 1;
+  nosetmastervol = 1;
+  nofunktempo = 1;
+  noglobaltempo = 1;
+  nochanneltempo = 1;
+  nofirstwavecmd = 1;
+  nocalculatedspeed = 1;
+  nonormalspeed = 1;
+  nozerospeed = 1;
+
+  std::memset(pattused, 0, sizeof pattused);
+  std::memset(instrused, 0, sizeof instrused);
+  std::memset(chnused, 0, sizeof chnused);
+  std::memset(tableused, 0, sizeof tableused);
+  std::memset(tablemap, 0, sizeof tablemap);
+
+  tableerror = ErrorType::NONE;
+}
+
 void relocator(const char* filename)
 {
   unsigned char *packeddata = nullptr;
   const char *playername = "player.s";
 
-  ErrorType tableerrortype = ErrorType::NONE;
-  Cause tableerrorcause = Cause::NONE;
-  int tableerrorsource1 = 0;
-  int tableerrorsource2 = 0;
+  TabError taberr;
   int patterns = 0;
   int songs = 0;
   int instruments = 0;
@@ -227,45 +331,10 @@ void relocator(const char* filename)
   int firstnote = MAX_NOTES-1;
   int lastnote = 0;
   int patternlastnote = 0;
-  noeffects = 1;
-  nogate = 1;
-  nofilter = 1;
-  nofiltermod = 1;
-  nopulse = 1;
-  nopulsemod = 1;
-  nowavedelay = 1;
-  nowavecmd = 1;
-  norepeat = 1;
-  notrans = 1;
-  noportamento = 1;
-  notoneporta = 1;
-  novib = 1;
-  noinsvib = 1;
-  nosetad = 1;
-  nosetsr = 1;
-  nosetwave = 1;
-  nosetwaveptr = 1;
-  nosetpulseptr = 1;
-  nosetfiltptr = 1;
-  nosetfiltcutoff = 1;
-  nosetfiltctrl = 1;
-  nosetmastervol = 1;
-  nofunktempo = 1;
-  noglobaltempo = 1;
-  nochanneltempo = 1;
-  nofirstwavecmd = 1;
-  nocalculatedspeed = 1;
-  nonormalspeed = 1;
-  nozerospeed = 1;
+
+  initreloc();
 
   stopsong();
-
-  std::memset(pattused, 0, sizeof pattused);
-  std::memset(instrused, 0, sizeof instrused);
-  std::memset(chnused, 0, sizeof chnused);
-  std::memset(tableused, 0, sizeof tableused);
-  std::memset(tablemap, 0, sizeof tablemap);
-  tableerror = ErrorType::NONE;
 
   parse_init();
   buf_free(&src);
@@ -329,16 +398,18 @@ void relocator(const char* filename)
     }
   }
 
-  // Optimize amount of used channels
-  if (!chnused[2])
-    channels = 2;
-  if ((!chnused[1]) && (!chnused[2]))
-    channels = 1;
-
   if (!songs)
   {
     error("NO SONGS, NO DATA TO SAVE!");
     goto PRCLEANUP;
+  }
+
+  // Optimize amount of used channels
+  for (int c = maxChns; c; c--)
+  {
+    if (chnused[c])
+      break;
+    channels = c;
   }
 
   // Build the pattern-mapping
@@ -398,12 +469,12 @@ void relocator(const char* filename)
             lastnote = newfirstnote;
           }
         }
-        if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+        if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
         {
-          tableerrortype = tableerror;
-          tableerrorcause = Cause::PATTERN;
-          tableerrorsource1 = c;
-          tableerrorsource2 = d;
+          taberr.type = tableerror;
+          taberr.cause = Cause::PATTERN;
+          taberr.source1 = c;
+          taberr.source2 = d;
         }
       }
     }
@@ -446,12 +517,12 @@ void relocator(const char* filename)
         tableerror = ErrorType::NONE;
         exectable(d, song.instr[c].ptr[d]);
         if (d == STBL) calcspeedtest(song.instr[c].ptr[d]);
-        if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+        if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
         {
-          tableerrortype = tableerror;
-          tableerrorcause = Cause::INSTRUMENT;
-          tableerrorsource1 = c;
-          tableerrorsource2 = d;
+          taberr.type = tableerror;
+          taberr.cause = Cause::INSTRUMENT;
+          taberr.source1 = c;
+          taberr.source2 = d;
         }
       }
     }
@@ -497,12 +568,12 @@ void relocator(const char* filename)
 
         if (d != -1) exectable(d, song.rtable[WTBL][c]);
 
-        if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+        if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
         {
-          tableerrortype = tableerror;
-          tableerrorcause = Cause::WAVE_CMD;
-          tableerrorsource1 = c+1;
-          tableerrorsource2 = d;
+          taberr.type = tableerror;
+          taberr.cause = Cause::WAVE_CMD;
+          taberr.source1 = c+1;
+          taberr.source2 = d;
         }
       }
     }
@@ -523,61 +594,9 @@ void relocator(const char* filename)
   }
 
   // Check for table errors
-  if (tableerrorcause != Cause::NONE)
+  if (taberr.cause != Cause::NONE)
   {
-    clearscreen();
-    switch(tableerrortype)
-    {
-      case ErrorType::JUMP:
-      std::snprintf(textbuffer, MAX_PATHNAME, "TABLE POINTER POINTS TO A JUMP! ");
-      break;
-
-      case ErrorType::OVERFLOW:
-      std::snprintf(textbuffer, MAX_PATHNAME, "TABLE EXECUTION OVERFLOWS! ");
-      break;
-
-      case ErrorType::NONE:
-      // unreachable
-      break;
-    }
-    switch (tableerrorcause)
-    {
-      case Cause::PATTERN:
-      std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
-      break;
-
-      case Cause::WAVE_CMD:
-      std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
-      goto TABLETYPE;
-
-      case Cause::INSTRUMENT:
-      std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
-TABLETYPE:
-      switch (tableerrorsource2)
-      {
-        case WTBL:
-        std::strcat(textbuffer, "WAVE");
-        break;
-
-        case PTBL:
-        std::strcat(textbuffer, "PULSE");
-        break;
-
-        case FTBL:
-        std::strcat(textbuffer, "FILTER");
-        break;
-      }
-      std::strcat(textbuffer, ")");
-      break;
-
-      case Cause::NONE:
-      // unreachable
-      break;
-    }
-    printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
-
-    fliptoscreen();
-    waitkeynoupdate();
+    table_error(taberr);
     goto PRCLEANUP;
   }
 
@@ -2259,10 +2278,7 @@ void relocator_stereo(const char* filename)
     unsigned char *packeddata = nullptr;
     const char *playername = "player_s.s";
 
-    ErrorType tableerrortype = ErrorType::NONE;
-    Cause tableerrorcause = Cause::NONE;
-    int tableerrorsource1 = 0;
-    int tableerrorsource2 = 0;
+    TabError taberr;
     int patterns = 0;
     int songs = 0;
     int instruments = 0;
@@ -2302,45 +2318,10 @@ void relocator_stereo(const char* filename)
     int firstnote = MAX_NOTES-1;
     int lastnote = 0;
     int patternlastnote = 0;
-    noeffects = 1;
-    nogate = 1;
-    nofilter = 1;
-    nofiltermod = 1;
-    nopulse = 1;
-    nopulsemod = 1;
-    nowavedelay = 1;
-    nowavecmd = 1;
-    norepeat = 1;
-    notrans = 1;
-    noportamento = 1;
-    notoneporta = 1;
-    novib = 1;
-    noinsvib = 1;
-    nosetad = 1;
-    nosetsr = 1;
-    nosetwave = 1;
-    nosetwaveptr = 1;
-    nosetpulseptr = 1;
-    nosetfiltptr = 1;
-    nosetfiltcutoff = 1;
-    nosetfiltctrl = 1;
-    nosetmastervol = 1;
-    nofunktempo = 1;
-    noglobaltempo = 1;
-    nochanneltempo = 1;
-    nofirstwavecmd = 1;
-    nocalculatedspeed = 1;
-    nonormalspeed = 1;
-    nozerospeed = 1;
+
+    initreloc();
 
     stopsong();
-
-    std::memset(pattused, 0, sizeof pattused);
-    std::memset(instrused, 0, sizeof instrused);
-    std::memset(chnused, 0, sizeof chnused);
-    std::memset(tableused, 0, sizeof tableused);
-    std::memset(tablemap, 0, sizeof tablemap);
-    tableerror = ErrorType::NONE;
 
     parse_init();
     buf_free(&src);
@@ -2403,19 +2384,21 @@ void relocator_stereo(const char* filename)
             songs++;
         }
     }
-#if 0
-    // Optimize amount of used channels
-    if (!chnused[2])
-      channels = 2;
-    if ((!chnused[1]) && (!chnused[2]))
-      channels = 1;
-#endif
+
     if (!songs)
     {
         error("NO SONGS, NO DATA TO SAVE!");
         goto PRCLEANUP_S;
     }
 
+#if 0
+  for (int c = maxChns; c; c--)
+  {
+    if (chnused[c])
+      break;
+    channels = c;
+  }
+#endif
     // Build the pattern-mapping
     // Instrument 1 is always used
     instrused[1] = 1;
@@ -2473,12 +2456,12 @@ void relocator_stereo(const char* filename)
                         lastnote = newfirstnote;
                     }
                 }
-                if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+                if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
                 {
-                    tableerrortype = tableerror;
-                    tableerrorcause = Cause::PATTERN;
-                    tableerrorsource1 = c;
-                    tableerrorsource2 = d;
+                    taberr.type = tableerror;
+                    taberr.cause = Cause::PATTERN;
+                    taberr.source1 = c;
+                    taberr.source2 = d;
                 }
             }
         }
@@ -2521,12 +2504,12 @@ void relocator_stereo(const char* filename)
                 tableerror = ErrorType::NONE;
                 exectable(d, song.instr[c].ptr[d]);
                 if (d == STBL) calcspeedtest(song.instr[c].ptr[d]);
-                if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+                if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
                 {
-                    tableerrortype = tableerror;
-                    tableerrorcause = Cause::INSTRUMENT;
-                    tableerrorsource1 = c;
-                    tableerrorsource2 = d;
+                    taberr.type = tableerror;
+                    taberr.cause = Cause::INSTRUMENT;
+                    taberr.source1 = c;
+                    taberr.source2 = d;
                 }
             }
         }
@@ -2572,12 +2555,12 @@ void relocator_stereo(const char* filename)
 
                 if (d != -1) exectable(d, song.rtable[WTBL][c]);
 
-                if ((tableerror != ErrorType::NONE) && (tableerrortype == ErrorType::NONE))
+                if ((tableerror != ErrorType::NONE) && (taberr.type == ErrorType::NONE))
                 {
-                    tableerrortype = tableerror;
-                    tableerrorcause = Cause::WAVE_CMD;
-                    tableerrorsource1 = c+1;
-                    tableerrorsource2 = d;
+                    taberr.type = tableerror;
+                    taberr.cause = Cause::WAVE_CMD;
+                    taberr.source1 = c+1;
+                    taberr.source2 = d;
                 }
             }
         }
@@ -2598,61 +2581,9 @@ void relocator_stereo(const char* filename)
     }
 
     // Check for table errors
-    if (tableerrorcause != Cause::NONE)
+    if (taberr.cause != Cause::NONE)
     {
-        clearscreen();
-        switch(tableerrortype)
-        {
-        case ErrorType::JUMP:
-            std::snprintf(textbuffer, MAX_PATHNAME, "TABLE POINTER POINTS TO A JUMP! ");
-            break;
-
-        case ErrorType::OVERFLOW:
-            std::snprintf(textbuffer, MAX_PATHNAME, "TABLE EXECUTION OVERFLOWS! ");
-            break;
-
-        case ErrorType::NONE:
-        // unreachable
-        break;
-        }
-        switch (tableerrorcause)
-        {
-        case Cause::PATTERN:
-            std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(PATTERN %02X, ROW %02d)", tableerrorsource1, tableerrorsource2);
-            break;
-
-        case Cause::WAVE_CMD:
-            std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "WAVETABLE CMD (ROW %02X, ", tableerrorsource1);
-            goto TABLETYPE_S;
-
-        case Cause::INSTRUMENT:
-            std::snprintf(textbuffer, MAX_PATHNAME + std::strlen(textbuffer), "(INSTRUMENT %02X, ", tableerrorsource1);
-TABLETYPE_S:
-            switch (tableerrorsource2)
-            {
-            case WTBL:
-                std::strcat(textbuffer, "WAVE");
-                break;
-
-            case PTBL:
-                std::strcat(textbuffer, "PULSE");
-                break;
-
-            case FTBL:
-                std::strcat(textbuffer, "FILTER");
-                break;
-            }
-            std::strcat(textbuffer, ")");
-            break;
-
-            case Cause::NONE:
-            // unreachable
-            break;
-        }
-        printtextc(MAX_ROWS/2, colors.CTITLE, textbuffer);
-
-        fliptoscreen();
-        waitkeynoupdate();
+        table_error(taberr);
         goto PRCLEANUP_S;
     }
 
