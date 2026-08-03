@@ -294,8 +294,11 @@ void initreloc()
 
 void relocator(const char* filename)
 {
+  bool dual = config.numsids == 2;
   unsigned char *packeddata = nullptr;
   std::string playername = (config.adparam < 0xf000) ? "player" : "altplayer";
+  if (dual)
+    playername.append("_s");
   playername.append(".s");
 
   unsigned char pattmap[MAX_PATT];
@@ -357,8 +360,9 @@ void relocator(const char* filename)
   buf_free(&dest);
 
   int maxChns = config.getMaxChannels();
+#ifndef LTRELOC
   int ypos;
-
+#endif
   // Process song-orderlists
   countpatternlengths();
   // Calculate amount of songs with nonzero length
@@ -621,6 +625,13 @@ void relocator(const char* filename)
   for (int c = 0; c < MAX_TABLES; c++)
     findtableduplicates(c);
 
+  if (dual)
+  {
+    // Force options for dual sid tunes
+    config.playerversion |= PLAYER_BUFFERED;
+    config.playerversion &= ~PLAYER_ZPGHOSTREGS;
+  }
+
   // Select playroutine options
 #ifndef LTRELOC
   clearscreen();
@@ -633,18 +644,22 @@ void relocator(const char* filename)
   printtext(1, 0, colors.CHEADER, textbuffer);
   printtext(1, 2, colors.CTITLE, "SELECT PLAYROUTINE OPTIONS: (CURSORS=MOVE/CHANGE, ENTER=ACCEPT, ESC=CANCEL)");
 
-  if (config.multiplier == 1 && snd_bpmtempo != 125)
+  if (!dual)
   {
-    ciaval = 19566 - ((19655 / 125) * (snd_bpmtempo - 125));
+    if (config.multiplier == 1 && snd_bpmtempo != 125)
+    {
+      ciaval = 19566 - ((19655 / 125) * (snd_bpmtempo - 125));
 
-    std::snprintf(textbuffer, MAX_PATHNAME, "[INFO] CIA timer value for %03d BPM: $%04X", snd_bpmtempo, ciaval);
-    printtext(1, 3+MAX_OPTIONS+8, colors.CEDIT, textbuffer);
+      std::snprintf(textbuffer, MAX_PATHNAME, "[INFO] CIA timer value for %03d BPM: $%04X", snd_bpmtempo, ciaval);
+      printtext(1, 3+MAX_OPTIONS+8, colors.CEDIT, textbuffer);
+    }
   }
 
   selectdone = 0;
   while (!selectdone)
   {
     int opts = MAX_OPTIONS;
+    if (dual) opts--;
     for (int c = 0; c < opts; c++)
     {
       int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
@@ -672,7 +687,9 @@ void relocator(const char* filename)
       config.playerversion ^= (PLAYER_BUFFERED << opt);
       if (opt)
       {
-        if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS) || (config.playerversion & PLAYER_FULLBUFFERED))
+        if ((config.playerversion & PLAYER_SOUNDEFFECTS) ||
+            (config.playerversion & PLAYER_ZPGHOSTREGS) ||
+            (!dual && (config.playerversion & PLAYER_FULLBUFFERED)))
           config.playerversion |= PLAYER_BUFFERED;
       }
       else
@@ -681,7 +698,7 @@ void relocator(const char* filename)
         {
           config.playerversion &= ~PLAYER_SOUNDEFFECTS;
           config.playerversion &= ~PLAYER_ZPGHOSTREGS;
-          config.playerversion &= ~PLAYER_FULLBUFFERED;
+          if (!dual) config.playerversion &= ~PLAYER_FULLBUFFERED;
         }
       }
       break;
@@ -703,6 +720,12 @@ void relocator(const char* filename)
       case KEY_ENTER:
       selectdone = 1;
       break;
+    }
+
+    if (dual)
+    {
+      config.playerversion |= PLAYER_BUFFERED;
+      config.playerversion &= ~PLAYER_ZPGHOSTREGS;
     }
   }
   if (selectdone == -1) goto PRCLEANUP;
@@ -750,12 +773,19 @@ void relocator(const char* filename)
   }
 
   // Make sure buffering is used if it is needed
-  if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_ZPGHOSTREGS) || (config.playerversion & PLAYER_FULLBUFFERED))
+  if ((config.playerversion & PLAYER_SOUNDEFFECTS) ||
+      (config.playerversion & PLAYER_ZPGHOSTREGS) ||
+      (!dual && (config.playerversion & PLAYER_FULLBUFFERED)))
     config.playerversion |= PLAYER_BUFFERED;
 
-  // Sound effect or ghostreg players always use full 3 channels
-  if ((config.playerversion & PLAYER_SOUNDEFFECTS) || (config.playerversion & PLAYER_FULLBUFFERED) || (config.playerversion & PLAYER_ZPGHOSTREGS))
-    channels = maxChns;
+  if (!dual)
+  {
+    // Sound effect or ghostreg players always use full 3 channels
+    if ((config.playerversion & PLAYER_SOUNDEFFECTS) ||
+        (config.playerversion & PLAYER_FULLBUFFERED) ||
+        (config.playerversion & PLAYER_ZPGHOSTREGS))
+      channels = maxChns;
+  }
 
   // Allocate memory for song-orderlists
   songtblsize = songs*6;
@@ -1047,7 +1077,7 @@ void relocator(const char* filename)
   std::fprintf(STDOUT, "Player address:   $%04X\n", config.playeradr);
   std::fprintf(STDOUT, "Zeropage address: $%04X\n", config.zeropageadr);
 #else
-  ypos = 11;
+  ypos = dual ? 10 : 11;
   std::snprintf(textbuffer, MAX_PATHNAME, "SELECT START ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
   printtext(1, ypos, colors.CTITLE, textbuffer);
 
@@ -1193,12 +1223,15 @@ void relocator(const char* filename)
   insertdefine("base", config.playeradr);
   insertdefine("zpbase", config.zeropageadr);
   insertdefine("SIDBASE", config.sidaddress);
+  if (dual)
+    insertdefine("SID2BASE", config.sid2address);
 
   // Insert conditionals
   insertdefine("SOUNDSUPPORT", (config.playerversion & PLAYER_SOUNDEFFECTS) ? 1 : 0);
   insertdefine("VOLSUPPORT", (config.playerversion & PLAYER_VOLUME) ? 1 : 0);
   insertdefine("BUFFEREDWRITES", (config.playerversion & PLAYER_BUFFERED) ? 1 : 0);
-  insertdefine("GHOSTREGS", (config.playerversion & (PLAYER_ZPGHOSTREGS|PLAYER_FULLBUFFERED)) ? 1 : 0);
+  if (!dual)
+    insertdefine("GHOSTREGS", (config.playerversion & (PLAYER_ZPGHOSTREGS|PLAYER_FULLBUFFERED)) ? 1 : 0);
   insertdefine("ZPGHOSTREGS", (config.playerversion & PLAYER_ZPGHOSTREGS) ? 1 : 0);
   insertdefine("FIXEDPARAMS", fixedparams);
   insertdefine("SIMPLEPULSE", simplepulse);
@@ -1268,17 +1301,20 @@ void relocator(const char* filename)
     goto PRCLEANUP;
   }
 
-  // Modify ghostregs to not be zeropage if needed
-  if ((config.playerversion & PLAYER_FULLBUFFERED) && (config.playerversion & PLAYER_ZPGHOSTREGS) == 0)
+  if (!dual)
   {
-    int bufsize = buf_size(&src);
-    char* bufdata = (char*)buf_data(&src);
-    for (int c = 0; c < bufsize; c++)
+    // Modify ghostregs to not be zeropage if needed
+    if ((config.playerversion & PLAYER_FULLBUFFERED) && (config.playerversion & PLAYER_ZPGHOSTREGS) == 0)
     {
-      if (bufdata[c] == '<')
+      int bufsize = buf_size(&src);
+      char* bufdata = (char*)buf_data(&src);
+      for (int c = 0; c < bufsize; c++)
       {
-        if (std::memcmp(bufdata + c + 1, "ghost", 5) == 0)
-          bufdata[c] = ' ';
+        if (bufdata[c] == '<')
+        {
+          if (std::memcmp(bufdata + c + 1, "ghost", 5) == 0)
+            bufdata[c] = ' ';
+        }
       }
     }
   }
@@ -1701,6 +1737,7 @@ SKIPTABLE:
   if (config.fileformat == FORMAT_SID)
   {
     unsigned char ident[] = {'P', 'S', 'I', 'D', 0x00, 0x02, 0x00, 0x7c};
+    if (dual) ident[5] = 0x03;
     unsigned char byte;
     // Identification
     std::fwrite(ident, sizeof ident, 1, songhandle);
@@ -1760,7 +1797,10 @@ SKIPTABLE:
 
     // Song speed bits
     byte = 0x00;
-    if ((config.ntsc) || (config.multiplier > 1) || (!config.multiplier) || (ciaval)) byte = 0xff;
+    if ((config.ntsc) ||
+        (config.multiplier > 1) ||
+        (!config.multiplier) ||
+        (!dual && ciaval)) byte = 0xff;
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
@@ -1776,15 +1816,20 @@ SKIPTABLE:
     fwrite8(songhandle, byte);
     if (config.ntsc) byte = 8;
       else byte = 4;
-    if (config.sidmodel) byte |= 32;
-      else byte |= 16;
+    if (config.sidmodel)
+        byte |= dual ? 32 + 128 : 32;
+    else
+        byte |= dual ? 16 + 64 : 16;
     fwrite8(songhandle, byte);
 
-    // Reserved longword
+    // reserved bytes and second SID address if any
     byte = 0x00;
     fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
-    fwrite8(songhandle, byte);
+    if (dual)
+        fwrite8(songhandle, (config.sid2address & 0x0ff0) >> 4);
+    else
+        fwrite8(songhandle, byte);
     fwrite8(songhandle, byte);
 
     // Load address
