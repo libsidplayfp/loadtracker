@@ -46,7 +46,7 @@
 #endif
 
 #include "asm/buf.h"
-#include "asm/log.h"
+//#include "asm/log.h"
 #include "asm/parse.h"
 
 #include <algorithm>
@@ -292,6 +292,20 @@ void initreloc()
   tableerror = ErrorType::NONE;
 }
 
+bool checklen(int c, bool dual)
+{
+  bool res = (song.len[c][0]) &&
+             (song.len[c][1]) &&
+             (song.len[c][2]);
+  if (dual)
+  {
+      res &= (song.len[c][3]) &&
+             (song.len[c][4]) &&
+             (song.len[c][5]);
+  }
+  return res;
+}
+
 void relocator(const char* filename)
 {
   bool dual = config.numsids == 2;
@@ -354,6 +368,8 @@ void relocator(const char* filename)
 
   stopsong();
 
+  // this errors out, hopefully we don't need to debug players
+  // asm/log.h:124:59: error: invalid conversion from ‘int’ to ‘log_level’ [-fpermissive]
   //LOG_INIT_CONSOLE(LOG_NORMAL);
   parse_init();
   buf_free(&src);
@@ -365,12 +381,11 @@ void relocator(const char* filename)
 #endif
   // Process song-orderlists
   countpatternlengths();
+
   // Calculate amount of songs with nonzero length
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((song.len[c][0]) &&
-        (song.len[c][1]) &&
-        (song.len[c][2]))
+    if (checklen(c, dual))
     {
       // See which patterns are used in this song
       for (int d = 0; d < maxChns; d++)
@@ -800,9 +815,7 @@ void relocator(const char* filename)
   songdatasize = 0;
   for (int c = 0; c < songs; c++)
   {
-    if ((song.len[c][0]) &&
-        (song.len[c][1]) &&
-        (song.len[c][2]))
+    if (checklen(c, dual))
     {
       for (int d = 0; d < maxChns; d++)
       {
