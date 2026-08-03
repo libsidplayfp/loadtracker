@@ -323,7 +323,7 @@ void onlinehelp(int standalone, int context)
       left = printrows(0 + offsetX,left,color_normal, tables);
       left++;
     } else {
-      switch(editmode) {
+      switch (editmode) {
       case EDIT_PATTERN:
         printtext(0 + offsetX,left++, color_header, "PATTERN EDIT MODE");
         left = printrows(0 + offsetX,left,color_normal, patternkeys);
@@ -360,7 +360,7 @@ void onlinehelp(int standalone, int context)
       }
     }
 
-    if(!lastrow) lastrow=left;
+    if (!lastrow) lastrow=left;
 
     printblank(0, 0, MAX_COLUMNS);
     printbg(0, 0, colors.CHDRBG, MAX_COLUMNS);

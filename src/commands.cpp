@@ -946,13 +946,14 @@ void patterncommands()
         {
           song.pattern[epnum[epchn]][eppos*4] = newbyte;
         }
-      }
-      if (recordmode && (autoadvance < 1))
-      {
-        eppos++;
-        if (eppos > getPattlen(epnum[epchn]))
+
+        if (autoadvance < 1)
         {
-          eppos = 0;
+          eppos++;
+          if (eppos > getPattlen(epnum[epchn]))
+          {
+            eppos = 0;
+          }
         }
       }
     }

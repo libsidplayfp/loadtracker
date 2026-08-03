@@ -54,6 +54,7 @@
 #include <bitset>
 #include <iterator>
 #include <new>
+#include <string>
 
 #include <cstring>
 #include <cstdio>
@@ -294,7 +295,8 @@ void initreloc()
 void relocator(const char* filename)
 {
   unsigned char *packeddata = nullptr;
-  const char *playername = (config.adparam < 0xf000) ? "player.s" : "altplayer.s";
+  std::string playername = (config.adparam < 0xf000) ? "player" : "altplayer";
+  playername.append(".s");
 
   unsigned char pattmap[MAX_PATT];
   DataInf patt[MAX_PATT];
@@ -355,6 +357,7 @@ void relocator(const char* filename)
   buf_free(&dest);
 
   int maxChns = config.getMaxChannels();
+  int ypos;
 
   // Process song-orderlists
   countpatternlengths();
@@ -641,7 +644,8 @@ void relocator(const char* filename)
   selectdone = 0;
   while (!selectdone)
   {
-    for (int c = 0; c < MAX_OPTIONS; c++)
+    int opts = MAX_OPTIONS;
+    for (int c = 0; c < opts; c++)
     {
       int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
 
@@ -1043,14 +1047,15 @@ void relocator(const char* filename)
   std::fprintf(STDOUT, "Player address:   $%04X\n", config.playeradr);
   std::fprintf(STDOUT, "Zeropage address: $%04X\n", config.zeropageadr);
 #else
+  ypos = 11;
   std::snprintf(textbuffer, MAX_PATHNAME, "SELECT START ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
-  printtext(1, 11, colors.CTITLE, textbuffer);
+  printtext(1, ypos, colors.CTITLE, textbuffer);
 
   selectdone = 0;
   while (!selectdone)
   {
     std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", config.playeradr);
-    printtext(1, 12, colors.CEDIT, textbuffer);
+    printtext(1, ypos+1, colors.CEDIT, textbuffer);
 
     fliptoscreen();
     waitkeynoupdate();
@@ -1096,7 +1101,7 @@ void relocator(const char* filename)
   if (selectdone == -1) goto PRCLEANUP;
 
   std::snprintf(textbuffer, MAX_PATHNAME, "SELECT ZEROPAGE ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
-  printtext(1, 14, colors.CTITLE, textbuffer);
+  printtext(1, ypos+3, colors.CTITLE, textbuffer);
 
   selectdone = 0;
   while (!selectdone)
@@ -1128,7 +1133,7 @@ void relocator(const char* filename)
       std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", config.zeropageadr, config.zeropageadr+26, config.zeropageadr);
     }
 
-    printtext(1, 15, colors.CEDIT, textbuffer);
+    printtext(1, ypos+4, colors.CEDIT, textbuffer);
 
     fliptoscreen();
     waitkeynoupdate();
@@ -1257,7 +1262,7 @@ void relocator(const char* filename)
   }
 
   // Insert source code of player
-  if (!insertfile(playername))
+  if (!insertfile(playername.c_str()))
   {
     error("COULD NOT OPEN PLAYROUTINE!");
     goto PRCLEANUP;
@@ -2292,7 +2297,8 @@ void calcspeedtest(unsigned char pos)
 void relocator_stereo(const char* filename)
 {
     unsigned char *packeddata = nullptr;
-    const char *playername = (config.adparam < 0xf000) ? "player_s.s" : "altplayer_s.s";
+    std::string playername = (config.adparam < 0xf000) ? "player_s" : "altplayer_s";
+    playername.append(".s");
 
     unsigned char pattmap[MAX_PATT];
     DataInf patt[MAX_PATT];
@@ -2353,6 +2359,7 @@ void relocator_stereo(const char* filename)
     buf_free(&dest);
 
     int maxChns = config.getMaxChannels();
+    int ypos;
 
     // Process song-orderlists
     countpatternlengths();
@@ -2635,7 +2642,8 @@ void relocator_stereo(const char* filename)
     selectdone = 0;
     while (!selectdone)
     {
-        for (int c = 0; c < (MAX_OPTIONS-1); c++)
+        int opts = MAX_OPTIONS - 1;
+        for (int c = 0; c < opts; c++)
         {
             int color = (opt == c) ? colors.CEDIT : colors.CNORMAL;
 
@@ -3035,14 +3043,15 @@ void relocator_stereo(const char* filename)
     std::fprintf(STDOUT, "Player address:   $%04X\n", config.playeradr);
     std::fprintf(STDOUT, "Zeropage address: $%04X\n", config.zeropageadr);
 #else
+    ypos = 10;
     std::snprintf(textbuffer, MAX_PATHNAME, "SELECT START ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
-    printtext(1, 10, colors.CTITLE, textbuffer);
+    printtext(1, ypos, colors.CTITLE, textbuffer);
 
     selectdone = 0;
     while (!selectdone)
     {
         std::snprintf(textbuffer, MAX_PATHNAME, "$%04X", config.playeradr);
-        printtext(1, 11, colors.CEDIT, textbuffer);
+        printtext(1, ypos+1, colors.CEDIT, textbuffer);
 
         fliptoscreen();
         waitkeynoupdate();
@@ -3088,7 +3097,7 @@ void relocator_stereo(const char* filename)
     if (selectdone == -1) goto PRCLEANUP_S;
 
     std::snprintf(textbuffer, MAX_PATHNAME, "SELECT ZEROPAGE ADDRESS: (CURSORS=MOVE, ENTER=ACCEPT, ESC=CANCEL)");
-    printtext(1, 13, colors.CTITLE, textbuffer);
+    printtext(1, ypos+3, colors.CTITLE, textbuffer);
 
     selectdone = 0;
     while (!selectdone)
@@ -3120,7 +3129,7 @@ void relocator_stereo(const char* filename)
             std::snprintf(textbuffer, MAX_PATHNAME, "$%02X-$%02X (ghostregs start at %02X)", config.zeropageadr, config.zeropageadr+26, config.zeropageadr);
         }
 
-        printtext(1, 14, colors.CEDIT, textbuffer);
+        printtext(1, ypos+4, colors.CEDIT, textbuffer);
 
         fliptoscreen();
         waitkeynoupdate();
@@ -3249,7 +3258,7 @@ void relocator_stereo(const char* filename)
     }
 
     // Insert source code of player
-    if (!insertfile(playername))
+    if (!insertfile(playername.c_str()))
     {
         error("COULD NOT OPEN PLAYROUTINE!");
         goto PRCLEANUP_S;

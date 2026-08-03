@@ -1836,6 +1836,8 @@ void mergesong()
     }
   }
 
+  int maxChns = config.getMaxChannels();
+
   // Determine amount of songs
   int c = MAX_SONGS - 1;
   for (;;)
@@ -1843,6 +1845,10 @@ void mergesong()
     if ((song.len[c][0]) &&
         (song.len[c][1]) &&
         (song.len[c][2])) break;
+    if ((maxChns == 6) &&
+        (song.len[c][3]) &&
+        (song.len[c][4]) &&
+        (song.len[c][5])) break;
     if (c == 0) break;
     c--;
   }
@@ -1853,9 +1859,9 @@ void mergesong()
 
   int tablebase[MAX_TABLES];
 
-  for (int c = 0; c < MAX_TABLES; c++)
+  for (int t = 0; t < MAX_TABLES; t++)
   {
-    tablebase[c] = song.gettablelen(c);
+    tablebase[t] = song.gettablelen(t);
   }
 
   char ident[4];
