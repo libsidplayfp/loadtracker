@@ -1007,14 +1007,7 @@ void mousecommands()
         save();
       if ((input.mousex >= 49) && (input.mousex <= 57))
       {
-        if (config.numsids == 1)
-        {
-          relocator(loadedsongfilename);
-        }
-        else if (config.numsids == 2)
-        {
-          relocator_stereo(loadedsongfilename);
-        }
+        relocator(loadedsongfilename);
       }
       if ((input.mousex >= 59) && (input.mousex <= 64))
         onlinehelp(0,0);
@@ -1220,14 +1213,7 @@ void generalcommands()
     case KEY_F9:
     if (!input.shiftpressed)
     {
-        if (config.numsids == 1)
-        {
-          relocator(loadedsongfilename);
-        }
-        else if (config.numsids == 2)
-        {
-          relocator_stereo(loadedsongfilename);
-        }
+        relocator(loadedsongfilename);
     }
     else if (input.shiftpressed && (config.numsids == 2))
     {

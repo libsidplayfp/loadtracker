@@ -332,15 +332,15 @@ int main(int argc, char **argv)
     case SngType::STANDARD:
         std::fprintf(STDOUT, "Single SID\n");
         config.numsids = 1;
-        relocator(packedsongname);
         break;
     case SngType::DUAL:
         std::fprintf(STDOUT, "Dual SID\n");
         config.numsids = 2;
-        relocator_stereo(packedsongname);
         break;
     default: break; // unreachable
   }
+
+  relocator(packedsongname);
 
   // Exit
   return EXIT_SUCCESS;

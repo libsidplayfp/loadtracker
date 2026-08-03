@@ -40,7 +40,6 @@ enum
 };
 
 void relocator(const char* filename);
-void relocator_stereo(const char* filename);
 void optimizetable(int num);
 
 #endif
