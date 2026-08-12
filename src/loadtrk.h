@@ -19,11 +19,7 @@
 #ifndef LOADTRK_H
 #define LOADTRK_H
 
-#include "common.h"
-#include "file.h"
-
 void waitkeynoupdate();
 void waitkeymousenoupdate();
-void onlinehelp(int standalone, int context);
 
 #endif

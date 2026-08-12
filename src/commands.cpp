@@ -83,6 +83,8 @@ unsigned char ltablecopybuffer[MAX_TABLELEN];
 unsigned char rtablecopybuffer[MAX_TABLELEN];
 int tablecopyrows = 0;
 
+int hexnybble = -1;
+
 void clear(bool cs, bool cp, bool ci, bool cf, bool cn)
 {
     if (ci)

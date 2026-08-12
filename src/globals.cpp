@@ -16,8 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "globals.h"
+
 #include "common.h"
-#include "table.h"
 #include "song.h"
 
 #include <cstring>
@@ -35,12 +36,12 @@ char songfilter[MAX_FILENAME];
 char instrfilter[MAX_FILENAME];
 
 Tables tables;
+Timer timer;
 
 bool menu = false;
 int editmode = EDIT_PATTERN;
 bool recordmode = true;
 bool followplay = false;
-int hexnybble = -1;
 bool exitprogram = false;
 int eacolumn = 0;
 int epcolumn;

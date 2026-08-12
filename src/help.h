@@ -16,18 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#ifndef HELP_H
+#define HELP_H
 
-extern int hexnybble;
-
-void clear(bool cs, bool cp, bool ci, bool cf, bool cn);
-void patterncommands();
-void orderlistcommands();
-void orderleft();
-void orderright();
-void instrumentcommands();
-void tablecommands();
-void namecommands();
+void onlinehelp(int standalone, int context);
 
 #endif
+ 

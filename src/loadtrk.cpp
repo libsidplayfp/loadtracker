@@ -22,12 +22,14 @@
 
 #include "config.h"
 
+#include "common.h"
 #include "globals.h"
 #include "channels.h"
 #include "colors.h"
 #include "commands.h"
 #include "configfile.h"
 #include "console.h"
+#include "help.h"
 #include "input.h"
 #include "display.h"
 #include "instr.h"
@@ -121,6 +123,7 @@ void optimizeeverything();
 void findduplicatepatterns();
 void tooltips();
 void waitkeymouse();
+
 
 int main(int argc, char **argv)
 {

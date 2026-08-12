@@ -32,8 +32,8 @@
 
 #include <cstdio>
 
-#define HELP_HEADER 15
-#define HELP_NORMAL 7
+constexpr unsigned char HELP_HEADER = 15;
+constexpr unsigned char HELP_NORMAL = 7;
 
 int printrows(int column, int row, int color, const char *strings[] ) {
   int n = 0;

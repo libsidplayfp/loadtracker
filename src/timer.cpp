@@ -22,8 +22,6 @@
 
 #include <cstdio>
 
-Timer timer;
-
 char timechar[2] = {':', ' '};
 
 void Timer::reset()

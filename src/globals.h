@@ -20,8 +20,10 @@
 #define GLOBALS_H
 
 #include "table.h"
+#include "timer.h"
 
 extern Tables tables;
+extern Timer timer;
 
 extern const char *programname;
 
@@ -37,7 +39,6 @@ extern bool menu;
 extern int editmode;
 extern bool recordmode;
 extern bool followplay;
-extern int hexnybble;
 extern bool exitprogram;
 extern int eacolumn;
 extern int epcolumn;

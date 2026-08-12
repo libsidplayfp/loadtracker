@@ -67,7 +67,7 @@ void sid_init(int speed, const Settings &cfg)
   samplerate = speed;
 
   if (!sid) sid = new reSIDfp::residfp;
-  if (cfg.numsids == 2 && !sid2) sid2 = new reSIDfp::residfp;
+  if ((cfg.numsids == 2) && !sid2) sid2 = new reSIDfp::residfp;
 
   switch(cfg.interpolate)
   {

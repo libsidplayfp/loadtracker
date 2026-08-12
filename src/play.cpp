@@ -1906,7 +1906,7 @@ void sequencer(int c, Chn *cptr)
   if ((songinit != PLAY_STOPPED) && (cptr->pattptr == 0x7fffffff))
   {
     cptr->pattptr = startpattpos * 4;
-    if (!cptr->advance) goto SEQDONE;
+    if (!cptr->advance) return;
     // Song loop
     if (song.order[psnum][c][cptr->songptr] == LOOPSONG)
     {
@@ -1915,7 +1915,7 @@ void sequencer(int c, Chn *cptr)
       {
         stopsong();
         cptr->songptr = 0;
-        goto SEQDONE;
+        return;
       }
     }
     // Transpose
@@ -1956,6 +1956,4 @@ void sequencer(int c, Chn *cptr)
         (espos[c] < song.len[psnum][c]))
       cptr->songptr = espos[c];
   }
-SEQDONE:
-  {}
 }

@@ -38,6 +38,5 @@ public:
     void setmult(unsigned multiplier) { m_multiplier = multiplier; }
 };
 
-extern Timer timer;
 
 #endif
