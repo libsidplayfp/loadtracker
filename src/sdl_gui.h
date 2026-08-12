@@ -39,6 +39,15 @@ struct Mouse
     float wheel;
 };
 
+struct Key
+{
+    int raw;
+    int ascii;
+    bool shift;
+    bool ctrl;
+    bool alt;
+};
+
 bool win_openwindow(const char *appname);
 void win_closewindow();
 void win_seticon(char *iconbuffer, int size);
@@ -61,13 +70,9 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata);
 
 Mouse mou_get();
 
-int key_get();
-int key_getraw();
-bool key_shift();
-bool key_alt();
+Key key_get();
 
 extern bool win_quitted;
-extern int win_fullscreen;
 
 extern bool gfx_redraw;
 extern SDL_Surface *gfx_screen;
@@ -76,5 +81,6 @@ extern unsigned xpos;
 extern unsigned ypos;
 extern unsigned xsize;
 extern unsigned ysize;
+extern int win_fullscreen;
 
 #endif

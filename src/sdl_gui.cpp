@@ -56,21 +56,16 @@ unsigned char gfx_palette[MAX_COLORS * 3] =
 SDL_Window *win_window = nullptr;
 
 void win_checkmessages();
-void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
 bool gfx_reinit();
 void gfx_uninit();
 void win_savepos();
 
 // Global variables
-
-int win_fullscreen = 0; // By default windowed
 bool win_windowinitted = false;
 bool win_quitted = false;
 bool win_keytable[SDL_SCANCODE_COUNT] = {false};
 bool win_keystate[SDL_SCANCODE_COUNT] = {false};
 unsigned char win_asciikey = 0;
-unsigned win_mousexrel = 0;
-unsigned win_mouseyrel = 0;
 
 Mouse mouse = {};
 
@@ -78,10 +73,6 @@ bool gfx_initted = false;
 bool gfx_redraw = false;
 unsigned gfx_virtualxsize;
 unsigned gfx_virtualysize;
-unsigned gfx_windowxsize;
-unsigned gfx_windowysize;
-int cur_xsize = 0;
-int cur_ysize = 0;
 SDL_Surface *gfx_screen = nullptr;
 SDL_Renderer *gfx_renderer = nullptr;
 
@@ -89,7 +80,7 @@ unsigned xpos = SDL_WINDOWPOS_UNDEFINED;
 unsigned ypos = SDL_WINDOWPOS_UNDEFINED;
 unsigned xsize = MAX_COLUMNS * 8;
 unsigned ysize = MAX_ROWS * 16;
-
+int win_fullscreen = 0; // By default windowed
 
 // Static variables
 
@@ -228,8 +219,6 @@ void win_checkmessages()
             case SDL_EVENT_MOUSE_MOTION:
             mouse.xpos = event.motion.x;
             mouse.ypos = event.motion.y;
-            win_mousexrel += event.motion.xrel;
-            win_mouseyrel += event.motion.yrel;
             break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -349,10 +338,7 @@ bool gfx_init(unsigned xsize, unsigned ysize)
     SDL_SetWindowFullscreen(win_window, win_fullscreen);
 
     // Calculate virtual window size
-
-    gfx_virtualxsize = xsize;
-    gfx_virtualxsize /= 16;
-    gfx_virtualxsize *= 16;
+    gfx_virtualxsize = xsize & ~0xfu;
     gfx_virtualysize = ysize;
 
     if ((!gfx_virtualxsize) || (!gfx_virtualysize))
@@ -362,13 +348,11 @@ bool gfx_init(unsigned xsize, unsigned ysize)
         return false;
     }
 
-    // Calculate actual window size (for scanline mode & doublesize mode
-    // this is double the virtual)
-
-    gfx_windowxsize = gfx_virtualxsize;
-    gfx_windowysize = gfx_virtualysize;
-
-    gfx_setclipregion(0, 0, gfx_virtualxsize, gfx_virtualysize);
+    // set clip region
+    gfx_clipleft = 0;
+    gfx_cliptop = 0;
+    gfx_clipright = gfx_virtualxsize;
+    gfx_clipbottom = gfx_virtualysize;
 
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     if (!gfx_screen)
@@ -501,21 +485,6 @@ void gfx_setpalette()
     SDL_SetPaletteColors(palette, &gfx_sdlpalette[0], 0, MAX_COLORS);
 }
 
-void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom)
-{
-    if (left >= right) return;
-    if (top >= bottom) return;
-    if (left >= gfx_virtualxsize) return;
-    if (top >= gfx_virtualysize) return;
-    if (right > gfx_virtualxsize) return;
-    if (bottom > gfx_virtualysize) return;
-
-    gfx_clipleft = left;
-    gfx_clipright = right;
-    gfx_cliptop = top;
-    gfx_clipbottom = bottom;
-}
-
 bool gfx_loadcursor(const char *name)
 {
     gfx_freecursor();
@@ -621,16 +590,10 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
 void gfx_drawcursor(int x, int y)
 {
     if (!gfx_initted) return;
+    if (!gfx_cursor) return;
 
-    if (!gfx_cursor)
-    {
-        cur_xsize = 0;
-        cur_ysize = 0;
-        return;
-    }
-
-    cur_xsize = gfx_cursor->w;
-    cur_ysize = gfx_cursor->h;
+    int cur_xsize = gfx_cursor->w;
+    int cur_ysize = gfx_cursor->h;
 
     if (x >= gfx_clipright) return;
     if (y >= gfx_clipbottom) return;
@@ -645,17 +608,7 @@ void gfx_drawcursor(int x, int y)
 
 Mouse mou_get()
 {
-    if (gfx_initted)
-    {
-        mouse.xpos *= gfx_virtualxsize / gfx_windowxsize;
-        mouse.ypos *= gfx_virtualysize / gfx_windowysize;
-    }
     return mouse;
-}
-
-int key_get()
-{
-    return win_asciikey;
 }
 
 int key_getraw()
@@ -675,14 +628,13 @@ int key_getraw()
   return 0;
 }
 
-bool key_shift()
+Key key_get()
 {
-    return (win_keystate[SDL_SCANCODE_LSHIFT]) || (win_keystate[SDL_SCANCODE_RSHIFT])
-                  || (win_keystate[SDL_SCANCODE_LCTRL]) || (win_keystate[SDL_SCANCODE_RCTRL]);
-}
-
-bool key_alt()
-{
-    return (win_keystate[SDL_SCANCODE_LALT])
-                || (win_keystate[SDL_SCANCODE_RALT]);
+    Key k;
+    k.raw = key_getraw();
+    k.ascii = win_asciikey;
+    k.shift = win_keystate[SDL_SCANCODE_LSHIFT] || win_keystate[SDL_SCANCODE_RSHIFT];
+    k.ctrl = win_keystate[SDL_SCANCODE_LCTRL] || win_keystate[SDL_SCANCODE_RCTRL];
+    k.alt = win_keystate[SDL_SCANCODE_LALT] || win_keystate[SDL_SCANCODE_RALT];
+    return k;
 }

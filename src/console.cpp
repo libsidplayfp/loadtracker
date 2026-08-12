@@ -460,12 +460,11 @@ void getkey()
   if (input.mouseb) input.mouseheld++;
   else input.mouseheld = 0;
 
-  input.key = key_get();
-  input.rawkey = key_getraw();
-
-  input.shiftpressed = key_shift();
-
-  input.altpressed = key_alt();
+  Key k = key_get();
+  input.key = k.ascii;
+  input.rawkey = k.raw;
+  input.shiftpressed = k.shift || k.ctrl;
+  input.altpressed = k.alt;
 
   // numpad
   switch (input.rawkey)
