@@ -43,7 +43,7 @@ int printrows(int column, int row, int color, const char *strings[] ) {
   return row;
 }
 
-void onlinehelp(int standalone, int context)
+void onlinehelp(bool standalone, bool context)
 {
   const char *genkeys[] = {
     "F1  Play from beginning",

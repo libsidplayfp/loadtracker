@@ -102,7 +102,7 @@ const char* usage[] = {
     "--dark   Use original dark colorscheme",
 };
 
-int usagelen = (sizeof usage / sizeof usage[0]);
+constexpr int usagelen = (sizeof usage / sizeof usage[0]);
 
 void converthex();
 void docommand();
@@ -124,24 +124,32 @@ void findduplicatepatterns();
 void tooltips();
 void waitkeymouse();
 
-
-int main(int argc, char **argv)
+bool printhelp(bool online)
 {
-  programname = "LoadTracker " PACKAGE_VERSION;
+    if (online)
+    {
+        if (!initscreen())
+            return false;
+        onlinehelp(true, false);
+    }
+    else
+    {
+#ifdef _WIN32
+        if (!initscreen())
+            return false;
+        for (int y = 0; y < usagelen; ++y)
+            printtext(0, y, colors.cmessage(), usage[y]);
+        waitkeynoupdate();
+#else
+        for (int y = 0; y < usagelen; ++y)
+            std::printf("%s\n", usage[y]);
+#endif
+    }
+    return true;
+}
 
-  // Open datafile
-  if (!io_openlinkeddatafile(datafile))
-    return EXIT_FAILURE;
-
-  loadconfig();
-
-  // Init pathnames
-  initdirentries();
-  initpaths();
-
-  bool dark = config.darkmode != 0;
-
-  // Scan command line
+void parseargs(int argc, char **argv)
+{
   for (int c = 1; c < argc; c++)
   {
 #ifdef _WIN32
@@ -150,36 +158,22 @@ int main(int argc, char **argv)
     if (argv[c][0] == '-')
 #endif
     {
-      switch (argv[c][1]) //switch (toupper(argv[c][1]))
+      switch (argv[c][1])
       {
         case '-':
         if (std::strcmp(argv[c], "--dark") == 0)
         {
-            dark = true;
+            config.darkmode = 1;
             break;
         }
         if (std::strcmp(argv[c], "--help"))
             break;
         /* fall through */
         case '?':
-        if(argv[c][2]=='?')
         {
-          if (!initscreen())
-            return EXIT_FAILURE;
-          onlinehelp(1, 0);
-          return EXIT_SUCCESS;
+            bool res = printhelp(argv[c][2]=='?');
+            std::exit(res ? EXIT_SUCCESS : EXIT_FAILURE);
         }
-#ifdef _WIN32
-        if (!initscreen())
-          return EXIT_FAILURE;
-        for (int y = 0; y < usagelen; ++y)
-          printtext(0, y, colors.cmessage(), usage[y]);
-        waitkeynoupdate();
-#else
-        for (int y = 0; y < usagelen; ++y)
-          std::printf("%s\n", usage[y]);
-#endif
-        return EXIT_SUCCESS;
 
         case 'Z':
         std::sscanf(&argv[c][2], "%u", &config.residdelay);
@@ -299,9 +293,27 @@ int main(int argc, char **argv)
       }
     }
   }
+}
+
+int main(int argc, char **argv)
+{
+  programname = "LoadTracker " PACKAGE_VERSION;
+
+  // Open datafile
+  if (!io_openlinkeddatafile(datafile))
+    return EXIT_FAILURE;
+
+  loadconfig();
+
+  // Init pathnames
+  initdirentries();
+  initpaths();
+
+  // Scan command line
+  parseargs(argc, argv);
 
   // Init colorscheme
-  colors.init(dark);
+  colors.init(config.darkmode != 0);
 
   // Validate parameters
   config.validate();
@@ -983,7 +995,7 @@ void mousecommands()
       if ((input.mousex >= dpos.statusTopFvX+31) &&
           (input.mousex <= dpos.statusTopFvX+33)) editbpm(input.mousex - (dpos.statusTopFvX+31));
       if ((input.mousex >= dpos.statusTopEndX-8) &&
-          (input.mousex <= dpos.statusTopEndX-1)) onlinehelp(0,0);
+          (input.mousex <= dpos.statusTopEndX-1)) onlinehelp(false, false);
     }
   }
   else
@@ -1017,7 +1029,7 @@ void mousecommands()
         relocator(loadedsongfilename);
       }
       if ((input.mousex >= 59) && (input.mousex <= 64))
-        onlinehelp(0,0);
+        onlinehelp(false, false);
       if ((input.mousex >= 66) && (input.mousex <= 72))
         clear();
       if ((input.mousex >= 74) && (input.mousex <= 79))
@@ -1143,7 +1155,7 @@ void generalcommands()
     break;
 
     case KEY_F12:
-      onlinehelp(0, input.shiftpressed);
+      onlinehelp(false, input.shiftpressed);
     break;
 
     case KEY_TAB:

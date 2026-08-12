@@ -19,7 +19,7 @@
 #ifndef HELP_H
 #define HELP_H
 
-void onlinehelp(int standalone, int context);
+void onlinehelp(bool standalone, bool context);
 
 #endif
  
