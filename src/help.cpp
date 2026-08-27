@@ -375,7 +375,7 @@ void onlinehelp(bool standalone, bool context)
 
     waitkeymousenoupdate();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       break;

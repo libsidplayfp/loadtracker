@@ -694,7 +694,7 @@ void relocator(const char* filename)
     fliptoscreen();
     waitkeynoupdate();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       goto PRCLEANUP;
@@ -1109,7 +1109,7 @@ void relocator(const char* filename)
     fliptoscreen();
     waitkeynoupdate();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       goto PRCLEANUP;
@@ -1187,7 +1187,7 @@ void relocator(const char* filename)
     fliptoscreen();
     waitkeynoupdate();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       goto PRCLEANUP;
@@ -1657,7 +1657,7 @@ void relocator(const char* filename)
     fliptoscreen();
     waitkeynoupdate();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       goto PRCLEANUP;

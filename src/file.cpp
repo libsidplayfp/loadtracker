@@ -220,7 +220,7 @@ NEWPATH:
     getkey();
     if (lastclick) lastclick--;
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       for (int c = 0; c < MAX_DIRFILES; c++)
@@ -508,7 +508,7 @@ ENTERFILE:
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+5+VISIBLEFILES, color, textbuffer);
     if (filemode == 3) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(name), dpos.loadboxY+5+VISIBLEFILES, cc, 1);
 
-    if (win_quitted) exitfilesel = 0;
+    if (win_quit()) exitfilesel = 0;
 
     if ((input.mouseb) && (!input.prevmouseb))
     {

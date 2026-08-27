@@ -392,7 +392,7 @@ void waitkey()
     tooltips();
     getkey();
     if ((input.rawkey) || (input.key)) break;
-    if (win_quitted) break;
+    if (win_quit()) break;
   }
 
   converthex();
@@ -407,7 +407,7 @@ void waitkeymouse()
     getkey();
     if ((input.rawkey) || (input.key)) break;
     if (input.mouseb || (input.wheel)) break;
-    if (win_quitted) break;
+    if (win_quit()) break;
   }
 
   converthex();
@@ -421,7 +421,7 @@ void waitkeymousenoupdate()
     getkey();
     if ((input.rawkey) || (input.key)) break;
     if (input.mouseb) break;
-    if (win_quitted) break;
+    if (win_quit()) break;
   }
 
   converthex();
@@ -435,7 +435,7 @@ void waitkeynoupdate()
     getkey();
     if ((input.rawkey) || (input.key)) break;
     if ((input.mouseb) && (!input.prevmouseb)) break;
-    if (win_quitted) break;
+    if (win_quit()) break;
   }
 }
 
@@ -1124,7 +1124,7 @@ void generalcommands()
     //rewindsong(); // ??
     break;
   }
-  if (win_quitted) exitprogram = true;
+  if (win_quit()) exitprogram = true;
   switch(input.rawkey)
   {
     case KEY_ESC:
@@ -1461,7 +1461,7 @@ void editadsr(int col)
   {
     waitkeymouse();
 
-    if (win_quitted)
+    if (win_quit())
     {
       exitprogram = true;
       input.clearkeys();
@@ -1544,7 +1544,7 @@ void editbpm(int col)
     {
         waitkeymouse();
 
-        if (win_quitted)
+        if (win_quit())
         {
             exitprogram = true;
             input.clearkeys();

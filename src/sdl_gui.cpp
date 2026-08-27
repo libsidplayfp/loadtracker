@@ -90,10 +90,6 @@ static int win_framecounter = 0;
 static bool gfx_initexec = false;
 static unsigned gfx_last_xsize;
 static unsigned gfx_last_ysize;
-static int gfx_cliptop;
-static int gfx_clipbottom;
-static int gfx_clipleft;
-static int gfx_clipright;
 
 static SDL_Surface *gfx_cursor = nullptr;
 
@@ -326,6 +322,8 @@ void win_checkmessages()
     }
 }
 
+bool win_quit() { return win_quitted; }
+
 bool gfx_init(unsigned xsize, unsigned ysize)
 {
     // Prevent re-entry (by window procedure)
@@ -347,12 +345,6 @@ bool gfx_init(unsigned xsize, unsigned ysize)
         gfx_uninit();
         return false;
     }
-
-    // set clip region
-    gfx_clipleft = 0;
-    gfx_cliptop = 0;
-    gfx_clipright = gfx_virtualxsize;
-    gfx_clipbottom = gfx_virtualysize;
 
     gfx_screen = SDL_CreateSurface(xsize, ysize, SDL_PIXELFORMAT_INDEX8);
     if (!gfx_screen)
@@ -587,18 +579,17 @@ bool gfx_loadcharset(const char *name, unsigned char *chardata)
     return true;
 }
 
-void gfx_drawcursor(int x, int y)
+void gfx_drawcursor(unsigned x, unsigned y)
 {
-    if (!gfx_initted) return;
-    if (!gfx_cursor) return;
+    if (!gfx_initted || !gfx_cursor) return;
 
     int cur_xsize = gfx_cursor->w;
     int cur_ysize = gfx_cursor->h;
 
-    if (x >= gfx_clipright) return;
-    if (y >= gfx_clipbottom) return;
-    if (x + cur_xsize <= gfx_clipleft) return;
-    if (y + cur_ysize <= gfx_cliptop) return;
+    if ((x >= gfx_virtualxsize) ||
+        (y >= gfx_virtualysize) ||
+        (x + cur_xsize <= 0) ||
+        (y + cur_ysize <= 0)) return;
 
     SDL_Rect dstrect;
     dstrect.x = x;

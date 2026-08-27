@@ -52,6 +52,7 @@ bool win_openwindow(const char *appname);
 void win_closewindow();
 void win_seticon(char *iconbuffer, int size);
 int win_getspeed(int framerate);
+bool win_quit();
 
 bool gfx_init(unsigned xsize, unsigned ysize);
 void gfx_uninit();
@@ -63,7 +64,7 @@ bool gfx_setcolor(int p, int r, int g, int b);
 void gfx_setpalette();
 
 bool gfx_loadcursor(const char *name);
-void gfx_drawcursor(int x, int y);
+void gfx_drawcursor(unsigned x, unsigned y);
 void gfx_freecursor();
 
 bool gfx_loadcharset(const char *name, unsigned char *chardata);
@@ -72,11 +73,10 @@ Mouse mou_get();
 
 Key key_get();
 
-extern bool win_quitted;
-
 extern bool gfx_redraw;
 extern SDL_Surface *gfx_screen;
 
+// config
 extern unsigned xpos;
 extern unsigned ypos;
 extern unsigned xsize;
