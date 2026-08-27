@@ -247,12 +247,7 @@ Uint32 sound_timer(void*, SDL_TimerID, Uint32 interval)
 
 void sound_playrout()
 {
-  switch (config.numsids)
-  {
-      case 1: playroutine(); break;
-      case 2: playroutine_stereo(); break;
-      default: /* unreachable */ break;
-  }
+  playroutine();
 
 #ifdef USE_EXSID
   if (useexsid)

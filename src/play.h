@@ -40,7 +40,6 @@ void releasenote(int chnnum);
 void mutechannel(int chnnum);
 bool isplaying();
 void playroutine();
-void playroutine_stereo();
 void resetmasterfader();
 int getlastsonginit();
 
