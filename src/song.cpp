@@ -626,7 +626,10 @@ SngType loadsong()
       countpatternlengths();
       songchange();
     }
-#if 0
+#ifdef GT1_COMPAT
+#  define OLDKEYOFF 0x5e
+#  define OLDREST 0x5f
+
     // Goattracker 1.xx import
     if (!std::memcmp(ident, "GTS!", 4))
     {
@@ -645,7 +648,6 @@ SngType loadsong()
       int filterjumppos[64];
 
       clearsong(true, true, true, true, true);
-      ok = 1;
 
       // Read infotexts
       std::fread(song.title, sizeof song.title, 1, handle);
@@ -1324,7 +1326,7 @@ void loadinstrument()
         else song.instr[einum].ptr[c] = 0;
       }
     }
-#if 0
+#ifdef GT1_COMPAT
     // Goattracker 1.xx import
     if (!std::memcmp(ident, "GTI!", 4))
     {
@@ -1334,16 +1336,16 @@ void loadinstrument()
       int fw, fp, ff;
 
       // Erase old tabledata
-      deleteinstrtable(einum);
+      song.deleteinstrtable(einum);
 
-      fw = gettablelen(WTBL);
-      fp = gettablelen(PTBL);
-      ff = gettablelen(FTBL);
+      fw = song.gettablelen(WTBL);
+      fp = song.gettablelen(PTBL);
+      ff = song.gettablelen(FTBL);
 
       song.instr[einum].ad = fread8(handle);
       song.instr[einum].sr = fread8(handle);
-      if (multiplier)
-        song.instr[einum].gatetimer = 2 * multiplier;
+      if (config.multiplier)
+        song.instr[einum].gatetimer = 2 * config.multiplier;
       else
         song.instr[einum].gatetimer = 1;
       song.instr[einum].firstwave = 0x9;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 project(loadtracker VERSION 1.99.5 HOMEPAGE_URL https://github.com/libsidplayfp/loadtracker)
 
 set(CMAKE_C_EXTENSIONS ON)
@@ -227,6 +227,15 @@ if(LTO)
         message(WARNING "LTO is not supported: ${output}")
     endif()
 endif()
+
+##################################################################
+# GT1 compatibility
+
+OPTION(GT1_COMPAT "Enable import of GT1 songs/instruments" OFF)
+if(GT1_COMPAT)
+    target_compile_definitions(loadtrk PUBLIC GT1_COMPAT)
+endif()
+
 
 #####################################################
 
