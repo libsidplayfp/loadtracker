@@ -44,7 +44,7 @@ _You should have received a copy of the GNU General Public License
 
 # 3rd party software
 
-* RtMidi 6.0.0  
+* RtMidi 6.1.0  
   https://github.com/thestk/rtmidi  
   distributed under MIT license
 
