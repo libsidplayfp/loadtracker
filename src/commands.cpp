@@ -1469,20 +1469,32 @@ void instrumentcommands()
     break;
 
     case KEY_RIGHT:
-    if (eipos < 9)
+    if (eicolumn)
     {
-      eipos++;
-      if (eipos >= 9) eipos -= 10;
-      if (eipos < 0) eipos = 0;
+        if (eipos < 9)
+        {
+            eipos++;
+            if (eipos >= 9) eipos -= 10;
+            if (eipos < 0) eipos = 0;
+        }
+        eicolumn = 0;
     }
+    else
+        eicolumn++;
     break;
 
     case KEY_LEFT:
-    if (eipos < 9)
+    if (eicolumn)
+        eicolumn--;
+    else
     {
-      eipos--;
-      if (eipos < 0) eipos += 10;
-      if (eipos > 8) eipos = 8;
+        if (eipos < 9)
+        {
+            eipos--;
+            if (eipos < 0) eipos += 10;
+            if (eipos > 8) eipos = 8;
+        }
+        eicolumn = 1;
     }
     break;
 
