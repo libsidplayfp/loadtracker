@@ -26,9 +26,7 @@ class Tables
 private:
     int m_view[MAX_TABLES];
     int m_num;
-public:
     int m_pos;
-private:
     int m_column;
     Selection m_mark;
     bool m_lock = false;
@@ -46,8 +44,8 @@ public:
     inline bool islocked() const { return m_lock; }
 
     inline void setnum(int num) { m_num = num; }
-    inline void incnum() { m_num++; if (m_num >= MAX_TABLES) m_num = 0; }
-    inline void decnum() { m_num--; if (m_num < 0) m_num = MAX_TABLES - 1; }
+    inline void incnum() { m_pos -= curview(); m_num++; if (m_num >= MAX_TABLES) m_num = 0; m_pos += curview(); }
+    inline void decnum() { m_pos -= curview(); m_num--; if (m_num < 0) m_num = MAX_TABLES - 1; m_pos += curview(); }
     inline void incpos() { m_pos++; if (m_pos >= MAX_TABLELEN) m_pos = MAX_TABLELEN - 1; }
     inline void setcolumn(int col) { m_column = col; }
     inline bool inccolumn() { m_column++; if (m_column > 3) { m_column = 0; return true; } return false; }

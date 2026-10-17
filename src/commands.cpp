@@ -1692,9 +1692,7 @@ void tablecommands()
     case KEY_RIGHT:
     if (tables.inccolumn())
     {
-      tables.m_pos -= tables.curview();
       tables.incnum();
-      tables.m_pos += tables.curview();
     }
     if (input.shiftpressed) tables.resetmarknum();
     break;
@@ -1702,9 +1700,7 @@ void tablecommands()
     case KEY_LEFT:
     if (tables.deccolumn())
     {
-      tables.m_pos -= tables.curview();
       tables.decnum();
-      tables.m_pos += tables.curview();
     }
     if (input.shiftpressed) tables.resetmarknum();
     break;
@@ -1873,7 +1869,7 @@ void tablecommands()
           song.rtable[tables.num()][tables.pos()] = currentpulse & 0xff;
           time--;
         }
-        tables.m_pos++;
+        tables.incpos();
       }
     }
     if (tables.num() == FTBL)
@@ -1921,7 +1917,7 @@ void tablecommands()
         song.ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
         song.rtable[tables.num()][tables.pos()] = speed;
         time -= song.ltable[tables.num()][tables.pos()];
-        tables.m_pos++;
+        tables.incpos();
       }
     }
     break;
@@ -2059,15 +2055,11 @@ void tablecommands()
     case KEY_APOST2:
     if (input.shiftpressed)
     {
-      tables.m_pos -= tables.curview();
       tables.decnum();
-      tables.m_pos += tables.curview();
     }
     else
     {
-      tables.m_pos -= tables.curview();
       tables.incnum();
-      tables.m_pos += tables.curview();
     }
   }
 

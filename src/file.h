@@ -25,4 +25,3 @@ void initdirentries();
 bool fileselector(char *name, char *path, char *filter, const char *title, int filemode);
 
 #endif
-

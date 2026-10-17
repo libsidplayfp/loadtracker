@@ -22,4 +22,3 @@
 void onlinehelp(bool standalone, bool context);
 
 #endif
- 

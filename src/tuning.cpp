@@ -124,7 +124,7 @@ void readscalatuningfile(const char *filepath, char *specialnotenames)
     // Tuning count
     for (;;)
     {
-      if (feof(scalatuningfile)) return;
+      if (std::feof(scalatuningfile)) return;
       std::fgets(configbuf, MAX_PATHNAME, scalatuningfile);
       if ((configbuf[0]) && (configbuf[0] != '!') && (configbuf[0] != 13) && (configbuf[0] != 10)) break;
     }
