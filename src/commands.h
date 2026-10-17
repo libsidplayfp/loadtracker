@@ -19,7 +19,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-extern int hexnybble;
+struct Input;
 
 void clear(bool cs, bool cp, bool ci, bool cf, bool cn);
 void patterncommands();
@@ -29,5 +29,7 @@ void orderright();
 void instrumentcommands();
 void tablecommands();
 void namecommands();
+void converthex(const Input& input);
+int getHexnybble();
 
 #endif

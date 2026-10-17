@@ -62,12 +62,6 @@ constexpr int HOLDDELAY = 24;
 
 bool writer = false;
 
-unsigned char hexkeytbl[16] =
-{
-    '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-};
-
 extern unsigned char datafile[]; // from ltrkdata.cpp
 
 const char* usage[] = {
@@ -104,7 +98,6 @@ const char* usage[] = {
 
 constexpr int usagelen = (sizeof usage / sizeof usage[0]);
 
-void converthex();
 void docommand();
 void mousecommands();
 void generalcommands();
@@ -400,7 +393,7 @@ void waitkey()
     if (win_quit()) break;
   }
 
-  converthex();
+  converthex(input);
 }
 
 void waitkeymouse()
@@ -415,7 +408,7 @@ void waitkeymouse()
     if (win_quit()) break;
   }
 
-  converthex();
+  converthex(input);
 }
 
 void waitkeymousenoupdate()
@@ -429,7 +422,7 @@ void waitkeymousenoupdate()
     if (win_quit()) break;
   }
 
-  converthex();
+  converthex(input);
 }
 
 void waitkeynoupdate()
@@ -441,25 +434,6 @@ void waitkeynoupdate()
     if ((input.rawkey) || (input.key)) break;
     if ((input.mouseb) && (!input.prevmouseb)) break;
     if (win_quit()) break;
-  }
-}
-
-void converthex()
-{
-  hexnybble = -1;
-  for (int c = 0; c < 16; c++)
-  {
-    if (std::tolower(input.key) == hexkeytbl[c])
-    {
-      if (c >= 10)
-      {
-        if (!input.shiftpressed) hexnybble = c;
-      }
-      else
-      {
-        hexnybble = c;
-      }
-    }
   }
 }
 
@@ -1487,28 +1461,28 @@ void editadsr(int col)
         continue;
     }
 
-    if (hexnybble >= 0)
+    if (getHexnybble() >= 0)
     {
       switch(eacolumn)
       {
         case 0:
         config.adparam &= 0x0fff;
-        config.adparam |= hexnybble << 12;
+        config.adparam |= getHexnybble() << 12;
         break;
 
         case 1:
         config.adparam &= 0xf0ff;
-        config.adparam |= hexnybble << 8;
+        config.adparam |= getHexnybble() << 8;
         break;
 
         case 2:
         config.adparam &= 0xff0f;
-        config.adparam |= hexnybble << 4;
+        config.adparam |= getHexnybble() << 4;
         break;
 
         case 3:
         config.adparam &= 0xfff0;
-        config.adparam |= hexnybble;
+        config.adparam |= getHexnybble();
         break;
       }
       eacolumn++;

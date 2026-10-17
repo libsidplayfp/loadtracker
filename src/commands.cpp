@@ -36,6 +36,12 @@
 
 #include <cstring>
 
+unsigned char hexkeytbl[16] =
+{
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
+
 unsigned char notekeytbl1[] =
 {
     KEY_Z, KEY_S, KEY_X, KEY_D, KEY_C, KEY_V,
@@ -2175,4 +2181,28 @@ void namecommands()
     editstring(song.released, MAX_STR);
     break;
   }
+}
+
+void converthex(const Input& input)
+{
+  hexnybble = -1;
+  for (int c = 0; c < 16; c++)
+  {
+    if (std::tolower(input.key) == hexkeytbl[c])
+    {
+      if (c >= 10)
+      {
+        if (!input.shiftpressed) hexnybble = c;
+      }
+      else
+      {
+        hexnybble = c;
+      }
+    }
+  }
+}
+
+int getHexnybble()
+{
+    return hexnybble;
 }
