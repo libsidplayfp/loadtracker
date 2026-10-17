@@ -38,6 +38,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <string>
+
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -54,18 +56,18 @@
 
 struct Direntry
 {
-  char *name;
+  std::string name;
   int attribute;
 };
 
 Direntry direntry[MAX_DIRFILES];
 
-int cmpname(char *string1, char *string2);
+int cmpname(const char *string1, const char *string2);
 
 void initdirentries()
 {
   for (int c = 0; c < MAX_DIRFILES; c++)
-     direntry[c].name = nullptr;
+     direntry[c].name.clear();
 }
 
 bool fileselector(char *name, char *path, char *filter, const char *title, int filemode)
@@ -95,11 +97,7 @@ NEWPATH:
   // Deallocate old names
   for (int c = 0; c < MAX_DIRFILES; c++)
   {
-    if (direntry[c].name)
-    {
-      std::free(direntry[c].name);
-      direntry[c].name = nullptr;
-    }
+    direntry[c].name.clear();
   }
 #ifdef _WIN32
   // Create drive letters
@@ -108,7 +106,7 @@ NEWPATH:
     if (driveexists[c])
     {
       drivestr[0] = 'A'+c;
-      direntry[files].name = strdup(drivestr);
+      direntry[files].name = drivestr;
       direntry[files].attribute = 2;
       files++;
     }
@@ -136,7 +134,7 @@ NEWPATH:
       if ((files < MAX_DIRFILES) && (std::strlen(de->d_name) < MAX_FILENAME))
       {
         struct stat st;
-        direntry[files].name = strdup(de->d_name);
+        direntry[files].name = de->d_name;
         direntry[files].attribute = 0;
         stat(de->d_name, &st);
         if (S_ISDIR(st.st_mode))
@@ -149,18 +147,17 @@ NEWPATH:
           // If a file, must match filter
           char cmpbuf[MAX_PATHNAME];
           std::strcpy(cmpbuf, de->d_name);
-          if ((!std::strcmp(filtptr, "*")) || (!strcmp(filtptr, ".*")))
+          if ((!std::strcmp(filtptr, "*")) || (!std::strcmp(filtptr, ".*")))
             files++;
           else
           {
-            for (size_t i = 0; i < strlen(cmpbuf); i++)
+            for (size_t i = 0; i < std::strlen(cmpbuf); i++)
               cmpbuf[i] = std::tolower(cmpbuf[i]);
             if (std::strstr(cmpbuf, filtptr))
               files++;
             else
             {
-              std::free(direntry[files].name);
-              direntry[files].name = nullptr;
+              direntry[files].name.clear();
             }
           }
         }
@@ -182,7 +179,7 @@ NEWPATH:
       {
         if (direntry[d].attribute == direntry[lowest].attribute)
         {
-          if (cmpname(direntry[d].name, direntry[lowest].name) < 0)
+          if (cmpname(direntry[d].name.c_str(), direntry[lowest].name.c_str()) < 0)
           {
             lowest = d;
           }
@@ -205,7 +202,7 @@ NEWPATH:
 
   for (int c = 0; c < files; c++)
   {
-    if ((!direntry[c].attribute) && (!cmpname(name, direntry[c].name)))
+    if ((!direntry[c].attribute) && (!cmpname(name, direntry[c].name.c_str())))
     {
       filepos = c;
     }
@@ -225,11 +222,7 @@ NEWPATH:
       exitprogram = true;
       for (int c = 0; c < MAX_DIRFILES; c++)
       {
-        if (direntry[c].name)
-        {
-          std::free(direntry[c].name);
-          direntry[c].name = nullptr;
-        }
+        direntry[c].name.clear();
       }
       return 0;
     }
@@ -261,7 +254,7 @@ NEWPATH:
         if (filepos > files-1) filepos = files - 1;
 
         if (!direntry[filepos].attribute)
-          std::strcpy(name, direntry[filepos].name);
+          std::strcpy(name, direntry[filepos].name.c_str());
 
         if ((!input.prevmouseb) && (lastclick) && (lastfile == filepos)) goto ENTERFILE;
       }
@@ -296,7 +289,7 @@ NEWPATH:
              if (std::tolower(direntry[filepos].name[0]) == k) break;
         }
 
-        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
       }
     }
 
@@ -322,7 +315,7 @@ NEWPATH:
       if (!filemode)
       {
         filepos = 0;
-        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
       }
       break;
 
@@ -330,7 +323,7 @@ NEWPATH:
       if (!filemode)
       {
         filepos = files-1;
-        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
       }
       break;
 
@@ -340,7 +333,7 @@ NEWPATH:
         if ((!filemode) && (filepos > 0))
         {
           filepos--;
-          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
         }
       }
       break;
@@ -349,7 +342,7 @@ NEWPATH:
       if ((!filemode) && (filepos > 0))
       {
         filepos--;
-        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
       }
       break;
 
@@ -359,7 +352,7 @@ NEWPATH:
         if ((!filemode) && (filepos < files-1))
         {
           filepos++;
-          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+          if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
         }
       }
       break;
@@ -368,7 +361,7 @@ NEWPATH:
       if ((!filemode) && (filepos < files-1))
       {
         filepos++;
-        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name);
+        if (!direntry[filepos].attribute) std::strcpy(name, direntry[filepos].name.c_str());
       }
       break;
 
@@ -393,17 +386,17 @@ ENTERFILE:
         switch (direntry[filepos].attribute)
         {
           case 0:
-          std::strcpy(name, direntry[filepos].name);
+          std::strcpy(name, direntry[filepos].name.c_str());
           exitfilesel = 1;
           break;
 
           case 1:
-          chdir(direntry[filepos].name);
+          chdir(direntry[filepos].name.c_str());
           goto NEWPATH;
 
           case 2:
           char tempname[MAX_PATHNAME];
-          std::strcpy(tempname, direntry[filepos].name);
+          std::strcpy(tempname, direntry[filepos].name.c_str());
           if (std::strlen(tempname))
           {
             if (tempname[std::strlen(tempname)-1] != '\\')
@@ -464,15 +457,15 @@ ENTERFILE:
         switch (direntry[fileview+c].attribute)
         {
           case 0:
-          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s        ", direntry[fileview+c].name);
+          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s        ", direntry[fileview+c].name.c_str());
           break;
 
           case 1:
-          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s   <DIR>", direntry[fileview+c].name);
+          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s   <DIR>", direntry[fileview+c].name.c_str());
           break;
 
           case 2:
-          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s   <DRV>", direntry[fileview+c].name);
+          std::snprintf(textbuffer, MAX_PATHNAME, "%-60s   <DRV>", direntry[fileview+c].name.c_str());
           break;
         }
       }
@@ -506,7 +499,7 @@ ENTERFILE:
     textbuffer[MAX_FILENAME] = 0;
     color = (filemode == 3) ? colors.cedit() : colors.cnormal();
     printtext(dpos.loadboxX-(MAX_FILENAME+10)/2+9, dpos.loadboxY+5+VISIBLEFILES, color, textbuffer);
-    if (filemode == 3) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+strlen(name), dpos.loadboxY+5+VISIBLEFILES, cc, 1);
+    if (filemode == 3) printbg(dpos.loadboxX-(MAX_FILENAME+10)/2+9+std::strlen(name), dpos.loadboxY+5+VISIBLEFILES, cc, 1);
 
     if (win_quit()) exitfilesel = 0;
 
@@ -520,11 +513,7 @@ ENTERFILE:
   // Deallocate all used names
   for (int c = 0; c < MAX_DIRFILES; c++)
   {
-    if (direntry[c].name)
-    {
-      std::free(direntry[c].name);
-      direntry[c].name = nullptr;
-    }
+    direntry[c].name.clear();
   }
 
   // Restore screen & exit
@@ -532,7 +521,7 @@ ENTERFILE:
   return (exitfilesel > 0);
 }
 
-int cmpname(char *string1, char *string2)
+int cmpname(const char *string1, const char *string2)
 {
   for (;;)
   {

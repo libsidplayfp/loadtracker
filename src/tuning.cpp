@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <string>
+
 unsigned char freqtbllo[] =
 {
   0x17,0x27,0x39,0x4b,0x5f,0x74,0x8a,0xa1,0xba,0xd4,0xf0,0x0e,
@@ -153,10 +155,9 @@ void readscalatuningfile(const char *filepath, char *specialnotenames)
       {
         if (i == tuningcount - 1)
         {
-          char *tmp = strdup(specialnotenames);
+          std::string tmp(specialnotenames);
           std::strcpy(specialnotenames, name);
-          std::strcat(specialnotenames, tmp);
-          std::free(tmp);
+          std::strcat(specialnotenames, tmp.c_str());
         }
         else
         {
