@@ -200,14 +200,14 @@ int win_getspeed(int framerate)
 
 void win_checkmessages()
 {
-    SDL_Event event;
     unsigned keynum;
 
     mouse.wheel = 0.f;
     win_asciikey = 0;
 
-    SDL_PumpEvents();
+    //SDL_PumpEvents(); called by SDL_PollEvent
 
+    SDL_Event event;
     while (SDL_PollEvent(&event))
     {
         switch (event.type)
