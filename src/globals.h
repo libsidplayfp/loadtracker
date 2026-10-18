@@ -19,11 +19,12 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "common.h"
+#include "colors.h"
 #include "table.h"
-#include "timer.h"
 
+extern Colorscheme colors;
 extern Tables tables;
-extern Timer timer;
 
 extern const char *programname;
 
@@ -35,16 +36,11 @@ extern char packedpath[MAX_PATHNAME];
 extern char songfilter[MAX_FILENAME];
 extern char instrfilter[MAX_FILENAME];
 
-extern bool menu;
 extern int editmode;
 extern bool recordmode;
-extern bool followplay;
 extern bool exitprogram;
-extern int eacolumn;
 extern int epcolumn;
 extern int enpos;
-extern int epoctave;
-extern EditHdr ehmode;
 
 void initpaths();
 

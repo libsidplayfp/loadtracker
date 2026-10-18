@@ -25,6 +25,7 @@
 #include "play.h"
 
 #include "globals.h"
+#include "globals_gui.h"
 #include "channels.h"
 #include "display.h"
 #include "order.h"

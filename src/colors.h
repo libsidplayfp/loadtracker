@@ -60,7 +60,4 @@ public:
     unsigned char ctooltip() const { return CTOOLTIP; };
 };
 
-extern Colorscheme colors;
-
-
 #endif

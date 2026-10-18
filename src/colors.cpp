@@ -38,28 +38,26 @@ enum
   CLGREY  = 0xF
 };
 
-Colorscheme colors;
-
 int cursorcolortable[4] = { CWHITE, CLGREY, CGREY, CLGREY };
 
 void Colorscheme::init(bool dark)
 {
-  colors.CBKGND   = dark ? CBLACK : CDBLUE;
+  CBKGND   = dark ? CBLACK : CDBLUE;
 
-  colors.CNORMAL  = (dark ? CGREY : CLBLUE)|(colors.CBKGND<<4);
-  colors.CMUTE    = CDGREY |(colors.CBKGND<<4);
-  colors.CEDIT    = CLGREEN|(colors.CBKGND<<4);
-  colors.CPLAYING = CLRED  |(colors.CBKGND<<4);
-  colors.CCOMMAND = CLGREY |(colors.CBKGND<<4);
-  colors.CTITLE   = CWHITE |(colors.CBKGND<<4);
+  CNORMAL  = (dark ? CGREY : CLBLUE)|(CBKGND<<4);
+  CMUTE    = CDGREY |(CBKGND<<4);
+  CEDIT    = CLGREEN|(CBKGND<<4);
+  CPLAYING = CLRED  |(CBKGND<<4);
+  CCOMMAND = CLGREY |(CBKGND<<4);
+  CTITLE   = CWHITE |(CBKGND<<4);
 
-  colors.CHDRBG   = dark ? CDBLUE : CLBLUE;
-  colors.CHDRFG   = CYELLOW;
+  CHDRBG   = dark ? CDBLUE : CLBLUE;
+  CHDRFG   = CYELLOW;
 
-  colors.CMESSAGE = CLGREY;
-  colors.CTOOLTIP = dark ? CDGREY : CLBLUE;
+  CMESSAGE = CLGREY;
+  CTOOLTIP = dark ? CDGREY : CLBLUE;
 
-  colors.CHEADER  = colors.CHDRFG|(colors.CHDRBG<<4);
+  CHEADER  = CHDRFG|(CHDRBG<<4);
 
   rainbowtable[0] = dark ? CLBLUE : CDBLUE;
   rainbowtable[1] = CDGREEN;
@@ -86,5 +84,5 @@ int Colorscheme::getCursorColor(int i)
 
 int Colorscheme::getRainbowColor(int i)
 {
-    return rainbowtable[i]|(colors.CHDRBG<<4);
+    return rainbowtable[i]|(CHDRBG<<4);
 }

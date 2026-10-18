@@ -27,6 +27,7 @@
 #include "common.h"
 #include "configfile.h"
 #include "globals.h"
+#include "globals_gui.h"
 #include "channels.h"
 #include "colors.h"
 #include "console.h"

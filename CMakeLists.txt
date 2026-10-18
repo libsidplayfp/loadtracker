@@ -37,6 +37,7 @@ set(LOADTRK_SOURCES
     src/loadtrk.cpp
     src/configfile.cpp
     src/globals.cpp
+    src/globals_gui.cpp
     src/song.cpp
     src/order.cpp
     src/pattern.cpp

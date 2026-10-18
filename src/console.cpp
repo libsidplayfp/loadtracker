@@ -24,7 +24,7 @@
 
 #include "console.h"
 
-#include "colors.h"
+#include "globals.h"
 #include "input.h"
 #include "settings.h"
 #include "sdl_gui.h"

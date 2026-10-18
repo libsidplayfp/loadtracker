@@ -18,7 +18,6 @@
 
 #include "globals.h"
 
-#include "common.h"
 #include "song.h"
 
 #include <cstring>
@@ -35,20 +34,14 @@ char packedpath[MAX_PATHNAME];
 char songfilter[MAX_FILENAME];
 char instrfilter[MAX_FILENAME];
 
-Tables tables;
-Timer timer;
-
-bool menu = false;
 int editmode = EDIT_PATTERN;
 bool recordmode = true;
-bool followplay = false;
 bool exitprogram = false;
-int eacolumn = 0;
 int epcolumn;
-int eamode = 0;
 int enpos;
-int epoctave = 2;
-EditHdr ehmode = EditHdr::NONE;
+
+Colorscheme colors;
+Tables tables;
 
 void initpaths()
 {

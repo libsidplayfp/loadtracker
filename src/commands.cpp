@@ -20,6 +20,7 @@
 
 #include "common.h"
 #include "globals.h"
+#include "globals_gui.h"
 #include "console.h"
 #include "input.h"
 #include "display.h"
