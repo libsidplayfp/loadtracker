@@ -18,6 +18,7 @@
 
 #include "channels.h"
 
+#include "globals.h"
 #include "settings.h"
 
 #include <cstring>

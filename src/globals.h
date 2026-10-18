@@ -21,9 +21,13 @@
 
 #include "common.h"
 #include "colors.h"
+#include "input.h"
+#include "settings.h"
 #include "table.h"
 
 extern Colorscheme colors;
+extern Input input;
+extern Settings config;
 extern Tables tables;
 
 extern const char *programname;

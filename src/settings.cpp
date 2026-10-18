@@ -23,8 +23,6 @@
 #include "reloc.h"
 #include "sound.h"
 
-Settings config;
-
 int Settings::getMaxChannels()
 {
     return (numsids == 1) ? MAX_CHN_MONO : MAX_CHN;

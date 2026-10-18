@@ -18,8 +18,6 @@
 
 #include "input.h"
 
-Input input;
-
 bool Input::iskeyyes()
 {
     return (key == 'y') || (key == 'Y');

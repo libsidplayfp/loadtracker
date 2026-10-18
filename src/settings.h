@@ -63,6 +63,4 @@ struct Settings
     int getVisibleOrderlist();
 };
 
-extern Settings config;
-
 #endif

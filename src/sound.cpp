@@ -25,6 +25,7 @@
 #include "sound.h"
 
 #include "common.h"
+#include "globals.h"
 #include "ltmidi.h"
 #include "play.h"
 #include "settings.h"

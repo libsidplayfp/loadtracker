@@ -25,6 +25,7 @@
 #include "sid.h"
 
 #include "common.h"
+#include "globals.h"
 #include "settings.h"
 
 #include <residfp/residfp.h>

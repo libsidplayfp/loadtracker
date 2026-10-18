@@ -41,6 +41,8 @@ int epcolumn;
 int enpos;
 
 Colorscheme colors;
+Input input;
+Settings config;
 Tables tables;
 
 void initpaths()

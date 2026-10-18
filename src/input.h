@@ -36,6 +36,4 @@ struct Input
     void clearkeys();
 };
 
-extern Input input;
-
 #endif

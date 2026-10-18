@@ -25,6 +25,7 @@
 #include "order.h"
 
 #include "common.h"
+#include "globals.h"
 #include "console.h"
 #include "display.h"
 #include "pattern.h"

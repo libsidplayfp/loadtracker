@@ -21,6 +21,7 @@
 #include "configfile.h"
 
 #include "common.h"
+#include "globals.h"
 #include "file.h"
 #include "settings.h"
 #include "sdl_gui.h"
