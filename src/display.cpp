@@ -25,6 +25,7 @@
 #include "display.h"
 
 #include "common.h"
+#include "configfile.h"
 #include "globals.h"
 #include "channels.h"
 #include "colors.h"
@@ -40,13 +41,13 @@
 #include "sdl_gui.h"
 #include "sdl_sound.h"
 
-#include <utility>
 #include <string>
+#include <utility>
 
 #include <cstdio>
 #include <cstring>
 
-const char *notename[] =
+std::string notename[] =
 {
   "C-0", "C#0", "D-0", "D#0", "E-0", "F-0", "F#0", "G-0", "G#0", "A-0", "A#0", "B-0",
   "C-1", "C#1", "D-1", "D#1", "E-1", "F-1", "F#1", "G-1", "G#1", "A-1", "A#1", "B-1",
@@ -227,7 +228,7 @@ void printstatus()
         else
         {
           std::sprintf(&textbuffer[3], " %s %02X%01X%02X",
-            notename[song.pattern[epnum[c]][p*4]-FIRSTNOTE],
+            notename[song.pattern[epnum[c]][p*4]-FIRSTNOTE].c_str(),
             song.pattern[epnum[c]][p*4+1],
             song.pattern[epnum[c]][p*4+2],
             song.pattern[epnum[c]][p*4+3]);
@@ -542,4 +543,29 @@ void printstatus()
 void settooltip(const char *msg)
 {
     tooltip = msg;
+}
+
+void setspecialnotenames()
+{
+  int i = 0;
+  int oct = 0;
+  while (i < 93)
+  {
+    for (int j = 0; j < 186; j += 2)
+    {
+      if (specialnotenames[j] == '\0')
+        break;
+      if (i < 93)
+      {
+        std::string name{specialnotenames[j]};
+        name.resize(2);
+        char octave[11];
+        std::sprintf(octave, "%d", oct);
+        name.append(octave);
+        notename[i] = name;
+        i++;
+      }
+    }
+    oct++;
+  }
 }

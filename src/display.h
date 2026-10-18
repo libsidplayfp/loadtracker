@@ -21,13 +21,10 @@
 
 #include "file.h"
 
-#ifndef DISPLAY_C
-extern const char *notename[];
-#endif
-
 void printmainscreen();
 void displayupdate();
 void printstatus();
 void settooltip(const char *msg);
+void setspecialnotenames();
 
 #endif

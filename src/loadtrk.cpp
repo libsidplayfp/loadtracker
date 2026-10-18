@@ -109,7 +109,6 @@ void prevmultiplier();
 void nextmultiplier();
 void editadsr(int col);
 void editbpm(int col);
-void setspecialnotenames();
 void switchMode(unsigned sids);
 void switchMode();
 void optimizeeverything();
@@ -1615,32 +1614,6 @@ void nextmultiplier()
     config.multiplier++;
     timer.setmult(config.multiplier);
     sound_init(writer, config);
-  }
-}
-
-void setspecialnotenames()
-{
-  char octave[11];
-
-  int i = 0;
-  int oct = 0;
-  while (i < 93)
-  {
-    for (int j = 0; j < 186; j += 2)
-    {
-      if (specialnotenames[j] == '\0')
-        break;
-      if (i < 93)
-      {
-        char *name = (char*)std::malloc(4); // FIXME
-        std::strncpy(name, specialnotenames + j, 2);
-        std::sprintf(octave, "%d", oct);
-        std::strcpy(name + 2, octave);
-        notename[i] = name;
-        i++;
-      }
-    }
-    oct++;
   }
 }
 
