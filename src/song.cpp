@@ -374,6 +374,10 @@ bool savesong()
      if ((song.len[c][0]) &&
          (song.len[c][1]) &&
          (song.len[c][2])) break;
+    if ((maxChns == 6) &&
+        (song.len[c][3]) &&
+        (song.len[c][4]) &&
+        (song.len[c][5])) break;
      if (c == 0) break;
      c--;
     }

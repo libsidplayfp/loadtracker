@@ -135,7 +135,7 @@ int io_open(const char *name)
 
 int io_lseek(int index, int offset, int whence)
 {
-    if (!io_datafileopen)  return -1;
+    if (!io_datafileopen) return -1;
 
     if ((index < 0) || (index >= MAX_HANDLES)) return -1;
 
