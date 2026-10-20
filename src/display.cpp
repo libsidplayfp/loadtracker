@@ -153,7 +153,7 @@ void printstatus()
   {
     for (int c = 0; c < maxChns; c++)
     {
-      int currentSonglen = song.len[esnum][c];
+      int currentSonglen = song.order[esnum][c].len;
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
@@ -301,8 +301,8 @@ void printstatus()
     for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview[c]+d;
-      unsigned char currentSongorder = song.order[esnum][c][p];
-      int currentSonglen = song.len[esnum][c];
+      unsigned char currentSongorder = song.order[esnum][c].data[p];
+      int currentSonglen = song.order[esnum][c].len;
       int color = colors.cnormal();
       if (isplaying())
       {
