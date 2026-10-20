@@ -170,7 +170,7 @@ void playroutine()
         {
             for (int c = 0; c < maxChns; c++)
             {
-                if (espos[c] >= song.len[psnum][c])
+                if (espos[c] >= song.order[psnum][c].len)
                     songinit = PLAY_BEGINNING;
             }
         }
@@ -235,7 +235,7 @@ void playroutine()
         songinit = (songinit != PLAY_STOP) ? PLAY_PLAYING : PLAY_STOPPED;
         for (int c = 0; c < maxChns; c++)
         {
-            if (!song.len[psnum][c])
+            if (!song.order[psnum][c].len)
             {
                 songinit = PLAY_STOPPED; // Zero length song
                 break;
@@ -1118,10 +1118,10 @@ void sequencer(int c, Chn *cptr)
     cptr->pattptr = startpattpos * 4;
     if (!cptr->advance) return;
     // Song loop
-    if (song.order[psnum][c][cptr->songptr] == LOOPSONG)
+    if (song.order[psnum][c].data[cptr->songptr] == LOOPSONG)
     {
-      cptr->songptr = song.order[psnum][c][cptr->songptr+1];
-      if (cptr->songptr >= song.len[psnum][c])
+      cptr->songptr = song.order[psnum][c].data[cptr->songptr+1];
+      if (cptr->songptr >= song.order[psnum][c].len)
       {
         stopsong();
         cptr->songptr = 0;
@@ -1129,21 +1129,21 @@ void sequencer(int c, Chn *cptr)
       }
     }
     // Transpose
-    if ((song.order[psnum][c][cptr->songptr] >= TRANSDOWN) &&
-        (song.order[psnum][c][cptr->songptr] < LOOPSONG))
+    if ((song.order[psnum][c].data[cptr->songptr] >= TRANSDOWN) &&
+        (song.order[psnum][c].data[cptr->songptr] < LOOPSONG))
     {
-      cptr->trans = song.order[psnum][c][cptr->songptr]-TRANSUP;
+      cptr->trans = song.order[psnum][c].data[cptr->songptr]-TRANSUP;
       cptr->songptr++;
     }
     // Repeat
-    if ((song.order[psnum][c][cptr->songptr] >= REPEAT) &&
-        (song.order[psnum][c][cptr->songptr] < TRANSDOWN))
+    if ((song.order[psnum][c].data[cptr->songptr] >= REPEAT) &&
+        (song.order[psnum][c].data[cptr->songptr] < TRANSDOWN))
     {
-      cptr->repeat = song.order[psnum][c][cptr->songptr]-REPEAT;
+      cptr->repeat = song.order[psnum][c].data[cptr->songptr]-REPEAT;
       cptr->songptr++;
     }
     // Pattern number
-    cptr->pattnum = song.order[psnum][c][cptr->songptr];
+    cptr->pattnum = song.order[psnum][c].data[cptr->songptr];
     if (cptr->repeat)
       cptr->repeat--;
     else
@@ -1163,7 +1163,7 @@ void sequencer(int c, Chn *cptr)
         (esend[c] > 0) &&
         (esend[c] > espos[c]) &&
         (cptr->songptr > esend[c]) &&
-        (espos[c] < song.len[psnum][c]))
+        (espos[c] < song.order[psnum][c].len))
       cptr->songptr = espos[c];
   }
 }

@@ -231,11 +231,11 @@ void splitpattern()
     {
       for (eschn = 0; eschn < maxChns; eschn++)
       {
-        for (eseditpos = 0; eseditpos < song.len[esnum][eschn]; eseditpos++)
+        for (eseditpos = 0; eseditpos < song.order[esnum][eschn].len; eseditpos++)
         {
-          if (song.order[esnum][eschn][eseditpos] == c)
+          if (song.order[esnum][eschn].data[eseditpos] == c)
           {
-            song.order[esnum][eschn][eseditpos] = c+1;
+            song.order[esnum][eschn].data[eseditpos] = c+1;
             insertorder(c);
           }
         }
@@ -253,9 +253,9 @@ void joinpattern()
   int maxChns = config.getMaxChannels();
 
   if (eschn != epchn) return;
-  if (song.order[esnum][epchn][eseditpos] != c) return;
+  if (song.order[esnum][epchn].data[eseditpos] != c) return;
 
-  int d = song.order[esnum][epchn][eseditpos + 1];
+  int d = song.order[esnum][epchn].data[eseditpos + 1];
   if (d >= MAX_PATT) return;
   if (getPattlen(c) + getPattlen(d) > MAX_PATTROWS) return;
 
@@ -293,12 +293,12 @@ void joinpattern()
     {
       for (eschn = 0; eschn < maxChns; eschn++)
       {
-        for (eseditpos = 0; eseditpos < song.len[esnum][eschn]; eseditpos++)
+        for (eseditpos = 0; eseditpos < song.order[esnum][eschn].len; eseditpos++)
         {
-          if ((song.order[esnum][eschn][eseditpos] == c) && (song.order[esnum][eschn][eseditpos+1] == d))
+          if ((song.order[esnum][eschn].data[eseditpos] == c) && (song.order[esnum][eschn].data[eseditpos+1] == d))
           {
             deleteorder();
-            song.order[esnum][eschn][eseditpos] = c+1;
+            song.order[esnum][eschn].data[eseditpos] = c+1;
           }
         }
       }

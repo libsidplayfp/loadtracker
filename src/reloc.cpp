@@ -302,14 +302,14 @@ void initreloc()
 
 bool checklen(int c, bool dual)
 {
-  bool res = (song.len[c][0]) &&
-             (song.len[c][1]) &&
-             (song.len[c][2]);
+  bool res = (song.order[c][0].len) &&
+             (song.order[c][1].len) &&
+             (song.order[c][2].len);
   if (dual)
   {
-      res &= (song.len[c][3]) &&
-             (song.len[c][4]) &&
-             (song.len[c][5]);
+      res &= (song.order[c][3].len) &&
+             (song.order[c][4].len) &&
+             (song.order[c][5].len);
   }
   return res;
 }
@@ -396,12 +396,12 @@ void relocator(const char* filename)
       // See which patterns are used in this song
       for (int d = 0; d < maxChns; d++)
       {
-        songdatasize += song.len[c][d]+2;
-        for (int e = 0; e < song.len[c][d]; e++)
+        songdatasize += song.order[c][d].len+2;
+        for (int e = 0; e < song.order[c][d].len; e++)
         {
-          if (song.order[c][d][e] < REPEAT)
+          if (song.order[c][d].data[e] < REPEAT)
           {
-            int num = song.order[c][d][e];
+            int num = song.order[c][d].data[e];
 
             pattused.set(num);
             for (int f = 0; f < getPattlen(num); f++)
@@ -412,24 +412,24 @@ void relocator(const char* filename)
           }
           else
           {
-            if (song.order[c][d][e] >= TRANSDOWN)
+            if (song.order[c][d].data[e] >= TRANSDOWN)
             {
               notrans = 0;
-              if (song.order[c][d][e] < TRANSUP)
+              if (song.order[c][d].data[e] < TRANSUP)
               {
-                int newtransdownrange = -(song.order[c][d][e] - TRANSUP);
+                int newtransdownrange = -(song.order[c][d].data[e] - TRANSUP);
                 if (newtransdownrange > transdownrange) transdownrange = newtransdownrange;
               }
               else
               {
-                int newtransuprange = song.order[c][d][e] - TRANSUP;
+                int newtransuprange = song.order[c][d].data[e] - TRANSUP;
                 if (newtransuprange > transuprange) transuprange = newtransuprange;
               }
             }
             else norepeat = 0;
           }
         }
-        if (song.order[c][d][song.len[c][d]+1] >= song.len[c][d])
+        if (song.order[c][d].data[song.order[c][d].len+1] >= song.order[c][d].len)
         {
           std::snprintf(textbuffer, MAX_PATHNAME, "ILLEGAL SONG RESTART POSITION! (SUBTUNE %02X, CHANNEL %d)", c, d+1);
           error(textbuffer);
@@ -826,43 +826,43 @@ void relocator(const char* filename)
       for (int d = 0; d < maxChns; d++)
       {
         sng[c][d].offset = songdatasize;
-        sng[c][d].size = song.len[c][d] + 2;
+        sng[c][d].size = song.order[c][d].len + 2;
 
         int e;
-        for (e = 0; e < song.len[c][d]; e++)
+        for (e = 0; e < song.order[c][d].len; e++)
         {
           // Pattern
-          if (song.order[c][d][e] < REPEAT)
-            songwork[songdatasize++] = pattmap[song.order[c][d][e]];
+          if (song.order[c][d].data[e] < REPEAT)
+            songwork[songdatasize++] = pattmap[song.order[c][d].data[e]];
           else
           {
             // Transpose
-            if (song.order[c][d][e] >= TRANSDOWN)
+            if (song.order[c][d].data[e] >= TRANSDOWN)
             {
-              songwork[songdatasize++] = song.order[c][d][e];
+              songwork[songdatasize++] = song.order[c][d].data[e];
             }
             // Repeat sequence: must be swapped
             else
             {
               // See that repeat amount is more than 1
-              if (song.order[c][d][e] > REPEAT)
+              if (song.order[c][d].data[e] > REPEAT)
               {
                 // Insanity check that a pattern indeed follows
-                if (song.order[c][d][e+1] < REPEAT)
+                if (song.order[c][d].data[e+1] < REPEAT)
                 {
-                  songwork[songdatasize++] = pattmap[song.order[c][d][e+1]];
-                  songwork[songdatasize++] = song.order[c][d][e];
+                  songwork[songdatasize++] = pattmap[song.order[c][d].data[e+1]];
+                  songwork[songdatasize++] = song.order[c][d].data[e];
                   e++;
                 }
                 else
-                  songwork[songdatasize++] = song.order[c][d][e];
+                  songwork[songdatasize++] = song.order[c][d].data[e];
               }
             }
           }
         }
         // Endmark & repeat position
-        songwork[songdatasize++] = song.order[c][d][e++];
-        songwork[songdatasize++] = song.order[c][d][e++];
+        songwork[songdatasize++] = song.order[c][d].data[e++];
+        songwork[songdatasize++] = song.order[c][d].data[e++];
       }
     }
     else

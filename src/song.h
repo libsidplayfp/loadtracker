@@ -39,13 +39,18 @@ enum class SngType
     DUAL
 };
 
+struct SongOrder
+{
+    unsigned char data[MAX_SONGLEN+2];
+    int len;
+};
+
 struct Song
 {
     Instr instr[MAX_INSTR];
     unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
     unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
-    unsigned char order[MAX_SONGS][MAX_CHN][MAX_SONGLEN+2];
-    int len[MAX_SONGS][MAX_CHN];
+    SongOrder order[MAX_SONGS][MAX_CHN];
     unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
 
     char title[MAX_STR];

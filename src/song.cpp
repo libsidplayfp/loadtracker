@@ -371,13 +371,13 @@ bool savesong()
     int c = MAX_SONGS - 1;
     for (;;)
     {
-     if ((song.len[c][0]) &&
-         (song.len[c][1]) &&
-         (song.len[c][2])) break;
+     if ((song.order[c][0].len) &&
+         (song.order[c][1].len) &&
+         (song.order[c][2].len)) break;
     if ((maxChns == 6) &&
-        (song.len[c][3]) &&
-        (song.len[c][4]) &&
-        (song.len[c][5])) break;
+        (song.order[c][3].len) &&
+        (song.order[c][4].len) &&
+        (song.order[c][5].len)) break;
      if (c == 0) break;
      c--;
     }
@@ -389,11 +389,11 @@ bool savesong()
     {
       for (int c = 0; c < maxChns; c++)
       {
-         int length = song.len[d][c]+1;
+         int length = song.order[d][c].len+1;
          fwrite8(handle, length);
          int writebytes = length;
          writebytes++;
-         std::fwrite(song.order[d][c], writebytes, 1, handle);
+         std::fwrite(song.order[d][c].data, writebytes, 1, handle);
       }
     }
     // Write amount of instruments
@@ -517,7 +517,7 @@ SngType loadsong()
         {
           int length = fread8(handle);
           length++;
-          std::fread(song.order[d][c], length, 1, handle);
+          std::fread(song.order[d][c].data, length, 1, handle);
         }
       }
       // Read instruments
@@ -574,7 +574,7 @@ SngType loadsong()
         {
           int length = fread8(handle);
           length++;
-          std::fread(song.order[d][c], length, 1, handle);
+          std::fread(song.order[d][c].data, length, 1, handle);
         }
       }
       // Read instruments
@@ -668,7 +668,7 @@ SngType loadsong()
           length = fread8(handle);
           loadsize = length;
           loadsize++;
-          std::fread(song.order[d][c], loadsize, 1, handle);
+          std::fread(song.order[d][c].data, loadsize, 1, handle);
         }
       }
 
@@ -1180,14 +1180,14 @@ SngType loadsong()
 
     for (int c = 0; c < MAX_SONGS; c++)
     {
-      if (song.len[c][0])
+      if (song.order[c][0].len)
       {
          for (int d = channelstoload; d < MAX_CHN; d++)
          {
-           song.order[c][d][0] = emptypatt;
-           song.order[c][d][1] = 0xff;
-           song.order[c][d][2] = 0x00;
-           song.len[c][d] = 1;
+           song.order[c][d].data[0] = emptypatt;
+           song.order[c][d].data[1] = 0xff;
+           song.order[c][d].data[2] = 0x00;
+           song.order[c][d].len = 1;
          }
       }
     }
@@ -1599,18 +1599,18 @@ void clearsong(bool cs, bool cp, bool ci, bool ct, bool cn)
       std::memset(loadedsongfilename, 0, sizeof loadedsongfilename);
       for (int d = 0; d < MAX_SONGS; d++)
       {
-        std::memset(&song.order[d][c][0], 0, MAX_SONGLEN+2);
+        std::memset(&song.order[d][c].data[0], 0, MAX_SONGLEN+2);
         if (!d)
         {
-          song.order[d][c][0] = c;
-          song.order[d][c][1] = LOOPSONG;
+          song.order[d][c].data[0] = c;
+          song.order[d][c].data[1] = LOOPSONG;
         }
         else
         {
-          song.order[d][c][0] = LOOPSONG;
+          song.order[d][c].data[0] = LOOPSONG;
         }
       }
-      epnum[c] = song.order[0][c][0];
+      epnum[c] = song.order[0][c].data[0];
       espos[c] = 0;
       esend[c] = 0;
     }
@@ -1685,14 +1685,14 @@ void countpatternlengths()
       int d;
       for (d = 0; d < MAX_SONGLEN; d++)
       {
-        if (song.order[e][c][d] >= LOOPSONG) break;
-        if ((song.order[e][c][d] < REPEAT) &&
-            (song.order[e][c][d] > highestusedpattern))
+        if (song.order[e][c].data[d] >= LOOPSONG) break;
+        if ((song.order[e][c].data[d] < REPEAT) &&
+            (song.order[e][c].data[d] > highestusedpattern))
         {
-          highestusedpattern = song.order[e][c][d];
+          highestusedpattern = song.order[e][c].data[d];
         }
       }
-      song.len[e][c] = d;
+      song.order[e][c].len = d;
     }
   }
 }
@@ -1711,13 +1711,13 @@ void countthispattern()
   c = eschn;
   for (d = 0; d < MAX_SONGLEN; d++)
   {
-    if (song.order[e][c][d] >= LOOPSONG) break;
-    if (song.order[e][c][d] > highestusedpattern)
+    if (song.order[e][c].data[d] >= LOOPSONG) break;
+    if (song.order[e][c].data[d] > highestusedpattern)
     {
-      highestusedpattern = song.order[e][c][d];
+      highestusedpattern = song.order[e][c].data[d];
     }
   }
-  song.len[e][c] = d;
+  song.order[e][c].len = d;
 }
 
 int insertpattern(int p)
@@ -1734,18 +1734,18 @@ int insertpattern(int p)
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
+    if ((song.order[c][0].len) && (song.order[c][1].len) && (song.order[c][2].len))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = song.len[c][d];
+        int tmp = song.order[c][d].len;
         for (int e = 0; e < tmp; e++)
         {
-          if ((song.order[c][d][e] < REPEAT) &&
-              (song.order[c][d][e] > p) &&
-              (song.order[c][d][e] != MAX_PATT-1))
+          if ((song.order[c][d].data[e] < REPEAT) &&
+              (song.order[c][d].data[e] > p) &&
+              (song.order[c][d].data[e] != MAX_PATT-1))
           {
-            song.order[c][d][e]++;
+            song.order[c][d].data[e]++;
           }
         }
       }
@@ -1772,17 +1772,17 @@ void deletepattern(int p)
 
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
+    if ((song.order[c][0].len) && (song.order[c][1].len) && (song.order[c][2].len))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = song.len[c][d];
+        int tmp = song.order[c][d].len;
         for (int e = 0; e < tmp; e++)
         {
-          if ((song.order[c][d][e] < REPEAT) &&
-              (song.order[c][d][e] > p))
+          if ((song.order[c][d].data[e] < REPEAT) &&
+              (song.order[c][d].data[e] > p))
           {
-            song.order[c][d][e]--;
+            song.order[c][d].data[e]--;
           }
         }
       }
@@ -1810,16 +1810,16 @@ void findusedpatterns()
   pattused.reset();
   for (int c = 0; c < MAX_SONGS; c++)
   {
-    if ((song.len[c][0]) && (song.len[c][1]) && (song.len[c][2]))
+    if ((song.order[c][0].len) && (song.order[c][1].len) && (song.order[c][2].len))
     {
       for (int d = 0; d < maxChns; d++)
       {
-        int tmp = song.len[c][d];
+        int tmp = song.order[c][d].len;
         for (int e = 0; e < tmp; e++)
         {
-          if (song.order[c][d][e] < REPEAT)
+          if (song.order[c][d].data[e] < REPEAT)
           {
-            pattused.set(song.order[c][d][e]);
+            pattused.set(song.order[c][d].data[e]);
           }
         }
       }
@@ -1847,13 +1847,13 @@ void mergesong()
   int c = MAX_SONGS - 1;
   for (;;)
   {
-    if ((song.len[c][0]) &&
-        (song.len[c][1]) &&
-        (song.len[c][2])) break;
+    if ((song.order[c][0].len) &&
+        (song.order[c][1].len) &&
+        (song.order[c][2].len)) break;
     if ((maxChns == 6) &&
-        (song.len[c][3]) &&
-        (song.len[c][4]) &&
-        (song.len[c][5])) break;
+        (song.order[c][3].len) &&
+        (song.order[c][4].len) &&
+        (song.order[c][5].len)) break;
     if (c == 0) break;
     c--;
   }
@@ -1892,12 +1892,12 @@ void mergesong()
         {
           int length = fread8(handle);
           length++;
-          std::fread(song.order[songbase + d][c], length, 1, handle);
+          std::fread(song.order[songbase + d][c].data, length, 1, handle);
           // Remap patterns
           for (int e = 0; e < length - 1; e++)
           {
-            if (song.order[songbase + d][c][e] < REPEAT)
-                song.order[songbase + d][c][e] += pattbase;
+            if (song.order[songbase + d][c].data[e] < REPEAT)
+                song.order[songbase + d][c].data[e] += pattbase;
           }
         }
       }
