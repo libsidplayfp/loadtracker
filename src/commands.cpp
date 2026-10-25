@@ -1628,64 +1628,64 @@ void tablecommands()
     case KEY_Q:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 34716;
       speed /= 32768;
       if (speed > 65535) speed = 65535;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
     break;
 
     case KEY_A:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 30929;
       speed /= 32768;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
     break;
 
     case KEY_W:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 2;
       if (speed > 65535) speed = 65535;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
-    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.ltable[tables.num()][tables.pos()] < 0x80))
+    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.fxtable[tables.num()][tables.pos()].l < 0x80))
     {
-      int speed = (signed char)(song.rtable[tables.num()][tables.pos()]);
+      int speed = (signed char)(song.fxtable[tables.num()][tables.pos()].r);
       speed *= 2;
 
       if (speed > 127) speed = 127;
       if (speed < -128) speed = -128;
-      song.rtable[tables.num()][tables.pos()] = speed;
+      song.fxtable[tables.num()][tables.pos()].r = speed;
     }
     break;
 
     case KEY_S:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed /= 2;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
-    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.ltable[tables.num()][tables.pos()] < 0x80))
+    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.fxtable[tables.num()][tables.pos()].l < 0x80))
     {
-      int speed = (signed char)(song.rtable[tables.num()][tables.pos()]);
+      int speed = (signed char)(song.fxtable[tables.num()][tables.pos()].r);
       speed /= 2;
 
-      song.rtable[tables.num()][tables.pos()] = speed;
+      song.fxtable[tables.num()][tables.pos()].r = speed;
     }
     break;
 
@@ -1751,12 +1751,12 @@ void tablecommands()
         int d = 0;
         for (int c = markstart; c <= markend; c++)
         {
-          ltablecopybuffer[d] = song.ltable[tables.marknum()][c];
-          rtablecopybuffer[d] = song.rtable[tables.marknum()][c];
+          ltablecopybuffer[d] = song.fxtable[tables.marknum()][c].l;
+          rtablecopybuffer[d] = song.fxtable[tables.marknum()][c].r;
           if (input.rawkey == KEY_X)
           {
-            song.ltable[tables.marknum()][c] = 0;
-            song.rtable[tables.marknum()][c] = 0;
+            song.fxtable[tables.marknum()][c].l = 0;
+            song.fxtable[tables.marknum()][c].r = 0;
           }
           d++;
         }
@@ -1773,8 +1773,8 @@ void tablecommands()
       {
         for (int c = 0; c < tablecopyrows; c++)
         {
-          song.ltable[tables.num()][tables.pos()] = ltablecopybuffer[c];
-          song.rtable[tables.num()][tables.pos()] = rtablecopybuffer[c];
+          song.fxtable[tables.num()][tables.pos()].l = ltablecopybuffer[c];
+          song.fxtable[tables.num()][tables.pos()].r = rtablecopybuffer[c];
           tables.incpos();
         }
       }
@@ -1796,11 +1796,11 @@ void tablecommands()
     case KEY_R:
     if (tables.num() == WTBL)
     {
-      if (song.ltable[tables.num()][tables.pos()] != 0xff)
+      if (song.fxtable[tables.num()][tables.pos()].l != 0xff)
       {
         // Convert absolute pitch to relative pitch or vice versa
         int basenote = epoctave * 12;
-        int note = song.rtable[tables.num()][tables.pos()];
+        int note = song.fxtable[tables.num()][tables.pos()].r;
 
         if (note >= 0x80)
         {
@@ -1813,7 +1813,7 @@ void tablecommands()
           note |= 0x80;
         }
 
-        song.rtable[tables.num()][tables.pos()] = note;
+        song.fxtable[tables.num()][tables.pos()].r = note;
       }
     }
     /* fall through */
@@ -1821,8 +1821,8 @@ void tablecommands()
     if (tables.num() == PTBL)
     {
       int currentpulse = -1;
-      int targetpulse = song.ltable[tables.num()][tables.pos()] << 4;
-      int speed = song.rtable[tables.num()][tables.pos()];
+      int targetpulse = song.fxtable[tables.num()][tables.pos()].l << 4;
+      int speed = song.fxtable[tables.num()][tables.pos()].r;
 
       if (!speed) break;
 
@@ -1830,10 +1830,10 @@ void tablecommands()
       // Follow the chain of pulse commands backwards to the nearest set command so we know what current pulse is
       for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (song.ltable[tables.num()][c] == 0xff) break;
-        if (song.ltable[tables.num()][c] >= 0x80)
+        if (song.fxtable[tables.num()][c].l == 0xff) break;
+        if (song.fxtable[tables.num()][c].l >= 0x80)
         {
-          currentpulse = (song.ltable[tables.num()][c] << 8) | song.rtable[tables.num()][c];
+          currentpulse = (song.fxtable[tables.num()][c].l << 8) | song.fxtable[tables.num()][c].r;
           currentpulse &= 0xfff;
           break;
         }
@@ -1843,10 +1843,10 @@ void tablecommands()
       // Then follow the chain of modulation steps
       for (; c < tables.pos(); c++)
       {
-        if (song.ltable[tables.num()][c] < 0x80)
+        if (song.fxtable[tables.num()][c].l < 0x80)
         {
-          currentpulse += song.ltable[tables.num()][c] * (song.rtable[tables.num()][c] & 0xff);
-          if (song.rtable[tables.num()][c] >= 0x80) currentpulse -= 256 * song.ltable[tables.num()][c];
+          currentpulse += song.fxtable[tables.num()][c].l * (song.fxtable[tables.num()][c].r & 0xff);
+          if (song.fxtable[tables.num()][c].l >= 0x80) currentpulse -= 256 * song.fxtable[tables.num()][c].r;
           currentpulse &= 0xfff;
         }
       }
@@ -1865,15 +1865,15 @@ void tablecommands()
       {
         if (std::abs(speed) < 128)
         {
-          song.ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
-          song.rtable[tables.num()][tables.pos()] = speed;
-          time -= song.ltable[tables.num()][tables.pos()];
+          song.fxtable[tables.num()][tables.pos()].l = (time < 127) ? time : 127;
+          song.fxtable[tables.num()][tables.pos()].r = speed;
+          time -= song.fxtable[tables.num()][tables.pos()].l;
         }
         else
         {
           currentpulse += speed;
-          song.ltable[tables.num()][tables.pos()] = 0x80 | ((currentpulse >> 8) & 0xf);
-          song.rtable[tables.num()][tables.pos()] = currentpulse & 0xff;
+          song.fxtable[tables.num()][tables.pos()].l = 0x80 | ((currentpulse >> 8) & 0xf);
+          song.fxtable[tables.num()][tables.pos()].r = currentpulse & 0xff;
           time--;
         }
         tables.incpos();
@@ -1882,8 +1882,8 @@ void tablecommands()
     if (tables.num() == FTBL)
     {
       int currentfilter = -1;
-      int targetfilter = song.ltable[tables.num()][tables.pos()];
-      int speed = song.rtable[tables.num()][tables.pos()] & 0x7f;
+      int targetfilter = song.fxtable[tables.num()][tables.pos()].l;
+      int speed = song.fxtable[tables.num()][tables.pos()].r & 0x7f;
 
       if (!speed) break;
 
@@ -1891,10 +1891,10 @@ void tablecommands()
       // Follow the chain of filter commands backwards to the nearest set command so we know what current pulse is
       for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (song.ltable[tables.num()][c] == 0xff) break;
-        if (song.ltable[tables.num()][c] == 0x00)
+        if (song.fxtable[tables.num()][c].l == 0xff) break;
+        if (song.fxtable[tables.num()][c].l == 0x00)
         {
-          currentfilter = song.rtable[tables.num()][c];
+          currentfilter = song.fxtable[tables.num()][c].r;
           break;
         }
       }
@@ -1903,9 +1903,9 @@ void tablecommands()
       // Then follow the chain of modulation steps
       for (; c < tables.pos(); c++)
       {
-        if (song.ltable[tables.num()][c] < 0x80)
+        if (song.fxtable[tables.num()][c].l < 0x80)
         {
-          currentfilter += song.ltable[tables.num()][c] * song.rtable[tables.num()][c];
+          currentfilter += song.fxtable[tables.num()][c].l * song.fxtable[tables.num()][c].r;
           currentfilter &= 0xff;
         }
       }
@@ -1921,9 +1921,9 @@ void tablecommands()
 
       while (time)
       {
-        song.ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
-        song.rtable[tables.num()][tables.pos()] = speed;
-        time -= song.ltable[tables.num()][tables.pos()];
+        song.fxtable[tables.num()][tables.pos()].l = (time < 127) ? time : 127;
+        song.fxtable[tables.num()][tables.pos()].r = speed;
+        time -= song.fxtable[tables.num()][tables.pos()].l;
         tables.incpos();
       }
     }
@@ -1936,17 +1936,17 @@ void tablecommands()
       {
         // Negate pulse or filter speed
         case FTBL:
-        if (!song.ltable[tables.num()][tables.pos()]) break;
+        if (!song.fxtable[tables.num()][tables.pos()].l) break;
         /* fall through */
         case PTBL:
-        if (song.ltable[tables.num()][tables.pos()] < 0x80)
-          song.rtable[tables.num()][tables.pos()] = (song.rtable[tables.num()][tables.pos()] ^ 0xff) + 1;
+        if (song.fxtable[tables.num()][tables.pos()].l < 0x80)
+          song.fxtable[tables.num()][tables.pos()].r = (song.fxtable[tables.num()][tables.pos()].r ^ 0xff) + 1;
         break;
 
         // Negate relative note
         case WTBL:
-        if ((song.ltable[tables.num()][tables.pos()] != 0xff) && (song.rtable[tables.num()][tables.pos()] < 0x80))
-          song.rtable[tables.num()][tables.pos()] = (0x80 - song.rtable[tables.num()][tables.pos()]) & 0x7f;
+        if ((song.fxtable[tables.num()][tables.pos()].l != 0xff) && (song.fxtable[tables.num()][tables.pos()].r < 0x80))
+          song.fxtable[tables.num()][tables.pos()].r = (0x80 - song.fxtable[tables.num()][tables.pos()].r) & 0x7f;
         break;
       }
     }
@@ -1966,7 +1966,7 @@ void tablecommands()
       int table = -1;
       int mstmode = MST_PORTAMENTO;
 
-      switch (song.ltable[tables.num()][tables.pos()])
+      switch (song.fxtable[tables.num()][tables.pos()].l)
       {
         case WAVECMD + CMD_PORTAUP:
         case WAVECMD + CMD_PORTADOWN:
@@ -2000,22 +2000,22 @@ void tablecommands()
         return;
 
         case STBL:
-        if (song.rtable[tables.num()][tables.pos()])
+        if (song.fxtable[tables.num()][tables.pos()].r)
         {
           if (!input.shiftpressed)
           {
-            gototable(STBL, song.rtable[tables.num()][tables.pos()] - 1);
+            gototable(STBL, song.fxtable[tables.num()][tables.pos()].r - 1);
             return;
           }
           else
           {
             int oldeditpos = tables.pos();
             int oldeditcolumn = tables.column();
-            int pos = makespeedtable(song.rtable[tables.num()][tables.pos()], mstmode, true);
+            int pos = makespeedtable(song.fxtable[tables.num()][tables.pos()].r, mstmode, true);
             gototable(WTBL, oldeditpos);
             tables.setcolumn(oldeditcolumn);
 
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             return;
           }
         }
@@ -2024,7 +2024,7 @@ void tablecommands()
           int pos = song.findfreespeedtable();
           if (pos >= 0)
           {
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             gototable(STBL, pos);
             return;
           }
@@ -2033,9 +2033,9 @@ void tablecommands()
 
         case PTBL:
         case FTBL:
-        if (song.rtable[tables.num()][tables.pos()])
+        if (song.fxtable[tables.num()][tables.pos()].r)
         {
-          gototable(table, song.rtable[tables.num()][tables.pos()] - 1);
+          gototable(table, song.fxtable[tables.num()][tables.pos()].r - 1);
           return;
         }
         else
@@ -2044,7 +2044,7 @@ void tablecommands()
           {
             int pos = song.gettablelen(table);
             if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             gototable(table, pos);
             return;
           }
@@ -2075,20 +2075,20 @@ void tablecommands()
     switch(tables.column())
     {
       case 0:
-      song.ltable[tables.num()][tables.pos()] &= 0x0f;
-      song.ltable[tables.num()][tables.pos()] |= hexnybble << 4;
+      song.fxtable[tables.num()][tables.pos()].l &= 0x0f;
+      song.fxtable[tables.num()][tables.pos()].l |= hexnybble << 4;
       break;
       case 1:
-      song.ltable[tables.num()][tables.pos()] &= 0xf0;
-      song.ltable[tables.num()][tables.pos()] |= hexnybble;
+      song.fxtable[tables.num()][tables.pos()].l &= 0xf0;
+      song.fxtable[tables.num()][tables.pos()].l |= hexnybble;
       break;
       case 2:
-      song.rtable[tables.num()][tables.pos()] &= 0x0f;
-      song.rtable[tables.num()][tables.pos()] |= hexnybble << 4;
+      song.fxtable[tables.num()][tables.pos()].r &= 0x0f;
+      song.fxtable[tables.num()][tables.pos()].r |= hexnybble << 4;
       break;
       case 3:
-      song.rtable[tables.num()][tables.pos()] &= 0xf0;
-      song.rtable[tables.num()][tables.pos()] |= hexnybble;
+      song.fxtable[tables.num()][tables.pos()].r &= 0xf0;
+      song.fxtable[tables.num()][tables.pos()].r |= hexnybble;
       break;
     }
     if (tables.inccolumn())

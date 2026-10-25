@@ -45,11 +45,16 @@ struct SongOrder
     int len;
 };
 
+struct FxTable
+{
+    unsigned char l;
+    unsigned char r;
+};
+
 struct Song
 {
     Instr instr[MAX_INSTR];
-    unsigned char ltable[MAX_TABLES][MAX_TABLELEN];
-    unsigned char rtable[MAX_TABLES][MAX_TABLELEN];
+    FxTable fxtable[MAX_TABLES][MAX_TABLELEN];
     SongOrder order[MAX_SONGS][MAX_CHN];
     unsigned char pattern[MAX_PATT][MAX_PATTROWS*4+4];
 

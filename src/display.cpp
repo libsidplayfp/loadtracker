@@ -430,22 +430,22 @@ void printstatus()
       switch (c)
       {
         case WTBL:
-        if (song.ltable[c][p] >= WAVECMD) color = colors.ccommand();
+        if (song.fxtable[c][p].l >= WAVECMD) color = colors.ccommand();
         break;
 
         case PTBL:
-        if (song.ltable[c][p] >= 0x80) color = colors.ccommand();
+        if (song.fxtable[c][p].l >= 0x80) color = colors.ccommand();
         break;
 
         case FTBL:
-        if ((song.ltable[c][p] >= 0x80) || ((!song.ltable[c][p]) && (song.rtable[c][p]))) color = colors.ccommand();
+        if ((song.fxtable[c][p].l >= 0x80) || ((!song.fxtable[c][p].l) && (song.fxtable[c][p].r))) color = colors.ccommand();
         break;
       }
       if ((p == tables.pos()) && (tables.num() == c)) color = colors.cedit();
-      std::snprintf(textbuffer, MAX_PATHNAME, "%02X:%02X %02X", p+1, song.ltable[c][p], song.rtable[c][p]);
+      std::snprintf(textbuffer, MAX_PATHNAME, "%02X:%02X %02X", p+1, song.fxtable[c][p].l, song.fxtable[c][p].r);
       if (config.patterndispmode & 2)
       {
-        if (!song.ltable[c][p] && !song.rtable[c][p] && !song.ltable[c][p+1] && !song.rtable[c][p+1])
+        if (!song.fxtable[c][p].l && !song.fxtable[c][p].r && !song.fxtable[c][p+1].l && !song.fxtable[c][p+1].r)
         {
           std::memset(&textbuffer[3], '.', 2);
           std::memset(&textbuffer[6], '.', 2);
