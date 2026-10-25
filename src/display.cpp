@@ -153,7 +153,7 @@ void printstatus()
   {
     for (int c = 0; c < maxChns; c++)
     {
-      int currentSonglen = song.len[esnum][c];
+      int currentSonglen = song.order[esnum][c].len;
       int newpos = chn[c].pattptr / 4;
       if (chn[c].advance) epnum[c] = chn[c].pattnum;
 
@@ -301,8 +301,8 @@ void printstatus()
     for (int d = 0; d < visibleOrderlist; d++)
     {
       int p = esview[c]+d;
-      unsigned char currentSongorder = song.order[esnum][c][p];
-      int currentSonglen = song.len[esnum][c];
+      unsigned char currentSongorder = song.order[esnum][c].data[p];
+      int currentSonglen = song.order[esnum][c].len;
       int color = colors.cnormal();
       if (isplaying())
       {
@@ -430,22 +430,22 @@ void printstatus()
       switch (c)
       {
         case WTBL:
-        if (song.ltable[c][p] >= WAVECMD) color = colors.ccommand();
+        if (song.fxtable[c][p].l >= WAVECMD) color = colors.ccommand();
         break;
 
         case PTBL:
-        if (song.ltable[c][p] >= 0x80) color = colors.ccommand();
+        if (song.fxtable[c][p].l >= 0x80) color = colors.ccommand();
         break;
 
         case FTBL:
-        if ((song.ltable[c][p] >= 0x80) || ((!song.ltable[c][p]) && (song.rtable[c][p]))) color = colors.ccommand();
+        if ((song.fxtable[c][p].l >= 0x80) || ((!song.fxtable[c][p].l) && (song.fxtable[c][p].r))) color = colors.ccommand();
         break;
       }
       if ((p == tables.pos()) && (tables.num() == c)) color = colors.cedit();
-      std::snprintf(textbuffer, MAX_PATHNAME, "%02X:%02X %02X", p+1, song.ltable[c][p], song.rtable[c][p]);
+      std::snprintf(textbuffer, MAX_PATHNAME, "%02X:%02X %02X", p+1, song.fxtable[c][p].l, song.fxtable[c][p].r);
       if (config.patterndispmode & 2)
       {
-        if (!song.ltable[c][p] && !song.rtable[c][p] && !song.ltable[c][p+1] && !song.rtable[c][p+1])
+        if (!song.fxtable[c][p].l && !song.fxtable[c][p].r && !song.fxtable[c][p+1].l && !song.fxtable[c][p+1].r)
         {
           std::memset(&textbuffer[3], '.', 2);
           std::memset(&textbuffer[6], '.', 2);

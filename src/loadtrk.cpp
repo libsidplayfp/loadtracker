@@ -607,7 +607,7 @@ void mousecommands()
 {
   int maxChns = config.getMaxChannels();
 
-  int currentSonglen = song.len[esnum][eschn];
+  int currentSonglen = song.order[esnum][eschn].len;
 
   if (input.wheel)
   {
@@ -650,7 +650,7 @@ void mousecommands()
       }
       else if (input.wheel < 0)
       {
-        if ((song.len[esnum][newchn]-esview[newchn]) > config.getVisibleOrderlist()-1)
+        if ((song.order[esnum][newchn].len-esview[newchn]) > config.getVisibleOrderlist()-1)
         {
           esview[newchn]++;
           if (newchn == eschn) eseditpos++;
@@ -1090,7 +1090,7 @@ void generalcommands()
     case ':':
     for (int c = 0; c < maxChns; c++)
     {
-      currentSonglen = song.len[esnum][c];
+      currentSonglen = song.order[esnum][c].len;
       if (espos[c] < (currentSonglen-1))
         espos[c]++;
       if ((espos[c] - esview[c]) >= visibleOrderlist)
@@ -1729,16 +1729,16 @@ void findduplicatepatterns()
           {
             for (int f = 0; f < MAX_SONGS; f++)
             {
-              if ((song.len[f][0]) &&
-                  (song.len[f][1]) &&
-                  (song.len[f][2]))
+              if ((song.order[f][0].len) &&
+                  (song.order[f][1].len) &&
+                  (song.order[f][2].len))
               {
                 for (int g = 0; g < maxChns; g++)
                 {
-                  for (int h = 0; h < song.len[f][g]; h++)
+                  for (int h = 0; h < song.order[f][g].len; h++)
                   {
-                    if (song.order[f][g][h] == d)
-                      song.order[f][g][h] = c;
+                    if (song.order[f][g].data[h] == d)
+                      song.order[f][g].data[h] = c;
                   }
                 }
               }

@@ -850,7 +850,7 @@ void patterncommands()
         {
           for (int c = 0; c < maxChns; c++)
           {
-            if (eseditpos < song.len[esnum][c]) espos[c] = eseditpos;
+            if (eseditpos < song.order[esnum][c].len) espos[c] = eseditpos;
             if (esend[c] <= espos[c]) esend[c] = 0;
           }
         }
@@ -1046,50 +1046,50 @@ void orderlistcommands()
 
   if (hexnybble >= 0)
   {
-    if (eseditpos != song.len[esnum][eschn])
+    if (eseditpos != song.order[esnum][eschn].len)
     {
       switch(escolumn)
       {
         case 0:
-        song.order[esnum][eschn][eseditpos] &= 0x0f;
-        song.order[esnum][eschn][eseditpos] |= hexnybble << 4;
-        if (eseditpos < song.len[esnum][eschn])
+        song.order[esnum][eschn].data[eseditpos] &= 0x0f;
+        song.order[esnum][eschn].data[eseditpos] |= hexnybble << 4;
+        if (eseditpos < song.order[esnum][eschn].len)
         {
-          if (song.order[esnum][eschn][eseditpos] >= MAX_PATT)
-            song.order[esnum][eschn][eseditpos] = MAX_PATT - 1;
+          if (song.order[esnum][eschn].data[eseditpos] >= MAX_PATT)
+            song.order[esnum][eschn].data[eseditpos] = MAX_PATT - 1;
         }
         else
         {
-          if (song.order[esnum][eschn][eseditpos] >= MAX_SONGLEN)
-            song.order[esnum][eschn][eseditpos] = MAX_SONGLEN - 1;
+          if (song.order[esnum][eschn].data[eseditpos] >= MAX_SONGLEN)
+            song.order[esnum][eschn].data[eseditpos] = MAX_SONGLEN - 1;
         }
         break;
 
         case 1:
-        song.order[esnum][eschn][eseditpos] &= 0xf0;
-        if ((song.order[esnum][eschn][eseditpos] & 0xf0) == 0xd0)
+        song.order[esnum][eschn].data[eseditpos] &= 0xf0;
+        if ((song.order[esnum][eschn].data[eseditpos] & 0xf0) == 0xd0)
         {
           hexnybble--;
           if (hexnybble < 0) hexnybble = 0xf;
         }
-        if ((song.order[esnum][eschn][eseditpos] & 0xf0) == 0xe0)
+        if ((song.order[esnum][eschn].data[eseditpos] & 0xf0) == 0xe0)
         {
           hexnybble = 16 - hexnybble;
           hexnybble &= 0xf;
         }
-        song.order[esnum][eschn][eseditpos] |= hexnybble;
+        song.order[esnum][eschn].data[eseditpos] |= hexnybble;
 
-        if (eseditpos < song.len[esnum][eschn])
+        if (eseditpos < song.order[esnum][eschn].len)
         {
-          if (song.order[esnum][eschn][eseditpos] == LOOPSONG)
-            song.order[esnum][eschn][eseditpos] = LOOPSONG-1;
-          if (song.order[esnum][eschn][eseditpos] == TRANSDOWN)
-            song.order[esnum][eschn][eseditpos] = TRANSDOWN+0x0f;
+          if (song.order[esnum][eschn].data[eseditpos] == LOOPSONG)
+            song.order[esnum][eschn].data[eseditpos] = LOOPSONG-1;
+          if (song.order[esnum][eschn].data[eseditpos] == TRANSDOWN)
+            song.order[esnum][eschn].data[eseditpos] = TRANSDOWN+0x0f;
         }
         else
         {
-          if (song.order[esnum][eschn][eseditpos] >= MAX_SONGLEN)
-            song.order[esnum][eschn][eseditpos] = MAX_SONGLEN - 1;
+          if (song.order[esnum][eschn].data[eseditpos] >= MAX_SONGLEN)
+            song.order[esnum][eschn].data[eseditpos] = MAX_SONGLEN - 1;
         }
         break;
       }
@@ -1097,10 +1097,10 @@ void orderlistcommands()
       if (escolumn > 1)
       {
         escolumn = 0;
-        if (eseditpos < (song.len[esnum][eschn]+1))
+        if (eseditpos < (song.order[esnum][eschn].len+1))
         {
           eseditpos++;
-          if (eseditpos == song.len[esnum][eschn]) eseditpos++;
+          if (eseditpos == song.order[esnum][eschn].len) eseditpos++;
         }
       }
     }
@@ -1109,25 +1109,25 @@ void orderlistcommands()
   switch(input.key)
   {
     case 'R':
-    if (eseditpos < song.len[esnum][eschn])
+    if (eseditpos < song.order[esnum][eschn].len)
     {
-      song.order[esnum][eschn][eseditpos] = REPEAT + 0x01;
+      song.order[esnum][eschn].data[eseditpos] = REPEAT + 0x01;
       escolumn = 1;
     }
     break;
 
     case '+':
-    if (eseditpos < song.len[esnum][eschn])
+    if (eseditpos < song.order[esnum][eschn].len)
     {
-      song.order[esnum][eschn][eseditpos] = TRANSUP;
+      song.order[esnum][eschn].data[eseditpos] = TRANSUP;
       escolumn = 1;
     }
     break;
 
     case '-':
-    if (eseditpos < song.len[esnum][eschn])
+    if (eseditpos < song.order[esnum][eschn].len)
     {
-      song.order[esnum][eschn][eseditpos] = TRANSDOWN + 0x0F;
+      song.order[esnum][eschn].data[eseditpos] = TRANSDOWN + 0x0F;
       escolumn = 1;
     }
     break;
@@ -1163,13 +1163,13 @@ void orderlistcommands()
       }
       if (schn != tchn)
       {
-        int lentemp = song.len[esnum][schn];
-        song.len[esnum][schn] = song.len[esnum][tchn];
-        song.len[esnum][tchn] = lentemp;
+        int lentemp = song.order[esnum][schn].len;
+        song.order[esnum][schn].len = song.order[esnum][tchn].len;
+        song.order[esnum][tchn].len = lentemp;
 
         for (int c = 0; c < MAX_SONGLEN+2; c++)
         {
-          std::swap(song.order[esnum][schn][c], song.order[esnum][tchn][c]);
+          std::swap(song.order[esnum][schn].data[c], song.order[esnum][tchn].data[c]);
         }
       }
     }
@@ -1187,20 +1187,20 @@ void orderlistcommands()
         {
           eseditpos = esmark.start;
           for (int c = esmark.start; c <= esmark.end; c++)
-            trackcopybuffer[d++] = song.order[esnum][eschn][c];
+            trackcopybuffer[d++] = song.order[esnum][eschn].data[c];
           trackcopyrows = d;
         }
         else
         {
           eseditpos = esmark.end;
           for (int c = esmark.end; c <= esmark.start; c++)
-            trackcopybuffer[d++] = song.order[esnum][eschn][c];
+            trackcopybuffer[d++] = song.order[esnum][eschn].data[c];
           trackcopyrows = d;
         }
-        if (trackcopyrows == song.len[esnum][eschn])
+        if (trackcopyrows == song.order[esnum][eschn].len)
         {
           trackcopywhole = 1;
-          trackcopyrpos = song.order[esnum][eschn][song.len[esnum][eschn]+1];
+          trackcopyrpos = song.order[esnum][eschn].data[song.order[esnum][eschn].len+1];
         }
         else trackcopywhole = 0;
         for (int c = 0; c < trackcopyrows; c++) deleteorder();
@@ -1218,19 +1218,19 @@ void orderlistcommands()
         if (esmark.start <= esmark.end)
         {
           for (int c = esmark.start; c <= esmark.end; c++)
-            trackcopybuffer[d++] = song.order[esnum][eschn][c];
+            trackcopybuffer[d++] = song.order[esnum][eschn].data[c];
           trackcopyrows = d;
         }
         else
         {
           for (int c = esmark.end; c <= esmark.start; c++)
-            trackcopybuffer[d++] = song.order[esnum][eschn][c];
+            trackcopybuffer[d++] = song.order[esnum][eschn].data[c];
           trackcopyrows = d;
         }
-        if (trackcopyrows == song.len[esnum][eschn])
+        if (trackcopyrows == song.order[esnum][eschn].len)
         {
           trackcopywhole = 1;
-          trackcopyrpos = song.order[esnum][eschn][song.len[esnum][eschn]+1];
+          trackcopyrpos = song.order[esnum][eschn].data[song.order[esnum][eschn].len+1];
         }
         else trackcopywhole = 0;
         esmark.chn = -1;
@@ -1241,9 +1241,9 @@ void orderlistcommands()
     case KEY_V:
     if (input.shiftpressed)
     {
-      int oldlen = song.len[esnum][eschn];
+      int oldlen = song.order[esnum][eschn].len;
 
-      if (eseditpos < song.len[esnum][eschn])
+      if (eseditpos < song.order[esnum][eschn].len)
       {
         for (int c = trackcopyrows-1; c >= 0; c--)
           insertorder(trackcopybuffer[c]);
@@ -1254,7 +1254,7 @@ void orderlistcommands()
           insertorder(trackcopybuffer[c]);
       }
       if ((trackcopywhole) && (!oldlen))
-        song.order[esnum][eschn][song.len[esnum][eschn]+1] = trackcopyrpos;
+        song.order[esnum][eschn].data[song.order[esnum][eschn].len+1] = trackcopyrpos;
     }
     break;
 
@@ -1265,7 +1265,7 @@ void orderlistcommands()
       {
         esmark.chn = eschn;
         esmark.start = 0;
-        esmark.end = song.len[esnum][eschn]-1;
+        esmark.end = song.order[esnum][eschn].len-1;
       }
       else esmark.chn = -1;
     }
@@ -1275,14 +1275,14 @@ void orderlistcommands()
     case KEY_SPACE:
     if (!input.shiftpressed)
     {
-      if (eseditpos < song.len[esnum][eschn]) espos[eschn] = eseditpos;
+      if (eseditpos < song.order[esnum][eschn].len) espos[eschn] = eseditpos;
       if (esend[eschn] < espos[eschn]) esend[eschn] = 0;
     }
     else
     {
       for (int c = 0; c < maxChns; c++)
       {
-        if (eseditpos < song.len[esnum][c]) espos[c] = eseditpos;
+        if (eseditpos < song.order[esnum][c].len) espos[c] = eseditpos;
         if (esend[c] < espos[c]) esend[c] = 0;
       }
     }
@@ -1293,7 +1293,7 @@ void orderlistcommands()
     {
       if ((esend[eschn] != eseditpos) && (eseditpos > espos[eschn]))
       {
-        if (eseditpos < song.len[esnum][eschn]) esend[eschn] = eseditpos;
+        if (eseditpos < song.order[esnum][eschn].len) esend[eschn] = eseditpos;
       }
       else esend[eschn] = 0;
     }
@@ -1303,7 +1303,7 @@ void orderlistcommands()
       {
         for (int c = 0; c < maxChns; c++)
         {
-          if (eseditpos < song.len[esnum][c]) esend[c] = eseditpos;
+          if (eseditpos < song.order[esnum][c].len) esend[c] = eseditpos;
         }
       }
       else
@@ -1314,12 +1314,12 @@ void orderlistcommands()
     break;
 
     case KEY_ENTER:
-    if (eseditpos < song.len[esnum][eschn])
+    if (eseditpos < song.order[esnum][eschn].len)
     {
       if (!input.shiftpressed)
       {
-        if (song.order[esnum][eschn][eseditpos] < MAX_PATT)
-          epnum[eschn] = song.order[esnum][eschn][eseditpos];
+        if (song.order[esnum][eschn].data[eseditpos] < MAX_PATT)
+          epnum[eschn] = song.order[esnum][eschn].data[eseditpos];
       }
       else
       {
@@ -1330,11 +1330,11 @@ void orderlistcommands()
           if (eseditpos != espos[eschn]) start = eseditpos;
           else start = espos[c];
 
-          for (int d = start; d < song.len[esnum][c]; d++)
+          for (int d = start; d < song.order[esnum][c].len; d++)
           {
-            if (song.order[esnum][c][d] < MAX_PATT)
+            if (song.order[esnum][c].data[d] < MAX_PATT)
             {
-              epnum[c] = song.order[esnum][c][d];
+              epnum[c] = song.order[esnum][c].data[d];
               break;
             }
           }
@@ -1362,14 +1362,14 @@ void orderlistcommands()
     break;
 
     case KEY_HOME:
-    if (song.len[esnum][eschn])
+    if (song.order[esnum][eschn].len)
     {
       while ((eseditpos != 0) || (escolumn != 0)) orderleft();
     }
     break;
 
     case KEY_END:
-    while (eseditpos != song.len[esnum][eschn]+1) orderright();
+    while (eseditpos != song.order[esnum][eschn].len+1) orderright();
     break;
 
     case KEY_PGUP:
@@ -1393,9 +1393,9 @@ void orderlistcommands()
     case KEY_UP:
     eschn--;
     if (eschn < 0) eschn = maxChns - 1;
-    if ((eseditpos == song.len[esnum][eschn]) || (eseditpos > song.len[esnum][eschn]+1))
+    if ((eseditpos == song.order[esnum][eschn].len) || (eseditpos > song.order[esnum][eschn].len+1))
     {
-      eseditpos = song.len[esnum][eschn]+1;
+      eseditpos = song.order[esnum][eschn].len+1;
       escolumn = 0;
     }
     if (input.shiftpressed) esmark.chn = -1;
@@ -1404,9 +1404,9 @@ void orderlistcommands()
     case KEY_DOWN:
     eschn++;
     if (eschn >= maxChns) eschn = 0;
-    if ((eseditpos == song.len[esnum][eschn]) || (eseditpos > song.len[esnum][eschn]+1))
+    if ((eseditpos == song.order[esnum][eschn].len) || (eseditpos > song.order[esnum][eschn].len+1))
     {
-      eseditpos = song.len[esnum][eschn]+1;
+      eseditpos = song.order[esnum][eschn].len+1;
       escolumn = 0;
     }
     if (input.shiftpressed) esmark.chn = -1;
@@ -1628,64 +1628,64 @@ void tablecommands()
     case KEY_Q:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 34716;
       speed /= 32768;
       if (speed > 65535) speed = 65535;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
     break;
 
     case KEY_A:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 30929;
       speed /= 32768;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
     break;
 
     case KEY_W:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed *= 2;
       if (speed > 65535) speed = 65535;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
-    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.ltable[tables.num()][tables.pos()] < 0x80))
+    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.fxtable[tables.num()][tables.pos()].l < 0x80))
     {
-      int speed = (signed char)(song.rtable[tables.num()][tables.pos()]);
+      int speed = (signed char)(song.fxtable[tables.num()][tables.pos()].r);
       speed *= 2;
 
       if (speed > 127) speed = 127;
       if (speed < -128) speed = -128;
-      song.rtable[tables.num()][tables.pos()] = speed;
+      song.fxtable[tables.num()][tables.pos()].r = speed;
     }
     break;
 
     case KEY_S:
     if ((input.shiftpressed) && (tables.num() == STBL))
     {
-      int speed = (song.ltable[tables.num()][tables.pos()] << 8) | song.rtable[tables.num()][tables.pos()];
+      int speed = (song.fxtable[tables.num()][tables.pos()].l << 8) | song.fxtable[tables.num()][tables.pos()].r;
       speed /= 2;
 
-      song.ltable[tables.num()][tables.pos()] = speed >> 8;
-      song.rtable[tables.num()][tables.pos()] = speed & 0xff;
+      song.fxtable[tables.num()][tables.pos()].l = speed >> 8;
+      song.fxtable[tables.num()][tables.pos()].r = speed & 0xff;
     }
-    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.ltable[tables.num()][tables.pos()] < 0x80))
+    if ((input.shiftpressed) && ((tables.num() == PTBL) || (tables.num() == FTBL)) && (song.fxtable[tables.num()][tables.pos()].l < 0x80))
     {
-      int speed = (signed char)(song.rtable[tables.num()][tables.pos()]);
+      int speed = (signed char)(song.fxtable[tables.num()][tables.pos()].r);
       speed /= 2;
 
-      song.rtable[tables.num()][tables.pos()] = speed;
+      song.fxtable[tables.num()][tables.pos()].r = speed;
     }
     break;
 
@@ -1751,12 +1751,12 @@ void tablecommands()
         int d = 0;
         for (int c = markstart; c <= markend; c++)
         {
-          ltablecopybuffer[d] = song.ltable[tables.marknum()][c];
-          rtablecopybuffer[d] = song.rtable[tables.marknum()][c];
+          ltablecopybuffer[d] = song.fxtable[tables.marknum()][c].l;
+          rtablecopybuffer[d] = song.fxtable[tables.marknum()][c].r;
           if (input.rawkey == KEY_X)
           {
-            song.ltable[tables.marknum()][c] = 0;
-            song.rtable[tables.marknum()][c] = 0;
+            song.fxtable[tables.marknum()][c].l = 0;
+            song.fxtable[tables.marknum()][c].r = 0;
           }
           d++;
         }
@@ -1773,8 +1773,8 @@ void tablecommands()
       {
         for (int c = 0; c < tablecopyrows; c++)
         {
-          song.ltable[tables.num()][tables.pos()] = ltablecopybuffer[c];
-          song.rtable[tables.num()][tables.pos()] = rtablecopybuffer[c];
+          song.fxtable[tables.num()][tables.pos()].l = ltablecopybuffer[c];
+          song.fxtable[tables.num()][tables.pos()].r = rtablecopybuffer[c];
           tables.incpos();
         }
       }
@@ -1796,11 +1796,11 @@ void tablecommands()
     case KEY_R:
     if (tables.num() == WTBL)
     {
-      if (song.ltable[tables.num()][tables.pos()] != 0xff)
+      if (song.fxtable[tables.num()][tables.pos()].l != 0xff)
       {
         // Convert absolute pitch to relative pitch or vice versa
         int basenote = epoctave * 12;
-        int note = song.rtable[tables.num()][tables.pos()];
+        int note = song.fxtable[tables.num()][tables.pos()].r;
 
         if (note >= 0x80)
         {
@@ -1813,7 +1813,7 @@ void tablecommands()
           note |= 0x80;
         }
 
-        song.rtable[tables.num()][tables.pos()] = note;
+        song.fxtable[tables.num()][tables.pos()].r = note;
       }
     }
     /* fall through */
@@ -1821,8 +1821,8 @@ void tablecommands()
     if (tables.num() == PTBL)
     {
       int currentpulse = -1;
-      int targetpulse = song.ltable[tables.num()][tables.pos()] << 4;
-      int speed = song.rtable[tables.num()][tables.pos()];
+      int targetpulse = song.fxtable[tables.num()][tables.pos()].l << 4;
+      int speed = song.fxtable[tables.num()][tables.pos()].r;
 
       if (!speed) break;
 
@@ -1830,10 +1830,10 @@ void tablecommands()
       // Follow the chain of pulse commands backwards to the nearest set command so we know what current pulse is
       for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (song.ltable[tables.num()][c] == 0xff) break;
-        if (song.ltable[tables.num()][c] >= 0x80)
+        if (song.fxtable[tables.num()][c].l == 0xff) break;
+        if (song.fxtable[tables.num()][c].l >= 0x80)
         {
-          currentpulse = (song.ltable[tables.num()][c] << 8) | song.rtable[tables.num()][c];
+          currentpulse = (song.fxtable[tables.num()][c].l << 8) | song.fxtable[tables.num()][c].r;
           currentpulse &= 0xfff;
           break;
         }
@@ -1843,10 +1843,10 @@ void tablecommands()
       // Then follow the chain of modulation steps
       for (; c < tables.pos(); c++)
       {
-        if (song.ltable[tables.num()][c] < 0x80)
+        if (song.fxtable[tables.num()][c].l < 0x80)
         {
-          currentpulse += song.ltable[tables.num()][c] * (song.rtable[tables.num()][c] & 0xff);
-          if (song.rtable[tables.num()][c] >= 0x80) currentpulse -= 256 * song.ltable[tables.num()][c];
+          currentpulse += song.fxtable[tables.num()][c].l * (song.fxtable[tables.num()][c].r & 0xff);
+          if (song.fxtable[tables.num()][c].l >= 0x80) currentpulse -= 256 * song.fxtable[tables.num()][c].r;
           currentpulse &= 0xfff;
         }
       }
@@ -1865,15 +1865,15 @@ void tablecommands()
       {
         if (std::abs(speed) < 128)
         {
-          song.ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
-          song.rtable[tables.num()][tables.pos()] = speed;
-          time -= song.ltable[tables.num()][tables.pos()];
+          song.fxtable[tables.num()][tables.pos()].l = (time < 127) ? time : 127;
+          song.fxtable[tables.num()][tables.pos()].r = speed;
+          time -= song.fxtable[tables.num()][tables.pos()].l;
         }
         else
         {
           currentpulse += speed;
-          song.ltable[tables.num()][tables.pos()] = 0x80 | ((currentpulse >> 8) & 0xf);
-          song.rtable[tables.num()][tables.pos()] = currentpulse & 0xff;
+          song.fxtable[tables.num()][tables.pos()].l = 0x80 | ((currentpulse >> 8) & 0xf);
+          song.fxtable[tables.num()][tables.pos()].r = currentpulse & 0xff;
           time--;
         }
         tables.incpos();
@@ -1882,8 +1882,8 @@ void tablecommands()
     if (tables.num() == FTBL)
     {
       int currentfilter = -1;
-      int targetfilter = song.ltable[tables.num()][tables.pos()];
-      int speed = song.rtable[tables.num()][tables.pos()] & 0x7f;
+      int targetfilter = song.fxtable[tables.num()][tables.pos()].l;
+      int speed = song.fxtable[tables.num()][tables.pos()].r & 0x7f;
 
       if (!speed) break;
 
@@ -1891,10 +1891,10 @@ void tablecommands()
       // Follow the chain of filter commands backwards to the nearest set command so we know what current pulse is
       for (c = tables.pos()-1; c >= 0; c--)
       {
-        if (song.ltable[tables.num()][c] == 0xff) break;
-        if (song.ltable[tables.num()][c] == 0x00)
+        if (song.fxtable[tables.num()][c].l == 0xff) break;
+        if (song.fxtable[tables.num()][c].l == 0x00)
         {
-          currentfilter = song.rtable[tables.num()][c];
+          currentfilter = song.fxtable[tables.num()][c].r;
           break;
         }
       }
@@ -1903,9 +1903,9 @@ void tablecommands()
       // Then follow the chain of modulation steps
       for (; c < tables.pos(); c++)
       {
-        if (song.ltable[tables.num()][c] < 0x80)
+        if (song.fxtable[tables.num()][c].l < 0x80)
         {
-          currentfilter += song.ltable[tables.num()][c] * song.rtable[tables.num()][c];
+          currentfilter += song.fxtable[tables.num()][c].l * song.fxtable[tables.num()][c].r;
           currentfilter &= 0xff;
         }
       }
@@ -1921,9 +1921,9 @@ void tablecommands()
 
       while (time)
       {
-        song.ltable[tables.num()][tables.pos()] = (time < 127) ? time : 127;
-        song.rtable[tables.num()][tables.pos()] = speed;
-        time -= song.ltable[tables.num()][tables.pos()];
+        song.fxtable[tables.num()][tables.pos()].l = (time < 127) ? time : 127;
+        song.fxtable[tables.num()][tables.pos()].r = speed;
+        time -= song.fxtable[tables.num()][tables.pos()].l;
         tables.incpos();
       }
     }
@@ -1936,17 +1936,17 @@ void tablecommands()
       {
         // Negate pulse or filter speed
         case FTBL:
-        if (!song.ltable[tables.num()][tables.pos()]) break;
+        if (!song.fxtable[tables.num()][tables.pos()].l) break;
         /* fall through */
         case PTBL:
-        if (song.ltable[tables.num()][tables.pos()] < 0x80)
-          song.rtable[tables.num()][tables.pos()] = (song.rtable[tables.num()][tables.pos()] ^ 0xff) + 1;
+        if (song.fxtable[tables.num()][tables.pos()].l < 0x80)
+          song.fxtable[tables.num()][tables.pos()].r = (song.fxtable[tables.num()][tables.pos()].r ^ 0xff) + 1;
         break;
 
         // Negate relative note
         case WTBL:
-        if ((song.ltable[tables.num()][tables.pos()] != 0xff) && (song.rtable[tables.num()][tables.pos()] < 0x80))
-          song.rtable[tables.num()][tables.pos()] = (0x80 - song.rtable[tables.num()][tables.pos()]) & 0x7f;
+        if ((song.fxtable[tables.num()][tables.pos()].l != 0xff) && (song.fxtable[tables.num()][tables.pos()].r < 0x80))
+          song.fxtable[tables.num()][tables.pos()].r = (0x80 - song.fxtable[tables.num()][tables.pos()].r) & 0x7f;
         break;
       }
     }
@@ -1966,7 +1966,7 @@ void tablecommands()
       int table = -1;
       int mstmode = MST_PORTAMENTO;
 
-      switch (song.ltable[tables.num()][tables.pos()])
+      switch (song.fxtable[tables.num()][tables.pos()].l)
       {
         case WAVECMD + CMD_PORTAUP:
         case WAVECMD + CMD_PORTADOWN:
@@ -2000,22 +2000,22 @@ void tablecommands()
         return;
 
         case STBL:
-        if (song.rtable[tables.num()][tables.pos()])
+        if (song.fxtable[tables.num()][tables.pos()].r)
         {
           if (!input.shiftpressed)
           {
-            gototable(STBL, song.rtable[tables.num()][tables.pos()] - 1);
+            gototable(STBL, song.fxtable[tables.num()][tables.pos()].r - 1);
             return;
           }
           else
           {
             int oldeditpos = tables.pos();
             int oldeditcolumn = tables.column();
-            int pos = makespeedtable(song.rtable[tables.num()][tables.pos()], mstmode, true);
+            int pos = makespeedtable(song.fxtable[tables.num()][tables.pos()].r, mstmode, true);
             gototable(WTBL, oldeditpos);
             tables.setcolumn(oldeditcolumn);
 
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             return;
           }
         }
@@ -2024,7 +2024,7 @@ void tablecommands()
           int pos = song.findfreespeedtable();
           if (pos >= 0)
           {
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             gototable(STBL, pos);
             return;
           }
@@ -2033,9 +2033,9 @@ void tablecommands()
 
         case PTBL:
         case FTBL:
-        if (song.rtable[tables.num()][tables.pos()])
+        if (song.fxtable[tables.num()][tables.pos()].r)
         {
-          gototable(table, song.rtable[tables.num()][tables.pos()] - 1);
+          gototable(table, song.fxtable[tables.num()][tables.pos()].r - 1);
           return;
         }
         else
@@ -2044,7 +2044,7 @@ void tablecommands()
           {
             int pos = song.gettablelen(table);
             if (pos >= MAX_TABLELEN-1) pos = MAX_TABLELEN - 1;
-            song.rtable[tables.num()][tables.pos()] = pos + 1;
+            song.fxtable[tables.num()][tables.pos()].r = pos + 1;
             gototable(table, pos);
             return;
           }
@@ -2075,20 +2075,20 @@ void tablecommands()
     switch(tables.column())
     {
       case 0:
-      song.ltable[tables.num()][tables.pos()] &= 0x0f;
-      song.ltable[tables.num()][tables.pos()] |= hexnybble << 4;
+      song.fxtable[tables.num()][tables.pos()].l &= 0x0f;
+      song.fxtable[tables.num()][tables.pos()].l |= hexnybble << 4;
       break;
       case 1:
-      song.ltable[tables.num()][tables.pos()] &= 0xf0;
-      song.ltable[tables.num()][tables.pos()] |= hexnybble;
+      song.fxtable[tables.num()][tables.pos()].l &= 0xf0;
+      song.fxtable[tables.num()][tables.pos()].l |= hexnybble;
       break;
       case 2:
-      song.rtable[tables.num()][tables.pos()] &= 0x0f;
-      song.rtable[tables.num()][tables.pos()] |= hexnybble << 4;
+      song.fxtable[tables.num()][tables.pos()].r &= 0x0f;
+      song.fxtable[tables.num()][tables.pos()].r |= hexnybble << 4;
       break;
       case 3:
-      song.rtable[tables.num()][tables.pos()] &= 0xf0;
-      song.rtable[tables.num()][tables.pos()] |= hexnybble;
+      song.fxtable[tables.num()][tables.pos()].r &= 0xf0;
+      song.fxtable[tables.num()][tables.pos()].r |= hexnybble;
       break;
     }
     if (tables.inccolumn())
@@ -2102,7 +2102,7 @@ void tablecommands()
 
 void orderleft()
 {
-  if ((input.shiftpressed) && (eseditpos < song.len[esnum][eschn]))
+  if ((input.shiftpressed) && (eseditpos < song.order[esnum][eschn].len))
   {
     if ((esmark.chn != eschn) || (eseditpos != esmark.end))
     {
@@ -2116,7 +2116,7 @@ void orderleft()
     if (eseditpos > 0)
     {
       eseditpos--;
-      if (eseditpos == song.len[esnum][eschn]) eseditpos--;
+      if (eseditpos == song.order[esnum][eschn].len) eseditpos--;
       escolumn = 1;
       if (eseditpos < 0)
       {
@@ -2126,12 +2126,12 @@ void orderleft()
     }
     else escolumn = 0;
   }
-  if ((input.shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmark.end = eseditpos;
+  if ((input.shiftpressed) && (eseditpos < song.order[esnum][eschn].len)) esmark.end = eseditpos;
 }
 
 void orderright()
 {
-  if ((input.shiftpressed) && (eseditpos < song.len[esnum][eschn]))
+  if ((input.shiftpressed) && (eseditpos < song.order[esnum][eschn].len))
   {
     if ((esmark.chn != eschn) || (eseditpos != esmark.end))
     {
@@ -2143,14 +2143,14 @@ void orderright()
   if (escolumn > 1)
   {
     escolumn = 0;
-    if (eseditpos < (song.len[esnum][eschn]+1))
+    if (eseditpos < (song.order[esnum][eschn].len+1))
     {
       eseditpos++;
-      if (eseditpos == song.len[esnum][eschn]) eseditpos++;
+      if (eseditpos == song.order[esnum][eschn].len) eseditpos++;
     }
     else escolumn = 1;
   }
-  if ((input.shiftpressed) && (eseditpos < song.len[esnum][eschn])) esmark.end = eseditpos;
+  if ((input.shiftpressed) && (eseditpos < song.order[esnum][eschn].len)) esmark.end = eseditpos;
 }
 
 void namecommands()

@@ -48,25 +48,25 @@ Selection esmark;
 
 void insertorder(unsigned char byte)
 {
-  int sl = song.len[esnum][eschn];
+  int sl = song.order[esnum][eschn].len;
   if ((sl - eseditpos)-1 >= 0)
   {
     if (sl < MAX_SONGLEN)
     {
       int len = sl+1;
-      song.order[esnum][eschn][len+1] = song.order[esnum][eschn][len];
-      song.order[esnum][eschn][len] = LOOPSONG;
-      if (len) song.order[esnum][eschn][len-1] = byte;
+      song.order[esnum][eschn].data[len+1] = song.order[esnum][eschn].data[len];
+      song.order[esnum][eschn].data[len] = LOOPSONG;
+      if (len) song.order[esnum][eschn].data[len-1] = byte;
       countthispattern();
     }
-    std::memmove(&song.order[esnum][eschn][eseditpos+1],
-      &song.order[esnum][eschn][eseditpos],
+    std::memmove(&song.order[esnum][eschn].data[eseditpos+1],
+      &song.order[esnum][eschn].data[eseditpos],
       (sl - eseditpos)-1);
-    song.order[esnum][eschn][eseditpos] = byte;
+    song.order[esnum][eschn].data[eseditpos] = byte;
     int len = sl+1;
-    if ((song.order[esnum][eschn][len] > eseditpos) &&
-        (song.order[esnum][eschn][len] < (len-2)))
-       song.order[esnum][eschn][len]++;
+    if ((song.order[esnum][eschn].data[len] > eseditpos) &&
+        (song.order[esnum][eschn].data[len] < (len-2)))
+       song.order[esnum][eschn].data[len]++;
   }
   else
   {
@@ -74,9 +74,9 @@ void insertorder(unsigned char byte)
     {
       if (sl < MAX_SONGLEN)
       {
-        song.order[esnum][eschn][eseditpos+1] = song.order[esnum][eschn][eseditpos];
-        song.order[esnum][eschn][eseditpos] = LOOPSONG;
-        if (eseditpos) song.order[esnum][eschn][eseditpos-1] = byte;
+        song.order[esnum][eschn].data[eseditpos+1] = song.order[esnum][eschn].data[eseditpos];
+        song.order[esnum][eschn].data[eseditpos] = LOOPSONG;
+        if (eseditpos) song.order[esnum][eschn].data[eseditpos-1] = byte;
         countthispattern();
         eseditpos = sl+1;
       }
@@ -86,24 +86,24 @@ void insertorder(unsigned char byte)
 
 void deleteorder()
 {
-  int sl = song.len[esnum][eschn];
+  int sl = song.order[esnum][eschn].len;
   if ((sl - eseditpos)-1 >= 0)
   {
-    std::memmove(&song.order[esnum][eschn][eseditpos],
-      &song.order[esnum][eschn][eseditpos+1],
+    std::memmove(&song.order[esnum][eschn].data[eseditpos],
+      &song.order[esnum][eschn].data[eseditpos+1],
       (sl - eseditpos)-1);
-    song.order[esnum][eschn][sl-1] = 0x00;
+    song.order[esnum][eschn].data[sl-1] = 0x00;
     if (sl > 0)
     {
-      song.order[esnum][eschn][sl-1] = song.order[esnum][eschn][sl];
-      song.order[esnum][eschn][sl] = song.order[esnum][eschn][sl+1];
+      song.order[esnum][eschn].data[sl-1] = song.order[esnum][eschn].data[sl];
+      song.order[esnum][eschn].data[sl] = song.order[esnum][eschn].data[sl+1];
       countthispattern();
     }
     if (eseditpos == sl) eseditpos++;
     int len = sl+1;
-    if ((song.order[esnum][eschn][len] > eseditpos) &&
-        (song.order[esnum][eschn][len] > 0))
-       song.order[esnum][eschn][len]--;
+    if ((song.order[esnum][eschn].data[len] > eseditpos) &&
+        (song.order[esnum][eschn].data[len] > 0))
+       song.order[esnum][eschn].data[len]--;
   }
   else
   {
@@ -111,8 +111,8 @@ void deleteorder()
     {
       if (sl > 0)
       {
-        song.order[esnum][eschn][sl-1] = song.order[esnum][eschn][sl];
-        song.order[esnum][eschn][sl] = song.order[esnum][eschn][sl+1];
+        song.order[esnum][eschn].data[sl-1] = song.order[esnum][eschn].data[sl];
+        song.order[esnum][eschn].data[sl] = song.order[esnum][eschn].data[sl+1];
         countthispattern();
         eseditpos = sl+1;
       }
@@ -138,7 +138,7 @@ void songchange()
 {
   int maxChns = config.getMaxChannels();
 
-  int currentSonglen = song.len[esnum][eschn];
+  int currentSonglen = song.order[esnum][eschn].len;
 
   for (int c = 0; c < maxChns; c++)
   {
@@ -167,10 +167,10 @@ void updateviewtopos()
 
   for (int c = 0; c < maxChns; c++)
   {
-    int currentSonglen = song.len[esnum][c];
+    int currentSonglen = song.order[esnum][c].len;
     for (int d = espos[c]; d < currentSonglen; d++)
     {
-      int currentSongorder =  song.order[esnum][c][d];
+      int currentSongorder =  song.order[esnum][c].data[d];
       if (currentSongorder < MAX_PATT)
       {
         epnum[c] = currentSongorder;
