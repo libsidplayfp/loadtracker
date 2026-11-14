@@ -65,6 +65,45 @@ std::string tooltip;
 void printmainscreen()
 {
   clearscreen();
+  {
+    int maxChns = config.getMaxChannels();
+    int l=maxChns*13+1;
+    textbuffer[l+1] = '\0';
+    textbuffer[0] = '\x10';
+    for (int i = 1; i <= l; i++)
+        textbuffer[i] = '\x11';
+    textbuffer[l] = '\x12';
+    printtext(dpos.patternsX-2, dpos.patternsY-1, colors.chdrbg()|(colors.cbkgnd()<<4), textbuffer);
+    for (int j = 0; j <= VISIBLEPATTROWS; j++)
+    {
+        printtext(dpos.patternsX-2, dpos.patternsY+j, colors.chdrbg()|(colors.cbkgnd()<<4), "\x13");
+        printtext(dpos.patternsX-2+l, dpos.patternsY+j, colors.chdrbg()|(colors.cbkgnd()<<4), "\x14");
+    }
+    textbuffer[0] = '\x15';
+    for (int i = 1; i <= l; i++)
+        textbuffer[i] = '\x16';
+    textbuffer[l] = '\x17';
+    printtext(dpos.patternsX-2, dpos.patternsY+VISIBLEPATTROWS+1, colors.chdrbg()|(colors.cbkgnd()<<4), textbuffer);
+
+    int h = maxChns+1;
+    int w = 34 + ((config.numsids == 1) ? 39 : 13);
+    textbuffer[w] = '\0';
+    textbuffer[0] = '\x10';
+    for (int i = 1; i < w; i++)
+        textbuffer[i] = '\x11';
+    textbuffer[w] = '\x12';
+    printtext(dpos.orderlistX-1, dpos.orderlistY-1, colors.chdrbg()|(colors.cbkgnd()<<4), textbuffer);
+    for (int j = 0; j < h; j++)
+    {
+        printtext(dpos.orderlistX-1, dpos.orderlistY+j, colors.chdrbg()|(colors.cbkgnd()<<4), "\x13");
+        printtext(dpos.orderlistX-1+w, dpos.orderlistY+j, colors.chdrbg()|(colors.cbkgnd()<<4), "\x14");
+    }
+    textbuffer[0] = '\x15';
+    for (int i = 1; i < w; i++)
+        textbuffer[i] = '\x16';
+    textbuffer[w] = '\x17';
+    printtext(dpos.orderlistX-1, dpos.orderlistY+h, colors.chdrbg()|(colors.cbkgnd()<<4), textbuffer);
+  }
   printstatus();
   fliptoscreen();
 }
@@ -189,7 +228,7 @@ void printstatus()
   for (int c = 0; c < maxChns; c++)
   {
     std::snprintf(textbuffer, MAX_PATHNAME, "CH.%d PATT.%02X ", c+1, epnum[c]);
-    printtext(dpos.patternsX+c*13, dpos.patternsY, colors.ctitle()|(colors.chdrbg()<<4), textbuffer);
+    printtext(dpos.patternsX-1+c*13, dpos.patternsY, colors.ctitle()|(colors.chdrbg()<<4), textbuffer);
 
     for (int d = 0; d < VISIBLEPATTROWS; d++)
     {
